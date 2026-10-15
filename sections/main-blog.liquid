@@ -1,0 +1,57 @@
+{% comment %}
+  Wagmart Blog Listing Section
+{% endcomment %}
+
+<section class="py-12 sm:py-16 bg-[#FAF8F5]">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      {% render 'section-badge', label: 'Pet Journal', class: 'mb-3' %}
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#111827]">
+        {{ blog.title | default: 'Pet Care Guides & Stories' }}
+      </h1>
+    </div>
+
+    {%- paginate blog.articles by 12 -%}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {%- for article in blog.articles -%}
+          <article class="group relative flex flex-col bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] shadow-sm hover:shadow-md transition">
+            {%- if article.image -%}
+              <div class="relative w-full h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 mb-3">
+                <img
+                  src="{{ article.image | image_url: width: 600 }}"
+                  alt="{{ article.title | escape }}"
+                  width="{{ article.image.width | default: 600 }}"
+                  height="{{ article.image.height | default: 420 }}"
+                  loading="lazy"
+                  class="w-full h-full object-cover"
+                >
+              </div>
+            {%- endif -%}
+            <h2 class="font-jakarta text-[17.5px] font-bold text-[#111827] line-clamp-2 hover:text-[#7a46e5]">
+              <a href="{{ article.url }}">{{ article.title }}</a>
+            </h2>
+            <p class="mt-2 text-xs text-neutral-500 line-clamp-2">
+              {{ article.excerpt_or_content | strip_html | truncate: 100 }}
+            </p>
+            <div class="mt-auto pt-3 text-xs text-neutral-400">
+              {{ article.published_at | date: "%d %b %Y" }}
+            </div>
+          </article>
+        {%- endfor -%}
+      </div>
+
+      {%- if paginate.pages > 1 -%}
+        <div class="mt-12 flex justify-center gap-2">
+          {{ paginate | default_pagination }}
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Blog Listing",
+  "settings": []
+}
+{% endschema %}

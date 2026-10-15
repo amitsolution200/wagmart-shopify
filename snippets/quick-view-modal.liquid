@@ -1,0 +1,108 @@
+{% comment %}
+  Renders Wagmart Product Quick View Modal
+{% endcomment %}
+
+<div id="quick-view-modal" class="hidden fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 lg:p-12 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Product Quick View">
+  {% comment %} Backdrop {% endcomment %}
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" data-close-quick-view></div>
+
+  <div class="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-[#EAE5D9] overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+    <button
+      type="button"
+      class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-gray-600 hover:text-gray-900 flex items-center justify-center shadow-md transition cursor-pointer"
+      data-close-quick-view
+      aria-label="Close Quick View"
+    >
+      {% render 'icon-close', class: 'w-5 h-5' %}
+    </button>
+
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      {% comment %} Image side {% endcomment %}
+      <div class="bg-[#FAF8F5] p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-[#EAE5D9]">
+        <img
+          src="{{ 'paw-cleaner-kit.webp' | asset_url }}"
+          alt="Product preview"
+          width="400"
+          height="400"
+          loading="lazy"
+          class="max-h-[320px] w-auto object-contain drop-shadow-md"
+          data-qv-image
+        >
+      </div>
+
+      {% comment %} Details side {% endcomment %}
+      <div class="p-6 sm:p-8 flex flex-col justify-between space-y-5">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-[#7a46e5]/10 text-[#7a46e5] text-[11px] font-bold uppercase tracking-wider">
+              WAGMART
+            </span>
+            <span class="text-xs text-gray-500 font-medium" data-qv-category>
+              Grooming &amp; Hygiene
+            </span>
+          </div>
+
+          <h3 class="text-xl sm:text-2xl font-bold text-[#111827] leading-snug" data-qv-title>
+            Product Title
+          </h3>
+
+          <div class="flex items-baseline gap-2 pb-1">
+            <span class="text-2xl font-extrabold text-[#111827]" data-qv-price>
+              ₹799
+            </span>
+            <span class="text-sm text-[#9CA3AF] line-through hidden" data-qv-original-price>
+              ₹1,099
+            </span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed" data-qv-desc>
+            All-in-one gentle silicone pet care essential.
+          </p>
+
+          {% comment %} Feature bullets {% endcomment %}
+          <div class="space-y-1.5 pt-2">
+            <p class="text-xs font-bold text-gray-900 uppercase tracking-wider">
+              Key Specifications:
+            </p>
+            <ul class="space-y-1 text-xs text-gray-600">
+              <li class="flex items-start gap-2">
+                <span class="text-[#7a46e5]">✓</span>
+                <span>Soft silicone bristles clean without hurting</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#7a46e5]">✓</span>
+                <span>Non-toxic, BPA-free food-grade safe materials</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#7a46e5]">✓</span>
+                <span>Easy clean design — twist, rinse, and air dry</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {% comment %} Actions {% endcomment %}
+        <div class="space-y-3 pt-3 border-t border-[#F0EBE1]">
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-[#7a46e5] to-[#9361fa] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md hover:opacity-95 cursor-pointer"
+              data-qv-add
+            >
+              {% render 'icon-bag', class: 'w-4 h-4' %}
+              <span>Add to Cart</span>
+            </button>
+          </div>
+
+          <a
+            href="tel:+917777985896"
+            class="w-full py-2 bg-[#FAF8F5] hover:bg-[#F3EFE6] border border-[#EAE5D9] rounded-xl text-xs font-semibold text-gray-700 flex items-center justify-center gap-1.5 transition"
+          >
+            {% render 'icon-phone', class: 'w-3.5 h-3.5 text-[#7a46e5]' %}
+            <span>Call to Order via Phone: +91 77779 85896</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

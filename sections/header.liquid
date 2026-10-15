@@ -1,0 +1,183 @@
+{% comment %}
+  Wagmart Header Section
+{% endcomment %}
+
+<header class="sticky top-0 z-40 w-full transition-all">
+  <div class="w-full bg-white/95 backdrop-blur-md border-b border-[#EAECEF] transition-colors">
+    <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
+      
+      {% comment %} ==================== LEFT SECTION ==================== {% endcomment %}
+      <div class="flex-1 flex items-center justify-start">
+        {% comment %} Desktop Navigation Links {% endcomment %}
+        <nav class="hidden lg:flex items-center gap-6 xl:gap-8" aria-label="Main Navigation">
+          {%- if section.settings.menu != blank -%}
+            {%- for link in section.settings.menu.links -%}
+              <a
+                href="{{ link.url }}"
+                class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors {% if link.current %}text-[#7a46e5]{% endif %}"
+              >
+                {{ link.title }}
+                {% if link.current %}
+                  <span class="absolute bottom-0 left-0 w-full h-[2px] bg-[#7a46e5] rounded-full"></span>
+                {% endif %}
+              </a>
+            {%- endfor -%}
+          {%- else -%}
+            <a href="#about" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">about</a>
+            <a href="#shop" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">product</a>
+            <a href="#blog" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">blog</a>
+            <a href="#contact" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">contact us</a>
+          {%- endif -%}
+        </nav>
+
+        {% comment %} Mobile & Tablet: Hamburger Menu Button {% endcomment %}
+        <button
+          type="button"
+          data-mobile-menu-toggle
+          aria-label="Toggle navigation menu"
+          class="lg:hidden p-2 text-[#1F2937] hover:text-[#7a46e5] flex items-center justify-center transition-colors active:scale-95 cursor-pointer"
+        >
+          {% render 'icon-menu', class: 'w-6 h-6' %}
+        </button>
+      </div>
+
+      {% comment %} ==================== CENTER SECTION: LOGO ==================== {% endcomment %}
+      <div class="flex items-center justify-center shrink-0">
+        <a href="{{ routes.root_url }}" class="flex items-center group" aria-label="Wagmart Home">
+          {%- if section.settings.logo != blank -%}
+            <img
+              src="{{ section.settings.logo | image_url: width: 300 }}"
+              alt="{{ shop.name }}"
+              class="h-9 sm:h-10 md:h-11 w-auto object-contain transition-transform group-hover:scale-105"
+              width="{{ section.settings.logo.width }}"
+              height="{{ section.settings.logo.height }}"
+            >
+          {%- else -%}
+            <img
+              src="{{ 'WAGMART-Logo.webp' | asset_url }}"
+              alt="Wagmart Logo"
+              class="h-9 sm:h-10 md:h-11 w-auto object-contain transition-transform group-hover:scale-105"
+              width="180"
+              height="44"
+            >
+          {%- endif -%}
+        </a>
+      </div>
+
+      {% comment %} ==================== RIGHT SECTION: ACTIONS ==================== {% endcomment %}
+      <div class="flex-1 flex items-center justify-end gap-3 sm:gap-4">
+        {% comment %} Search Trigger Button {% endcomment %}
+        <button
+          type="button"
+          data-open-search
+          aria-label="Search catalog"
+          class="p-2 text-[#1F2937] hover:text-[#7a46e5] transition-colors active:scale-95 cursor-pointer"
+        >
+          {% render 'icon-search', class: 'w-5 h-5 stroke-[1.8]' %}
+        </button>
+
+        {% comment %} Desktop: Wishlist Icon Button {% endcomment %}
+        <button
+          type="button"
+          data-open-wishlist
+          aria-label="View wishlist"
+          class="hidden lg:flex relative p-2 text-[#1F2937] hover:text-[#7a46e5] transition-colors active:scale-95 cursor-pointer"
+        >
+          {% render 'icon-heart', class: 'w-6 h-6 stroke-[1.8]' %}
+          <span class="hidden absolute top-0.5 right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs" data-wishlist-count>0</span>
+        </button>
+
+        {% comment %} Shopping Cart Button {% endcomment %}
+        <button
+          type="button"
+          data-open-cart
+          aria-label="View shopping cart"
+          class="relative p-2 text-[#1F2937] hover:text-[#7a46e5] transition-colors active:scale-95 cursor-pointer"
+        >
+          {% render 'icon-bag', class: 'w-6 h-6 stroke-[1.8]' %}
+          <span class="{% if cart.item_count == 0 %}hidden{% endif %} absolute top-0.5 right-0.5 bg-[#7a46e5] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs" data-cart-count>{{ cart.item_count }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  {% comment %} Mobile & Tablet Slide-Down Drawer {% endcomment %}
+  <div id="mobile-menu-drawer" class="hidden lg:hidden bg-white border-b border-[#EAECEF] px-6 py-6 space-y-4 shadow-xl">
+    <nav class="flex flex-col space-y-2.5">
+      {%- if section.settings.menu != blank -%}
+        {%- for link in section.settings.menu.links -%}
+          <a
+            href="{{ link.url }}"
+            class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5] flex items-center justify-between"
+          >
+            <span>{{ link.title }}</span>
+          </a>
+        {%- endfor -%}
+      {%- else -%}
+        <a href="#about" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">about</a>
+        <a href="#shop" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">product</a>
+        <a href="#blog" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">blog</a>
+        <a href="#contact" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">contact us</a>
+      {%- endif -%}
+    </nav>
+
+    <div class="pt-2 flex flex-col gap-2.5">
+      <button
+        type="button"
+        data-open-wishlist
+        class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-[#EAECEF] text-[#1F2937] font-bold text-sm hover:bg-[#FAF8F5] transition-colors"
+      >
+        <div class="flex items-center gap-2">
+          {% render 'icon-heart', class: 'w-4 h-4' %}
+          <span>My Wishlist</span>
+        </div>
+        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full" data-wishlist-count>0</span>
+      </button>
+
+      <button
+        type="button"
+        data-open-search
+        class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#FAF4E6] rounded-xl text-sm font-bold text-[#2e1a47] border border-[#2e1a47]/10"
+      >
+        {% render 'icon-search', class: 'w-4 h-4' %}
+        <span>Search Catalog</span>
+      </button>
+
+      {%- if section.settings.phone_number != blank -%}
+        <a
+          href="tel:{{ section.settings.phone_number | replace: ' ', '' }}"
+          class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#7a46e5] text-white rounded-xl text-sm font-semibold shadow-xs"
+        >
+          {% render 'icon-phone', class: 'w-4 h-4' %}
+          <span>Catalog Orders: {{ section.settings.phone_number }}</span>
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "text",
+      "id": "phone_number",
+      "label": "Order phone number",
+      "default": "+91 77779 85896"
+    }
+  ]
+}
+{% endschema %}

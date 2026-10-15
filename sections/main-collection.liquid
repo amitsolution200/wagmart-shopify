@@ -1,0 +1,51 @@
+{% comment %}
+  Wagmart Main Collection Section
+{% endcomment %}
+
+<section class="py-12 sm:py-16 bg-[#FAF8F5]">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    {% comment %} Header {% endcomment %}
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      {% render 'section-badge', label: 'Wagmart Catalog', class: 'mb-3' %}
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#111827] tracking-tight">
+        {{ collection.title | default: 'All Pet Essentials' }}
+      </h1>
+      {%- if collection.description != blank -%}
+        <p class="text-sm sm:text-base text-neutral-600 mt-2 leading-relaxed">
+          {{ collection.description }}
+        </p>
+      {%- endif -%}
+    </div>
+
+    {% comment %} Products Grid {% endcomment %}
+    {%- paginate collection.products by 16 -%}
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center sm:justify-items-stretch">
+        {%- for product in collection.products -%}
+          {% render 'product-card', product: product %}
+        {%- else -%}
+          <div class="col-span-full text-center py-16 text-neutral-500">
+            <p class="text-lg font-bold">No products found in this collection.</p>
+            <div class="mt-4">
+              {% render 'theme-button', text: 'Shop All Collections', href: '/collections/all' %}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if paginate.pages > 1 -%}
+        <div class="mt-12 flex justify-center gap-2">
+          {{ paginate | default_pagination }}
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection Grid",
+  "settings": []
+}
+{% endschema %}

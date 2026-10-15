@@ -1,0 +1,197 @@
+{% comment %}
+  Wagmart "The Wagmart Difference" Brand Credibility & Pet Trust Section
+{% endcomment %}
+
+<section
+  id="about"
+  role="region"
+  aria-label="The Wagmart Difference & Pet Trust"
+  class="w-full bg-white py-14 sm:py-18 lg:py-24 select-none"
+>
+  <div class="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    {% comment %} Section Header {% endcomment %}
+    <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14 lg:mb-16">
+      {% render 'section-badge', label: section.settings.badge_label | default: 'The Wagmart Difference', class: 'mb-6' %}
+      <h2 class="font-nunito font-bold text-2xl sm:text-3xl md:text-4xl lg:text-[40px] text-[#171717] tracking-tight leading-[1.2] mb-3">
+        {{ section.settings.title | default: 'A Happier World for' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Pets & Their People' }}</span>
+      </h2>
+      <p class="font-nunito text-sm sm:text-[15px] text-[#6B7280] max-w-xl mx-auto leading-relaxed font-normal">
+        {{ section.settings.subtitle | default: 'Thoughtfully chosen essentials for everyday pet care.' }}
+      </p>
+    </div>
+
+    {% comment %} 4-Column Structured Editorial Grid {% endcomment %}
+    <div class="w-full bg-white rounded-xl sm:rounded-2xl border border-[#EAECEF] overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        
+        {% comment %} COLUMN 1: Brand Trust Story {% endcomment %}
+        <div class="p-6 sm:p-8 lg:p-9 flex flex-col justify-between min-h-[320px] sm:min-h-[380px] lg:min-h-[440px] bg-white border-b md:border-b-0 md:border-r border-[#EAECEF] group">
+          <div>
+            <div class="flex items-center gap-2 mb-6 sm:mb-8">
+              <img
+                src="{{ 'WAGMART-Logo.webp' | asset_url }}"
+                alt="Wagmart"
+                class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-[1.02] duration-300"
+                width="140"
+                height="32"
+              >
+            </div>
+            <h3 class="font-nunito font-semibold text-xl sm:text-[22px] text-[#171717] tracking-tight leading-snug mb-3">
+              {{ section.settings.col1_title | default: 'Made for the Love They Give' }}
+            </h3>
+            <p class="font-nunito text-xs sm:text-[13.5px] text-[#6B7280] leading-relaxed font-normal">
+              {{ section.settings.col1_desc | default: 'Discover thoughtful everyday essentials designed to make caring for your pets simpler and more enjoyable.' }}
+            </p>
+          </div>
+
+          <div class="pt-6 mt-auto">
+            <a
+              href="#shop"
+              class="font-nunito font-semibold text-xs sm:text-sm text-[#7a46e5] hover:text-[#6835d6] inline-flex items-center gap-1.5 hover:gap-2.5 transition-all duration-200 cursor-pointer group/link"
+            >
+              <span>Explore Wagmart</span>
+              {% render 'icon-chevron-right', class: 'w-3.5 h-3.5' %}
+            </a>
+          </div>
+        </div>
+
+        {% comment %} COLUMN 2: Premium Pet Lifestyle Image {% endcomment %}
+        <div class="relative min-h-[300px] sm:min-h-[380px] lg:min-h-[440px] overflow-hidden bg-[#FAF8F5] border-b md:border-b-0 lg:border-r border-[#EAECEF]">
+          <img
+            src="{{ 'image.png' | asset_url }}"
+            alt="Happy pet parent with pet"
+            class="w-full h-full object-cover object-center absolute inset-0 transition-transform duration-700 hover:scale-[1.03]"
+            loading="lazy"
+            width="400"
+            height="440"
+          >
+        </div>
+
+        {% comment %} COLUMN 3: Primary Trust Metric {% endcomment %}
+        <div class="p-6 sm:p-8 lg:p-9 flex flex-col justify-between min-h-[320px] sm:min-h-[380px] lg:min-h-[440px] bg-[#F4F6FA] border-b md:border-b-0 md:border-t lg:border-t-0 md:border-r border-[#EAECEF]">
+          <div class="text-[11px] font-nunito tracking-wider text-[#6B7280] font-semibold uppercase">
+            PET-PARENT COMMUNITY
+          </div>
+
+          <div class="py-5 sm:py-7">
+            <div class="font-nunito font-bold text-3xl sm:text-4xl lg:text-[40px] text-[#171717] tracking-tight leading-none mb-2.5">
+              {{ section.settings.metric_number | default: '3 Lakh+' }}
+            </div>
+            <div class="font-nunito font-medium text-xs sm:text-sm text-[#6B7280] tracking-normal">
+              {{ section.settings.metric_label | default: 'Happy Pet Parents' }}
+            </div>
+          </div>
+
+          <div class="mt-auto pt-6 flex items-center">
+            <img
+              src="{{ 'WAGMART-Logo.webp' | asset_url }}"
+              alt="Wagmart"
+              class="h-5 sm:h-5.5 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+              width="100"
+              height="22"
+            >
+          </div>
+        </div>
+
+        {% comment %} COLUMN 4: Secondary Trust Highlight {% endcomment %}
+        <div class="p-6 sm:p-8 lg:p-9 flex flex-col justify-between min-h-[320px] sm:min-h-[380px] lg:min-h-[440px] bg-white md:border-t lg:border-t-0 border-[#EAECEF]">
+          <div class="text-[11px] font-nunito tracking-wider text-[#6B7280] font-semibold uppercase">
+            DELIVERY EXPERIENCE
+          </div>
+
+          <div class="py-5 sm:py-7">
+            <div class="font-nunito font-bold text-3xl sm:text-4xl lg:text-[40px] text-[#171717] tracking-tight leading-[1.1] mb-2.5">
+              {{ section.settings.delivery_title | default: 'Fast Delivery' }}
+            </div>
+            <div class="font-nunito font-normal text-xs sm:text-sm text-[#6B7280] leading-relaxed">
+              {{ section.settings.delivery_desc | default: 'Everyday essentials delivered to your door.' }}
+            </div>
+          </div>
+
+          <div class="mt-auto pt-6 flex items-center gap-2">
+            <span class="text-[#7a46e5] text-xs font-bold" aria-hidden="true">✜</span>
+            <span class="font-nunito font-bold text-[11px] sm:text-xs text-[#171717]/80 tracking-wider uppercase">
+              Wagmart Express
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Pet Trust & Difference",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "The Wagmart Difference"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "A Happier World for"
+    },
+    {
+      "type": "text",
+      "id": "title_accent",
+      "label": "Title accent",
+      "default": "Pets & Their People"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Thoughtfully chosen essentials for everyday pet care."
+    },
+    {
+      "type": "text",
+      "id": "col1_title",
+      "label": "Column 1 Title",
+      "default": "Made for the Love They Give"
+    },
+    {
+      "type": "textarea",
+      "id": "col1_desc",
+      "label": "Column 1 Description",
+      "default": "Discover thoughtful everyday essentials designed to make caring for your pets simpler and more enjoyable."
+    },
+    {
+      "type": "text",
+      "id": "metric_number",
+      "label": "Metric count",
+      "default": "3 Lakh+"
+    },
+    {
+      "type": "text",
+      "id": "metric_label",
+      "label": "Metric label",
+      "default": "Happy Pet Parents"
+    },
+    {
+      "type": "text",
+      "id": "delivery_title",
+      "label": "Delivery title",
+      "default": "Fast Delivery"
+    },
+    {
+      "type": "text",
+      "id": "delivery_desc",
+      "label": "Delivery description",
+      "default": "Everyday essentials delivered to your door."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pet Trust & Difference"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,265 @@
+{% comment %}
+  Wagmart "The reviews say it all" Customer Testimonials Section
+{% endcomment %}
+
+<section id="reviews" class="py-16 sm:py-20 lg:py-24 bg-white overflow-hidden">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    {% comment %} Section Header {% endcomment %}
+    <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-12 lg:mb-16">
+      {% render 'section-badge', label: section.settings.badge_label | default: 'Customer Reviews', class: 'mb-4' %}
+      <h2 class="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#1C1814] tracking-tight leading-tight">
+        {{ section.settings.title | default: 'The reviews say it all' }}
+      </h2>
+      <p class="text-xs sm:text-sm md:text-[15px] text-[#6B635B] mt-3 sm:mt-4 leading-relaxed font-normal">
+        {{ section.settings.subtitle | default: 'Our rating truly speaks for itself — but the words behind it speak even louder and clearer, expressing our commitment.' }}
+      </p>
+    </div>
+
+    {% comment %} 3-Column Masonry Layout {% endcomment %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
+      
+      {% comment %} LEFT COLUMN {% endcomment %}
+      <div class="flex flex-col gap-6 lg:gap-7">
+        {% comment %} Card 1: Review 1 {% endcomment %}
+        <div class="bg-[#7a46e5]/10 rounded-2xl sm:rounded-3xl p-7 sm:p-8 lg:p-9 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between flex-1 min-h-[300px] sm:min-h-[330px]">
+          <div>
+            <div class="flex items-center gap-1 mb-5 sm:mb-6">
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
+            </div>
+            <p class="text-base sm:text-[17px] lg:text-[18.5px] text-[#2A241E] leading-[1.75] font-normal">
+              &ldquo;{{ section.settings.rev1_quote | default: 'I was kinda nervous about taking Luna for grooming, but Petocare totally relaxed her and made the experience enjoyable.' }}&rdquo;
+            </p>
+          </div>
+          <div class="flex items-center gap-3.5 mt-8 sm:mt-10">
+            <img
+              src="{{ 'image_copy_2.png' | asset_url }}"
+              alt="David Chen"
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10"
+              width="56"
+              height="56"
+            >
+            <div>
+              <h4 class="font-bold text-sm sm:text-base text-[#1C1814]">
+                {{ section.settings.rev1_name | default: 'David Chen' }}
+              </h4>
+              <p class="text-xs sm:text-sm text-[#7A7269] font-normal mt-0.5">
+                {{ section.settings.rev1_role | default: 'Dog Owner' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Card 2: 4.96/5 Rating Badge Card {% endcomment %}
+        <div class="bg-[#7a46e5]/80 rounded-2xl sm:rounded-3xl p-7 sm:p-8 shadow-[0_6px_25px_rgba(167,94,60,0.16)] flex flex-col items-center justify-center text-center min-h-[200px] sm:min-h-[220px]">
+          <span class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-tight leading-none">
+            {{ section.settings.rating_score | default: '4.96/5' }}
+          </span>
+          <div class="flex items-center gap-1.5 sm:gap-2 my-3.5 sm:my-4">
+            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
+            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
+            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
+            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
+            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
+          </div>
+          <span class="text-xs sm:text-sm text-white/95 font-medium tracking-wide">
+            {{ section.settings.reviews_count | default: '5-Star Reviews: 500+' }}
+          </span>
+        </div>
+      </div>
+
+      {% comment %} CENTER COLUMN: Tall Testimonial Card 2 {% endcomment %}
+      <div class="flex flex-col">
+        <div class="bg-[#7a46e5]/10 rounded-2xl sm:rounded-3xl p-7 sm:p-8 lg:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between h-full min-h-[540px] sm:min-h-[580px]">
+          <div>
+            <div class="flex items-center gap-1 mb-5 sm:mb-6">
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
+            </div>
+            <p class="text-base sm:text-[17px] lg:text-[18.5px] text-[#2A241E] leading-[1.75] font-normal">
+              &ldquo;{{ section.settings.rev2_quote | default: 'Petocare truly transformed my golden retriever, Maxi! He looked amazing, was happy the whole time, and their exceptional care and professionalism far surpass any other groomers I have tried.' }}&rdquo;
+            </p>
+          </div>
+          <div class="flex items-center gap-3.5 mt-10 sm:mt-14">
+            <img
+              src="{{ 'image_copy.png' | asset_url }}"
+              alt="James Thornton"
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10"
+              width="56"
+              height="56"
+            >
+            <div>
+              <h4 class="font-bold text-sm sm:text-base text-[#1C1814]">
+                {{ section.settings.rev2_name | default: 'James Thornton' }}
+              </h4>
+              <p class="text-xs sm:text-sm text-[#7A7269] font-normal mt-0.5">
+                {{ section.settings.rev2_role | default: 'Cat Owner' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% comment %} RIGHT COLUMN: 1200+ Image Card + Testimonial Card 3 {% endcomment %}
+      <div class="flex flex-col md:flex-row lg:flex-col gap-6 lg:gap-7 md:col-span-2 lg:col-span-1">
+        <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden min-h-[210px] sm:min-h-[235px] md:flex-1 lg:flex-initial flex flex-col items-center justify-center text-center p-7 sm:p-8 shadow-sm">
+          <img
+            src="{{ 'image_copy_3.png' | asset_url }}"
+            alt="Happy pets"
+            class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
+            loading="lazy"
+            width="400"
+            height="235"
+          >
+          <div class="absolute inset-0 bg-black/45"></div>
+          <div class="relative z-10 flex flex-col items-center">
+            <span class="text-2xl sm:text-3xl font-semibold text-white tracking-tight mt-2.5">
+              1200+
+            </span>
+            <span class="text-xs sm:text-lg text-white/90 font-medium mt-1">
+              Happy Pets Delivered Quarterly
+            </span>
+          </div>
+        </div>
+
+        <div class="bg-[#7a46e5]/10 rounded-2xl sm:rounded-3xl p-7 sm:p-8 lg:p-9 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between flex-1 md:flex-1 min-h-[300px] sm:min-h-[330px]">
+          <div>
+            <div class="flex items-center gap-1 mb-5 sm:mb-6">
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
+              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
+            </div>
+            <p class="text-base sm:text-[17px] lg:text-[18.5px] text-[#2A241E] leading-[1.75] font-normal">
+              &ldquo;{{ section.settings.rev3_quote | default: 'As someone who owns three dogs I need a groomer I can fully trust.' }}&rdquo;
+            </p>
+          </div>
+          <div class="flex items-center gap-3.5 mt-8 sm:mt-10">
+            <img
+              src="{{ 'image.png' | asset_url }}"
+              alt="Marcus Williams"
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10"
+              width="56"
+              height="56"
+            >
+            <div>
+              <h4 class="font-bold text-sm sm:text-base text-[#1C1814]">
+                {{ section.settings.rev3_name | default: 'Marcus Williams' }}
+              </h4>
+              <p class="text-xs sm:text-sm text-[#7A7269] font-normal mt-0.5">
+                {{ section.settings.rev3_role | default: 'Cat Owner' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Customer Testimonials",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "Customer Reviews"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "The reviews say it all"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Our rating truly speaks for itself — but the words behind it speak even louder and clearer, expressing our commitment."
+    },
+    {
+      "type": "textarea",
+      "id": "rev1_quote",
+      "label": "Review 1 Quote",
+      "default": "I was kinda nervous about taking Luna for grooming, but Petocare totally relaxed her and made the experience enjoyable."
+    },
+    {
+      "type": "text",
+      "id": "rev1_name",
+      "label": "Review 1 Author",
+      "default": "David Chen"
+    },
+    {
+      "type": "text",
+      "id": "rev1_role",
+      "label": "Review 1 Role",
+      "default": "Dog Owner"
+    },
+    {
+      "type": "textarea",
+      "id": "rev2_quote",
+      "label": "Review 2 Quote",
+      "default": "Petocare truly transformed my golden retriever, Maxi! He looked amazing, was happy the whole time, and their exceptional care and professionalism far surpass any other groomers I have tried."
+    },
+    {
+      "type": "text",
+      "id": "rev2_name",
+      "label": "Review 2 Author",
+      "default": "James Thornton"
+    },
+    {
+      "type": "text",
+      "id": "rev2_role",
+      "label": "Review 2 Role",
+      "default": "Cat Owner"
+    },
+    {
+      "type": "textarea",
+      "id": "rev3_quote",
+      "label": "Review 3 Quote",
+      "default": "As someone who owns three dogs I need a groomer I can fully trust."
+    },
+    {
+      "type": "text",
+      "id": "rev3_name",
+      "label": "Review 3 Author",
+      "default": "Marcus Williams"
+    },
+    {
+      "type": "text",
+      "id": "rev3_role",
+      "label": "Review 3 Role",
+      "default": "Cat Owner"
+    },
+    {
+      "type": "text",
+      "id": "rating_score",
+      "label": "Rating score",
+      "default": "4.96/5"
+    },
+    {
+      "type": "text",
+      "id": "reviews_count",
+      "label": "Reviews count text",
+      "default": "5-Star Reviews: 500+"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Testimonials"
+    }
+  ]
+}
+{% endschema %}

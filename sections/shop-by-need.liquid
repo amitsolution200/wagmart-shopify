@@ -1,0 +1,223 @@
+{% comment %}
+  Wagmart "Shop by Need / Bundles" Bento Grid Section
+{% endcomment %}
+
+<section
+  id="bundles"
+  class="w-full py-1.5 sm:py-2 md:py-2.5 bg-white font-sans md:h-[calc(100vh-74px)] md:max-h-[calc(100vh-74px)] flex flex-col justify-center overflow-hidden scroll-mt-18 sm:scroll-mt-20"
+>
+  <div class="w-full max-w-[1580px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 h-full flex flex-col justify-between">
+    
+    {% comment %} Bento Grid 5-Card Layout {% endcomment %}
+    <div class="h-full flex flex-col justify-between gap-2.5 sm:gap-3 lg:gap-3.5">
+      
+      {% comment %} ==================== TOP ROW: 2 Large Cards ==================== {% endcomment %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 lg:gap-3.5 items-stretch flex-[1.16] min-h-0">
+        
+        {% comment %} Card 1 — Grooming Essentials {% endcomment %}
+        <div
+          class="group relative overflow-hidden rounded-[20px] bg-white border border-[#E7E5E4] h-full min-h-[220px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
+          data-scroll-to-shop
+          role="button"
+          tabindex="0"
+        >
+          <img
+            src="{{ 'bento-grid-2.webp' | asset_url }}"
+            alt="Dog enjoying gentle coat grooming"
+            class="absolute inset-0 w-full h-full object-cover object-[75%_center] transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+            loading="lazy"
+            width="800"
+            height="500"
+          >
+          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-48% to-transparent w-[78%] sm:w-[66%] lg:w-[58%] pointer-events-none z-[1]"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
+
+          <div class="relative z-10 w-full sm:w-[62%] lg:w-[56%] p-4 sm:p-5 lg:p-6 flex flex-col justify-between h-full">
+            <div class="space-y-1 sm:space-y-1.5">
+              <div>
+                {% render 'section-badge', label: 'Grooming Essentials', class: 'scale-85 sm:scale-90 origin-left' %}
+              </div>
+              <h3 class="text-lg sm:text-xl md:text-2xl lg:text-[25px] xl:text-[27px] font-black text-[#1E2228] leading-[1.12] tracking-tight">
+                Effortless Grooming,<br>
+                <span class="text-[#7a46e5]">Happier Pets</span>
+              </h3>
+              <p class="text-xs sm:text-[13px] text-neutral-600 font-medium leading-relaxed max-w-[250px] pt-0.5 line-clamp-2">
+                Make grooming a gentle bonding moment with everyday pet-care essentials.
+              </p>
+            </div>
+            <div class="pt-2">
+              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Card 2 — Walking & Travel {% endcomment %}
+        <div
+          class="group relative overflow-hidden rounded-[20px] bg-white border border-[#E7E5E4] h-full min-h-[220px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
+          data-scroll-to-shop
+          role="button"
+          tabindex="0"
+        >
+          <img
+            src="{{ 'bento-grid-3.webp' | asset_url }}"
+            alt="Dog drinking from travel bottle outdoors"
+            class="absolute inset-0 w-full h-full object-cover object-[80%_center] transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+            loading="lazy"
+            width="800"
+            height="500"
+          >
+          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-48% to-transparent w-[78%] sm:w-[66%] lg:w-[58%] pointer-events-none z-[1]"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
+
+          <div class="relative z-10 w-full sm:w-[62%] lg:w-[56%] p-4 sm:p-5 lg:p-6 flex flex-col justify-between h-full">
+            <div class="space-y-1 sm:space-y-1.5">
+              <div>
+                {% render 'section-badge', label: 'Walking & Travel', class: 'scale-85 sm:scale-90 origin-left' %}
+              </div>
+              <h3 class="text-lg sm:text-xl md:text-2xl lg:text-[25px] xl:text-[27px] font-black text-[#1E2228] leading-[1.12] tracking-tight">
+                Every Walk Becomes<br>
+                an <span class="text-[#7a46e5]">Adventure</span>
+              </h3>
+              <p class="text-xs sm:text-[13px] text-neutral-600 font-medium leading-relaxed max-w-[280px] pt-0.5 line-clamp-2">
+                Enjoy more happy outdoor moments with practical walking and travel essentials.
+              </p>
+            </div>
+            <div class="pt-2">
+              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {% comment %} ==================== BOTTOM ROW: 3 Smaller Cards ==================== {% endcomment %}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3 lg:gap-3.5 items-stretch flex-1 min-h-0">
+        
+        {% comment %} Card 3 — Cat Care {% endcomment %}
+        <div
+          class="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
+          data-scroll-to-shop
+          role="button"
+          tabindex="0"
+        >
+          <img
+            src="{{ 'bento-grid-1.webp' | asset_url }}"
+            alt="Fluffy cat enjoying grooming"
+            class="absolute inset-0 w-full h-full object-cover object-[78%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+            loading="lazy"
+            width="500"
+            height="350"
+          >
+          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
+
+          <div class="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
+            <div class="space-y-0.5 sm:space-y-1">
+              <div>
+                {% render 'section-badge', label: 'Cat Care', class: 'scale-80 sm:scale-85 origin-left' %}
+              </div>
+              <h3 class="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
+                Gentle Care For<br>
+                Their <span class="text-[#7a46e5]">Softest Days</span>
+              </h3>
+              <p class="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
+                Keep your cat comfortable with everyday grooming essentials.
+              </p>
+            </div>
+            <div class="pt-1.5">
+              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Card 4 — Feeding Solutions {% endcomment %}
+        <div
+          class="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
+          data-scroll-to-shop
+          role="button"
+          tabindex="0"
+        >
+          <img
+            src="{{ 'bento-grid-5.webp' | asset_url }}"
+            alt="Dog eating from automatic feeder"
+            class="absolute inset-0 w-full h-full object-cover object-[70%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+            loading="lazy"
+            width="500"
+            height="350"
+          >
+          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
+
+          <div class="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
+            <div class="space-y-0.5 sm:space-y-1">
+              <div>
+                {% render 'section-badge', label: 'Feeding Solutions', class: 'scale-80 sm:scale-85 origin-left' %}
+              </div>
+              <h3 class="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
+                Happier Mealtimes,<br>
+                <span class="text-[#7a46e5]">Happier Pets</span>
+              </h3>
+              <p class="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
+                Make daily feeding easier with practical feeding products.
+              </p>
+            </div>
+            <div class="pt-1.5">
+              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Card 5 — Dirty Paws Solutions {% endcomment %}
+        <div
+          class="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
+          data-scroll-to-shop
+          role="button"
+          tabindex="0"
+        >
+          <img
+            src="{{ 'bento-grid-4.webp' | asset_url }}"
+            alt="Dog muddy paws in paw cleaner cup"
+            class="absolute inset-0 w-full h-full object-cover object-[78%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+            loading="lazy"
+            width="500"
+            height="350"
+          >
+          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
+
+          <div class="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
+            <div class="space-y-0.5 sm:space-y-1">
+              <div>
+                {% render 'section-badge', label: 'Dirty Paws Solutions', class: 'scale-80 sm:scale-85 origin-left' %}
+              </div>
+              <h3 class="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
+                Clean Paws, More<br>
+                <span class="text-[#7a46e5]">Happy Adventures</span>
+              </h3>
+              <p class="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
+                Make post-walk clean-ups easier with convenient paw-care essentials.
+              </p>
+            </div>
+            <div class="pt-1.5">
+              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shop by Need (Bento)",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Shop by Need (Bento)"
+    }
+  ]
+}
+{% endschema %}

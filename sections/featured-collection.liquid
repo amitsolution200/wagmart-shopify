@@ -1,0 +1,201 @@
+{% comment %}
+  Wagmart Best Sellers / Featured Collection Carousel
+{% endcomment %}
+
+<section id="shop" class="py-14 sm:py-20 bg-white relative overflow-hidden">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    
+    {% comment %} Section Header {% endcomment %}
+    <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+      {% render 'section-badge', label: section.settings.badge_label | default: 'Our Best Sellers', class: 'mb-4' %}
+      <h2 class="font-serif-title text-3xl sm:text-4xl lg:text-[2.6rem] font-bold text-[#111827] tracking-tight leading-tight mb-3">
+        {{ section.settings.title | default: 'Loved by Pets, Chosen by Pet Parents' }}
+      </h2>
+      <p class="font-nunito text-sm sm:text-base text-[#6B7280] leading-relaxed font-medium">
+        {{ section.settings.subtitle | default: 'Discover our most popular products for happier, healthier pets.' }}
+      </p>
+    </div>
+
+    {% comment %} Product Categories - Compact Filter Pills {% endcomment %}
+    <div class="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-8">
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-[#2B1B47] text-white shadow-xs" data-filter-tab="all">All Products</button>
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="grooming">Grooming &amp; Hygiene</button>
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="feeding">Feeding &amp; Bowls</button>
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="hygiene">Hygiene &amp; Care</button>
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="toys">Toys &amp; Play</button>
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="travel">Travel &amp; Carriers</button>
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="collars">Collars &amp; Leashes</button>
+    </div>
+
+    {% comment %} Product Carousel with Responsive Cards {% endcomment %}
+    <div class="relative group/carousel">
+      
+      {% comment %} Navigation Arrows {% endcomment %}
+      <button
+        type="button"
+        data-scroll-prev
+        aria-label="Previous products"
+        class="hidden sm:flex absolute -left-3 sm:-left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
+      >
+        {% render 'icon-chevron-left', class: 'w-5 h-5' %}
+      </button>
+
+      <button
+        type="button"
+        data-scroll-next
+        aria-label="Next products"
+        class="hidden sm:flex absolute -right-3 sm:-right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
+      >
+        {% render 'icon-chevron-right', class: 'w-5 h-5' %}
+      </button>
+
+      {% comment %} Cards Container {% endcomment %}
+      <div
+        data-products-scroll
+        class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1 snap-x snap-mandatory"
+      >
+        {%- if section.settings.collection != blank and section.settings.collection.products.size > 0 -%}
+          {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
+            {% render 'product-card', product: product %}
+          {%- endfor -%}
+        {%- else -%}
+          {% comment %} Default Wagmart Catalog Products matching React App {% endcomment %}
+          {% render 'product-card',
+            mock_id: 'prod-paw-cleaner',
+            mock_title: 'Paw Cleaner Kit',
+            mock_subtitle: 'Keep your home clean and your pet happy.',
+            mock_price: '₹799',
+            mock_original_price: '₹1,099',
+            mock_image: 'paw-cleaner-kit.webp',
+            mock_category: 'grooming',
+            mock_badge: 'Best Seller'
+          %}
+
+          {% render 'product-card',
+            mock_id: 'prod-auto-feeder',
+            mock_title: 'Automatic Pet Feeder & Water Dispenser',
+            mock_subtitle: '2-in-1 food and water bowl for cats and dogs.',
+            mock_price: '₹699',
+            mock_original_price: '₹999',
+            mock_image: 'item_p4_r2_c4.png',
+            mock_category: 'feeding',
+            mock_badge: 'Best Seller'
+          %}
+
+          {% render 'product-card',
+            mock_id: 'prod-slicker-brush',
+            mock_title: 'Self-Cleaning Slicker Grooming Brush',
+            mock_subtitle: 'One-click hair release deshedding brush.',
+            mock_price: '₹499',
+            mock_original_price: '₹749',
+            mock_image: 'item_p1_r1_c1.png',
+            mock_category: 'grooming',
+            mock_badge: 'Trending'
+          %}
+
+          {% render 'product-card',
+            mock_id: 'prod-nail-grinder',
+            mock_title: 'Electric Pet Nail Grinder & Trimmer',
+            mock_subtitle: 'Quiet diamond bit rechargeable claw trimmer.',
+            mock_price: '₹999',
+            mock_original_price: '₹1,499',
+            mock_image: 'item_p1_r1_c3.png',
+            mock_category: 'hygiene',
+            mock_badge: 'Vet Pick'
+          %}
+
+          {% render 'product-card',
+            mock_id: 'prod-tactical-collar',
+            mock_title: 'Tactical Heavy-Duty Dog Collar & Bungee Leash',
+            mock_subtitle: 'Durable nylon with quick-release metal buckle.',
+            mock_price: '₹899',
+            mock_original_price: '₹1,299',
+            mock_image: 'item_p1_r4_c4.png',
+            mock_category: 'collars',
+            mock_badge: 'Heavy Duty'
+          %}
+
+          {% render 'product-card',
+            mock_id: 'prod-travel-cover',
+            mock_title: 'Waterproof Backseat Dog Hammock Cover',
+            mock_subtitle: 'Scratch-proof car seat hammock with mesh window.',
+            mock_price: '₹1,299',
+            mock_original_price: '₹1,899',
+            mock_image: 'item_p3_r1_c2.png',
+            mock_category: 'travel',
+            mock_badge: 'Top Rated'
+          %}
+
+          {% render 'product-card',
+            mock_id: 'prod-dental-kit',
+            mock_title: 'Pet Dental Hygiene Oral Care Kit',
+            mock_subtitle: 'Dual-ended brush with soft silicone finger brush.',
+            mock_price: '₹399',
+            mock_original_price: '₹599',
+            mock_image: 'item_p1_r3_c3.png',
+            mock_category: 'hygiene',
+            mock_badge: 'Essential'
+          %}
+
+          {% render 'product-card',
+            mock_id: 'prod-rope-chew',
+            mock_title: 'Durable Cotton Braided Rope Chew Toy Set',
+            mock_subtitle: 'Tug-of-war chew ropes for active teething puppies.',
+            mock_price: '₹449',
+            mock_original_price: '₹699',
+            mock_image: 'item_p4_r1_c1.png',
+            mock_category: 'toys',
+            mock_badge: 'Playtime'
+          %}
+        {%- endif -%}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured Collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "Our Best Sellers"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Loved by Pets, Chosen by Pet Parents"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Discover our most popular products for happier, healthier pets."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "default": 12,
+      "label": "Products to show"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured Collection"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,189 @@
+{% comment %}
+  Wagmart Footer Section
+{% endcomment %}
+
+<footer id="contact" class="relative w-full select-none bg-[#ECE4DB] scroll-mt-24 font-sans">
+  
+  {% comment %} Top CTA & Background Image Area {% endcomment %}
+  <div class="relative w-full overflow-hidden bg-white">
+    <img
+      src="{{ 'footer.webp' | asset_url }}"
+      alt="Wagmart Pet Care Footer"
+      class="w-full h-auto block select-none pointer-events-none"
+      loading="eager"
+      width="1920"
+      height="600"
+    >
+
+    {% comment %} CTA Content Overlay {% endcomment %}
+    <div class="absolute top-[6%] sm:top-[10%] md:top-[12%] lg:top-[15%] left-3 sm:left-6 md:left-10 lg:left-[6%] max-w-[50%] sm:max-w-[48%] md:max-w-[44%] lg:max-w-[40%] z-10 pointer-events-auto">
+      <h2 class="font-serif-title text-[13px] sm:text-base md:text-2xl lg:text-3xl xl:text-6xl font-semibold text-[#1F2421] tracking-tight leading-[1.2]">
+        {{ section.settings.cta_title | default: 'Ready to Give Your Pet the Best Care? Contact Us Today!' }}
+      </h2>
+
+      <div class="mt-2.5 sm:mt-4 md:mt-5 lg:mt-6">
+        <a
+          href="tel:{{ section.settings.phone | default: '+917777985896' | replace: ' ', '' }}"
+          class="group relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#7a46e5] via-[#8451ed] to-[#9361fa] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer overflow-hidden border border-white/25 select-none shadow-[0_10px_25px_-5px_rgba(122,70,229,0.38)] px-4 sm:px-6 py-2 sm:py-2.5 text-[11px] sm:text-xs md:text-sm lg:text-base gap-2"
+        >
+          <span class="relative z-10 tracking-wide">Call Us Now</span>
+          {% render 'icon-phone', class: 'relative z-10 shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]' %}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {% comment %} Footer Columns & Links Area {% endcomment %}
+  <div class="relative w-full bg-[#ECE4DB] text-[#4B3F33] px-4 sm:px-6 md:px-10 lg:px-12 xl:px-16 pt-2 sm:pt-4 md:pt-6 pb-6 sm:pb-8 -mt-20 sm:-mt-28 md:-mt-44 lg:-mt-60 xl:-mt-72 z-20 pointer-events-auto">
+    <div class="max-w-[1400px] mx-auto">
+      
+      <div class="flex flex-col lg:flex-row items-stretch gap-8 lg:gap-0 pb-6 sm:pb-8 border-b border-[#D8CEBF]">
+        
+        {% comment %} COLUMN 1: Brand & Social {% endcomment %}
+        <div class="lg:w-[41%] lg:pr-8 xl:pr-12 lg:border-r lg:border-[#D8CEBF] flex flex-col justify-between">
+          <div>
+            <a href="{{ routes.root_url }}" class="inline-block mb-3.5 sm:mb-4 group" aria-label="Wagmart Home">
+              <img
+                src="{{ 'WAGMART-Logo.webp' | asset_url }}"
+                alt="Wagmart"
+                class="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform group-hover:scale-105"
+                width="160"
+                height="40"
+              >
+            </a>
+            <p class="text-[14px] sm:text-[15.5px] text-[#524538] leading-relaxed max-w-[360px] mb-6 font-normal">
+              {{ section.settings.about_text | default: 'Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents.' }}
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3 font-serif-title">
+              FOLLOW WAGMART
+            </h4>
+            <div class="flex items-center gap-2.5">
+              <a href="{{ settings.social_facebook_link | default: 'https://facebook.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on Facebook" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>
+              </a>
+              <a href="{{ settings.social_instagram_link | default: 'https://instagram.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on Instagram" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              </a>
+              <a href="{{ settings.social_twitter_link | default: 'https://twitter.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on Twitter" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.936 9.936 0 0024 4.59z"></path></svg>
+              </a>
+              <a href="{{ settings.social_youtube_link | default: 'https://youtube.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on YouTube" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {% comment %} MIDDLE SECTION: Col 2 & Col 3 {% endcomment %}
+        <div class="lg:w-[34%] lg:px-6 xl:px-10 lg:border-r lg:border-[#D8CEBF] grid grid-cols-2 gap-4 sm:gap-6">
+          <div class="space-y-2 sm:space-y-2.5">
+            <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3.5 sm:mb-4 font-serif-title">
+              QUICK LINKS
+            </h4>
+            <ul class="space-y-2 sm:space-y-2.5 text-[15px] sm:text-[16px] font-medium">
+              <li><a href="#hero" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Home</a></li>
+              <li><a href="#shop" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Shop All</a></li>
+              <li><a href="#shop" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Dog Products</a></li>
+              <li><a href="#shop" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Cat Products</a></li>
+              <li><a href="#contact" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Contact Us</a></li>
+            </ul>
+          </div>
+
+          <div class="space-y-2 sm:space-y-2.5">
+            <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3.5 sm:mb-4 font-serif-title">
+              CUSTOMER SUPPORT
+            </h4>
+            <ul class="space-y-2 sm:space-y-2.5 text-[15px] sm:text-[16px] font-medium">
+              <li><a href="#hero" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">My Account</a></li>
+              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Track My Order</a></li>
+              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Shipping Information</a></li>
+              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Returns &amp; Refunds</a></li>
+              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">FAQ</a></li>
+            </ul>
+          </div>
+        </div>
+
+        {% comment %} COLUMN 4: Get In Touch {% endcomment %}
+        <div class="lg:w-[25%] lg:pl-6 xl:pl-10 space-y-2.5 sm:space-y-3">
+          <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3.5 sm:mb-4 font-serif-title">
+            GET IN TOUCH
+          </h4>
+          <div class="space-y-2.5 sm:space-y-3 text-[15px] sm:text-[16px] font-medium">
+            <p class="text-[#524538] leading-relaxed">
+              {{ section.settings.address | default: '123 PetCare Avenue, Cityville, USA' }}
+            </p>
+            <p>
+              <a
+                href="tel:{{ section.settings.phone | default: '+91 77779 85896' | replace: ' ', '' }}"
+                class="text-[#7a46e5] hover:text-[#6835d4] font-bold text-[16px] sm:text-[17px] transition-colors inline-block"
+              >
+                {{ section.settings.phone | default: '+91 77779 85896' }}
+              </a>
+            </p>
+            <p>
+              <a
+                href="mailto:{{ section.settings.email | default: 'support@wagmart.com' }}"
+                class="text-[#524538] hover:text-[#7a46e5] transition-colors inline-block"
+              >
+                {{ section.settings.email | default: 'support@wagmart.com' }}
+              </a>
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      {% comment %} Bottom Copyright Row {% endcomment %}
+      <div class="pt-4 sm:pt-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-[13px] text-[#6B5E51] font-medium text-center sm:text-left">
+        <p>&copy; {{ 'now' | date: '%Y' }} Wagmart. All rights reserved.</p>
+        <div class="flex items-center gap-4">
+          <a href="#hero" class="hover:text-[#7a46e5] transition-colors">Privacy Policy</a>
+          <span>&bull;</span>
+          <a href="#hero" class="hover:text-[#7a46e5] transition-colors">Terms of Service</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    {
+      "type": "text",
+      "id": "cta_title",
+      "label": "CTA headline",
+      "default": "Ready to Give Your Pet the Best Care? Contact Us Today!"
+    },
+    {
+      "type": "textarea",
+      "id": "about_text",
+      "label": "About summary",
+      "default": "Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents."
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone number",
+      "default": "+91 77779 85896"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email address",
+      "default": "support@wagmart.com"
+    },
+    {
+      "type": "text",
+      "id": "address",
+      "label": "Store address",
+      "default": "123 PetCare Avenue, Cityville, USA"
+    }
+  ]
+}
+{% endschema %}

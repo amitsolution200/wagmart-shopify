@@ -1,0 +1,194 @@
+{% comment %}
+  Wagmart "Shop by Pet" FOR DOG & FOR CAT Banner Section
+{% endcomment %}
+
+<section
+  id="pet-category-banner"
+  aria-label="Shop For Dog and For Cat"
+  class="w-full py-8 sm:py-12 bg-white relative overflow-hidden font-sans"
+>
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+    {% comment %} Section Header {% endcomment %}
+    <div class="text-center max-w-2xl mx-auto mb-7 sm:mb-9 lg:mb-11">
+      {% render 'section-badge', label: section.settings.badge_label | default: 'Shop by Pet', class: 'mb-2' %}
+      <h2 class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#111827] tracking-tight leading-[1.15]">
+        {{ section.settings.title | default: 'Curated For' }} <span class="text-[#7a46e5]">Dogs</span> &amp; <span class="text-[#FF5376]">Cats</span>
+      </h2>
+      <p class="text-sm sm:text-base text-neutral-600 font-medium pt-1.5 max-w-lg mx-auto leading-relaxed">
+        {{ section.settings.subtitle | default: 'Tailored nutrition, playful toys, and specialized care essentials curated specifically for dogs and cats.' }}
+      </p>
+    </div>
+
+    {% comment %} Two Main Cards Grid {% endcomment %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-7 items-stretch">
+
+      {% comment %} CARD 1: FOR DOG {% endcomment %}
+      <div
+        class="group relative overflow-hidden rounded-[26px] sm:rounded-[30px] lg:rounded-[34px] bg-white border border-[#E7E5E4] p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_45px_-12px_rgba(122,70,229,0.22)] hover:border-[#7a46e5]/50 transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer min-h-[350px] sm:min-h-[410px] lg:min-h-[440px] flex items-center justify-between"
+        data-scroll-to-shop
+        role="button"
+        tabindex="0"
+        aria-label="Shop for Dogs"
+      >
+        <div class="relative z-10 w-[58%] sm:w-[54%] md:w-[56%] flex flex-col justify-between h-full py-1">
+          <div>
+            <span class="block font-black text-3xl sm:text-4xl md:text-5xl lg:text-[54px] text-[#002D3A] tracking-tight leading-[0.95]">
+              FOR
+            </span>
+            <span class="block font-black text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-[#7a46e5] tracking-tight leading-[0.95] mt-1">
+              DOG
+            </span>
+          </div>
+
+          <div class="space-y-2.5 sm:space-y-3 my-4 sm:my-5 lg:my-6">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F4EFFE] text-[#7a46e5] flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs">
+                🦴
+              </div>
+              <span class="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
+                Food &amp; Treats
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F4EFFE] text-[#7a46e5] flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs">
+                🎾
+              </div>
+              <span class="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
+                Toys &amp; Play
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F4EFFE] text-[#7a46e5] flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs">
+                🐾
+              </div>
+              <span class="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
+                Grooming &amp; Care
+              </span>
+            </div>
+          </div>
+
+          <div>
+            {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+          </div>
+        </div>
+
+        <div class="absolute right-0 bottom-0 top-0 w-[50%] sm:w-[54%] md:w-[56%] lg:w-[58%] pointer-events-none select-none flex items-end justify-end">
+          <img
+            src="{{ 'banner-dog.webp' | asset_url }}"
+            alt="Happy Golden Retriever with bandana"
+            class="h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            loading="eager"
+            width="400"
+            height="440"
+          >
+        </div>
+      </div>
+
+      {% comment %} CARD 2: FOR CAT {% endcomment %}
+      <div
+        class="group relative overflow-hidden rounded-[26px] sm:rounded-[30px] lg:rounded-[34px] bg-white border border-[#E7E5E4] p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_45px_-12px_rgba(255,83,118,0.22)] hover:border-[#FF5376]/50 transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer min-h-[350px] sm:min-h-[410px] lg:min-h-[440px] flex items-center justify-between"
+        data-scroll-to-shop
+        role="button"
+        tabindex="0"
+        aria-label="Shop for Cats"
+      >
+        <div class="relative z-10 w-[58%] sm:w-[54%] md:w-[56%] flex flex-col justify-between h-full py-1">
+          <div>
+            <span class="block font-black text-3xl sm:text-4xl md:text-5xl lg:text-[54px] text-[#3D1A24] tracking-tight leading-[0.95]">
+              FOR
+            </span>
+            <span class="block font-black text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-[#FF5376] tracking-tight leading-[0.95] mt-1">
+              CAT
+            </span>
+          </div>
+
+          <div class="space-y-2.5 sm:space-y-3 my-4 sm:my-5 lg:my-6">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FCE7F0] text-[#FF5376] flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs">
+                🐟
+              </div>
+              <span class="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
+                Food &amp; Treats
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FCE7F0] text-[#FF5376] flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs">
+                🧶
+              </div>
+              <span class="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
+                Toys &amp; Accessories
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FCE7F0] text-[#FF5376] flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs">
+                🐱
+              </div>
+              <span class="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
+                Health &amp; Grooming
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <a
+              href="#shop"
+              class="group relative inline-flex items-center justify-center rounded-full bg-[#FF5376] hover:bg-[#F43F5E] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer overflow-hidden shadow-[0_4px_16px_rgba(255,83,118,0.35)] hover:shadow-[0_6px_22px_rgba(255,83,118,0.48)] px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm gap-2"
+            >
+              <span class="relative z-10 tracking-wide">Shop Now</span>
+              {% render 'icon-chevron-right', class: 'w-4 h-4 stroke-[2.5]' %}
+            </a>
+          </div>
+        </div>
+
+        <div class="absolute right-0 bottom-0 top-0 w-[50%] sm:w-[54%] md:w-[56%] lg:w-[58%] pointer-events-none select-none flex items-end justify-end">
+          <img
+            src="{{ 'banner-cat.webp' | asset_url }}"
+            alt="Playful kitten with raised paw"
+            class="h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            loading="eager"
+            width="400"
+            height="440"
+          >
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shop by Pet",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "Shop by Pet"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Curated For"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Tailored nutrition, playful toys, and specialized care essentials curated specifically for dogs and cats."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop by Pet"
+    }
+  ]
+}
+{% endschema %}

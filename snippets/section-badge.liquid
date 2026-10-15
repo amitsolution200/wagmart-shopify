@@ -1,0 +1,12 @@
+{% comment %}
+  Renders section badge pill with purple square marker
+  Accepts:
+  - label: {String} Badge text
+  - class: {String} Additional classes
+{% endcomment %}
+<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border bg-[#7a46e5]/10 border-[#7a46e5]/20 {{ class }}">
+  <span class="w-2 h-2 rounded-[2px] bg-[#7a46e5]"></span>
+  <span class="text-xs font-extrabold uppercase tracking-wider text-[#7a46e5]">
+    {{ label }}
+  </span>
+</div>

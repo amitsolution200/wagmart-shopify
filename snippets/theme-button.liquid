@@ -1,0 +1,43 @@
+{% comment %}
+  Renders branded gradient ThemeButton
+  Accepts:
+  - text: {String} Button label
+  - href: {String} Link URL (optional)
+  - class: {String} Additional classes
+  - type: {String} Button type (optional, default 'button')
+  - show_arrow: {Boolean} Whether to show chevron right (default true)
+  - full_width: {Boolean} Whether to stretch 100% width
+  - attributes: {String} Extra HTML attributes like data-*
+{% endcomment %}
+
+{%- liquid
+  assign button_classes = "group relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#7a46e5] via-[#8451ed] to-[#9361fa] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer overflow-hidden border border-white/25 select-none shadow-[0_10px_25px_-5px_rgba(122,70,229,0.38),0_2px_8px_rgba(122,70,229,0.18)] hover:shadow-[0_16px_32px_-4px_rgba(122,70,229,0.52)] px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm gap-2"
+  if full_width
+    assign button_classes = button_classes | append: " w-full"
+  endif
+  if class
+    assign button_classes = button_classes | append: " " | append: class
+  endif
+-%}
+
+{%- if href != blank -%}
+  <a href="{{ href }}" class="{{ button_classes }}" {{ attributes }}>
+    <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none"></span>
+    <span class="relative z-10 tracking-wide">{{ text }}</span>
+    {%- if show_arrow != false -%}
+      <svg class="relative z-10 shrink-0 w-4 h-4 stroke-[2.5] transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m9 18 6-6-6-6"></path>
+      </svg>
+    {%- endif -%}
+  </a>
+{%- else -%}
+  <button type="{{ type | default: 'button' }}" class="{{ button_classes }}" {{ attributes }}>
+    <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none"></span>
+    <span class="relative z-10 tracking-wide">{{ text }}</span>
+    {%- if show_arrow != false -%}
+      <svg class="relative z-10 shrink-0 w-4 h-4 stroke-[2.5] transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m9 18 6-6-6-6"></path>
+      </svg>
+    {%- endif -%}
+  </button>
+{%- endif -%}

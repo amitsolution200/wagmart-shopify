@@ -1,0 +1,171 @@
+{% comment %}
+  Renders interactive Wagmart Product Card
+  Accepts:
+  - product: {Object} Shopify Product Object (optional)
+  - mock_id: {String} Fallback product ID
+  - mock_title: {String} Fallback title
+  - mock_subtitle: {String} Fallback subtitle
+  - mock_price: {String} Fallback price string
+  - mock_original_price: {String} Fallback compare price
+  - mock_image: {String} Fallback image asset name or URL
+  - mock_badge: {String} Fallback badge label
+  - mock_category: {String} Fallback category key
+{% endcomment %}
+
+{%- liquid
+  if product != blank
+    assign prod_id = product.id
+    assign prod_title = product.title
+    assign prod_url = product.url
+    assign prod_desc = product.description | strip_html | truncate: 90
+    assign prod_price = product.price | money
+    if product.compare_at_price > product.price
+      assign prod_compare_price = product.compare_at_price | money
+    else
+      assign prod_compare_price = ''
+    endif
+    if product.featured_image
+      assign prod_image = product.featured_image | image_url: width: 500
+    else
+      assign prod_image = 'paw-cleaner-kit.webp' | asset_url
+    endif
+    assign prod_badge = 'Best Seller'
+    assign prod_category = product.type | default: 'grooming' | downcase
+  else
+    assign prod_id = mock_id | default: 'prod-default'
+    assign prod_title = mock_title | default: 'Paw Cleaner Kit'
+    assign prod_url = '#shop'
+    assign prod_desc = mock_subtitle | default: 'All-in-one gentle silicone dog paw washing cup and grooming slicker brush kit.'
+    assign prod_price = mock_price | default: '₹799'
+    assign prod_compare_price = mock_original_price | default: '₹1,099'
+    if mock_image contains '/'
+      assign prod_image = mock_image
+    else
+      assign prod_image = mock_image | default: 'paw-cleaner-kit.webp' | asset_url
+    endif
+    assign prod_badge = mock_badge | default: 'Best Seller'
+    assign prod_category = mock_category | default: 'grooming'
+  endif
+-%}
+
+<div
+  class="group relative shrink-0 w-[85vw] max-w-[340px] sm:w-[320px] md:w-[325px] lg:w-[335px] bg-[#FAF8F5] rounded-[22px] p-3 pb-5 border border-black/4 select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 flex flex-col justify-between snap-start cursor-pointer"
+  data-product-card
+  data-product-id="{{ prod_id }}"
+  data-product-name="{{ prod_title | escape }}"
+  data-product-price="{{ prod_price }}"
+  data-product-original-price="{{ prod_compare_price }}"
+  data-product-image="{{ prod_image }}"
+  data-product-category="{{ prod_category }}"
+  data-product-desc="{{ prod_desc | escape }}"
+  data-quick-view-trigger
+  role="region"
+  aria-label="{{ prod_title | escape }}"
+>
+  <div>
+    {% comment %} 1. HERO IMAGE STAGE {% endcomment %}
+    <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-white/80 shrink-0 select-none flex items-center justify-center p-2.5">
+      <img
+        src="{{ prod_image }}"
+        alt="{{ prod_title | escape }}"
+        class="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+        loading="lazy"
+        width="300"
+        height="210"
+      >
+
+      {% comment %} Top-Left Category Badge {% endcomment %}
+      <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
+        <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          {{ prod_badge }}
+        </span>
+      </div>
+
+      {% comment %} Top-Right Wishlist Heart Button {% endcomment %}
+      <button
+        type="button"
+        class="absolute top-[12px] right-[12px] z-10 w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+        data-wishlist-btn
+        aria-label="Wishlist {{ prod_title | escape }}"
+      >
+        <svg class="w-4.5 h-4.5 transition-transform duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+        </svg>
+      </button>
+    </div>
+
+    {% comment %} 2. PRODUCT TITLE & SUBTITLE {% endcomment %}
+    <div class="px-1.5 pt-3.5">
+      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-1 group-hover:text-[#7a46e5] transition-colors duration-200">
+        <a href="{{ prod_url }}" class="hover:underline">{{ prod_title }}</a>
+      </h3>
+
+      <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 font-normal">
+        {{ prod_desc }}
+      </p>
+    </div>
+  </div>
+
+  {% comment %} 3. BOTTOM ROW: PRICE LOCKUP & ADD TO CART / STEPPER {% endcomment %}
+  <div class="px-1.5 mt-auto pt-4 flex items-center justify-between gap-3">
+    {% comment %} Price Lockup {% endcomment %}
+    <div class="flex items-baseline gap-1.5 min-w-0">
+      <span class="font-extrabold text-[22px] sm:text-[24px] text-[#111827] tracking-tight leading-none">
+        {{ prod_price }}
+      </span>
+      {%- if prod_compare_price != blank -%}
+        <span class="text-xs sm:text-[13px] text-neutral-400 line-through font-normal">
+          {{ prod_compare_price }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    {% comment %} Right CTA Button / Quantity Stepper Transformation {% endcomment %}
+    <div>
+      {% comment %} Default Add to Cart Button {% endcomment %}
+      <button
+        type="button"
+        class="h-[42px] bg-black hover:bg-neutral-900 active:scale-95 text-white pl-1.5 pr-4 py-1 rounded-full flex items-center gap-2 shadow-sm transition-all duration-200 cursor-pointer group/btn shrink-0"
+        data-add-to-cart
+        aria-label="Add {{ prod_title | escape }} to Cart"
+      >
+        <span class="w-7.5 h-7.5 rounded-full bg-white text-black flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform duration-200 shadow-xs">
+          {% render 'icon-bag', class: 'w-3.5 h-3.5 stroke-[2.2]' %}
+        </span>
+        <span class="font-bold text-[13px] tracking-tight whitespace-nowrap">
+          Add to Cart
+        </span>
+      </button>
+
+      {% comment %} Active Quantity Stepper (Shown when in cart) {% endcomment %}
+      <div
+        class="hidden h-[42px] bg-black text-white px-1.5 py-1 rounded-full items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
+        data-card-stepper
+      >
+        <button
+          type="button"
+          class="w-7.5 h-7.5 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer text-xs font-bold"
+          data-card-stepper-btn
+          data-delta="-1"
+          aria-label="Decrease quantity"
+        >
+          &minus;
+        </button>
+
+        <span class="text-white font-extrabold text-[13px] px-1.5 min-w-[20px] text-center select-none" data-card-qty>
+          1
+        </span>
+
+        <button
+          type="button"
+          class="w-7.5 h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs text-xs font-bold"
+          data-card-stepper-btn
+          data-delta="1"
+          aria-label="Increase quantity"
+        >
+          &#43;
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

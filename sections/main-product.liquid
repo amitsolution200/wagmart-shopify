@@ -1,0 +1,179 @@
+{% comment %}
+  Wagmart Main Product Page Section
+{% endcomment %}
+
+<section class="py-12 sm:py-16 bg-[#FAF8F5]">
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+      
+      {% comment %} Left: Image Gallery {% endcomment %}
+      <div class="bg-white rounded-3xl p-6 sm:p-10 border border-[#EAE5D9] shadow-sm flex flex-col items-center">
+        <div class="w-full aspect-square max-h-[460px] flex items-center justify-center overflow-hidden mb-6">
+          {%- if product.featured_image -%}
+            <img
+              src="{{ product.featured_image | image_url: width: 800 }}"
+              alt="{{ product.title | escape }}"
+              id="main-product-image"
+              class="w-full h-full object-contain"
+              width="{{ product.featured_image.width }}"
+              height="{{ product.featured_image.height }}"
+            >
+          {%- else -%}
+            <img
+              src="{{ 'paw-cleaner-kit.webp' | asset_url }}"
+              alt="{{ product.title | escape }}"
+              id="main-product-image"
+              class="w-full h-full object-contain"
+              width="600"
+              height="600"
+            >
+          {%- endif -%}
+        </div>
+
+        {%- if product.images.size > 1 -%}
+          <div class="flex gap-3 overflow-x-auto no-scrollbar w-full pb-2">
+            {%- for image in product.images -%}
+              <button
+                type="button"
+                onclick="document.getElementById('main-product-image').src = '{{ image | image_url: width: 800 }}'"
+                class="w-20 h-20 rounded-xl bg-[#FAF8F5] p-2 border border-[#EAE5D9] shrink-0 cursor-pointer hover:border-[#7a46e5] transition"
+              >
+                <img
+                  src="{{ image | image_url: width: 120 }}"
+                  alt="{{ image.alt | escape }}"
+                  width="80"
+                  height="80"
+                  loading="lazy"
+                  class="w-full h-full object-contain"
+                >
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {% comment %} Right: Product Details & Form {% endcomment %}
+      <div class="space-y-6">
+        <div>
+          <span class="px-3 py-1 rounded-full bg-[#7a46e5]/10 text-[#7a46e5] text-xs font-bold uppercase tracking-wider">
+            {{ product.vendor | default: 'WAGMART' }}
+          </span>
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-3 leading-tight">
+            {{ product.title }}
+          </h1>
+          <p class="text-xs text-neutral-500 mt-1">
+            Category: {{ product.type | default: 'Pet Care Essentials' }}
+          </p>
+        </div>
+
+        {% comment %} Pricing {% endcomment %}
+        <div class="flex items-baseline gap-3">
+          <span class="text-3xl sm:text-4xl font-black text-[#111827]">
+            {{ product.price | money }}
+          </span>
+          {%- if product.compare_at_price > product.price -%}
+            <span class="text-lg text-neutral-400 line-through">
+              {{ product.compare_at_price | money }}
+            </span>
+            <span class="px-2.5 py-1 rounded-full bg-[#FFEBF0] text-[#E11D48] text-xs font-extrabold">
+              Save {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price }}%
+            </span>
+          {%- endif -%}
+        </div>
+
+        <div class="text-sm text-neutral-600 leading-relaxed">
+          {{ product.description }}
+        </div>
+
+        {% comment %} Shopify Product Form {% endcomment %}
+        {%- form 'product', product, id: 'product-form', class: 'space-y-6 pt-2' -%}
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+
+          {%- if product.variants.size > 1 -%}
+            <div class="space-y-2">
+              <label for="variant-select" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                Options / Variants:
+              </label>
+              <select
+                id="variant-select"
+                class="w-full p-3 rounded-xl border border-[#D5CEBF] bg-white text-sm font-semibold outline-none focus:ring-2 focus:ring-[#7a46e5]/40"
+                onchange="document.querySelector('input[name=id]').value = this.value"
+              >
+                {%- for variant in product.variants -%}
+                  <option value="{{ variant.id }}" {% if variant == product.selected_or_first_available_variant %}selected{% endif %}>
+                    {{ variant.title }} &ndash; {{ variant.price | money }}
+                  </option>
+                {%- endfor -%}
+              </select>
+            </div>
+          {%- endif -%}
+
+          {% comment %} Quantity Selector {% endcomment %}
+          <div class="flex items-center gap-4">
+            <span class="text-xs font-bold text-gray-700 uppercase tracking-wide">Quantity:</span>
+            <div class="flex items-center rounded-xl border border-[#D5CEBF] bg-white p-1">
+              <button
+                type="button"
+                onclick="const q = document.getElementById('Quantity'); if(q.value > 1) q.value--;"
+                class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center font-bold text-gray-600 cursor-pointer"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="Quantity"
+                name="quantity"
+                value="1"
+                min="1"
+                class="w-12 text-center text-sm font-extrabold text-[#111827] focus:outline-hidden"
+              >
+              <button
+                type="button"
+                onclick="const q = document.getElementById('Quantity'); q.value++;"
+                class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center font-bold text-gray-600 cursor-pointer"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {% comment %} Action Buttons {% endcomment %}
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              type="submit"
+              name="add"
+              class="flex-1 py-3.5 px-8 rounded-full bg-linear-to-r from-[#7a46e5] via-[#8451ed] to-[#9361fa] text-white font-bold text-sm tracking-wide shadow-lg hover:opacity-95 transition cursor-pointer flex items-center justify-center gap-2"
+              {% unless product.available %}disabled{% endunless %}
+            >
+              {% render 'icon-bag', class: 'w-4 h-4' %}
+              <span>{% if product.available %}Add to Cart{% else %}Sold Out{% endif %}</span>
+            </button>
+          </div>
+        {%- endform -%}
+
+        {% comment %} Trust Badges {% endcomment %}
+        <div class="grid grid-cols-2 gap-3 pt-4 border-t border-[#F0EBE1]">
+          <div class="flex items-center gap-2 text-xs text-neutral-600 font-medium">
+            <span class="text-[#7a46e5] text-base">🛡️</span>
+            <span>Vet-Tested &amp; Safe</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-neutral-600 font-medium">
+            <span class="text-[#7a46e5] text-base">🚚</span>
+            <span>Fast Express Delivery</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Information",
+  "settings": []
+}
+{% endschema %}

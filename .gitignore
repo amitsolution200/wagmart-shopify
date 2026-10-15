@@ -44,5 +44,6 @@ Thumbs.db
 # Python & Temporary Scratch Files
 __pycache__/
 *.py[cod]
-*$py.class
+# Shopify CLI
+.shopify/
 scratch/

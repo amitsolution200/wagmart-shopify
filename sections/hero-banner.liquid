@@ -1,0 +1,258 @@
+{% comment %}
+  Wagmart Hero Carousel Section
+{% endcomment %}
+
+<section
+  id="hero"
+  aria-label="Pet Care Featured Highlights"
+  class="relative w-full h-[540px] sm:h-[600px] md:h-[640px] lg:h-[680px] xl:h-[700px] max-h-[92vh] bg-[#FAF8F5] overflow-hidden"
+>
+  {% comment %} Slides Container {% endcomment %}
+  {%- if section.blocks.size > 0 -%}
+    {%- for block in section.blocks -%}
+      <div
+        class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none pointer-events-none {% if forloop.first %}opacity-100 z-0{% else %}opacity-0 -z-10{% endif %}"
+        data-hero-slide
+        {{ block.shopify_attributes }}
+      >
+        {%- if block.settings.image != blank -%}
+          <img
+            src="{{ block.settings.image | image_url: width: 1920 }}"
+            alt="{{ block.settings.title | escape }}"
+            class="w-full h-full object-cover select-none pointer-events-none {% if block.settings.layout == 'center' %}object-center{% else %}object-right md:object-center{% endif %}"
+            {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
+            width="{{ block.settings.image.width }}"
+            height="{{ block.settings.image.height }}"
+          >
+        {%- else -%}
+          {%- assign default_img = 'hero-banner-' | append: forloop.index | append: '.webp' -%}
+          <img
+            src="{{ default_img | asset_url }}"
+            alt="{{ block.settings.title | escape }}"
+            class="w-full h-full object-cover select-none pointer-events-none {% if block.settings.layout == 'center' %}object-center{% else %}object-right md:object-center{% endif %}"
+            {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
+            width="1920"
+            height="700"
+          >
+        {%- endif -%}
+
+        {%- if block.settings.layout == 'left' -%}
+          <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+        {%- endif -%}
+      </div>
+    {%- endfor -%}
+  {%- else -%}
+    {% comment %} Default fallback slides matching React source {% endcomment %}
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none pointer-events-none opacity-100 z-0" data-hero-slide>
+      <img src="{{ 'hero-banner-1.webp' | asset_url }}" alt="Hero banner 1" class="w-full h-full object-cover object-center" loading="eager" width="1920" height="700">
+    </div>
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none pointer-events-none opacity-0 -z-10" data-hero-slide>
+      <img src="{{ 'hero-banner-2.webp' | asset_url }}" alt="Hero banner 2" class="w-full h-full object-cover object-right md:object-center" loading="lazy" width="1920" height="700">
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+    </div>
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none pointer-events-none opacity-0 -z-10" data-hero-slide>
+      <img src="{{ 'hero-banner-3.webp' | asset_url }}" alt="Hero banner 3" class="w-full h-full object-cover object-right md:object-center" loading="lazy" width="1920" height="700">
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+    </div>
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none pointer-events-none opacity-0 -z-10" data-hero-slide>
+      <img src="{{ 'hero-banner-4.webp' | asset_url }}" alt="Hero banner 4" class="w-full h-full object-cover object-right md:object-center" loading="lazy" width="1920" height="700">
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+    </div>
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none pointer-events-none opacity-0 -z-10" data-hero-slide>
+      <img src="{{ 'hero-banner-5.webp' | asset_url }}" alt="Hero banner 5" class="w-full h-full object-cover object-right md:object-center" loading="lazy" width="1920" height="700">
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+    </div>
+  {%- endif -%}
+
+  {% comment %} Slide Content Overlay {% endcomment %}
+  <div class="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 lg:px-16 flex items-center select-text">
+    {%- if section.blocks.size > 0 -%}
+      {%- assign first_block = section.blocks.first -%}
+      {%- if first_block.settings.layout == 'center' -%}
+        <div class="w-full max-w-xl md:max-w-2xl mx-auto text-center py-6 sm:py-8">
+          <h1 class="font-nunito font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] tracking-tight leading-[1.15] text-[#1E2228]">
+            <span>{{ first_block.settings.title }}</span><br>
+            <span class="text-[#7a46e5]">{{ first_block.settings.title_accent }}</span>
+          </h1>
+          <p class="mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm md:text-base lg:text-lg text-[#555E68] max-w-md sm:max-w-lg mx-auto leading-relaxed font-nunito font-medium">
+            {{ first_block.settings.subtitle }}
+          </p>
+          <div class="mt-6 sm:mt-8 select-none">
+            {% render 'theme-button', text: first_block.settings.button_text, href: first_block.settings.button_link | default: '#shop' %}
+          </div>
+        </div>
+      {%- else -%}
+        <div class="w-full max-w-md sm:max-w-lg md:max-w-[480px] lg:max-w-[520px] py-6 sm:py-8">
+          <h1 class="font-nunito font-extrabold text-2xl sm:text-4xl md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.5rem] tracking-tight leading-[1.12] text-[#1E2228]">
+            <span>{{ first_block.settings.title }}</span><br>
+            <span class="text-[#7a46e5]">{{ first_block.settings.title_accent }}</span>
+          </h1>
+          <p class="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base lg:text-[16px] text-[#4F463E] font-medium leading-relaxed max-w-xs sm:max-w-sm md:max-w-[430px]">
+            {{ first_block.settings.subtitle }}
+          </p>
+          <div class="mt-6 sm:mt-7 select-none">
+            {% render 'theme-button', text: first_block.settings.button_text, href: first_block.settings.button_link | default: '#shop' %}
+          </div>
+        </div>
+      {%- endif -%}
+    {%- else -%}
+      <div class="w-full max-w-xl md:max-w-2xl mx-auto text-center py-6 sm:py-8">
+        <h1 class="font-nunito font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] tracking-tight leading-[1.15] text-[#1E2228]">
+          <span>Premium Pet Products</span><br>
+          <span class="text-[#7a46e5]">for Happier Paws</span>
+        </h1>
+        <p class="mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm md:text-base lg:text-lg text-[#555E68] max-w-md sm:max-w-lg mx-auto leading-relaxed font-nunito font-medium">
+          Explore our wide range of pet toys, grooming, accessories and care products for a healthier and happier life.
+        </p>
+        <div class="mt-6 sm:mt-8 select-none">
+          {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {% comment %} Left Navigation Arrow Button {% endcomment %}
+  <button
+    type="button"
+    data-hero-prev
+    aria-label="Previous banner"
+    class="absolute left-2 sm:left-4 md:left-6 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-gray-700 hover:text-black shadow-md hover:shadow-lg backdrop-blur-sm border border-white/60 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+  >
+    {% render 'icon-chevron-left', class: 'w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]' %}
+  </button>
+
+  {% comment %} Right Navigation Arrow Button {% endcomment %}
+  <button
+    type="button"
+    data-hero-next
+    aria-label="Next banner"
+    class="absolute right-2 sm:right-4 md:right-6 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-gray-700 hover:text-black shadow-md hover:shadow-lg backdrop-blur-sm border border-white/60 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+  >
+    {% render 'icon-chevron-right', class: 'w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]' %}
+  </button>
+
+  {% comment %} Bottom Center Pagination Dots {% endcomment %}
+  <nav aria-label="Banner pagination" class="absolute bottom-4 sm:bottom-6 md:bottom-7 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 transition-all">
+    <button type="button" data-hero-dot="0" aria-label="Go to slide 1" class="transition-all duration-300 rounded-full cursor-pointer w-5 sm:w-6 h-2 sm:h-2 bg-[#7a46e5] shadow-xs"></button>
+    <button type="button" data-hero-dot="1" aria-label="Go to slide 2" class="transition-all duration-300 rounded-full cursor-pointer w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45"></button>
+    <button type="button" data-hero-dot="2" aria-label="Go to slide 3" class="transition-all duration-300 rounded-full cursor-pointer w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45"></button>
+    <button type="button" data-hero-dot="3" aria-label="Go to slide 4" class="transition-all duration-300 rounded-full cursor-pointer w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45"></button>
+    <button type="button" data-hero-dot="4" aria-label="Go to slide 5" class="transition-all duration-300 rounded-full cursor-pointer w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45"></button>
+  </nav>
+</section>
+
+{% schema %}
+{
+  "name": "Hero Banner",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Banner image"
+        },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "Text alignment",
+          "options": [
+            { "value": "center", "label": "Center" },
+            { "value": "left", "label": "Left" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title line",
+          "default": "Premium Pet Products"
+        },
+        {
+          "type": "text",
+          "id": "title_accent",
+          "label": "Accent title line",
+          "default": "for Happier Paws"
+        },
+        {
+          "type": "textarea",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Explore our wide range of pet toys, grooming, accessories and care products for a healthier and happier life."
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button label",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Banner",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "layout": "center",
+            "title": "Premium Pet Products",
+            "title_accent": "for Happier Paws",
+            "subtitle": "Explore our wide range of pet toys, grooming, accessories and care products for a healthier and happier life.",
+            "button_text": "Shop Now"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "Clean Pets,",
+            "title_accent": "Happier Days",
+            "subtitle": "Wagmart Neem & Aloevera Shampoo keeps your pet's coat clean, soft, fresh and naturally healthy.",
+            "button_text": "Shop Now"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "A Cleaner Home,",
+            "title_accent": "A Happier Pet",
+            "subtitle": "Easily remove loose pet hair from your pet, sofa, bed, clothes and more.",
+            "button_text": "Shop Now"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "Gentle Grooming",
+            "title_accent": "for a Happier Cat",
+            "subtitle": "Remove loose hair and make grooming a relaxing part of your cat's day.",
+            "button_text": "Shop Now"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "Fresh Water,",
+            "title_accent": "Happy Pets",
+            "subtitle": "Make every mealtime easier with a feeding station designed for daily comfort.",
+            "button_text": "Shop Now"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

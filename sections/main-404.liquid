@@ -1,0 +1,26 @@
+{% comment %}
+  Wagmart 404 Not Found Page Section
+{% endcomment %}
+
+<section class="py-20 sm:py-28 bg-[#FAF8F5] text-center">
+  <div class="max-w-md mx-auto px-4">
+    <div class="w-24 h-24 rounded-full bg-[#7a46e5]/10 text-[#7a46e5] flex items-center justify-center text-4xl mx-auto mb-6">
+      🐾
+    </div>
+    <span class="text-xs font-black uppercase tracking-widest text-[#7a46e5]">404 Not Found</span>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-2 mb-3">
+      Oops! Page Not Found
+    </h1>
+    <p class="text-sm text-neutral-600 leading-relaxed mb-8">
+      The page you were looking for seems to have wandered off. Let's get you back to our happy pet supplies!
+    </p>
+    {% render 'theme-button', text: 'Return to Home', href: routes.root_url %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "404 Page",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,66 @@
+{% comment %}
+  Wagmart Search Results Page Section
+{% endcomment %}
+
+<section class="py-12 sm:py-16 bg-[#FAF8F5]">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="text-center max-w-xl mx-auto mb-10">
+      {% render 'section-badge', label: 'Search Results', class: 'mb-3' %}
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827]">
+        {% if search.performed %}
+          Results for &ldquo;{{ search.terms }}&rdquo;
+        {% else %}
+          Search Our Catalog
+        {% endif %}
+      </h1>
+
+      <form action="{{ routes.search_url }}" method="get" class="mt-6 flex items-center max-w-md mx-auto bg-white rounded-full p-1.5 border border-[#D5CEBF] shadow-xs">
+        <input
+          type="search"
+          name="q"
+          value="{{ search.terms | escape }}"
+          placeholder="Search for toys, grooming, bowls..."
+          class="flex-1 px-4 py-2 text-sm bg-transparent focus:outline-hidden text-neutral-800 placeholder-neutral-400"
+        >
+        <button
+          type="submit"
+          class="px-5 py-2 rounded-full bg-[#7a46e5] text-white text-xs font-bold hover:bg-[#6835d6] transition"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+
+    {%- if search.performed -%}
+      {%- paginate search.results by 16 -%}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center sm:justify-items-stretch">
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {% render 'product-card', product: item %}
+            {%- endif -%}
+          {%- else -%}
+            <div class="col-span-full text-center py-16 text-neutral-500">
+              <p class="text-lg font-bold">No results found for &ldquo;{{ search.terms }}&rdquo;.</p>
+              <p class="text-xs text-neutral-400 mt-1">Try checking for typos or searching for a broader term like &ldquo;dog&rdquo; or &ldquo;cat&rdquo;.</p>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <div class="mt-12 flex justify-center gap-2">
+            {{ paginate | default_pagination }}
+          </div>
+        {%- endif -%}
+      {%- endpaginate -%}
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Search Results",
+  "settings": []
+}
+{% endschema %}

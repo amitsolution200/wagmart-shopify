@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#7a46e5">
+  <link rel="canonical" href="{{ canonical_url }}">
+
+  {%- if settings.favicon != blank -%}
+    <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+  {%- else -%}
+    <link rel="icon" type="image/x-icon" href="{{ 'favicon.ico' | asset_url }}">
+  {%- endif -%}
+
+  <title>
+    {{ page_title }}
+    {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+    {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+    {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+  </title>
+
+  {% if page_description %}
+    <meta name="description" content="{{ page_description | escape }}">
+  {% else %}
+    <meta name="description" content="Wagmart offers curated, high-quality pet supplies for dogs and cats: grooming brushes, feeding bowls, collars, leashes, travel essentials, and hygiene products.">
+  {% endif %}
+
+  {% comment %} Google Fonts {% endcomment %}
+  {%- # theme-check-disable RemoteAsset -%}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  {%- # theme-check-enable RemoteAsset -%}
+
+  {% comment %} Compiled Theme CSS with Tailwind utilities {% endcomment %}
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+  {{ content_for_header }}
+</head>
+
+<body class="bg-[#FAF8F5] text-[#1F2937] antialiased selection:bg-[#7a46e5]/20 selection:text-[#7a46e5] overflow-x-hidden min-h-screen flex flex-col font-sans">
+  <a class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-white focus:text-[#111827] focus:shadow-lg focus:rounded-xl" href="#MainContent">
+    Skip to content
+  </a>
+
+  {% section 'header' %}
+
+  <main id="MainContent" role="main" class="flex-1">
+    {{ content_for_layout }}
+  </main>
+
+  {% section 'footer' %}
+
+  {% comment %} Drawers & Modals {% endcomment %}
+  {% render 'cart-drawer' %}
+  {% render 'wishlist-modal' %}
+  {% render 'search-modal' %}
+  {% render 'quick-view-modal' %}
+  {% render 'reel-modal' %}
+
+  {% comment %} Theme Engine Script {% endcomment %}
+  <script src="{{ 'theme.js' | asset_url }}" defer></script>
+</body>
+</html>

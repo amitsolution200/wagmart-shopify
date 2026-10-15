@@ -1,0 +1,222 @@
+{% comment %}
+  Wagmart "Better Together" Curated Categories Section
+{% endcomment %}
+
+<section id="categories" class="py-14 sm:py-20 bg-white overflow-hidden">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    {% comment %} Header {% endcomment %}
+    <div class="relative mb-6 sm:mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        
+        {% comment %} Left Title & Subtitle {% endcomment %}
+        <div class="space-y-1.5 z-10">
+          {% render 'section-badge', label: section.settings.badge_label | default: 'Curated Categories', class: 'mb-2' %}
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1E2228] tracking-tight">
+            {{ section.settings.title | default: 'Better' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Together' }}</span>
+          </h2>
+          <p class="text-sm sm:text-base text-[#6B7280] font-normal pt-0.5">
+            {{ section.settings.subtitle | default: 'Curated bundles for everyday pet care.' }}
+          </p>
+        </div>
+
+        {% comment %} Center-Right Peeking Dog and Cat Image {% endcomment %}
+        <div class="hidden lg:flex items-end justify-center flex-1 -mb-1 px-4 pointer-events-none select-none">
+          <img
+            src="{{ 'category-pet.webp' | asset_url }}"
+            alt="Happy puppy and cat peeking"
+            class="max-h-24 xl:max-h-28 w-auto object-contain"
+            loading="eager"
+            width="200"
+            height="112"
+          >
+        </div>
+
+        {% comment %} Right Action Button {% endcomment %}
+        <div class="self-start lg:self-end z-10 pb-1">
+          {% render 'theme-button', text: section.settings.button_text | default: 'View All Bundles', href: '#shop' %}
+        </div>
+
+      </div>
+    </div>
+
+    {% comment %} 5 Category Cards in Responsive Grid {% endcomment %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      
+      {% comment %} Card 1: Fashion Store {% endcomment %}
+      <a
+        href="#shop"
+        class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#FDF0F0] border border-[#FADBD8] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
+        data-category-select="collars"
+      >
+        <div class="z-10 space-y-2">
+          <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
+            <span>Fashion</span><br><span>Store</span>
+          </h3>
+          <p class="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
+            Stylish clothing, collars, harnesses and more for your furry friends.
+          </p>
+        </div>
+        <div class="mt-auto pt-6 flex items-end justify-center w-full z-10">
+          <img
+            src="{{ 'category-1.webp' | asset_url }}"
+            alt="Fashion Store"
+            class="w-full max-h-[200px] sm:max-h-[220px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            width="250"
+            height="220"
+          >
+        </div>
+      </a>
+
+      {% comment %} Card 2: Accessories Store {% endcomment %}
+      <a
+        href="#shop"
+        class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#EAF4FB] border border-[#D4EBF8] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
+        data-category-select="travel"
+      >
+        <div class="z-10 space-y-2">
+          <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
+            <span>Accessories</span><br><span>Store</span>
+          </h3>
+          <p class="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
+            Collars, leashes, beds, carriers and everyday essentials.
+          </p>
+        </div>
+        <div class="mt-auto pt-6 flex items-end justify-center w-full z-10">
+          <img
+            src="{{ 'category-2.webp' | asset_url }}"
+            alt="Accessories Store"
+            class="w-full max-h-[200px] sm:max-h-[220px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            width="250"
+            height="220"
+          >
+        </div>
+      </a>
+
+      {% comment %} Card 3: Grooming Store {% endcomment %}
+      <a
+        href="#shop"
+        class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#FCF4E9] border border-[#F8E5CA] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
+        data-category-select="grooming"
+      >
+        <div class="z-10 space-y-2">
+          <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
+            <span>Grooming</span><br><span>Store</span>
+          </h3>
+          <p class="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
+            Shampoos, brushes, nail care and all grooming essentials.
+          </p>
+        </div>
+        <div class="mt-auto pt-6 flex items-end justify-center w-full z-10">
+          <img
+            src="{{ 'category-3.webp' | asset_url }}"
+            alt="Grooming Store"
+            class="w-full max-h-[200px] sm:max-h-[220px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            width="250"
+            height="220"
+          >
+        </div>
+      </a>
+
+      {% comment %} Card 4: Supplements Store {% endcomment %}
+      <a
+        href="#shop"
+        class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#EAF7EE] border border-[#D0EFD8] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
+        data-category-select="hygiene"
+      >
+        <div class="z-10 space-y-2">
+          <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
+            <span>Supplements</span><br><span>Store</span>
+          </h3>
+          <p class="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
+            Vitamins, supplements and healthcare products for a stronger, healthier pet.
+          </p>
+        </div>
+        <div class="mt-auto pt-6 flex items-end justify-center w-full z-10">
+          <img
+            src="{{ 'category-4.webp' | asset_url }}"
+            alt="Supplements Store"
+            class="w-full max-h-[200px] sm:max-h-[220px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            width="250"
+            height="220"
+          >
+        </div>
+      </a>
+
+      {% comment %} Card 5: Toys Store {% endcomment %}
+      <a
+        href="#shop"
+        class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#F5EEF8] border border-[#EBD7F0] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
+        data-category-select="toys"
+      >
+        <div class="z-10 space-y-2">
+          <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
+            <span>Toys</span><br><span>Store</span>
+          </h3>
+          <p class="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
+            Fun and durable toys to keep your pets active, happy and engaged.
+          </p>
+        </div>
+        <div class="mt-auto pt-6 flex items-end justify-center w-full z-10">
+          <img
+            src="{{ 'category-5.webp' | asset_url }}"
+            alt="Toys Store"
+            class="w-full max-h-[200px] sm:max-h-[220px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            width="250"
+            height="220"
+          >
+        </div>
+      </a>
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Curated Categories",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "Curated Categories"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Better"
+    },
+    {
+      "type": "text",
+      "id": "title_accent",
+      "label": "Title accent",
+      "default": "Together"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Curated bundles for everyday pet care."
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "View All Bundles"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Curated Categories"
+    }
+  ]
+}
+{% endschema %}

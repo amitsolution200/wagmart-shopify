@@ -1,0 +1,97 @@
+{
+  "sections": {
+    "hero_banner": {
+      "type": "hero-banner",
+      "settings": {}
+    },
+    "curated_categories": {
+      "type": "curated-categories",
+      "settings": {
+        "badge_label": "Curated Categories",
+        "title": "Better",
+        "title_accent": "Together",
+        "subtitle": "Curated bundles for everyday pet care.",
+        "button_text": "View All Bundles"
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "badge_label": "Our Best Sellers",
+        "title": "Loved by Pets, Chosen by Pet Parents",
+        "subtitle": "Discover our most popular products for happier, healthier pets.",
+        "products_to_show": 12
+      }
+    },
+    "shop_by_need": {
+      "type": "shop-by-need",
+      "settings": {}
+    },
+    "pet_category_banner": {
+      "type": "pet-category-banner",
+      "settings": {
+        "badge_label": "Shop by Pet",
+        "title": "Curated For",
+        "subtitle": "Tailored nutrition, playful toys, and specialized care essentials curated specifically for dogs and cats."
+      }
+    },
+    "pet_trust": {
+      "type": "pet-trust",
+      "settings": {
+        "badge_label": "The Wagmart Difference",
+        "title": "A Happier World for",
+        "title_accent": "Pets & Their People",
+        "subtitle": "Thoughtfully chosen essentials for everyday pet care.",
+        "col1_title": "Made for the Love They Give",
+        "metric_number": "3 Lakh+",
+        "metric_label": "Happy Pet Parents",
+        "delivery_title": "Fast Delivery"
+      }
+    },
+    "pet_reels": {
+      "type": "pet-reels",
+      "settings": {
+        "badge_label": "Pet Stories & Reels",
+        "title": "Real Pets.",
+        "title_accent": "Real Moments."
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "settings": {
+        "badge_label": "Customer Reviews",
+        "title": "The reviews say it all",
+        "rating_score": "4.96/5",
+        "reviews_count": "5-Star Reviews: 500+"
+      }
+    },
+    "blog_section": {
+      "type": "blog-section",
+      "settings": {
+        "badge_label": "Pet Journal & Care Guides",
+        "title": "Expert Tips & Stories for",
+        "title_accent": "Happier, Healthier"
+      }
+    },
+    "faq_accordion": {
+      "type": "faq-accordion",
+      "settings": {
+        "badge_label": "Frequently Asked Questions",
+        "title": "Common",
+        "title_accent": "Questions"
+      }
+    }
+  },
+  "order": [
+    "hero_banner",
+    "curated_categories",
+    "featured_collection",
+    "shop_by_need",
+    "pet_category_banner",
+    "pet_trust",
+    "pet_reels",
+    "testimonials",
+    "blog_section",
+    "faq_accordion"
+  ]
+}

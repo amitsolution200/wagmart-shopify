@@ -1,0 +1,205 @@
+{% comment %}
+  Wagmart "Pet Journal & Care Guides" Blog Section
+{% endcomment %}
+
+<section
+  id="blog"
+  aria-label="Wagmart Pet Journal and Blog"
+  class="w-full py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden scroll-mt-20 lg:scroll-mt-24"
+>
+  <div class="absolute -top-32 -left-32 w-96 h-96 bg-[#7a46e5]/5 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-[#219959]/5 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    
+    {% comment %} Section Header {% endcomment %}
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-14">
+      <div class="space-y-3 max-w-2xl">
+        {% render 'section-badge', label: section.settings.badge_label | default: 'Pet Journal & Care Guides', class: 'mb-1' %}
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#111827] tracking-tight leading-[1.15]">
+          {{ section.settings.title | default: 'Expert Tips & Stories for' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Happier, Healthier' }}</span> Pets
+        </h2>
+        <p class="text-base sm:text-lg text-neutral-600 font-medium leading-relaxed">
+          {{ section.settings.subtitle | default: 'Explore science-backed grooming techniques, veterinary nutrition insights, and fun indoor enrichment activities curated by certified pet care specialists.' }}
+        </p>
+      </div>
+
+      <div class="shrink-0 flex items-center gap-3">
+        {% render 'theme-button', text: 'Featured Article', href: '#blog' %}
+      </div>
+    </div>
+
+    {% comment %} 4 Blog Cards Grid {% endcomment %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 justify-items-center sm:justify-items-stretch">
+      {%- if section.settings.blog != blank and section.settings.blog.articles.size > 0 -%}
+        {%- for article in section.settings.blog.articles limit: 4 -%}
+          <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
+            <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
+              {%- if article.image -%}
+                <img
+                  src="{{ article.image | image_url: width: 600 }}"
+                  alt="{{ article.title | escape }}"
+                  loading="lazy"
+                  class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  width="380"
+                  height="210"
+                >
+              {%- endif -%}
+              <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
+                <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+                  {{ article.tags.first | default: 'Pet Care' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-col flex-1 px-1.5 pt-3.5">
+              <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
+                <a href="{{ article.url }}">{{ article.title }}</a>
+              </h3>
+              <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
+                {{ article.excerpt_or_content | strip_html | truncate: 110 }}
+              </p>
+              <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
+                <span>{{ article.published_at | date: "%d %b %Y" }}</span>
+                <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
+                <span>4 min read</span>
+              </div>
+            </div>
+          </article>
+        {%- endfor -%}
+      {%- else -%}
+        {% comment %} Default 4 Curated Pet Blog Articles matching React source {% endcomment %}
+        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
+          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
+            <img src="{{ 'dog-owner-happy.webp' | asset_url }}" alt="Simple Ways to Keep Your Pet Happy and Healthy" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
+            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
+              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Pet Care</span>
+            </div>
+          </div>
+          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
+            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
+              Simple Ways to Keep Your Pet Happy and Healthy
+            </h3>
+            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
+              Discover simple everyday habits that help your furry companion feel comfortable, active, and cared for.
+            </p>
+            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
+              <span>13 Oct 2026</span>
+              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
+              <span>4 min read</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
+          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
+            <img src="{{ 'dog-groomed.webp' | asset_url }}" alt="How to Keep Your Pet's Coat Healthy" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
+            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
+              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Grooming</span>
+            </div>
+          </div>
+          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
+            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
+              How to Keep Your Pet's Coat Healthy &amp; Tangle-Free
+            </h3>
+            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
+              A calm, gentle step-by-step grooming routine using slicker brushes, de-shedding gloves, and natural coat balms.
+            </p>
+            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
+              <span>12 Oct 2026</span>
+              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
+              <span>5 min read</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
+          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
+            <img src="{{ 'slow-feeder-nutrition.webp' | asset_url }}" alt="The Complete Guide to Slow Feeders" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
+            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
+              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Nutrition</span>
+            </div>
+          </div>
+          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
+            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
+              The Complete Guide to Slow Feeders &amp; Healthy Digestion
+            </h3>
+            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
+              Why rapid eating can trigger dangerous bloating and how interactive maze bowls turn mealtime into a mental puzzle.
+            </p>
+            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
+              <span>08 Oct 2026</span>
+              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
+              <span>4 min read</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
+          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
+            <img src="{{ 'cat-relaxing.webp' | asset_url }}" alt="Simple Indoor Enrichment Games" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
+            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
+              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Pet Wellness</span>
+            </div>
+          </div>
+          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
+            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
+              Simple Indoor Enrichment Games for Cats and Dogs
+            </h3>
+            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
+              Keep your furry companions mentally stimulated and curb separation anxiety on rainy days with interactive puzzle toys.
+            </p>
+            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
+              <span>29 Sep 2026</span>
+              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
+              <span>6 min read</span>
+            </div>
+          </div>
+        </article>
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Blog Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "Pet Journal & Care Guides"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Expert Tips & Stories for"
+    },
+    {
+      "type": "text",
+      "id": "title_accent",
+      "label": "Title accent",
+      "default": "Happier, Healthier"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Explore science-backed grooming techniques, veterinary nutrition insights, and fun indoor enrichment activities curated by certified pet care specialists."
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Blog Section"
+    }
+  ]
+}
+{% endschema %}

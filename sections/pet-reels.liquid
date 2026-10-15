@@ -1,0 +1,256 @@
+{% comment %}
+  Wagmart "Real Pets. Real Moments." Video Reels Section
+{% endcomment %}
+
+<section id="stories" class="bg-white py-16 md:py-20 overflow-hidden relative">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+    
+    {% comment %} Header {% endcomment %}
+    <div class="text-center max-w-2xl mx-auto mb-8 md:mb-12">
+      {% render 'section-badge', label: section.settings.badge_label | default: 'Pet Stories & Reels', class: 'mb-4' %}
+      <h2 class="font-nunito text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#1F2421] tracking-tight leading-tight">
+        {{ section.settings.title | default: 'Real Pets.' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Real Moments.' }}</span>
+      </h2>
+    </div>
+
+    {% comment %} Carousel Container {% endcomment %}
+    <div class="relative px-2 md:px-0">
+      
+      {% comment %} Left Arrow Button {% endcomment %}
+      <button
+        type="button"
+        data-reels-prev
+        class="cursor-pointer absolute -left-2 md:-left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/95 border border-neutral-200/80 hover:border-[#7a46e5] text-neutral-800 hover:text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 group focus:outline-none hover:bg-[#7a46e5]"
+        aria-label="Previous reel"
+      >
+        {% render 'icon-chevron-left', class: 'w-5 h-5 md:w-6 md:h-6' %}
+      </button>
+
+      {% comment %} Carousel Viewport {% endcomment %}
+      <div data-reels-carousel class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1 snap-x snap-mandatory">
+        {%- if section.blocks.size > 0 -%}
+          {%- for block in section.blocks -%}
+            <div
+              class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+              data-reel-card
+              data-reel-id="{{ block.id }}"
+              data-youtube-id="{{ block.settings.youtube_id }}"
+              data-reel-title="{{ block.settings.title | escape }}"
+              data-reel-tag="{{ block.settings.tag | escape }}"
+              data-reel-story="{{ block.settings.story | escape }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.thumbnail != blank -%}
+                <img
+                  src="{{ block.settings.thumbnail | image_url: width: 600 }}"
+                  alt="{{ block.settings.title | escape }}"
+                  class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                  width="400"
+                  height="620"
+                >
+              {%- else -%}
+                <img
+                  src="{{ 'reel-food_portrait.jpg' | asset_url }}"
+                  alt="{{ block.settings.title | escape }}"
+                  class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                  width="400"
+                  height="620"
+                >
+              {%- endif -%}
+
+              {% comment %} Category Tag {% endcomment %}
+              <div class="absolute top-3.5 left-3.5 z-10">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#DCE9D8] text-[#3B5438]">
+                  {{ block.settings.tag }}
+                </span>
+              </div>
+
+              {% comment %} Glassmorphism Overlay {% endcomment %}
+              <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+                <div class="flex items-center gap-2 mb-2">
+                  <img
+                    src="{{ 'WAGMART-Logo.webp' | asset_url }}"
+                    alt="Wagmart"
+                    class="h-5 w-auto object-contain filter brightness-0 invert"
+                    width="80"
+                    height="20"
+                  >
+                </div>
+                <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">
+                  {{ block.settings.title }}
+                </h3>
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- else -%}
+          {% comment %} Default Reels matching React App {% endcomment %}
+          <div
+            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            data-reel-card
+            data-reel-id="reel-food"
+            data-youtube-id="ZO-T_lK4DPI"
+            data-reel-title="Healthy Meals Happier Days"
+            data-reel-tag="DOG FOOD"
+            data-reel-story="Watch how excited Golden Max gets for his balanced, nutritious dinner served in our elevated stainless steel feeder!"
+          >
+            <img src="{{ 'reel-food_portrait.jpg' | asset_url }}" alt="Healthy Meals" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
+            <div class="absolute top-3.5 left-3.5 z-10">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#DCE9D8] text-[#3B5438]">DOG FOOD</span>
+            </div>
+            <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+              <div class="flex items-center gap-2 mb-2">
+                <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
+              </div>
+              <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Healthy Meals Happier Days</h3>
+            </div>
+          </div>
+
+          <div
+            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            data-reel-card
+            data-reel-id="reel-grooming"
+            data-youtube-id="AOr9WB0XIUY"
+            data-reel-title="Grooming Made Easy at Home"
+            data-reel-tag="GROOMING"
+            data-reel-story="Gentle deshedding and coat care turning grooming time into a soothing massage your cat looks forward to every week."
+          >
+            <img src="{{ 'reel-grooming_portrait.jpg' | asset_url }}" alt="Grooming Made Easy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
+            <div class="absolute top-3.5 left-3.5 z-10">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#EADCF5] text-[#5E387C]">GROOMING</span>
+            </div>
+            <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+              <div class="flex items-center gap-2 mb-2">
+                <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
+              </div>
+              <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Grooming Made Easy at Home</h3>
+            </div>
+          </div>
+
+          <div
+            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            data-reel-card
+            data-reel-id="reel-toys"
+            data-youtube-id="jAuhRM4xQfg"
+            data-reel-title="Playtime Never Ends"
+            data-reel-tag="TOYS"
+            data-reel-story="High-energy puppy playtime with durable braided cotton rope toys and chew rings."
+          >
+            <img src="{{ 'reel-toys_portrait.jpg' | asset_url }}" alt="Playtime Never Ends" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
+            <div class="absolute top-3.5 left-3.5 z-10">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#F8E7D2] text-[#7D5024]">TOYS</span>
+            </div>
+            <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+              <div class="flex items-center gap-2 mb-2">
+                <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
+              </div>
+              <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Playtime Never Ends</h3>
+            </div>
+          </div>
+
+          <div
+            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            data-reel-card
+            data-reel-id="reel-travel"
+            data-youtube-id="Rs_Qst-XYPc"
+            data-reel-title="Ready For New Adventures"
+            data-reel-tag="TRAVEL"
+            data-reel-story="Worry-free road trips and safe scenic rides with the waterproof hammock seat cover and travel harness."
+          >
+            <img src="{{ 'reel-travel_portrait.jpg' | asset_url }}" alt="Ready For Adventures" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
+            <div class="absolute top-3.5 left-3.5 z-10">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#FAEED1] text-[#6D551E]">TRAVEL</span>
+            </div>
+            <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+              <div class="flex items-center gap-2 mb-2">
+                <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
+              </div>
+              <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Ready For New Adventures</h3>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {% comment %} Right Arrow Button {% endcomment %}
+      <button
+        type="button"
+        data-reels-next
+        class="cursor-pointer absolute -right-2 md:-right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/95 border border-neutral-200/80 hover:border-[#7a46e5] text-neutral-800 hover:text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 group focus:outline-none hover:bg-[#7a46e5]"
+        aria-label="Next reel"
+      >
+        {% render 'icon-chevron-right', class: 'w-5 h-5 md:w-6 md:h-6' %}
+      </button>
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Pet Reels & Stories",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "Pet Stories & Reels"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Real Pets."
+    },
+    {
+      "type": "text",
+      "id": "title_accent",
+      "label": "Title accent",
+      "default": "Real Moments."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "reel",
+      "name": "Reel",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "thumbnail",
+          "label": "Thumbnail image"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Category tag",
+          "default": "GROOMING"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Reel title",
+          "default": "Grooming Made Easy at Home"
+        },
+        {
+          "type": "text",
+          "id": "youtube_id",
+          "label": "YouTube Video ID",
+          "default": "AOr9WB0XIUY"
+        },
+        {
+          "type": "textarea",
+          "id": "story",
+          "label": "Reel story/description",
+          "default": "Gentle deshedding and coat care turning grooming time into a soothing massage."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pet Reels & Stories"
+    }
+  ]
+}
+{% endschema %}
