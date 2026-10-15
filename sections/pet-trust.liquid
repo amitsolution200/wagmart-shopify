@@ -58,14 +58,25 @@
 
         {% comment %} COLUMN 2: Premium Pet Lifestyle Image {% endcomment %}
         <div class="relative min-h-[300px] sm:min-h-[380px] lg:min-h-[440px] overflow-hidden bg-[#FAF8F5] border-b md:border-b-0 lg:border-r border-[#EAECEF]">
-          <img
-            src="{{ 'image.png' | asset_url }}"
-            alt="Happy pet parent with pet"
-            class="w-full h-full object-cover object-center absolute inset-0 transition-transform duration-700 hover:scale-[1.03]"
-            loading="lazy"
-            width="400"
-            height="440"
-          >
+          {%- if section.settings.image != blank -%}
+            <img
+              src="{{ section.settings.image | image_url: width: 800 }}"
+              alt="{{ section.settings.image.alt | default: 'Happy pet parent holding her dog' | escape }}"
+              class="w-full h-full object-cover object-center absolute inset-0 transition-transform duration-700 hover:scale-[1.03]"
+              loading="lazy"
+              width="{{ section.settings.image.width }}"
+              height="{{ section.settings.image.height }}"
+            >
+          {%- else -%}
+            <img
+              src="{{ 'testimonial_image.png' | asset_url }}"
+              alt="Happy pet parent holding her small dog in a sunlit home"
+              class="w-full h-full object-cover object-center absolute inset-0 transition-transform duration-700 hover:scale-[1.03]"
+              loading="lazy"
+              width="600"
+              height="600"
+            >
+          {%- endif -%}
         </div>
 
         {% comment %} COLUMN 3: Primary Trust Metric {% endcomment %}
@@ -162,6 +173,11 @@
       "id": "col1_desc",
       "label": "Column 1 Description",
       "default": "Discover thoughtful everyday essentials designed to make caring for your pets simpler and more enjoyable."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Column 2 Image"
     },
     {
       "type": "text",
