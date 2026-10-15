@@ -560,21 +560,21 @@
       currentSlide = (index + slides.length) % slides.length;
       slides.forEach((slide, i) => {
         if (i === currentSlide) {
-          slide.classList.remove('opacity-0', '-z-10');
-          slide.classList.add('opacity-100', 'z-0');
+          slide.classList.remove('opacity-0', '-z-10', 'pointer-events-none');
+          slide.classList.add('opacity-100', 'z-10');
         } else {
-          slide.classList.remove('opacity-100', 'z-0');
-          slide.classList.add('opacity-0', '-z-10');
+          slide.classList.remove('opacity-100', 'z-10');
+          slide.classList.add('opacity-0', '-z-10', 'pointer-events-none');
         }
       });
 
       dots.forEach((dot, i) => {
         if (i === currentSlide) {
-          dot.classList.add('w-5', 'sm:w-6', 'bg-[#7a46e5]');
-          dot.classList.remove('w-2', 'bg-black/25');
+          dot.classList.add('w-5', 'sm:w-6', 'bg-[#7a46e5]', 'shadow-xs');
+          dot.classList.remove('w-2', 'sm:w-2', 'bg-black/25');
         } else {
-          dot.classList.remove('w-5', 'sm:w-6', 'bg-[#7a46e5]');
-          dot.classList.add('w-2', 'bg-black/25');
+          dot.classList.remove('w-5', 'sm:w-6', 'bg-[#7a46e5]', 'shadow-xs');
+          dot.classList.add('w-2', 'sm:w-2', 'bg-black/25');
         }
       });
     }

@@ -2,7 +2,71 @@
   "sections": {
     "hero_banner": {
       "type": "hero-banner",
-      "settings": {}
+      "settings": {},
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "layout": "center",
+            "title": "Premium Pet Products",
+            "title_accent": "for Happier Paws",
+            "subtitle": "Explore our wide range of pet toys, grooming, accessories and care products for a healthier and happier life.",
+            "button_text": "Shop Now",
+            "button_link": "#shop"
+          }
+        },
+        "slide_2": {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "Clean Pets,",
+            "title_accent": "Happier Days",
+            "subtitle": "Wagmart Neem & Aloevera Shampoo keeps your pet’s coat clean, soft, fresh and naturally healthy.",
+            "button_text": "Shop Now",
+            "button_link": "#shop"
+          }
+        },
+        "slide_3": {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "A Cleaner Home,",
+            "title_accent": "A Happier Pet",
+            "subtitle": "Easily remove loose pet hair from your pet, sofa, bed, clothes and more.",
+            "button_text": "Shop Now",
+            "button_link": "#shop"
+          }
+        },
+        "slide_4": {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "Gentle Grooming",
+            "title_accent": "for a Happier Cat",
+            "subtitle": "Remove loose hair and make grooming a relaxing part of your cat’s day.",
+            "button_text": "Shop Now",
+            "button_link": "#shop"
+          }
+        },
+        "slide_5": {
+          "type": "slide",
+          "settings": {
+            "layout": "left",
+            "title": "Fresh Water,",
+            "title_accent": "Happy Pets",
+            "subtitle": "Make every mealtime easier with a feeding station designed for daily comfort.",
+            "button_text": "Shop Now",
+            "button_link": "#shop"
+          }
+        }
+      },
+      "block_order": [
+        "slide_1",
+        "slide_2",
+        "slide_3",
+        "slide_4",
+        "slide_5"
+      ]
     },
     "curated_categories": {
       "type": "curated-categories",

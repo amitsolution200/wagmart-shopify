@@ -110,3 +110,21 @@ body {
     height: 500px !important;
   }
 }
+
+/* Hero Banner Responsive Content Container */
+.hero-slide-content {
+  padding-left: 3.25rem !important;
+  padding-right: 3.25rem !important;
+}
+@media (min-width: 640px) {
+  .hero-slide-content {
+    padding-left: 3.75rem !important;
+    padding-right: 3.75rem !important;
+  }
+}
+@media (min-width: 1024px) {
+  .hero-slide-content {
+    padding-left: 4.5rem !important;
+    padding-right: 4.5rem !important;
+  }
+}
