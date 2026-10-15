@@ -1,6 +1,6 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
 import { SectionBadge } from './SectionBadge';
+import { ThemeButton } from './ThemeButton';
 
 // ==================== Dedicated Vector Icons matching Reference Mockup ====================
 
@@ -86,7 +86,7 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
         <div className="text-center max-w-2xl mx-auto mb-7 sm:mb-9 lg:mb-11">
           <SectionBadge label="Shop by Pet" className="mb-2" />
           <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#111827] tracking-tight leading-[1.15]">
-            Curated For <span className="text-[#00BCD4]">Dogs</span> &amp; <span className="text-[#FF5376]">Cats</span>
+            Curated For <span className="text-[#7a46e5]">Dogs</span> &amp; <span className="text-[#FF5376]">Cats</span>
           </h2>
           <p className="text-sm sm:text-base text-neutral-600 font-medium pt-1.5 max-w-lg mx-auto leading-relaxed">
             Tailored nutrition, playful toys, and specialized care essentials curated specifically for dogs and cats.
@@ -114,7 +114,7 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
               }
             }}
             aria-label="Shop for Dogs"
-            className="group relative overflow-hidden rounded-[26px] sm:rounded-[30px] lg:rounded-[34px] bg-white border border-[#E7E5E4] p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_45px_-12px_rgba(0,188,212,0.22)] hover:border-[#00BCD4]/50 transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer min-h-[350px] sm:min-h-[410px] lg:min-h-[440px] flex items-center justify-between"
+            className="group relative overflow-hidden rounded-[26px] sm:rounded-[30px] lg:rounded-[34px] bg-white border border-[#E7E5E4] p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_45px_-12px_rgba(122,70,229,0.22)] hover:border-[#7a46e5]/50 transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer min-h-[350px] sm:min-h-[410px] lg:min-h-[440px] flex items-center justify-between"
           >
             {/* Left Content Column */}
             <div className="relative z-10 w-[58%] sm:w-[54%] md:w-[56%] flex flex-col justify-between h-full py-1">
@@ -124,7 +124,7 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
                 <span className="block font-black text-3xl sm:text-4xl md:text-5xl lg:text-[54px] text-[#002D3A] tracking-tight leading-[0.95]">
                   FOR
                 </span>
-                <span className="block font-black text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-[#00BCD4] tracking-tight leading-[0.95] mt-1">
+                <span className="block font-black text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-[#7a46e5] tracking-tight leading-[0.95] mt-1">
                   DOG
                 </span>
               </div>
@@ -133,7 +133,7 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
               <div className="space-y-2.5 sm:space-y-3 my-4 sm:my-5 lg:my-6">
                 {/* 1. Food & Treats */}
                 <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#E0F7FA] text-[#00BCD4] flex items-center justify-center shrink-0 shadow-2xs">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F4EFFE] text-[#7a46e5] flex items-center justify-center shrink-0 shadow-2xs">
                     <BoneIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                   <span className="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
@@ -143,7 +143,7 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
 
                 {/* 2. Toys & Play */}
                 <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#E0F7FA] text-[#00BCD4] flex items-center justify-center shrink-0 shadow-2xs">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F4EFFE] text-[#7a46e5] flex items-center justify-center shrink-0 shadow-2xs">
                     <TennisBallIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                   <span className="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
@@ -153,7 +153,7 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
 
                 {/* 3. Grooming & Care */}
                 <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#E0F7FA] text-[#00BCD4] flex items-center justify-center shrink-0 shadow-2xs">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F4EFFE] text-[#7a46e5] flex items-center justify-center shrink-0 shadow-2xs">
                     <PawPrintIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                   <span className="text-xs sm:text-sm lg:text-[15px] font-bold text-[#374151] tracking-wide">
@@ -162,16 +162,14 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
                 </div>
               </div>
 
-              {/* Action Button matching Reference Image exactly */}
+              {/* Action Button */}
               <div>
-                <button
-                  type="button"
+                <ThemeButton
                   onClick={(e) => handleAction('dog', e)}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 bg-[#00BCD4] hover:bg-[#00ACC1] active:scale-95 text-white font-extrabold text-xs sm:text-sm tracking-wider uppercase px-5 sm:px-7 py-2.5 sm:py-3 rounded-full shadow-[0_4px_16px_rgba(0,188,212,0.35)] hover:shadow-[0_6px_22px_rgba(0,188,212,0.48)] transition-all duration-200 cursor-pointer group/btn"
+                  size="md"
                 >
-                  <span>SHOP NOW</span>
-                  <ChevronRight className="w-4 h-4 stroke-[3] group-hover/btn:translate-x-0.5 transition-transform" />
-                </button>
+                  Shop Now
+                </ThemeButton>
               </div>
 
             </div>
@@ -254,16 +252,15 @@ export const PetCategoryBanner: React.FC<PetCategoryBannerProps> = ({
                 </div>
               </div>
 
-              {/* Action Button matching Reference Image exactly */}
+              {/* Action Button */}
               <div>
-                <button
-                  type="button"
+                <ThemeButton
                   onClick={(e) => handleAction('cat', e)}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 bg-[#FF5376] hover:bg-[#F43F5E] active:scale-95 text-white font-extrabold text-xs sm:text-sm tracking-wider uppercase px-5 sm:px-7 py-2.5 sm:py-3 rounded-full shadow-[0_4px_16px_rgba(255,83,118,0.35)] hover:shadow-[0_6px_22px_rgba(255,83,118,0.48)] transition-all duration-200 cursor-pointer group/btn"
+                  size="md"
+                  className="bg-[#FF5376] hover:bg-[#F43F5E] shadow-[0_4px_16px_rgba(255,83,118,0.35)] hover:shadow-[0_6px_22px_rgba(255,83,118,0.48)] border-transparent"
                 >
-                  <span>SHOP NOW</span>
-                  <ChevronRight className="w-4 h-4 stroke-[3] group-hover/btn:translate-x-0.5 transition-transform" />
-                </button>
+                  Shop Now
+                </ThemeButton>
               </div>
 
             </div>

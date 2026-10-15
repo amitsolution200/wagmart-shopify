@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export interface ThemeButtonProps {
   children: React.ReactNode;
@@ -43,19 +43,16 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
   // Sizing variants
   const sizeStyles = {
     sm: {
-      button: isIconVisible ? 'pl-3.5 pr-1.5 py-1 text-xs gap-2' : 'px-4 py-1.5 text-xs',
-      badge: 'w-6 h-6',
-      icon: 'w-3 h-3 stroke-[2.5]',
+      button: isIconVisible ? 'pl-3.5 pr-2.5 py-1.5 text-xs gap-1.5' : 'px-4 py-1.5 text-xs',
+      icon: 'w-3.5 h-3.5 stroke-[2.5]',
     },
     md: {
-      button: isIconVisible ? 'pl-4 pr-2 sm:pr-2 py-1.5 sm:py-1.5 text-xs sm:text-sm gap-3' : 'px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm',
-      badge: 'w-7 h-7 sm:w-8 sm:h-8',
-      icon: 'w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]',
+      button: isIconVisible ? 'pl-4 sm:pl-5 pr-3 sm:pr-4 py-2 sm:py-2.5 text-xs sm:text-sm gap-2' : 'px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm',
+      icon: 'w-4 h-4 stroke-[2.5]',
     },
     lg: {
-      button: isIconVisible ? 'pl-6 sm:pl-7 pr-2.5 py-2.5 sm:py-3 text-sm sm:text-base gap-3.5' : 'px-7 sm:px-8 py-3 text-sm sm:text-base',
-      badge: 'w-8 h-8 sm:w-9 sm:h-9',
-      icon: 'w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5]',
+      button: isIconVisible ? 'pl-6 sm:pl-7 pr-4.5 sm:pr-5 py-2.5 sm:py-3 text-sm sm:text-base gap-2.5' : 'px-7 sm:px-8 py-3 text-sm sm:text-base',
+      icon: 'w-4.5 h-4.5 stroke-[2.5]',
     },
   }[size];
 
@@ -76,17 +73,15 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
 
       <span className="relative z-10 tracking-wide">{children}</span>
 
-      {/* Unique circular arrow badge */}
+      {/* Direct ChevronRight icon without circular white badge */}
       {isIconVisible && (
-        <span
-          className={`relative z-10 shrink-0 rounded-full bg-white text-[#7a46e5] flex items-center justify-center shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:bg-white ${sizeStyles.badge} ${badgeClassName}`}
-        >
-          {icon || (
-            <ArrowRight
-              className={`${sizeStyles.icon} transition-transform duration-300 group-hover:translate-x-0.5`}
-            />
-          )}
-        </span>
+        icon ? (
+          <span className={`relative z-10 shrink-0 ${badgeClassName}`}>{icon}</span>
+        ) : (
+          <ChevronRight
+            className={`relative z-10 shrink-0 ${sizeStyles.icon} transition-transform duration-300 group-hover:translate-x-0.5 ${badgeClassName}`}
+          />
+        )
       )}
     </>
   );

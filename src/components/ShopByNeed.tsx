@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
 import { BundleItem } from '../types';
+import { ThemeButton } from './ThemeButton';
+import { SectionBadge } from './SectionBadge';
 
 interface ShopByNeedProps {
   onSelectBundle: (categoryFilter?: BundleItem['categoryFilter']) => void;
@@ -8,176 +9,320 @@ interface ShopByNeedProps {
 
 export const ShopByNeed: React.FC<ShopByNeedProps> = ({ onSelectBundle }) => {
   return (
-    <section id="bundles" className="py-12 sm:py-16 lg:py-20 bg-white font-sans">
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Bento Grid 5-Card Layout matching Reference Image */}
-        <div className="space-y-4 sm:space-y-5 lg:space-y-4">
-          {/* Top Row: 2 Cards (Dental Chews ~66.7% / Clearance Sale ~33.3%) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-4">
-            {/* Card 1: Dental Chews & Solutions for Dogs (Top Left) */}
+    <section
+      id="bundles"
+      className="w-full py-1.5 sm:py-2 md:py-2.5 bg-white font-sans md:h-[calc(100vh-74px)] md:max-h-[calc(100vh-74px)] flex flex-col justify-center overflow-hidden scroll-mt-18 sm:scroll-mt-20"
+    >
+      <div className="w-full max-w-[1580px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 h-full flex flex-col justify-between">
+        
+        {/* Bento Grid 5-Card Layout - Dynamically sized to fill 100% of single screen without clipping */}
+        <div className="h-full flex flex-col justify-between gap-2.5 sm:gap-3 lg:gap-3.5">
+          {/* =========================================================================
+              TOP ROW: 2 Large Cards (Fills ~54% of available screen height on md/lg)
+              Card 1: Grooming Essentials (Dog with Grooming Glove)
+              Card 2: Walking & Travel (Outdoor Walking Dog with Leash & Water Bottle)
+             ========================================================================= */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 lg:gap-3.5 items-stretch flex-[1.16] min-h-0">
+            {/* Card 1 — Grooming Essentials */}
             <div
-              onClick={() => onSelectBundle('feeding')}
-              className="lg:col-span-8 group relative overflow-hidden rounded-2xl bg-[#C1BFDB] p-6 sm:p-9 lg:p-10 min-h-[290px] sm:min-h-[320px] lg:min-h-[350px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
+              onClick={() => onSelectBundle('grooming')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectBundle('grooming');
+                }
+              }}
+              className="group relative overflow-hidden rounded-[20px] bg-white border border-[#E7E5E4] h-full min-h-[220px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
             >
-              {/* Left Content */}
-              <div className="relative z-10 max-w-[62%] sm:max-w-[55%] lg:max-w-[50%] flex flex-col justify-between h-full space-y-6">
-                <h3 className="text-2xl sm:text-3xl lg:text-[34px] xl:text-[38px] font-black text-[#1D1C3E] leading-[1.12] tracking-tight">
-                  Dental chews
-                  <br />
-                  and solutions
-                  <br />
-                  for Dogs
-                </h3>
+              {/* Full Background Image */}
+              <img
+                src="/bento/bento-grid-2.webp"
+                alt="Golden retriever dog enjoying gentle coat grooming with silicone glove"
+                className="absolute inset-0 w-full h-full object-cover object-[75%_center] transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+                loading="lazy"
+              />
 
-                <div>
-                  <button
-                    type="button"
+              {/* Increased Gradient on left side for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-48% to-transparent w-[78%] sm:w-[66%] lg:w-[58%] pointer-events-none z-[1]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]" />
+
+              {/* Left Content Column */}
+              <div className="relative z-10 w-full sm:w-[62%] lg:w-[56%] p-4 sm:p-5 lg:p-6 flex flex-col justify-between h-full">
+                {/* Badge + Heading + Description grouped with tight gap */}
+                <div className="space-y-1 sm:space-y-1.5">
+                  <div>
+                    <SectionBadge label="Grooming Essentials" className="scale-85 sm:scale-90 origin-left" />
+                  </div>
+
+                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-[25px] xl:text-[27px] font-black text-[#1E2228] leading-[1.12] tracking-tight">
+                    Effortless Grooming,
+                    <br />
+                    <span className="text-[#7a46e5]">Happier Pets</span>
+                  </h3>
+
+                  <p className="text-xs sm:text-[13px] text-neutral-600 font-medium leading-relaxed max-w-[250px] pt-0.5 line-clamp-2">
+                    Make grooming a gentle bonding moment with everyday pet-care essentials.
+                  </p>
+                </div>
+
+                {/* CTA Button */}
+                <div className="pt-2">
+                  <ThemeButton
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSelectBundle('feeding');
+                      onSelectBundle('grooming');
                     }}
-                    className="inline-flex items-center justify-center bg-white text-[#1D1C3E] font-bold text-sm sm:text-base px-6 py-2.5 sm:px-7 sm:py-3 rounded-[26px] shadow-xs hover:bg-[#1D1C3E] hover:text-white transition-all duration-200 cursor-pointer"
+                    size="md"
                   >
                     Shop Now
-                  </button>
+                  </ThemeButton>
                 </div>
-              </div>
-
-              {/* Right Cutout Image (Dog + Dental Chew Pouches) */}
-              <div className="absolute right-0 bottom-0 h-full w-[56%] sm:w-[50%] lg:w-[48%] pointer-events-none select-none flex items-end justify-end">
-                <img
-                  src="/bento/card1_dog_chews.png"
-                  alt="Dental chews and solutions for Dogs"
-                  className="h-full w-auto max-w-none object-contain object-right-bottom transition-transform duration-500 group-hover:scale-[1.03]"
-                  loading="lazy"
-                />
               </div>
             </div>
 
-            {/* Card 2: Clearance Sale Up to 50% Off (Top Right) */}
+            {/* Card 2 — Walking & Travel */}
             <div
-              onClick={() => onSelectBundle('feeding')}
-              className="lg:col-span-4 group relative overflow-hidden rounded-2xl bg-[#F1E0DC] p-6 sm:p-8 lg:p-9 min-h-[290px] sm:min-h-[320px] lg:min-h-[350px] flex flex-col justify-between items-center text-center cursor-pointer transition-all duration-300 hover:shadow-md"
+              onClick={() => onSelectBundle('travel')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectBundle('travel');
+                }
+              }}
+              className="group relative overflow-hidden rounded-[20px] bg-white border border-[#E7E5E4] h-full min-h-[220px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
             >
-              {/* Eyebrow */}
-              <span className="text-xs sm:text-[13px] font-black uppercase tracking-[0.2em] text-[#8E3725]">
-                CLEARANCE SALE!
-              </span>
+              {/* Full Background Image */}
+              <img
+                src="/bento/bento-grid-3.webp"
+                alt="Golden retriever dog drinking from portable travel water bottle outdoors"
+                className="absolute inset-0 w-full h-full object-cover object-[80%_center] transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+                loading="lazy"
+              />
 
-              {/* Main Headline */}
-              <div className="my-auto py-2">
-                <div className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[60px] font-black text-[#541C12] leading-[1.04] tracking-tight">
-                  UP TO
-                  <br />
-                  50% OFF
+              {/* Increased Gradient on left side for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-48% to-transparent w-[78%] sm:w-[66%] lg:w-[58%] pointer-events-none z-[1]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]" />
+
+              {/* Left Content Column */}
+              <div className="relative z-10 w-full sm:w-[62%] lg:w-[56%] p-4 sm:p-5 lg:p-6 flex flex-col justify-between h-full">
+                {/* Badge + Heading + Description grouped with tight gap */}
+                <div className="space-y-1 sm:space-y-1.5">
+                  <div>
+                    <SectionBadge label="Walking & Travel" className="scale-85 sm:scale-90 origin-left" />
+                  </div>
+
+                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-[25px] xl:text-[27px] font-black text-[#1E2228] leading-[1.12] tracking-tight">
+                    Every Walk Becomes
+                    <br />
+                    an <span className="text-[#7a46e5]">Adventure</span>
+                  </h3>
+
+                  <p className="text-xs sm:text-[13px] text-neutral-600 font-medium leading-relaxed max-w-[280px] pt-0.5 line-clamp-2">
+                    Enjoy more happy outdoor moments with practical walking and travel essentials.
+                  </p>
                 </div>
-              </div>
 
-              {/* Bottom Link with Circled Arrow */}
-              <div className="inline-flex items-center gap-2 text-sm sm:text-base font-extrabold text-[#702619] group-hover:text-[#4A150D] transition-colors">
-                <span className="underline decoration-1.5 underline-offset-4">Shop Now</span>
-                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-[#702619] group-hover:bg-[#702619] group-hover:text-white transition-all">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </span>
+                {/* CTA Button */}
+                <div className="pt-2">
+                  <ThemeButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectBundle('travel');
+                    }}
+                    size="md"
+                  >
+                    Shop Now
+                  </ThemeButton>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Row: 3 Equal Cards (Dog Foods, Automatic Litter Box [Only Product], Cat Food [Only Product]) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-4">
-            {/* Card 3: Fresh & Frozen Dog Foods (Bottom Left) */}
+          {/* =========================================================================
+              BOTTOM ROW: 3 Smaller Cards (Fills ~46% of available screen height on md/lg)
+              Card 3: Cat Care (Cat with Slicker Brush)
+              Card 4: Feeding Solutions (Dog with Automatic Smart Feeder)
+              Card 5: Dirty Paws Solutions (Dog with Muddy Paw Washer Cup)
+             ========================================================================= */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3 lg:gap-3.5 items-stretch flex-1 min-h-0">
+            {/* Card 3 — Cat Care */}
             <div
-              onClick={() => onSelectBundle('feeding')}
-              className="sm:col-span-1 group relative overflow-hidden rounded-2xl bg-[#5BEAB0] p-5 sm:p-6 lg:p-7 min-h-[200px] sm:min-h-[215px] lg:min-h-[225px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
+              onClick={() => onSelectBundle('grooming')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectBundle('grooming');
+                }
+              }}
+              className="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
             >
-              <div className="relative z-10 max-w-[58%] sm:max-w-[56%] flex flex-col justify-between h-full space-y-3">
-                <h3 className="text-lg sm:text-xl lg:text-[22px] font-black text-[#0D2261] leading-[1.18] tracking-tight">
-                  Fresh &<br />
-                  frozen<br />
-                  dog foods
-                </h3>
+              {/* Full Background Image - Shifted slightly right, clipped by card's rounded overflow-hidden */}
+              <img
+                src="/bento/bento-grid-1.webp"
+                alt="Fluffy cat enjoying gentle grooming with self-cleaning slicker brush"
+                className="absolute inset-0 w-full h-full object-cover object-[78%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+                loading="lazy"
+              />
 
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-[#0D2261] group-hover:text-[#061238] transition-colors pt-1">
-                  <span className="underline decoration-1 underline-offset-3">From only $4.90</span>
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-[#0D2261] group-hover:bg-[#0D2261] group-hover:text-white transition-all">
-                    <ArrowRight className="w-3 h-3" />
-                  </span>
+              {/* Increased Gradient on left side for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]" />
+
+              {/* Left Content Column */}
+              <div className="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
+                {/* Badge + Heading + Description grouped with tight gap */}
+                <div className="space-y-0.5 sm:space-y-1">
+                  <div>
+                    <SectionBadge label="Cat Care" className="scale-80 sm:scale-85 origin-left" />
+                  </div>
+
+                  <h3 className="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
+                    Gentle Care For
+                    <br />
+                    Their <span className="text-[#7a46e5]">Softest Days</span>
+                  </h3>
+
+                  <p className="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
+                    Keep your cat comfortable with everyday grooming essentials.
+                  </p>
                 </div>
-              </div>
 
-              {/* Dog cutout image */}
-              <div className="absolute right-0 bottom-0 h-full w-[48%] sm:w-[46%] pointer-events-none select-none flex items-end justify-end">
-                <img
-                  src="/bento/card3_dog.png"
-                  alt="Fresh & frozen dog foods"
-                  className="h-[92%] w-auto max-w-none object-contain object-right-bottom transition-transform duration-500 group-hover:scale-[1.04]"
-                  loading="lazy"
-                />
+                {/* CTA Button */}
+                <div className="pt-1.5">
+                  <ThemeButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectBundle('grooming');
+                    }}
+                    size="md"
+                  >
+                    Shop Now
+                  </ThemeButton>
+                </div>
               </div>
             </div>
 
-            {/* Card 4: Automatic Litter Box (Bottom Center - ONLY PRODUCT!) */}
+            {/* Card 4 — Feeding Solutions */}
+            <div
+              onClick={() => onSelectBundle('feeding')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectBundle('feeding');
+                }
+              }}
+              className="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
+            >
+              {/* Full Background Image - Shifted slightly right, clipped by card's rounded overflow-hidden */}
+              <img
+                src="/bento/bento-grid-5.webp"
+                alt="Dog eating fresh kibble from automatic smart pet food feeder"
+                className="absolute inset-0 w-full h-full object-cover object-[70%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+                loading="lazy"
+              />
+
+              {/* Increased Gradient on left side for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]" />
+
+              {/* Left Content Column */}
+              <div className="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
+                {/* Badge + Heading + Description grouped with tight gap */}
+                <div className="space-y-0.5 sm:space-y-1">
+                  <div>
+                    <SectionBadge label="Feeding Solutions" className="scale-80 sm:scale-85 origin-left" />
+                  </div>
+
+                  <h3 className="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
+                    Happier Mealtimes,
+                    <br />
+                    <span className="text-[#7a46e5]">Happier Pets</span>
+                  </h3>
+
+                  <p className="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
+                    Make daily feeding easier with practical feeding products.
+                  </p>
+                </div>
+
+                {/* CTA Button */}
+                <div className="pt-1.5">
+                  <ThemeButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectBundle('feeding');
+                    }}
+                    size="md"
+                  >
+                    Shop Now
+                  </ThemeButton>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 5 — Dirty Paws Solutions */}
             <div
               onClick={() => onSelectBundle('hygiene')}
-              className="sm:col-span-1 group relative overflow-hidden rounded-2xl bg-[#DAD5BE] p-5 sm:p-6 lg:p-7 min-h-[200px] sm:min-h-[215px] lg:min-h-[225px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectBundle('hygiene');
+                }
+              }}
+              className="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
             >
-              <div className="relative z-10 max-w-[58%] sm:max-w-[56%] flex flex-col justify-between h-full space-y-2">
-                <span className="block text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#5A5C55]">
-                  SNOWSAFE+ SYSTEM
-                </span>
+              {/* Full Background Image - Shifted slightly right, clipped by card's rounded overflow-hidden */}
+              <img
+                src="/bento/bento-grid-4.webp"
+                alt="Dog having muddy paws cleaned in silicone paw washer cup"
+                className="absolute inset-0 w-full h-full object-cover object-[78%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
+                loading="lazy"
+              />
 
-                <h3 className="text-lg sm:text-xl lg:text-[22px] font-black text-[#2B2D2B] leading-[1.18] tracking-tight">
-                  An automatic<br />
-                  litter box
-                </h3>
+              {/* Increased Gradient on left side for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]" />
 
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-[#2B2D2B] group-hover:text-black transition-colors pt-1">
-                  <span className="underline decoration-1 underline-offset-3">Pre-order Now</span>
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-[#2B2D2B] group-hover:bg-[#2B2D2B] group-hover:text-white transition-all">
-                    <ArrowRight className="w-3 h-3" />
-                  </span>
+              {/* Left Content Column */}
+              <div className="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
+                {/* Badge + Heading + Description grouped with tight gap */}
+                <div className="space-y-0.5 sm:space-y-1">
+                  <div>
+                    <SectionBadge label="Dirty Paws Solutions" className="scale-80 sm:scale-85 origin-left" />
+                  </div>
+
+                  <h3 className="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
+                    Clean Paws, More
+                    <br />
+                    <span className="text-[#7a46e5]">Happy Adventures</span>
+                  </h3>
+
+                  <p className="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
+                    Make post-walk clean-ups easier with convenient paw-care essentials.
+                  </p>
                 </div>
-              </div>
 
-              {/* ONLY PRODUCT: Automatic robotic litter box */}
-              <div className="absolute right-0 bottom-0 h-full w-[48%] sm:w-[46%] pointer-events-none select-none flex items-end justify-end">
-                <img
-                  src="/bento/card4_litterbox.png"
-                  alt="Automatic robotic cat litter box"
-                  className="h-[90%] w-auto max-w-none object-contain object-right-bottom transition-transform duration-500 group-hover:scale-[1.04]"
-                  loading="lazy"
-                />
-              </div>
-            </div>
-
-            {/* Card 5: Complete & Balanced Cat Food (Bottom Right - ONLY PRODUCT!) */}
-            <div
-              onClick={() => onSelectBundle('feeding')}
-              className="sm:col-span-2 lg:col-span-1 group relative overflow-hidden rounded-2xl bg-[#FBF256] p-5 sm:p-6 lg:p-7 min-h-[200px] sm:min-h-[215px] lg:min-h-[225px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
-            >
-              <div className="relative z-10 max-w-[60%] sm:max-w-[58%] flex flex-col justify-between h-full space-y-3">
-                <h3 className="text-lg sm:text-xl lg:text-[22px] font-black text-[#1A1D20] leading-[1.18] tracking-tight">
-                  Complete<br />
-                  & balanced<br />
-                  cat food
-                </h3>
-
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-[#1A1D20] group-hover:text-black transition-colors pt-1">
-                  <span className="underline decoration-1 underline-offset-3">Shop Cat Food</span>
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-[#1A1D20] group-hover:bg-[#1A1D20] group-hover:text-white transition-all">
-                    <ArrowRight className="w-3 h-3" />
-                  </span>
+                {/* CTA Button */}
+                <div className="pt-1.5">
+                  <ThemeButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectBundle('hygiene');
+                    }}
+                    size="md"
+                  >
+                    Shop Now
+                  </ThemeButton>
                 </div>
-              </div>
-
-              {/* ONLY PRODUCT: Reveal Cat Food Bag */}
-              <div className="absolute right-2 sm:right-3 bottom-0 h-full w-[40%] sm:w-[38%] pointer-events-none select-none flex items-end justify-end">
-                <img
-                  src="/bento/card5_catfood.png"
-                  alt="Reveal Complete and Balanced Cat Food"
-                  className="h-[92%] w-auto max-w-none object-contain object-right-bottom transition-transform duration-500 group-hover:scale-[1.04]"
-                  loading="lazy"
-                />
               </div>
             </div>
           </div>
