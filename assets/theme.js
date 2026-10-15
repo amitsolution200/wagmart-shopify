@@ -506,6 +506,14 @@
   // 5. REEL MODAL (YOUTUBE EMBED)
   // =========================================================================
   const ReelModal = {
+    extractId(raw) {
+      if (!raw) return '';
+      const str = raw.trim();
+      if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
+      const match = str.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : str;
+    },
+
     open(youtubeId, title, tag, story) {
       const modal = document.getElementById('reel-modal');
       if (!modal) return;
@@ -515,8 +523,10 @@
       const tagEl = modal.querySelector('[data-reel-tag]');
       const storyEl = modal.querySelector('[data-reel-story]');
 
-      if (iframe && youtubeId) {
-        iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+      const cleanId = this.extractId(youtubeId);
+
+      if (iframe && cleanId) {
+        iframe.src = `https://www.youtube.com/embed/${cleanId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
       }
       if (titleEl) titleEl.textContent = title || '';
       if (tagEl) tagEl.textContent = tag || '';

@@ -1,11 +1,11 @@
 {% comment %}
-  Renders section badge pill with purple square marker
+  Renders section badge pill with Lucide paw-print (footprint) icon
   Accepts:
   - label: {String} Badge text
   - class: {String} Additional classes
 {% endcomment %}
-<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border bg-[#7a46e5]/10 border-[#7a46e5]/20 {{ class }}">
-  <span class="w-2 h-2 rounded-[2px] bg-[#7a46e5]"></span>
+<div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border bg-[#7a46e5]/10 border-[#7a46e5]/20 {{ class }}">
+  {% render 'icon-paw-print', class: 'w-3.5 h-3.5 text-[#7a46e5] shrink-0' %}
   <span class="text-xs font-extrabold uppercase tracking-wider text-[#7a46e5]">
     {{ label }}
   </span>

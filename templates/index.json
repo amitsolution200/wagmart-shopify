@@ -120,7 +120,7 @@
           "settings": {
             "title": "Healthy Meals Happier Days",
             "tag": "DOG FOOD",
-            "youtube_id": "ZO-T_lK4DPI",
+            "youtube_id": "5H4sZNYtBFc",
             "story": "Watch how excited Golden Max gets for his balanced, nutritious dinner served in our elevated stainless steel feeder!"
           }
         },
@@ -129,7 +129,7 @@
           "settings": {
             "title": "Grooming Made Easy at Home",
             "tag": "GROOMING",
-            "youtube_id": "AOr9WB0XIUY",
+            "youtube_id": "LB8Qfa9tTsU",
             "story": "Gentle deshedding and coat care turning grooming time into a soothing massage your cat looks forward to every week."
           }
         },
@@ -138,8 +138,8 @@
           "settings": {
             "title": "Playtime Never Ends",
             "tag": "TOYS",
-            "youtube_id": "jAuhRM4xQfg",
-            "story": "High-energy puppy playtime with durable braided cotton rope toys and chew rings."
+            "youtube_id": "vwz9XsIcRik",
+            "story": "High-energy puppy playtime with durable braided cotton rope toys and chew rings that keep tails wagging all afternoon."
           }
         },
         "reel_travel": {
@@ -147,7 +147,7 @@
           "settings": {
             "title": "Ready For New Adventures",
             "tag": "TRAVEL",
-            "youtube_id": "Rs_Qst-XYPc",
+            "youtube_id": "GalPqZH1glY",
             "story": "Worry-free road trips and safe scenic rides with the waterproof hammock seat cover and travel harness."
           }
         },
@@ -156,8 +156,17 @@
           "settings": {
             "title": "Sleep Tight, Wake Bright",
             "tag": "BEDS & MATS",
-            "youtube_id": "ZO-T_lK4DPI",
+            "youtube_id": "7gUf76myTkw",
             "story": "Orthopedic memory foam pet beds providing gentle joint support and peaceful sleep for all pet sizes."
+          }
+        },
+        "reel_training": {
+          "type": "reel",
+          "settings": {
+            "title": "Smart Paws & Easy Training",
+            "tag": "TRAINING",
+            "youtube_id": "-XoqseUWfFg",
+            "story": "Rewarding good habits with tasty bites and interactive puzzle training treats."
           }
         }
       },
@@ -166,7 +175,8 @@
         "reel_grooming",
         "reel_toys",
         "reel_travel",
-        "reel_beds"
+        "reel_beds",
+        "reel_training"
       ],
       "settings": {
         "badge_label": "Pet Stories & Reels",

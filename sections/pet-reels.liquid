@@ -40,6 +40,31 @@
               data-reel-story="{{ block.settings.story | escape }}"
               {{ block.shopify_attributes }}
             >
+              {%- assign fallback_img = 'reel-food_portrait.jpg' -%}
+              {%- assign tag_bg = 'bg-[#DCE9D8]' -%}
+              {%- assign tag_color = 'text-[#3B5438]' -%}
+              {%- if block.settings.tag contains 'GROOM' -%}
+                {%- assign fallback_img = 'reel-grooming_portrait.jpg' -%}
+                {%- assign tag_bg = 'bg-[#EADCF5]' -%}
+                {%- assign tag_color = 'text-[#5E387C]' -%}
+              {%- elsif block.settings.tag contains 'TOY' -%}
+                {%- assign fallback_img = 'reel-toys_portrait.jpg' -%}
+                {%- assign tag_bg = 'bg-[#F8E7D2]' -%}
+                {%- assign tag_color = 'text-[#7D5024]' -%}
+              {%- elsif block.settings.tag contains 'BED' or block.settings.tag contains 'MAT' or block.settings.tag contains 'HOME' -%}
+                {%- assign fallback_img = 'reel-beds_portrait.jpg' -%}
+                {%- assign tag_bg = 'bg-[#D4EBF7]' -%}
+                {%- assign tag_color = 'text-[#225774]' -%}
+              {%- elsif block.settings.tag contains 'TRAVEL' -%}
+                {%- assign fallback_img = 'reel-travel_portrait.jpg' -%}
+                {%- assign tag_bg = 'bg-[#FAEED1]' -%}
+                {%- assign tag_color = 'text-[#6D551E]' -%}
+              {%- elsif block.settings.tag contains 'TRAIN' -%}
+                {%- assign fallback_img = 'reel-toys_portrait.jpg' -%}
+                {%- assign tag_bg = 'bg-[#E0E7FF]' -%}
+                {%- assign tag_color = 'text-[#3730A3]' -%}
+              {%- endif -%}
+
               {%- if block.settings.thumbnail != blank -%}
                 <img
                   src="{{ block.settings.thumbnail | image_url: width: 600 }}"
@@ -51,7 +76,7 @@
                 >
               {%- else -%}
                 <img
-                  src="{{ 'reel-food_portrait.jpg' | asset_url }}"
+                  src="{{ fallback_img | asset_url }}"
                   alt="{{ block.settings.title | escape }}"
                   class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   loading="lazy"
@@ -62,7 +87,7 @@
 
               {% comment %} Category Tag {% endcomment %}
               <div class="absolute top-3.5 left-3.5 z-10">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#DCE9D8] text-[#3B5438]">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs {{ tag_bg }} {{ tag_color }}">
                   {{ block.settings.tag }}
                 </span>
               </div>
@@ -92,12 +117,12 @@
             </div>
           {%- endfor -%}
         {%- else -%}
-          {% comment %} Default Reels matching React App {% endcomment %}
+          {% comment %} Default Reels matching React App with verified YouTube videos {% endcomment %}
           <div
             class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-food"
-            data-youtube-id="ZO-T_lK4DPI"
+            data-youtube-id="5H4sZNYtBFc"
             data-reel-title="Healthy Meals Happier Days"
             data-reel-tag="DOG FOOD"
             data-reel-story="Watch how excited Golden Max gets for his balanced, nutritious dinner served in our elevated stainless steel feeder!"
@@ -123,7 +148,7 @@
             class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-grooming"
-            data-youtube-id="AOr9WB0XIUY"
+            data-youtube-id="LB8Qfa9tTsU"
             data-reel-title="Grooming Made Easy at Home"
             data-reel-tag="GROOMING"
             data-reel-story="Gentle deshedding and coat care turning grooming time into a soothing massage your cat looks forward to every week."
@@ -149,10 +174,10 @@
             class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-toys"
-            data-youtube-id="jAuhRM4xQfg"
+            data-youtube-id="vwz9XsIcRik"
             data-reel-title="Playtime Never Ends"
             data-reel-tag="TOYS"
-            data-reel-story="High-energy puppy playtime with durable braided cotton rope toys and chew rings."
+            data-reel-story="High-energy puppy playtime with durable interactive toys and chew rings that keep tails wagging all afternoon."
           >
             <img src="{{ 'reel-toys_portrait.jpg' | asset_url }}" alt="Playtime Never Ends" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
             <div class="absolute top-3.5 left-3.5 z-10">
@@ -175,7 +200,7 @@
             class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-travel"
-            data-youtube-id="Rs_Qst-XYPc"
+            data-youtube-id="GalPqZH1glY"
             data-reel-title="Ready For New Adventures"
             data-reel-tag="TRAVEL"
             data-reel-story="Worry-free road trips and safe scenic rides with the waterproof hammock seat cover and travel harness."
@@ -201,14 +226,14 @@
             class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-beds"
-            data-youtube-id="ZO-T_lK4DPI"
+            data-youtube-id="7gUf76myTkw"
             data-reel-title="Sleep Tight, Wake Bright"
             data-reel-tag="BEDS & MATS"
             data-reel-story="Orthopedic memory foam pet beds providing gentle joint support and peaceful sleep for all pet sizes."
           >
             <img src="{{ 'reel-beds_portrait.jpg' | asset_url }}" alt="Sleep Tight" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
             <div class="absolute top-3.5 left-3.5 z-10">
-              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#E1EAF7] text-[#2F4E75]">BEDS & MATS</span>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#D4EBF7] text-[#225774]">BEDS & MATS</span>
             </div>
             <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
               <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
@@ -220,6 +245,32 @@
                 <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
               </div>
               <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Sleep Tight, Wake Bright</h3>
+            </div>
+          </div>
+
+          <div
+            class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
+            data-reel-card
+            data-reel-id="reel-training"
+            data-youtube-id="-XoqseUWfFg"
+            data-reel-title="Smart Paws & Easy Training"
+            data-reel-tag="TRAINING"
+            data-reel-story="Rewarding good habits with tasty bites and interactive puzzle training treats."
+          >
+            <img src="{{ 'reel-toys_portrait.jpg' | asset_url }}" alt="Smart Paws & Easy Training" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
+            <div class="absolute top-3.5 left-3.5 z-10">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#E0E7FF] text-[#3730A3]">TRAINING</span>
+            </div>
+            <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <svg class="h-7 w-7 text-white fill-white translate-x-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </div>
+            <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+              <div class="flex items-center gap-2 mb-2">
+                <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
+              </div>
+              <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Smart Paws & Easy Training</h3>
             </div>
           </div>
         {%- endif -%}
