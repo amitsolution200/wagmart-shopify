@@ -1090,11 +1090,31 @@
   }
 
   // =========================================================================
+  // STICKY HEADER SCROLL SHADOW
+  // =========================================================================
+  function initStickyHeader() {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    const onScroll = () => {
+      if (window.scrollY > 10) {
+        header.classList.add('header-scrolled', 'shadow-md');
+      } else {
+        header.classList.remove('header-scrolled', 'shadow-md');
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // =========================================================================
   // INITIALIZATION ON DOM READY
   // =========================================================================
   document.addEventListener('DOMContentLoaded', () => {
     Cart.fetch();
     Wishlist.init();
+    initStickyHeader();
     initHeroBanner();
     initBestSellers();
     initPetReels();

@@ -185,3 +185,26 @@ body {
   pointer-events: none !important;
   transform: translateY(8px) !important;
 }
+
+/* Sticky Header */
+#shopify-section-header,
+.shopify-section-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  width: 100% !important;
+}
+
+#shopify-section-header header,
+.shopify-section-header header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  width: 100% !important;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease !important;
+}
+
+.header-scrolled {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
