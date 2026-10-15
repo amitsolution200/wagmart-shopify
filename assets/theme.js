@@ -47,7 +47,7 @@
       }
     },
 
-    async add(variantId, quantity = 1) {
+    async add(variantId, quantity = 1, openDrawer = true, productData = null) {
       try {
         const res = await fetch('/cart/add.js', {
           method: 'POST',
@@ -56,15 +56,17 @@
         });
         if (!res.ok) throw new Error('Add to cart failed');
         await this.fetch();
-        this.openDrawer();
+        if (openDrawer) {
+          this.openDrawer();
+        }
       } catch (err) {
         console.error('Error adding to cart:', err);
         // Fallback for preview mode without live backend
-        this.fallbackAdd(variantId, quantity);
+        this.fallbackAdd(variantId, quantity, openDrawer, productData);
       }
     },
 
-    fallbackAdd(productId, quantity = 1) {
+    fallbackAdd(productId, quantity = 1, openDrawer = true, productData = null) {
       const existing = WagmartState.cart.items.find(
         (i) => i.id == productId || i.product_id == productId
       );
@@ -73,10 +75,11 @@
       } else {
         WagmartState.cart.items.push({
           id: productId,
+          product_id: productId,
           quantity: quantity,
-          title: 'Pet Essential Item',
-          price: 79900,
-          image: '',
+          title: productData?.name || 'Pet Essential Item',
+          price: productData?.price || 79900,
+          image: productData?.image || '',
         });
       }
       WagmartState.cart.item_count = WagmartState.cart.items.reduce(
@@ -84,7 +87,9 @@
         0
       );
       this.render();
-      this.openDrawer();
+      if (openDrawer) {
+        this.openDrawer();
+      }
     },
 
     async update(keyOrId, quantity) {
@@ -98,11 +103,13 @@
         await this.fetch();
       } catch (err) {
         // Preview fallback
-        const item = WagmartState.cart.items.find((i) => (i.key || i.id) == keyOrId);
+        const item = WagmartState.cart.items.find(
+          (i) => (i.key || i.id) == keyOrId || i.product_id == keyOrId
+        );
         if (item) {
           if (quantity <= 0) {
             WagmartState.cart.items = WagmartState.cart.items.filter(
-              (i) => (i.key || i.id) != keyOrId
+              (i) => (i.key || i.id) != keyOrId && i.product_id != keyOrId
             );
           } else {
             item.quantity = quantity;
@@ -218,7 +225,10 @@
       document.querySelectorAll('[data-product-card]').forEach((card) => {
         const prodId = card.getAttribute('data-product-id');
         const cartItem = WagmartState.cart.items.find(
-          (i) => i.id == prodId || i.product_id == prodId
+          (i) =>
+            i.id == prodId ||
+            i.product_id == prodId ||
+            (i.variant_id && i.variant_id == prodId)
         );
         const qty = cartItem ? cartItem.quantity : 0;
         const addBtn = card.querySelector('[data-add-to-cart]');
@@ -912,7 +922,7 @@
         return;
       }
 
-      // 8. Add to Cart from Product Card
+      // 8. Add to Cart from Product Card (Do NOT open drawer, show stepper directly)
       const addBtn = e.target.closest('[data-add-to-cart]');
       if (addBtn) {
         e.stopPropagation();
@@ -920,12 +930,17 @@
         const card = addBtn.closest('[data-product-card]');
         if (card) {
           const id = card.getAttribute('data-product-id');
-          Cart.add(id, 1);
+          const name = card.getAttribute('data-product-name');
+          const priceRaw = card.getAttribute('data-product-price') || '';
+          const price =
+            parseInt(priceRaw.replace(/[^0-9]/g, ''), 10) * 100 || 79900;
+          const image = card.getAttribute('data-product-image');
+          Cart.add(id, 1, false, { name, price, image });
         }
         return;
       }
 
-      // 9. Card Quantity Stepper
+      // 9. Card Quantity Stepper (+ / -)
       const cardQtyBtn = e.target.closest('[data-card-stepper-btn]');
       if (cardQtyBtn) {
         e.stopPropagation();
@@ -933,13 +948,21 @@
         const card = cardQtyBtn.closest('[data-product-card]');
         if (card) {
           const id = card.getAttribute('data-product-id');
-          const delta = parseInt(cardQtyBtn.getAttribute('data-delta'), 10);
+          const delta = parseInt(cardQtyBtn.getAttribute('data-delta'), 10) || 0;
           const currentItem = WagmartState.cart.items.find(
             (i) => i.id == id || i.product_id == id
           );
           const currentQty = currentItem ? currentItem.quantity : 0;
           Cart.update(id, currentQty + delta);
         }
+        return;
+      }
+
+      // 9.1 Prevent clicks inside stepper from triggering Quick View modal
+      const cardStepper = e.target.closest('[data-card-stepper]');
+      if (cardStepper) {
+        e.stopPropagation();
+        e.preventDefault();
         return;
       }
 

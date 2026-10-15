@@ -14,7 +14,7 @@
 
 {%- liquid
   if product != blank
-    assign prod_id = product.id
+    assign prod_id = product.selected_or_first_available_variant.id | default: product.id
     assign prod_title = product.title
     assign prod_url = product.url
     assign prod_desc = product.description | strip_html | truncate: 90
@@ -121,7 +121,7 @@
     </div>
 
     {% comment %} Right CTA Button / Quantity Stepper Transformation {% endcomment %}
-    <div>
+    <div class="relative shrink-0 flex items-center justify-end">
       {% comment %} Default Add to Cart Button {% endcomment %}
       <button
         type="button"
@@ -139,31 +139,31 @@
 
       {% comment %} Active Quantity Stepper (Shown when in cart) {% endcomment %}
       <div
-        class="hidden h-[42px] bg-black text-white px-1.5 py-1 rounded-full items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
+        class="hidden h-[42px] bg-black text-white px-1.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
         data-card-stepper
       >
         <button
           type="button"
-          class="w-7.5 h-7.5 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer text-xs font-bold"
+          class="w-7.5 h-7.5 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
           data-card-stepper-btn
           data-delta="-1"
           aria-label="Decrease quantity"
         >
-          &minus;
+          <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
 
-        <span class="text-white font-extrabold text-[13px] px-1.5 min-w-[20px] text-center select-none" data-card-qty>
+        <span class="text-white font-extrabold text-[13px] px-1.5 min-w-[20px] text-center select-none shrink-0" data-card-qty>
           1
         </span>
 
         <button
           type="button"
-          class="w-7.5 h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs text-xs font-bold"
+          class="w-7.5 h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
           data-card-stepper-btn
           data-delta="1"
           aria-label="Increase quantity"
         >
-          &#43;
+          <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
       </div>
     </div>
