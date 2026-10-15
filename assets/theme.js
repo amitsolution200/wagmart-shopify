@@ -706,7 +706,7 @@
   }
 
   // =========================================================================
-  // 8. PET REELS CAROUSEL
+  // 8. PET REELS CAROUSEL & HOVER VIDEO PLAYBACK
   // =========================================================================
   function initPetReels() {
     const section = document.getElementById('stories');
@@ -724,6 +724,92 @@
         carousel.scrollBy({ left: 320, behavior: 'smooth' });
       });
     }
+
+    const cards = section.querySelectorAll('[data-reel-card]');
+    cards.forEach((card) => {
+      const rawYtId = card.getAttribute('data-youtube-id');
+      const cleanId = ReelModal.extractId(rawYtId);
+      const videoContainer = card.querySelector('[data-reel-video]');
+      const playIndicator = card.querySelector('[data-play-indicator]');
+      const cardOverlay = card.querySelector('[data-card-overlay]');
+      let hoverTimeout = null;
+
+      function startVideo() {
+        if (!cleanId || !videoContainer) return;
+        card.setAttribute('data-playing', 'true');
+
+        if (playIndicator) {
+          playIndicator.classList.add('opacity-0', 'scale-90');
+          playIndicator.classList.remove('opacity-100', 'scale-100');
+        }
+        if (cardOverlay) {
+          cardOverlay.classList.add('opacity-0', 'translate-y-3');
+          cardOverlay.classList.remove('opacity-100', 'translate-y-0');
+        }
+
+        let iframe = videoContainer.querySelector('iframe');
+        if (!iframe) {
+          iframe = document.createElement('iframe');
+          iframe.className = 'absolute inset-0 w-full h-full object-cover pointer-events-none scale-[1.38] origin-center border-0';
+          iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+          iframe.setAttribute('title', card.getAttribute('data-reel-title') || 'Wagmart Reel');
+          videoContainer.appendChild(iframe);
+        }
+        iframe.src = `https://www.youtube.com/embed/${cleanId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${cleanId}&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+        videoContainer.classList.remove('opacity-0', 'pointer-events-none');
+        videoContainer.classList.add('opacity-100');
+      }
+
+      function stopVideo() {
+        if (hoverTimeout) {
+          clearTimeout(hoverTimeout);
+          hoverTimeout = null;
+        }
+        card.removeAttribute('data-playing');
+
+        if (playIndicator) {
+          playIndicator.classList.remove('opacity-0', 'scale-90');
+          playIndicator.classList.add('opacity-100', 'scale-100');
+        }
+        if (cardOverlay) {
+          cardOverlay.classList.remove('opacity-0', 'translate-y-3');
+          cardOverlay.classList.add('opacity-100', 'translate-y-0');
+        }
+        if (videoContainer) {
+          videoContainer.classList.remove('opacity-100');
+          videoContainer.classList.add('opacity-0', 'pointer-events-none');
+          const iframe = videoContainer.querySelector('iframe');
+          if (iframe) {
+            iframe.src = 'about:blank';
+            iframe.remove();
+          }
+        }
+      }
+
+      card.addEventListener('mouseenter', () => {
+        hoverTimeout = setTimeout(startVideo, 120);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        stopVideo();
+      });
+
+      // On click / tap: toggle video playback directly on the card without popup modal
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (card.getAttribute('data-playing') === 'true') {
+          stopVideo();
+        } else {
+          cards.forEach((c) => {
+            if (c !== card && c.getAttribute('data-playing') === 'true') {
+              c.dispatchEvent(new Event('mouseleave'));
+            }
+          });
+          startVideo();
+        }
+      });
+    });
   }
 
   // =========================================================================
@@ -936,15 +1022,9 @@
         return;
       }
 
-      // 18. Reel Trigger
+      // 18. Reel Trigger (Popup modal removed; inline video on hover active)
       const reelCard = e.target.closest('[data-reel-card]');
       if (reelCard) {
-        const id = reelCard.getAttribute('data-reel-id');
-        const ytId = reelCard.getAttribute('data-youtube-id');
-        const title = reelCard.getAttribute('data-reel-title');
-        const tag = reelCard.getAttribute('data-reel-tag');
-        const story = reelCard.getAttribute('data-reel-story');
-        ReelModal.open(ytId, title, tag, story);
         return;
       }
 

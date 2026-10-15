@@ -128,3 +128,60 @@ body {
     padding-right: 4.5rem !important;
   }
 }
+
+/* Pet Reels Video on Hover */
+[data-reel-card] [data-reel-thumb] {
+  transition: opacity 0.4s ease, transform 0.6s ease !important;
+}
+
+[data-reel-card][data-playing="true"] [data-reel-thumb] {
+  opacity: 0 !important;
+}
+
+[data-reel-video] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  background-color: #000000 !important;
+  border-radius: 24px !important;
+  z-index: 10 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+[data-reel-video] iframe {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  transform: translate(-50%, -50%) scale(1.35) !important;
+  transform-origin: center center !important;
+  border: 0 !important;
+  pointer-events: none !important;
+}
+
+[data-reel-card] [data-play-indicator] {
+  transition: opacity 0.3s ease, transform 0.3s ease !important;
+  z-index: 25 !important;
+}
+
+[data-reel-card][data-playing="true"] [data-play-indicator] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(0.85) !important;
+}
+
+[data-reel-card] [data-card-overlay] {
+  transition: opacity 0.3s ease, transform 0.3s ease !important;
+  z-index: 25 !important;
+}
+
+[data-reel-card][data-playing="true"] [data-card-overlay] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(8px) !important;
+}
