@@ -757,15 +757,49 @@
           cardOverlay.classList.remove('opacity-100', 'translate-y-0');
         }
 
+        function sendYtCommand(func, args = []) {
+          try {
+            if (iframe && iframe.contentWindow) {
+              iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'command', func, args }),
+                '*'
+              );
+            }
+          } catch (err) {}
+        }
+
         let iframe = videoContainer.querySelector('iframe');
         if (!iframe) {
           iframe = document.createElement('iframe');
-          iframe.className = 'absolute inset-0 w-full h-full object-cover pointer-events-none scale-[1.38] origin-center border-0';
-          iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-          iframe.setAttribute('title', card.getAttribute('data-reel-title') || 'Wagmart Reel');
+          iframe.className =
+            'absolute inset-0 w-full h-full object-cover pointer-events-none scale-[1.38] origin-center border-0';
+          iframe.setAttribute(
+            'allow',
+            'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+          );
+          iframe.setAttribute(
+            'title',
+            card.getAttribute('data-reel-title') || 'Wagmart Reel'
+          );
           videoContainer.appendChild(iframe);
         }
-        iframe.src = `https://www.youtube.com/embed/${cleanId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${cleanId}&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+
+        const targetSrc = `https://www.youtube.com/embed/${cleanId}?autoplay=1&mute=0&controls=0&loop=1&playlist=${cleanId}&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+        if (iframe.src !== targetSrc) {
+          iframe.src = targetSrc;
+        }
+
+        const triggerAudio = () => {
+          sendYtCommand('unMute');
+          sendYtCommand('setVolume', [100]);
+          sendYtCommand('playVideo');
+        };
+
+        iframe.onload = triggerAudio;
+        setTimeout(triggerAudio, 300);
+        setTimeout(triggerAudio, 800);
+        setTimeout(triggerAudio, 1500);
+
         videoContainer.classList.remove('opacity-0', 'pointer-events-none');
         videoContainer.classList.add('opacity-100');
       }
@@ -804,12 +838,29 @@
         stopVideo();
       });
 
-      // On click / tap: toggle video playback directly on the card without popup modal
+      // On click / tap: play unmuted video directly on the card
       card.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (card.getAttribute('data-playing') === 'true') {
-          stopVideo();
+          // If already playing, ensure sound is unmuted and loud
+          const iframe = videoContainer.querySelector('iframe');
+          if (iframe && iframe.contentWindow) {
+            try {
+              iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
+                '*'
+              );
+              iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }),
+                '*'
+              );
+              iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'command', func: 'playVideo', args: [] }),
+                '*'
+              );
+            } catch (err) {}
+          }
         } else {
           cards.forEach((c) => {
             if (c !== card && c.getAttribute('data-playing') === 'true') {
