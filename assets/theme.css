@@ -52,3 +52,61 @@ body {
 .modal-backdrop {
   background-color: rgba(0, 0, 0, 0.5);
 }
+
+/* ==========================================================================
+   Pet Reels Video Carousel & Cards
+   ========================================================================== */
+.reels-carousel {
+  display: flex !important;
+  gap: 1.5rem !important;
+  overflow-x: auto !important;
+  scroll-behavior: smooth !important;
+  scroll-snap-type: x mandatory !important;
+  padding: 0.5rem 0.25rem 1rem 0.25rem !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.reels-carousel::-webkit-scrollbar {
+  display: none !important;
+}
+
+[data-reel-card] {
+  flex: 0 0 82vw !important;
+  max-width: 320px !important;
+  min-height: 460px !important;
+  height: 480px !important;
+  aspect-ratio: 9 / 14 !important;
+  position: relative !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  background-color: #171717 !important;
+  scroll-snap-align: start !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+[data-reel-card]:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.16) !important;
+}
+
+@media (min-width: 640px) {
+  [data-reel-card] {
+    flex: 0 0 300px !important;
+    height: 490px !important;
+  }
+}
+@media (min-width: 1024px) {
+  [data-reel-card] {
+    flex: 0 0 280px !important;
+    height: 480px !important;
+  }
+}
+@media (min-width: 1280px) {
+  [data-reel-card] {
+    flex: 0 0 310px !important;
+    height: 500px !important;
+  }
+}

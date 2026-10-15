@@ -27,11 +27,11 @@
       </button>
 
       {% comment %} Carousel Viewport {% endcomment %}
-      <div data-reels-carousel class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1 snap-x snap-mandatory">
+      <div data-reels-carousel class="reels-carousel flex gap-6 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1 snap-x snap-mandatory">
         {%- if section.blocks.size > 0 -%}
           {%- for block in section.blocks -%}
             <div
-              class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+              class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
               data-reel-card
               data-reel-id="{{ block.id }}"
               data-youtube-id="{{ block.settings.youtube_id }}"
@@ -67,6 +67,13 @@
                 </span>
               </div>
 
+              {% comment %} Hover Play Button Indicator {% endcomment %}
+              <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
+                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                  <svg class="h-7 w-7 text-white fill-white translate-x-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </div>
+              </div>
+
               {% comment %} Glassmorphism Overlay {% endcomment %}
               <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
                 <div class="flex items-center gap-2 mb-2">
@@ -87,7 +94,7 @@
         {%- else -%}
           {% comment %} Default Reels matching React App {% endcomment %}
           <div
-            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-food"
             data-youtube-id="ZO-T_lK4DPI"
@@ -99,6 +106,11 @@
             <div class="absolute top-3.5 left-3.5 z-10">
               <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#DCE9D8] text-[#3B5438]">DOG FOOD</span>
             </div>
+            <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <svg class="h-7 w-7 text-white fill-white translate-x-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </div>
             <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
               <div class="flex items-center gap-2 mb-2">
                 <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
@@ -108,7 +120,7 @@
           </div>
 
           <div
-            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-grooming"
             data-youtube-id="AOr9WB0XIUY"
@@ -120,6 +132,11 @@
             <div class="absolute top-3.5 left-3.5 z-10">
               <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#EADCF5] text-[#5E387C]">GROOMING</span>
             </div>
+            <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <svg class="h-7 w-7 text-white fill-white translate-x-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </div>
             <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
               <div class="flex items-center gap-2 mb-2">
                 <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
@@ -129,7 +146,7 @@
           </div>
 
           <div
-            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-toys"
             data-youtube-id="jAuhRM4xQfg"
@@ -141,6 +158,11 @@
             <div class="absolute top-3.5 left-3.5 z-10">
               <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#F8E7D2] text-[#7D5024]">TOYS</span>
             </div>
+            <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <svg class="h-7 w-7 text-white fill-white translate-x-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </div>
             <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
               <div class="flex items-center gap-2 mb-2">
                 <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
@@ -150,7 +172,7 @@
           </div>
 
           <div
-            class="flex-[0_0_80%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] xl:flex-[0_0_23%] relative aspect-[9/14] rounded-[24px] overflow-hidden shadow-[0px_4px_16px_rgba(0,0,0,0.06)] group cursor-pointer bg-neutral-900 select-none snap-start"
+            class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
             data-reel-card
             data-reel-id="reel-travel"
             data-youtube-id="Rs_Qst-XYPc"
@@ -162,11 +184,42 @@
             <div class="absolute top-3.5 left-3.5 z-10">
               <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#FAEED1] text-[#6D551E]">TRAVEL</span>
             </div>
+            <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <svg class="h-7 w-7 text-white fill-white translate-x-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </div>
             <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
               <div class="flex items-center gap-2 mb-2">
                 <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
               </div>
               <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Ready For New Adventures</h3>
+            </div>
+          </div>
+
+          <div
+            class="reel-card shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer bg-neutral-900 select-none snap-start"
+            data-reel-card
+            data-reel-id="reel-beds"
+            data-youtube-id="ZO-T_lK4DPI"
+            data-reel-title="Sleep Tight, Wake Bright"
+            data-reel-tag="BEDS & MATS"
+            data-reel-story="Orthopedic memory foam pet beds providing gentle joint support and peaceful sleep for all pet sizes."
+          >
+            <img src="{{ 'reel-beds_portrait.jpg' | asset_url }}" alt="Sleep Tight" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="620">
+            <div class="absolute top-3.5 left-3.5 z-10">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-nunito font-extrabold tracking-wider uppercase backdrop-blur-md shadow-xs bg-[#E1EAF7] text-[#2F4E75]">BEDS & MATS</span>
+            </div>
+            <div class="absolute inset-0 z-20 flex items-center justify-center transition-all duration-300 bg-black/10 opacity-0 group-hover:opacity-100">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <svg class="h-7 w-7 text-white fill-white translate-x-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </div>
+            <div class="absolute inset-x-4 bottom-4 z-10 backdrop-blur-md bg-white/10 rounded-[20px] p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+              <div class="flex items-center gap-2 mb-2">
+                <img src="{{ 'WAGMART-Logo.webp' | asset_url }}" alt="Wagmart" class="h-5 w-auto object-contain filter brightness-0 invert" width="80" height="20">
+              </div>
+              <h3 class="font-nunito text-sm sm:text-base font-bold text-white line-clamp-2 leading-tight tracking-tight drop-shadow-sm">Sleep Tight, Wake Bright</h3>
             </div>
           </div>
         {%- endif -%}

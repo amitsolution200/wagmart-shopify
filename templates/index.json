@@ -50,6 +50,60 @@
     },
     "pet_reels": {
       "type": "pet-reels",
+      "blocks": {
+        "reel_food": {
+          "type": "reel",
+          "settings": {
+            "title": "Healthy Meals Happier Days",
+            "tag": "DOG FOOD",
+            "youtube_id": "ZO-T_lK4DPI",
+            "story": "Watch how excited Golden Max gets for his balanced, nutritious dinner served in our elevated stainless steel feeder!"
+          }
+        },
+        "reel_grooming": {
+          "type": "reel",
+          "settings": {
+            "title": "Grooming Made Easy at Home",
+            "tag": "GROOMING",
+            "youtube_id": "AOr9WB0XIUY",
+            "story": "Gentle deshedding and coat care turning grooming time into a soothing massage your cat looks forward to every week."
+          }
+        },
+        "reel_toys": {
+          "type": "reel",
+          "settings": {
+            "title": "Playtime Never Ends",
+            "tag": "TOYS",
+            "youtube_id": "jAuhRM4xQfg",
+            "story": "High-energy puppy playtime with durable braided cotton rope toys and chew rings."
+          }
+        },
+        "reel_travel": {
+          "type": "reel",
+          "settings": {
+            "title": "Ready For New Adventures",
+            "tag": "TRAVEL",
+            "youtube_id": "Rs_Qst-XYPc",
+            "story": "Worry-free road trips and safe scenic rides with the waterproof hammock seat cover and travel harness."
+          }
+        },
+        "reel_beds": {
+          "type": "reel",
+          "settings": {
+            "title": "Sleep Tight, Wake Bright",
+            "tag": "BEDS & MATS",
+            "youtube_id": "ZO-T_lK4DPI",
+            "story": "Orthopedic memory foam pet beds providing gentle joint support and peaceful sleep for all pet sizes."
+          }
+        }
+      },
+      "block_order": [
+        "reel_food",
+        "reel_grooming",
+        "reel_toys",
+        "reel_travel",
+        "reel_beds"
+      ],
       "settings": {
         "badge_label": "Pet Stories & Reels",
         "title": "Real Pets.",
