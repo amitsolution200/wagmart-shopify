@@ -12,7 +12,8 @@
     
     {% comment %} Section Header {% endcomment %}
     <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14 lg:mb-16">
-      {% render 'section-badge', label: section.settings.badge_label | default: 'The Wagmart Difference', class: 'mb-6' %}
+      {%- assign badge_label = section.settings.badge_label | default: 'The Wagmart Difference' -%}
+      {% render 'section-badge', label: badge_label, class: 'mb-6' %}
       <h2 class="font-nunito font-bold text-2xl sm:text-3xl md:text-4xl lg:text-[40px] text-[#171717] tracking-tight leading-[1.2] mb-3">
         {{ section.settings.title | default: 'A Happier World for' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Pets & Their People' }}</span>
       </h2>

@@ -47,3 +47,4 @@ __pycache__/
 # Shopify CLI
 .shopify/
 scratch/
+*.zip

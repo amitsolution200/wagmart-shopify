@@ -11,7 +11,8 @@
         
         {% comment %} Left Title & Subtitle {% endcomment %}
         <div class="space-y-1.5 z-10">
-          {% render 'section-badge', label: section.settings.badge_label | default: 'Curated Categories', class: 'mb-2' %}
+          {%- assign badge_label = section.settings.badge_label | default: 'Curated Categories' -%}
+          {% render 'section-badge', label: badge_label, class: 'mb-2' %}
           <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1E2228] tracking-tight">
             {{ section.settings.title | default: 'Better' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Together' }}</span>
           </h2>
@@ -34,7 +35,8 @@
 
         {% comment %} Right Action Button {% endcomment %}
         <div class="self-start lg:self-end z-10 pb-1">
-          {% render 'theme-button', text: section.settings.button_text | default: 'View All Bundles', href: '#shop' %}
+          {%- assign btn_text = section.settings.button_text | default: 'View All Bundles' -%}
+          {% render 'theme-button', text: btn_text, href: '#shop' %}
         </div>
 
       </div>

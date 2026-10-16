@@ -7,7 +7,8 @@
     
     {% comment %} Section Header {% endcomment %}
     <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-12 lg:mb-16">
-      {% render 'section-badge', label: section.settings.badge_label | default: 'Customer Reviews', class: 'mb-4' %}
+      {%- assign badge_label = section.settings.badge_label | default: 'Customer Reviews' -%}
+      {% render 'section-badge', label: badge_label, class: 'mb-4' %}
       <h2 class="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#1C1814] tracking-tight leading-tight">
         {{ section.settings.title | default: 'The reviews say it all' }}
       </h2>

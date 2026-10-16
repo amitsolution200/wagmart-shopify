@@ -11,7 +11,8 @@
 
     {% comment %} Section Header {% endcomment %}
     <div class="text-center max-w-2xl mx-auto mb-7 sm:mb-9 lg:mb-11">
-      {% render 'section-badge', label: section.settings.badge_label | default: 'Shop by Pet', class: 'mb-2' %}
+      {%- assign badge_label = section.settings.badge_label | default: 'Shop by Pet' -%}
+      {% render 'section-badge', label: badge_label, class: 'mb-2' %}
       <h2 class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#111827] tracking-tight leading-[1.15]">
         {{ section.settings.title | default: 'Curated For' }} <span class="text-[#7a46e5]">Dogs</span> &amp; <span class="text-[#FF5376]">Cats</span>
       </h2>

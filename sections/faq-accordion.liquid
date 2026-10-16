@@ -23,7 +23,8 @@
   <div class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8 sm:pb-12 flex flex-col items-center">
     
     {% comment %} Eyebrow {% endcomment %}
-    {% render 'section-badge', label: section.settings.badge_label | default: 'Frequently Asked Questions', class: 'mb-2' %}
+    {%- assign badge_label = section.settings.badge_label | default: 'Frequently Asked Questions' -%}
+    {% render 'section-badge', label: badge_label, class: 'mb-2' %}
 
     {% comment %} Heading {% endcomment %}
     <h2 class="text-3xl sm:text-4xl lg:text-[42px] font-bold tracking-tight mt-2.5 sm:mt-3 text-center leading-tight">

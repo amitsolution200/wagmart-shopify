@@ -7,7 +7,8 @@
     
     {% comment %} Header {% endcomment %}
     <div class="text-center max-w-2xl mx-auto mb-8 md:mb-12">
-      {% render 'section-badge', label: section.settings.badge_label | default: 'Pet Stories & Reels', class: 'mb-4' %}
+      {%- assign badge_label = section.settings.badge_label | default: 'Pet Stories & Reels' -%}
+      {% render 'section-badge', label: badge_label, class: 'mb-4' %}
       <h2 class="font-nunito text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#1F2421] tracking-tight leading-tight">
         {{ section.settings.title | default: 'Real Pets.' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Real Moments.' }}</span>
       </h2>

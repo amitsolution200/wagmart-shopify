@@ -53,7 +53,8 @@
                 {{ block.settings.subtitle }}
               </p>
               <div class="mt-6 sm:mt-8 select-none">
-                {% render 'theme-button', text: block.settings.button_text, href: block.settings.button_link | default: '#shop' %}
+                {%- assign btn_href = block.settings.button_link | default: '#shop' -%}
+                {% render 'theme-button', text: block.settings.button_text, href: btn_href %}
               </div>
             </div>
           {%- else -%}
@@ -66,7 +67,8 @@
                 {{ block.settings.subtitle }}
               </p>
               <div class="mt-6 sm:mt-7 select-none">
-                {% render 'theme-button', text: block.settings.button_text, href: block.settings.button_link | default: '#shop' %}
+                {%- assign btn_href = block.settings.button_link | default: '#shop' -%}
+                {% render 'theme-button', text: block.settings.button_text, href: btn_href %}
               </div>
             </div>
           {%- endif -%}
