@@ -1,0 +1,42 @@
+{%- comment -%}
+  Wagmart Collection Pagination Snippet
+  - Centered numbered pagination: Prev, 1 2 3 ... 10, Next
+  - Active page is a filled dark-green circle (#1B3A2A)
+  - Mobile "Load more products" button option above pagination
+{%- endcomment -%}
+
+<div class="wm-plp-pagination-wrap" data-plp-pagination-wrap>
+  <div class="wm-plp-load-more-wrap">
+    <button type="button" class="wm-plp-load-more-btn" data-plp-load-more>
+      <span>Load More Products</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+
+  <nav class="wm-plp-pagination" aria-label="Pagination" data-plp-pagination>
+    <button
+      type="button"
+      class="wm-page-btn wm-page-btn--nav"
+      data-page-prev
+      disabled
+      aria-label="Previous page"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <button type="button" class="wm-page-btn is-active" data-page-num="1" aria-current="page" aria-label="Page 1">1</button>
+    <button type="button" class="wm-page-btn" data-page-num="2" aria-label="Page 2">2</button>
+    <button type="button" class="wm-page-btn" data-page-num="3" aria-label="Page 3">3</button>
+    <span class="wm-page-dots" aria-hidden="true">&hellip;</span>
+    <button type="button" class="wm-page-btn" data-page-num="10" aria-label="Page 10">10</button>
+
+    <button
+      type="button"
+      class="wm-page-btn wm-page-btn--nav"
+      data-page-next
+      aria-label="Next page"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </nav>
+</div>

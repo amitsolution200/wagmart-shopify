@@ -1,109 +1,230 @@
-{% comment %}
-  Wagmart Main Cart Page Section
-{% endcomment %}
+{{ 'cart.css' | asset_url | stylesheet_tag }}
 
-<section class="py-12 sm:py-16 bg-white">
-  <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-    
-    <div class="text-center max-w-xl mx-auto mb-10">
-      {% render 'section-badge', label: 'Shopping Cart', class: 'mb-3' %}
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827]">
-        Your Wagmart Cart
-      </h1>
-    </div>
+{%- liquid
+  assign has_items = false
+  if cart.item_count > 0
+    assign has_items = true
+  endif
+-%}
 
-    {%- if cart.item_count > 0 -%}
-      <form action="{{ routes.cart_url }}" method="post" id="cart" class="bg-white rounded-3xl p-6 sm:p-10 border border-[#EAE5D9] shadow-sm space-y-6">
-        <div class="divide-y divide-[#F0EBE1]">
-          {%- for item in cart.items -%}
-            <div class="py-4 flex items-center justify-between gap-4">
-              <div class="flex items-center gap-4 min-w-0">
-                <div class="w-20 h-20 bg-neutral-50 rounded-2xl p-2 border border-[#EAE5D9] shrink-0 flex items-center justify-center overflow-hidden">
-                  {%- if item.image -%}
-                    <img
-                      src="{{ item.image | image_url: width: 160 }}"
-                      alt="{{ item.title | escape }}"
-                      width="80"
-                      height="80"
-                      loading="lazy"
-                      class="w-full h-full object-contain"
-                    >
-                  {%- endif -%}
-                </div>
-                <div class="min-w-0">
-                  <h3 class="font-bold text-base text-[#111827] truncate">
-                    <a href="{{ item.url }}" class="hover:text-[#7a46e5]">{{ item.product.title }}</a>
-                  </h3>
-                  <p class="text-xs text-neutral-500">{{ item.variant.title }}</p>
-                  <p class="text-sm font-extrabold text-[#7a46e5] mt-1">{{ item.final_price | money }}</p>
-                </div>
-              </div>
+<div class="wm-cart-page" data-cart-page data-default-img="{{ 'grooming.png' | asset_url }}">
+  <script type="application/json" id="wm-cart-initial-json">
+    {{ cart | json }}
+  </script>
 
-              <div class="flex items-center gap-4">
-                <div class="flex items-center border border-[#D5CEBF] rounded-xl p-1 bg-white">
-                  <input
-                    type="number"
-                    name="updates[]"
-                    value="{{ item.quantity }}"
-                    min="0"
-                    class="w-12 text-center text-sm font-bold focus:outline-hidden"
-                  >
-                </div>
+  <div class="wm-cart-container">
+    {%- comment -%} Breadcrumb {%- endcomment -%}
+    <nav class="wm-cart-breadcrumb" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url | default: '/' }}">Home</a>
+      <span class="wm-cart-breadcrumb__sep" aria-hidden="true">/</span>
+      <span class="wm-cart-breadcrumb__current" aria-current="page">Shopping Cart</span>
+    </nav>
 
-                <a
-                  href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity=0"
-                  class="p-2 text-neutral-400 hover:text-red-500 transition"
-                  aria-label="Remove {{ item.title | escape }}"
-                >
-                  {% render 'icon-trash', class: 'w-5 h-5' %}
-                </a>
-              </div>
-            </div>
-          {%- endfor -%}
+    {%- comment -%} =======================================================
+       1. FILLED CART STATE
+       ======================================================= {%- endcomment -%}
+    <div class="wm-cart-filled-wrap" data-cart-filled-view {% unless has_items %}hidden{% endunless %}>
+      {%- comment -%} Page Header {%- endcomment -%}
+      <header class="wm-cart-header">
+        <div class="wm-cart-header__left">
+          <h1 class="wm-cart-header__title">Shopping Cart</h1>
+          <span class="wm-cart-header__count" data-cart-header-count>
+            {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}
+          </span>
         </div>
+        <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Continue shopping</span>
+        </a>
+      </header>
 
-        <div class="pt-6 border-t border-[#F0EBE1] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <button type="submit" name="update" class="px-6 py-2.5 rounded-full border border-[#D5CEBF] text-xs font-bold text-gray-700 hover:bg-gray-50 cursor-pointer">
-            Update Cart
-          </button>
+      {%- comment -%} Two-Column Layout (65% Left / 35% Right, gap 32px) {%- endcomment -%}
+      <form action="{{ routes.cart_url | default: '/cart' }}" method="post" id="wm-cart-form" novalidate>
+        <div class="wm-cart-grid">
+          {%- comment -%} LEFT COLUMN: Cart Items Card {%- endcomment -%}
+          <div class="wm-cart-left-col">
+            <div class="wm-cart-items-card">
+              <div class="wm-cart-table-head" aria-hidden="true">
+                <span>Product</span>
+                <span>Price</span>
+                <span>Quantity</span>
+                <span style="text-align: right;">Total</span>
+              </div>
 
-          <div class="text-right">
-            <p class="text-xs text-neutral-500">Subtotal</p>
-            <p class="text-2xl font-black text-[#111827]">{{ cart.total_price | money }}</p>
-            <p class="text-[11px] text-neutral-400">Taxes and shipping calculated at checkout</p>
-            <div class="mt-3">
-              <button
-                type="submit"
-                name="checkout"
-                class="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#7a46e5] to-[#9361fa] text-white font-bold text-sm shadow-md hover:opacity-95 cursor-pointer"
-              >
-                Proceed to Checkout
-              </button>
+              <div class="wm-cart-items-list" data-cart-page-items role="region" aria-live="polite" aria-label="Shopping cart items">
+                {%- for item in cart.items -%}
+                  {% render 'cart-item-row', item: item %}
+                {%- endfor -%}
+              </div>
+
+              {%- comment -%} Cart Footer Actions: Order Note & Clear Cart {%- endcomment -%}
+              <div class="wm-cart-items-footer">
+                <div class="wm-cart-footer-bar">
+                  <button
+                    type="button"
+                    class="wm-cart-note-toggle"
+                    data-cart-note-toggle
+                    aria-expanded="{% if cart.note != blank %}true{% else %}false{% endif %}"
+                    aria-controls="wm-cart-note-panel"
+                  >
+                    <svg class="wm-cart-note-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span>Add order note or special delivery instructions</span>
+                    <svg class="wm-cart-note-toggle__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+
+                  <button type="button" class="wm-cart-clear-btn" data-cart-clear-btn>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span>Clear cart</span>
+                  </button>
+                </div>
+
+                <div
+                  id="wm-cart-note-panel"
+                  class="wm-cart-note-drawer{% if cart.note != blank %} is-open{% endif %}"
+                  data-cart-note-panel
+                >
+                  <label for="wm-cart-note-textarea" class="sr-only">Order note</label>
+                  <textarea
+                    id="wm-cart-note-textarea"
+                    name="note"
+                    class="wm-cart-note-textarea"
+                    placeholder="E.g. Please call before delivery, leave package with security guard, or include gift message..."
+                    data-cart-note-input
+                  >{{ cart.note }}</textarea>
+                  <div class="wm-cart-note-status" data-cart-note-status aria-live="polite"></div>
+                </div>
+              </div>
             </div>
+
+            {%- comment -%} Saved for Later Section {%- endcomment -%}
+            <div class="wm-cart-saved" data-saved-later-section hidden>
+              <h2 class="wm-cart-saved__title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                <span>Saved for Later (<span data-saved-later-count>0</span>)</span>
+              </h2>
+              <div class="wm-cart-saved__grid" data-saved-later-list></div>
+            </div>
+          </div>
+
+          {%- comment -%} RIGHT COLUMN: Sticky Order Summary {%- endcomment -%}
+          <div class="wm-cart-right-col">
+            {% render 'cart-order-summary', cart_obj: cart %}
           </div>
         </div>
       </form>
-    {%- else -%}
-      <div class="bg-white rounded-3xl p-12 text-center border border-[#EAE5D9] shadow-sm space-y-4">
-        <div class="w-20 h-20 rounded-full bg-neutral-50 border border-[#EAE5D9] flex items-center justify-center text-neutral-400 mx-auto">
-          {% render 'icon-bag', class: 'w-10 h-10' %}
-        </div>
-        <h2 class="text-xl font-bold text-[#111827]">Your cart is empty</h2>
-        <p class="text-sm text-neutral-500 max-w-sm mx-auto">
-          Explore Wagmart's best-selling supplies for dogs and cats.
-        </p>
-        <div class="pt-2">
-          {% render 'theme-button', text: 'Start Shopping', href: '/collections/all' %}
-        </div>
-      </div>
-    {%- endif -%}
 
+      {%- comment -%} BELOW THE CART: You May Also Like 4-Column Carousel {%- endcomment -%}
+      <section class="wm-cart-cross-sell" aria-labelledby="wm-cart-upsell-title">
+        <div class="wm-cart-cross-sell__header">
+          <div>
+            <span class="wm-cart-cross-sell__eyebrow">COMPLETE YOUR PET'S ROUTINE</span>
+            <h2 id="wm-cart-upsell-title" class="wm-cart-cross-sell__title">You May Also Like</h2>
+          </div>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
+            <span>Explore all</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <div class="wm-cart-cross-sell__grid">
+          {% render 'product-card',
+            mock_id: 'oatmeal-shampoo-5',
+            mock_title: 'Soothing Colloidal Oatmeal & Aloe Vera Pet Shampoo (300ml)',
+            mock_category: 'Grooming & Bath',
+            mock_vendor: 'Wagmart Care',
+            mock_price: '₹349',
+            mock_compare_price: '₹449',
+            mock_rating: '4.9',
+            mock_reviews: 142,
+            mock_badge: 'Vet Formula',
+            mock_image: 'grooming.png',
+            mock_desc: 'pH-balanced tear-free formula relieves dry, itchy skin and leaves coats silky soft.'
+          %}
+          {% render 'product-card',
+            mock_id: 'freeze-dried-treats-6',
+            mock_title: 'Single-Ingredient Freeze-Dried Chicken Breast Training Treats',
+            mock_category: 'Dry Food & Kibble',
+            mock_vendor: 'Wagmart Naturals',
+            mock_price: '₹249',
+            mock_compare_price: '₹320',
+            mock_rating: '4.8',
+            mock_reviews: 189,
+            mock_badge: 'High Protein',
+            mock_image: 'Dry_Food_Kibble.png',
+            mock_desc: '100% pure human-grade chicken breast with zero preservatives, grains, or fillers.'
+          %}
+          {% render 'product-card',
+            mock_id: 'puzzle-feeder-7',
+            mock_title: 'Interactive Slow-Feeder Treat Puzzle Bowl for Dogs & Cats',
+            mock_category: 'Interactive Toys',
+            mock_vendor: 'Wagmart Play',
+            mock_price: '₹499',
+            mock_compare_price: '₹699',
+            mock_rating: '4.7',
+            mock_reviews: 112,
+            mock_badge: 'Save 28%',
+            mock_image: 'Interactive_Toys.png',
+            mock_desc: 'Prevents gulping and bloating while providing mental stimulation during mealtime.'
+          %}
+          {% render 'product-card',
+            mock_id: 'orthopedic-bed-8',
+            mock_title: 'Calming Orthopedic Bolster Pet Bed with Washable Cover',
+            mock_category: 'Accessories',
+            mock_vendor: 'Wagmart Comfort',
+            mock_price: '₹1,499',
+            mock_compare_price: '₹1,999',
+            mock_rating: '4.9',
+            mock_reviews: 276,
+            mock_badge: 'Bestseller',
+            mock_image: 'Accessories_Leashes.png',
+            mock_desc: 'High-density memory foam base supports joints and soothes anxious pets to sleep.'
+          %}
+        </div>
+      </section>
+    </div>
+
+    {%- comment -%} =======================================================
+       2. EMPTY CART STATE
+       ======================================================= {%- endcomment -%}
+    <div data-cart-empty-container {% if has_items %}hidden{% endif %}>
+      {% render 'cart-empty-state' %}
+    </div>
   </div>
-</section>
+
+  {%- comment -%} Undo Toast Notification {%- endcomment -%}
+  <div class="wm-cart-toast" data-cart-undo-toast role="status" aria-live="polite">
+    <span class="wm-cart-toast__text" data-cart-toast-msg>Item removed from cart</span>
+    <button type="button" class="wm-cart-toast__undo" data-cart-toast-undo>Undo</button>
+  </div>
+
+  {%- comment -%} Mobile Sticky Bottom Checkout Bar (<=768px when cart has items) {%- endcomment -%}
+  <div class="wm-cart-mobile-bar{% if has_items %} is-visible{% endif %}" data-cart-mobile-bar>
+    <div class="wm-cart-mobile-bar__inner">
+      <div class="wm-cart-mobile-bar__price-col">
+        <span class="wm-cart-mobile-bar__label">Total (<span data-mobile-item-count>{{ cart.item_count }}</span> items)</span>
+        <span class="wm-cart-mobile-bar__total" data-mobile-total>&#8377;{{ cart.total_price | divided_by: 100.0 | round }}</span>
+        <span class="wm-cart-mobile-bar__sub">Inclusive of all taxes</span>
+      </div>
+      <button type="submit" name="checkout" form="wm-cart-form" class="wm-cart-mobile-bar__btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>CHECKOUT</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'cart.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
-  "name": "Cart Page",
-  "settings": []
+  "name": "Main Cart",
+  "settings": [
+    {
+      "type": "number",
+      "id": "free_shipping_threshold",
+      "label": "Free shipping threshold (INR)",
+      "default": 499
+    }
+  ]
 }
 {% endschema %}

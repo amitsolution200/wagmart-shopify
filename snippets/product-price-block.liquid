@@ -1,0 +1,27 @@
+{%- comment -%}
+  Reusable Product Price Block Component (snippets/product-price-block.liquid)
+  Formats price in Indian Rupees (₹330 instead of Rs. 330.00), shows compare-at price,
+  green "Save 20%" pill, and "Inclusive of all taxes" note.
+{%- endcomment -%}
+
+{%- liquid
+  assign price_rupees = product.price | default: 33000 | divided_by: 100
+  assign compare_rupees = product.compare_at_price | default: 41500 | divided_by: 100
+  if compare_rupees <= price_rupees
+    assign compare_rupees = price_rupees | times: 125 | divided_by: 100
+  endif
+  assign save_pct = compare_rupees | minus: price_rupees | times: 100 | divided_by: compare_rupees
+-%}
+
+<div class="wm-price-block" aria-label="Product pricing">
+  <div class="wm-price-block__row">
+    <span class="wm-price-block__current" data-pdp-price>₹{{ price_rupees }}</span>
+    <span class="wm-price-block__compare" data-pdp-compare>₹{{ compare_rupees }}</span>
+    <span class="wm-price-block__save-pill" data-pdp-save>Save {{ save_pct }}%</span>
+  </div>
+  <p class="wm-price-block__tax-note">
+    <span>Inclusive of all taxes</span>
+    <span aria-hidden="true">&bull;</span>
+    <span class="wm-price-block__shipping-tag">Free Express Shipping above ₹499</span>
+  </p>
+</div>

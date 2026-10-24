@@ -1,0 +1,233 @@
+{%- comment -%}
+  Wagmart Collection Product Card (Reusable for Grid 3-col, Grid 4-col, and List View)
+  Parameters:
+  - card_id: unique product/variant ID
+  - card_title: product title
+  - card_url: product URL
+  - card_category: category label (e.g. "Dog Food", "Grooming", "Accessories")
+  - card_pet: pet type tag ("dog", "cat", "puppy", "kitten", "senior")
+  - card_price_inr: selling price in INR (integer, e.g. 1299)
+  - card_compare_inr: compare-at price in INR (integer, e.g. 1599)
+  - card_rating: star rating string (e.g. "4.8")
+  - card_reviews: review count integer (e.g. 126)
+  - card_image: primary image URL
+  - card_hover_image: optional secondary image URL on hover
+  - card_badge_promo: optional promo tag ("bestseller", "new", "sale")
+  - card_ badge_text: optional custom badge text
+  - card_stock: stock count integer (0 = Sold Out, 1..5 = Low Stock hint)
+  - card_has_variants: boolean (if true, button says "Select Options" and opens Quick View)
+  - card_desc: 2-line product description (shown in List View & Quick View)
+  - card_unit_price: optional unit price in INR (e.g. "₹650/kg")
+{%- endcomment -%}
+
+{%- liquid
+  assign p_id = card_id | default: 'wm-prod-1'
+  assign p_title = card_title | default: 'Gentle Silicone Pet Grooming Glove'
+  assign p_url = card_url | default: '/products/pet-grooming-glove'
+  assign p_cat = card_category | default: 'Grooming'
+  assign p_pet = card_pet | default: 'dog,cat'
+  assign p_price = card_price_inr | default: 330 | plus: 0
+  assign p_compare = card_compare_inr | default: 415 | plus: 0
+  assign p_rating = card_rating | default: '4.8'
+  assign p_reviews = card_reviews | default: 126
+  assign p_img = card_image | default: ''
+  assign p_hover_img = card_hover_image | default: ''
+  assign p_stock = card_stock | default: 18 | plus: 0
+  assign p_promo = card_badge_promo | default: 'sale'
+  assign p_has_variants = card_has_variants | default: false
+  assign p_desc = card_desc | default: 'Crafted with pet-safe materials and vet-approved nutrition to keep your furry companion healthy, active, and happy every day.'
+  assign p_unit = card_unit_price | default: ''
+  assign fallback_img = 'catalog-bath-massage-brush.webp' | asset_url
+
+  if p_img == blank
+    assign p_img = fallback_img
+  endif
+
+  assign discount_pct = 0
+  if p_compare > p_price and p_compare > 0
+    assign diff = p_compare | minus: p_price
+    assign discount_pct = diff | times: 100 | divided_by: p_compare | round
+  endif
+
+  assign is_sold_out = false
+  if p_stock <= 0
+    assign is_sold_out = true
+  endif
+
+  assign is_low_stock = false
+  if p_stock > 0 and p_stock <= 4
+    assign is_low_stock = true
+  endif
+-%}
+
+<article
+  class="wm-plp-card{% if is_sold_out %} is-sold-out{% endif %}"
+  data-plp-card
+  data-product-card
+  data-product-id="{{ p_id }}"
+  data-product-name="{{ p_title | escape }}"
+  data-product-url="{{ p_url }}"
+  data-product-category="{{ p_cat | downcase | escape }}"
+  data-product-category-label="{{ p_cat | escape }}"
+  data-product-pet="{{ p_pet | downcase | escape }}"
+  data-product-price="₹{{ p_price }}"
+  data-product-price-num="{{ p_price }}"
+  data-product-compare-num="{{ p_compare }}"
+  data-product-discount="{{ discount_pct }}"
+  data-product-rating="{{ p_rating }}"
+  data-product-reviews="{{ p_reviews }}"
+  data-product-stock="{{ p_stock }}"
+  data-product-promo="{{ p_promo | downcase | escape }}"
+  data-product-image="{{ p_img }}"
+  data-product-desc="{{ p_desc | escape }}"
+  data-has-variants="{{ p_has_variants }}"
+>
+  {%- comment -%} 1. Square (1:1) Image Container with Badges & Quick Action Icons {%- endcomment -%}
+  <div class="wm-plp-card__media">
+    {%- comment -%} Top-Left Stacked Badges {%- endcomment -%}
+    <div class="wm-plp-card__badges">
+      {%- if is_sold_out -%}
+        <span class="wm-plp-badge wm-plp-badge--soldout">Sold Out</span>
+      {%- else -%}
+        {%- if discount_pct > 0 -%}
+          <span class="wm-plp-badge wm-plp-badge--discount">{{ discount_pct }}% off</span>
+        {%- endif -%}
+        {%- if p_promo contains 'bestseller' -%}
+          <span class="wm-plp-badge wm-plp-badge--bestseller">Best Seller</span>
+        {%- elsif p_promo contains 'new' -%}
+          <span class="wm-plp-badge wm-plp-badge--new">New</span>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Top-Right 36px Round Action Buttons (Wishlist Heart + Quick View Eye) {%- endcomment -%}
+    <div class="wm-plp-card__quick-icons">
+      <button
+        type="button"
+        class="wm-plp-icon-btn"
+        data-wishlist-btn
+        aria-label="Add {{ p_title | escape }} to wishlist"
+        title="Add to Wishlist"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <button
+        type="button"
+        class="wm-plp-icon-btn"
+        data-plp-quickview-btn
+        aria-label="Quick view {{ p_title | escape }}"
+        title="Quick View"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+
+    <a href="{{ p_url }}" class="wm-plp-card__img-link" aria-label="{{ p_title | escape }}">
+      <img
+        src="{{ p_img }}"
+        alt="{{ p_title | escape }}"
+        class="wm-plp-card__img wm-plp-card__img--primary"
+        width="320"
+        height="320"
+        loading="lazy"
+        decoding="async"
+        onerror="this.onerror=null;this.src='{{ fallback_img }}';"
+      >
+      {%- if p_hover_img != blank -%}
+        <img
+          src="{{ p_hover_img }}"
+          alt="{{ p_title | escape }} alternate view"
+          class="wm-plp-card__img wm-plp-card__img--secondary"
+          width="320"
+          height="320"
+          loading="lazy"
+          decoding="async"
+          onerror="this.style.display='none';"
+        >
+      {%- endif -%}
+    </a>
+  </div>
+
+  {%- comment -%} 2. Card Body (Category + Rating Row, Title Link, List Description, Stock Hint) {%- endcomment -%}
+  <div class="wm-plp-card__body">
+    <div class="wm-plp-card__meta-row">
+      <span class="wm-plp-card__category">{{ p_cat }}</span>
+      <div class="wm-plp-card__rating" aria-label="Rated {{ p_rating }} out of 5 stars based on {{ p_reviews }} reviews">
+        <svg class="wm-plp-card__star-icon" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="wm-plp-card__rating-val">{{ p_rating }}</span>
+        <span class="wm-plp-card__rating-count">({{ p_reviews }} reviews)</span>
+      </div>
+    </div>
+
+    <h3 class="wm-plp-card__title">
+      <a href="{{ p_url }}">{{ p_title }}</a>
+    </h3>
+
+    {%- comment -%} List-View 5-Star Visual Row & 2-Line Description {%- endcomment -%}
+    <div class="wm-plp-card__list-rating" aria-hidden="true">
+      <span class="wm-plp-card__list-stars">★★★★★</span>
+      <span class="wm-plp-card__list-score">{{ p_rating }} ({{ p_reviews }} reviews)</span>
+    </div>
+
+    <p class="wm-plp-card__desc">{{ p_desc }}</p>
+
+    {%- if is_low_stock -%}
+      <div class="wm-plp-card__stock-low">
+        <span class="wm-plp-card__stock-dot" aria-hidden="true"></span>
+        <span>Only {{ p_stock }} left in stock</span>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} 3. Price & Action Column (Bottom in Grid View, Right Column in List View) {%- endcomment -%}
+  <div class="wm-plp-card__footer">
+    <div class="wm-plp-card__price-wrap">
+      <span class="wm-plp-card__price">&#8377;{{ p_price }}</span>
+      {%- if p_compare > p_price -%}
+        <span class="wm-plp-card__compare">&#8377;{{ p_compare }}</span>
+      {%- endif -%}
+      {%- if discount_pct > 0 -%}
+        <span class="wm-plp-card__save-pill">{{ discount_pct }}% OFF</span>
+      {%- endif -%}
+      {%- if p_unit != blank -%}
+        <span class="wm-plp-card__unit">{{ p_unit }}</span>
+      {%- endif -%}
+    </div>
+
+    <div class="wm-plp-card__actions">
+      {%- if is_sold_out -%}
+        <button type="button" class="wm-plp-card__btn is-disabled" disabled>
+          <span>Sold Out</span>
+        </button>
+      {%- elsif p_has_variants -%}
+        <button
+          type="button"
+          class="wm-plp-card__btn wm-plp-card__btn--options"
+          data-plp-quickview-btn
+          aria-label="Select options for {{ p_title | escape }}"
+        >
+          <span>Select Options</span>
+        </button>
+      {%- else -%}
+        <button
+          type="button"
+          class="wm-plp-card__btn"
+          data-plp-add-btn
+          aria-label="Add {{ p_title | escape }} to cart"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span>Add to Cart</span>
+        </button>
+      {%- endif -%}
+
+      <button
+        type="button"
+        class="wm-plp-card__list-wish"
+        data-wishlist-btn
+        aria-label="Save {{ p_title | escape }} to wishlist"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>
+  </div>
+</article>

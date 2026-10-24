@@ -1,0 +1,93 @@
+{%- comment -%}
+  Reusable Quantity Stepper & Purchase Actions Component (snippets/product-quantity-stepper.liquid)
+  Features:
+  - Quantity stepper (rounded, − 1 +) on the same row as ADD TO CART and Wishlist Heart button
+  - Primary ADD TO CART button (dark green #1B3A2A, 52px tall, 12px radius, cart SVG icon)
+  - Secondary BUY IT NOW button (full width below)
+  - Out-of-stock "Notify me" email field when stock is 0
+{%- endcomment -%}
+
+{%- assign is_available = product.available | default: true -%}
+
+<div class="wm-purchase-actions">
+  <div class="wm-purchase-row">
+    {%- comment -%} Quantity Stepper {%- endcomment -%}
+    <div class="wm-qty-stepper" role="group" aria-label="Product quantity">
+      <button
+        type="button"
+        class="wm-qty-stepper__btn"
+        data-qty-minus
+        aria-label="Decrease quantity"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <input
+        type="number"
+        id="wm-pdp-qty"
+        name="quantity"
+        value="1"
+        min="1"
+        max="18"
+        class="wm-qty-stepper__input"
+        aria-label="Quantity"
+      >
+      <button
+        type="button"
+        class="wm-qty-stepper__btn"
+        data-qty-plus
+        aria-label="Increase quantity"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    {%- comment -%} Primary ADD TO CART Button {%- endcomment -%}
+    <button
+      type="submit"
+      name="add"
+      id="wm-pdp-atc-btn"
+      class="wm-btn-atc"
+      {% unless is_available %}disabled{% endunless %}
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <span data-atc-text>{% if is_available %}Add to Cart{% else %}Sold Out{% endif %}</span>
+    </button>
+
+    {%- comment -%} Wishlist Heart Icon Button {%- endcomment -%}
+    <button
+      type="button"
+      class="wm-btn-wishlist"
+      data-pdp-wishlist
+      aria-label="Add {{ product.title | default: 'Pet Grooming Glove' | escape }} to Wishlist"
+      aria-pressed="false"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+      </svg>
+    </button>
+  </div>
+
+  {%- comment -%} Secondary BUY IT NOW Button {%- endcomment -%}
+  <button
+    type="button"
+    id="wm-pdp-buy-now-btn"
+    class="wm-btn-buy-now"
+    {% unless is_available %}style="display:none;"{% endunless %}
+  >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+    <span>Buy It Now &ndash; Fast Express Checkout</span>
+  </button>
+
+  {%- comment -%} Out-of-Stock Notify Me Form {%- endcomment -%}
+  <div id="wm-pdp-notify-box" class="wm-notify-box {% if is_available %}hidden{% endif %}">
+    <p class="wm-notify-box__title">This variant is out of stock. Get notified as soon as it's back:</p>
+    <div class="wm-notify-box__form">
+      <input type="email" class="wm-notify-box__input" placeholder="Enter your email address" aria-label="Email for restock alert">
+      <button type="button" class="wm-notify-box__btn" onclick="this.textContent='Subscribed ✓';">Notify Me</button>
+    </div>
+  </div>
+</div>

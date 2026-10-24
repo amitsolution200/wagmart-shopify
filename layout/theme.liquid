@@ -26,6 +26,18 @@
     <meta name="description" content="Wagmart offers curated, high-quality pet supplies for dogs and cats: grooming brushes, feeding bowls, collars, leashes, travel essentials, and hygiene products.">
   {% endif %}
 
+  {% comment %} Open Graph & Social Sharing Meta Tags {% endcomment %}
+  <meta property="og:site_name" content="{{ shop.name | default: 'Wagmart Pet Supplies' | escape }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:title" content="{{ page_title | default: 'Wagmart Pet Supplies' | escape }}">
+  <meta property="og:type" content="{% if template.name == 'product' %}product{% else %}website{% endif %}">
+  <meta property="og:description" content="{{ page_description | default: 'Curated, vet-tested pet supplies for happier, healthier dogs and cats.' | escape }}">
+  {%- if template.name == 'product' and product.featured_image -%}
+    <meta property="og:image" content="https:{{ product.featured_image | image_url: width: 1200 }}">
+    <meta property="product:price:amount" content="{{ product.price | divided_by: 100 }}">
+    <meta property="product:price:currency" content="INR">
+  {%- endif -%}
+
   {% comment %} Google Fonts {% endcomment %}
   {%- # theme-check-disable RemoteAsset -%}
   <link rel="preconnect" href="https://fonts.googleapis.com">

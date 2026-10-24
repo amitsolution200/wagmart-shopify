@@ -600,7 +600,7 @@ Surat, Gujarat, 395004
   {% comment %} =========================================================
      TOP CTA BANNER (REPLACES OLD STATIC FOOTER.WEBP WITH NEGATIVE MARGINS)
      ========================================================= {% endcomment %}
-  {%- if show_cta -%}
+  {%- if show_cta and template.name != 'product' and template.name != 'cart' and template.name != 'collection' -%}
     <section class="wm-site-cta" aria-labelledby="wm-site-cta-title">
       <div class="wm-site-cta__wrap">
         <div class="wm-site-cta__grid">

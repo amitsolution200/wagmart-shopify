@@ -1,0 +1,133 @@
+{%- comment -%}
+  Wagmart Empty Cart State Snippet
+  - Centered card with generous 64px vertical padding
+  - 96px light-green circle (#E8F3EC) containing shopping-bag-with-paw SVG (no clipping)
+  - "Your cart is empty" (24px bold) + muted subtext
+  - Primary dark green "Start Shopping" button with arrow + secondary outline "View Bestsellers" button
+  - Category shortcut chips (Dry Food & Kibble, Grooming & Bath, Interactive Toys, Accessories)
+  - 4-product "Bestsellers you might love" grid with quick-add buttons
+{%- endcomment -%}
+
+<div class="wm-cart-empty-wrap" data-cart-empty-view>
+  <div class="wm-cart-empty-card">
+    <div class="wm-cart-empty-card__icon-circle" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shopping Bag Outline -->
+        <path d="M14 22H50L47 54C46.8 56.2 45 58 42.8 58H21.2C19 58 17.2 56.2 17 54L14 22Z" fill="#FFFFFF" stroke="#1B3A2A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M23 22V16C23 11.0294 27.0294 7 32 7C36.9706 7 41 11.0294 41 16V22" stroke="#1B3A2A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Cute Pet Paw Inside Bag -->
+        <ellipse cx="32" cy="43" rx="6" ry="5" fill="#1B3A2A"/>
+        <circle cx="23.5" cy="35.5" r="2.6" fill="#1B3A2A"/>
+        <circle cx="29" cy="32.5" r="2.6" fill="#1B3A2A"/>
+        <circle cx="35" cy="32.5" r="2.6" fill="#1B3A2A"/>
+        <circle cx="40.5" cy="35.5" r="2.6" fill="#1B3A2A"/>
+      </svg>
+    </div>
+
+    <h1 class="wm-cart-empty-card__title">Your cart is empty</h1>
+    <p class="wm-cart-empty-card__subtext">
+      Looks like you haven't added anything yet. Explore our best-selling pet supplies.
+    </p>
+
+    <div class="wm-cart-empty-card__actions">
+      <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-btn-primary">
+        <span>Start Shopping</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="#wm-cart-bestsellers" class="wm-cart-btn-outline">
+        <span>View Bestsellers</span>
+      </a>
+    </div>
+
+    <div class="wm-cart-empty-chips">
+      <p class="wm-cart-empty-chips__label">Popular Categories</p>
+      <div class="wm-cart-empty-chips__list">
+        <a href="/collections/all?category=food" class="wm-cart-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          <span>Dry Food &amp; Kibble</span>
+        </a>
+        <a href="/collections/all?category=grooming" class="wm-cart-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+          <span>Grooming &amp; Bath</span>
+        </a>
+        <a href="/collections/all?category=toys" class="wm-cart-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <span>Interactive Toys</span>
+        </a>
+        <a href="/collections/all?category=accessories" class="wm-cart-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Accessories</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} 4-Product Bestsellers You Might Love Grid {%- endcomment -%}
+  <section id="wm-cart-bestsellers" class="wm-cart-cross-sell" aria-labelledby="wm-empty-bestsellers-title">
+    <div class="wm-cart-cross-sell__header">
+      <div>
+        <span class="wm-cart-cross-sell__eyebrow">PET PARENT FAVORITES</span>
+        <h2 id="wm-empty-bestsellers-title" class="wm-cart-cross-sell__title">Bestsellers You Might Love</h2>
+      </div>
+      <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
+        <span>View all products</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <div class="wm-cart-cross-sell__grid">
+      {% render 'product-card',
+        mock_id: 'grooming-glove-1',
+        mock_title: 'Gentle Silicone Pet Grooming & De-Shedding Glove',
+        mock_category: 'Grooming',
+        mock_vendor: 'Wagmart Pro',
+        mock_price: '₹330',
+        mock_compare_price: '₹415',
+        mock_rating: '4.8',
+        mock_reviews: 126,
+        mock_badge: 'Bestseller',
+        mock_image: 'grooming.png',
+        mock_desc: '259 soft silicone tips gently lift loose fur and detangle coats while massaging your pet.'
+      %}
+      {% render 'product-card',
+        mock_id: 'salmon-kibble-2',
+        mock_title: 'Grain-Free Salmon & Sweet Potato Adult Dog Kibble (2kg)',
+        mock_category: 'Dry Food & Kibble',
+        mock_vendor: 'Wagmart Naturals',
+        mock_price: '₹899',
+        mock_compare_price: '₹1,099',
+        mock_rating: '4.9',
+        mock_reviews: 214,
+        mock_badge: 'Save 18%',
+        mock_image: 'Dry_Food_Kibble.png',
+        mock_desc: 'Rich in Omega-3 & 6 fatty acids for a shiny coat, healthy digestion, and strong immunity.'
+      %}
+      {% render 'product-card',
+        mock_id: 'rope-chew-toy-3',
+        mock_title: 'Heavy-Duty Braided Cotton Dental Tug & Chew Toy',
+        mock_category: 'Interactive Toys',
+        mock_vendor: 'Wagmart Play',
+        mock_price: '₹299',
+        mock_compare_price: '₹399',
+        mock_rating: '4.7',
+        mock_reviews: 98,
+        mock_badge: 'Vet Approved',
+        mock_image: 'Interactive_Toys.png',
+        mock_desc: '100% natural non-toxic cotton fibers clean teeth and massage gums during everyday play.'
+      %}
+      {% render 'product-card',
+        mock_id: 'padded-harness-4',
+        mock_title: 'Reflective No-Pull Padded Mesh Dog Walk Harness & Leash',
+        mock_category: 'Accessories',
+        mock_vendor: 'Wagmart Gear',
+        mock_price: '₹649',
+        mock_compare_price: '₹849',
+        mock_rating: '4.8',
+        mock_reviews: 164,
+        mock_badge: 'Top Rated',
+        mock_image: 'Accessories_Leashes.png',
+        mock_desc: 'Breathable air-mesh padding with 3M reflective stitching for safe, comfortable evening walks.'
+      %}
+    </div>
+  </section>
+</div>

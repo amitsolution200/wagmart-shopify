@@ -1,0 +1,103 @@
+{%- comment -%}
+  Wagmart Collection Toolbar & Active Filter Chips Row Snippet
+  - Sticky under header when scrolling
+  - Left: "Filter" toggle button (toggles sidebar on desktop, opens drawer on mobile) with active count badge + "Showing 1-12 of 240 results"
+  - Right: View Switcher icons (Grid 3 / Grid 4 / List) + Sort by dropdown
+  - Active Filter Chips row below toolbar with removable green pills and "Clear All" link
+{%- endcomment -%}
+
+<div class="wm-plp-toolbar-wrap" data-plp-toolbar-wrap>
+  <div class="wm-plp-toolbar" role="region" aria-label="Collection controls">
+    <div class="wm-plp-toolbar__left">
+      <button
+        type="button"
+        class="wm-plp-filter-btn"
+        data-filter-toggle-btn
+        aria-expanded="true"
+        aria-controls="wm-plp-sidebar"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/>
+          <circle cx="6" cy="12" r="2"/><circle cx="10" cy="18" r="2"/>
+        </svg>
+        <span>Filter</span>
+        <span class="wm-plp-filter-btn__badge" data-active-filter-badge hidden>0</span>
+      </button>
+
+      <p class="wm-plp-toolbar__results" data-results-summary aria-live="polite">
+        Showing <strong>1&ndash;12</strong> of <strong>240</strong> results
+      </p>
+    </div>
+
+    <div class="wm-plp-toolbar__right">
+      {%- comment -%} View Switcher Icons: Grid 3 (Layout A), Grid 4 (Layout B), List (Layout C) {%- endcomment -%}
+      <div class="wm-plp-view-switch" role="group" aria-label="Layout view switcher">
+        <button
+          type="button"
+          class="wm-plp-view-btn is-active"
+          data-view-mode="grid-3"
+          aria-pressed="true"
+          aria-label="3-column grid with filter sidebar (Layout A)"
+          title="3-Column Grid (Sidebar Open)"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <rect x="2" y="2" width="4" height="7" rx="1"/><rect x="8" y="2" width="4" height="7" rx="1"/><rect x="14" y="2" width="4" height="7" rx="1"/>
+            <rect x="2" y="11" width="4" height="7" rx="1"/><rect x="8" y="11" width="4" height="7" rx="1"/><rect x="14" y="11" width="4" height="7" rx="1"/>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="wm-plp-view-btn"
+          data-view-mode="grid-4"
+          aria-pressed="false"
+          aria-label="4-column full-width grid (Layout B)"
+          title="4-Column Grid (Sidebar Collapsed)"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <rect x="1.5" y="2" width="3.2" height="7" rx="0.8"/><rect x="6.1" y="2" width="3.2" height="7" rx="0.8"/><rect x="10.7" y="2" width="3.2" height="7" rx="0.8"/><rect x="15.3" y="2" width="3.2" height="7" rx="0.8"/>
+            <rect x="1.5" y="11" width="3.2" height="7" rx="0.8"/><rect x="6.1" y="11" width="3.2" height="7" rx="0.8"/><rect x="10.7" y="11" width="3.2" height="7" rx="0.8"/><rect x="15.3" y="11" width="3.2" height="7" rx="0.8"/>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="wm-plp-view-btn"
+          data-view-mode="list"
+          aria-pressed="false"
+          aria-label="List view (Layout C)"
+          title="List View"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <rect x="2" y="3" width="4" height="3.5" rx="0.8"/><rect x="8" y="3.5" width="10" height="2.5" rx="0.8"/>
+            <rect x="2" y="8.25" width="4" height="3.5" rx="0.8"/><rect x="8" y="8.75" width="10" height="2.5" rx="0.8"/>
+            <rect x="2" y="13.5" width="4" height="3.5" rx="0.8"/><rect x="8" y="14" width="10" height="2.5" rx="0.8"/>
+          </svg>
+        </button>
+      </div>
+
+      {%- comment -%} Sort By Dropdown {%- endcomment -%}
+      <div class="wm-plp-sort">
+        <label for="wm-plp-sort-select" class="wm-plp-sort__label">Sort by :</label>
+        <div class="wm-plp-sort__select-wrap">
+          <select id="wm-plp-sort-select" class="wm-plp-sort__select" data-sort-select aria-label="Sort products by">
+            <option value="featured">Featured</option>
+            <option value="best-selling">Best Selling</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="newest">Newest</option>
+            <option value="rating-desc">Top Rated</option>
+          </select>
+          <svg class="wm-plp-sort__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Active Filter Chips Row {%- endcomment -%}
+  <div class="wm-plp-chips-bar" data-active-chips-bar hidden>
+    <span class="wm-plp-chips-bar__label">Active Filter :</span>
+    <div class="wm-plp-chips-list" data-active-chips-list role="list" aria-label="Active product filters"></div>
+    <button type="button" class="wm-plp-chips-bar__clear" data-filter-clear-all>Clear All</button>
+  </div>
+</div>

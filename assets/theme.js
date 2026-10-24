@@ -25,31 +25,8 @@
   // Format Money Helper (cents to currency) using the shop's money format when available
   function formatMoney(cents) {
     const value = Number(cents) || 0;
-    const format = (window.Wagmart && window.Wagmart.moneyFormat) || '';
-    if (format && /\{\{\s*\w+\s*\}\}/.test(format)) {
-      const amount = value / 100;
-      const withDelimiters = (n, decimals, thousands, decimal) => {
-        const fixed = n.toFixed(decimals).split('.');
-        fixed[0] = fixed[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousands);
-        return fixed.join(decimal);
-      };
-      return format.replace(/\{\{\s*(\w+)\s*\}\}/, (_, key) => {
-        switch (key) {
-          case 'amount_no_decimals':
-            return withDelimiters(amount, 0, ',', '.');
-          case 'amount_with_comma_separator':
-            return withDelimiters(amount, 2, '.', ',');
-          case 'amount_no_decimals_with_comma_separator':
-            return withDelimiters(amount, 0, '.', ',');
-          case 'amount_with_apostrophe_separator':
-            return withDelimiters(amount, 2, "'", '.');
-          default:
-            return withDelimiters(amount, 2, ',', '.');
-        }
-      }).replace(/<[^>]*>/g, '');
-    }
-    const val = (value / 100).toFixed(0);
-    return WagmartState.currencySymbol + Number(val).toLocaleString('en-IN');
+    const val = Math.round(value / 100);
+    return WagmartState.currencySymbol + val.toLocaleString('en-IN');
   }
 
   function escapeHtml(str) {
@@ -92,34 +69,53 @@
     },
 
     async fetch() {
+      let serverCart = null;
       try {
         const res = await fetch('/cart.js', { headers: { Accept: 'application/json' } });
         if (res.ok) {
-          const data = await res.json();
-          let localCart = null;
+          serverCart = await res.json();
+        }
+      } catch (err) {}
+
+      if (!serverCart) {
+        const initialJsonEl = document.getElementById('wm-cart-initial-json');
+        if (initialJsonEl) {
           try {
-            localCart = JSON.parse(localStorage.getItem('wagmart_local_cart') || 'null');
+            serverCart = JSON.parse(initialJsonEl.textContent);
           } catch (e) {}
-          const mockItems = (localCart && Array.isArray(localCart.items))
-            ? localCart.items.filter((i) => isNaN(Number(i.id)) || Number(i.id) <= 0)
-            : [];
-          WagmartState.cart = data;
-          if (mockItems.length > 0) {
-            WagmartState.cart.items.push(...mockItems);
-            this._recalcLocalCart();
-          }
-          this.render();
-          return;
         }
-      } catch (err) {
-        console.warn('Cart fetch error:', err);
       }
+
+      let localCart = null;
       try {
-        const local = JSON.parse(localStorage.getItem('wagmart_local_cart') || 'null');
-        if (local && Array.isArray(local.items)) {
-          WagmartState.cart = local;
-        }
+        localCart = JSON.parse(localStorage.getItem('wagmart_local_cart') || 'null');
       } catch (e) {}
+
+      const validLocalItems =
+        localCart && Array.isArray(localCart.items)
+          ? localCart.items.filter((i) => i && (Number(i.quantity) || 0) > 0 && (i.title || i.product_title))
+          : [];
+
+      if (serverCart && Array.isArray(serverCart.items)) {
+        const existingIds = new Set(serverCart.items.map((item) => String(item.id)));
+        const mockItems = validLocalItems.filter(
+          (i) => (isNaN(Number(i.id)) || Number(i.id) <= 0) && !existingIds.has(String(i.id))
+        );
+        WagmartState.cart = serverCart;
+        if (mockItems.length > 0) {
+          WagmartState.cart.items.push(...mockItems);
+        }
+        this._recalcLocalCart();
+      } else if (validLocalItems.length > 0) {
+        WagmartState.cart = { items: validLocalItems, item_count: 0, total_price: 0 };
+        this._recalcLocalCart();
+      } else {
+        WagmartState.cart = { items: [], item_count: 0, total_price: 0 };
+        try {
+          localStorage.removeItem('wagmart_local_cart');
+        } catch (e) {}
+      }
+
       this.render();
     },
 
@@ -139,6 +135,7 @@
         existing.final_line_price = (existing.final_price || existing.price || 0) * existing.quantity;
       } else {
         const priceVal = (mockItem && mockItem.price) || 79900;
+        const compareVal = (mockItem && mockItem.compare_at_price) || Math.round(priceVal * 1.25);
         const newItem = {
           id: variantId,
           key: String(variantId),
@@ -146,11 +143,17 @@
           variant_id: variantId,
           title: (mockItem && mockItem.name) || 'Product',
           product_title: (mockItem && mockItem.name) || 'Product',
+          variant_title: (mockItem && mockItem.variant_title) || 'Standard Pack',
+          vendor: (mockItem && mockItem.vendor) || 'Wagmart',
+          url: (mockItem && mockItem.url) || '/products/pet-grooming-glove',
           price: priceVal,
           final_price: priceVal,
-          original_line_price: priceVal,
+          compare_at_price: compareVal,
+          original_price: compareVal,
+          original_line_price: compareVal * targetQty,
           final_line_price: priceVal * targetQty,
           quantity: targetQty,
+          max_stock: (mockItem && mockItem.max_stock) || 10,
           image: (mockItem && mockItem.image) || '',
         };
         WagmartState.cart.items.push(newItem);
@@ -249,6 +252,11 @@
 
     async clear() {
       this.setLoading(true);
+      WagmartState.cart = { items: [], item_count: 0, total_price: 0 };
+      try {
+        localStorage.removeItem('wagmart_local_cart');
+      } catch (e) {}
+      this.render();
       try {
         await fetch('/cart/clear.js', { method: 'POST', headers: { Accept: 'application/json' } });
       } catch (err) {
@@ -309,69 +317,69 @@
       const totalQuantityEl = document.getElementById('cart-drawer-total-qty');
 
       if (totalQuantityEl) totalQuantityEl.textContent = count;
-      if (!listContainer) return;
+      if (listContainer) {
+        if (WagmartState.cart.items.length === 0) {
+          listContainer.classList.add('hidden');
+          listContainer.innerHTML = '';
+          if (footerContainer) footerContainer.classList.add('hidden');
+          if (emptyContainer) emptyContainer.classList.remove('hidden');
+        } else {
+          if (emptyContainer) emptyContainer.classList.add('hidden');
+          listContainer.classList.remove('hidden');
+          if (footerContainer) footerContainer.classList.remove('hidden');
 
-      if (WagmartState.cart.items.length === 0) {
-        listContainer.classList.add('hidden');
-        listContainer.innerHTML = '';
-        if (footerContainer) footerContainer.classList.add('hidden');
-        if (emptyContainer) emptyContainer.classList.remove('hidden');
-      } else {
-        if (emptyContainer) emptyContainer.classList.add('hidden');
-        listContainer.classList.remove('hidden');
-        if (footerContainer) footerContainer.classList.remove('hidden');
+          if (subtotalEl) {
+            subtotalEl.textContent = formatMoney(WagmartState.cart.total_price || 0);
+          }
 
-        if (subtotalEl) {
-          subtotalEl.textContent = formatMoney(WagmartState.cart.total_price || 0);
-        }
-
-        listContainer.innerHTML = WagmartState.cart.items
-          .map((item) => {
-            const key = escapeHtml(item.key || item.id);
-            const title = escapeHtml(item.product_title || item.title);
-            const url = escapeHtml(item.url || '#');
-            const rawImage = item.featured_image?.url || item.image || '';
-            const imageSrc = rawImage
-              ? escapeHtml(rawImage + (rawImage.includes('?') ? '&' : '?') + 'width=200')
-              : '';
-            const variant =
-              item.product_has_only_default_variant || !item.variant_title
-                ? ''
-                : `<p class="wm-line__variant">${escapeHtml(item.variant_title)}</p>`;
-            const props = Object.entries(item.properties || {})
-              .filter(([k, v]) => v && String(k).charAt(0) !== '_')
-              .map(([k, v]) => `<p class="wm-line__variant">${escapeHtml(k)}: ${escapeHtml(v)}</p>`)
-              .join('');
-            const unit =
-              item.quantity > 1
-                ? `<p class="wm-line__unit">${formatMoney(item.final_price || item.price || 0)} each</p>`
+          listContainer.innerHTML = WagmartState.cart.items
+            .map((item) => {
+              const key = escapeHtml(item.key || item.id);
+              const title = escapeHtml(item.product_title || item.title);
+              const url = escapeHtml(item.url || '#');
+              const rawImage = item.featured_image?.url || item.image || '';
+              const imageSrc = rawImage
+                ? escapeHtml(rawImage + (rawImage.includes('?') ? '&' : '?') + 'width=200')
                 : '';
-            const linePrice = item.final_line_price != null ? item.final_line_price : (item.price || 0) * item.quantity;
-            const original =
-              item.original_line_price > linePrice ? `<s>${formatMoney(item.original_line_price)}</s>` : '';
+              const variant =
+                item.product_has_only_default_variant || !item.variant_title
+                  ? ''
+                  : `<p class="wm-line__variant">${escapeHtml(item.variant_title)}</p>`;
+              const props = Object.entries(item.properties || {})
+                .filter(([k, v]) => v && String(k).charAt(0) !== '_')
+                .map(([k, v]) => `<p class="wm-line__variant">${escapeHtml(k)}: ${escapeHtml(v)}</p>`)
+                .join('');
+              const unit =
+                item.quantity > 1
+                  ? `<p class="wm-line__unit">${formatMoney(item.final_price || item.price || 0)} each</p>`
+                  : '';
+              const linePrice = item.final_line_price != null ? item.final_line_price : (item.price || 0) * item.quantity;
+              const original =
+                item.original_line_price > linePrice ? `<s>${formatMoney(item.original_line_price)}</s>` : '';
 
-            return `
-            <li class="wm-line" data-cart-item-id="${key}">
-              <a class="wm-line__media" href="${url}" tabindex="-1" aria-hidden="true">
-                ${imageSrc ? `<img src="${imageSrc}" alt="" width="84" height="84" loading="lazy">` : ''}
-              </a>
-              <div>
-                <a class="wm-line__title" href="${url}">${title}</a>
-                ${variant}${props}${unit}
-                <div class="wm-line__actions">
-                  <div class="wm-qty" role="group" aria-label="Quantity for ${title}">
-                    <button type="button" data-cart-qty-btn="-1" data-key="${key}" aria-label="Decrease quantity">&minus;</button>
-                    <output aria-live="polite">${Number(item.quantity) || 0}</output>
-                    <button type="button" data-cart-qty-btn="1" data-key="${key}" aria-label="Increase quantity">+</button>
+              return `
+              <li class="wm-line" data-cart-item-id="${key}">
+                <a class="wm-line__media" href="${url}" tabindex="-1" aria-hidden="true">
+                  ${imageSrc ? `<img src="${imageSrc}" alt="" width="84" height="84" loading="lazy">` : ''}
+                </a>
+                <div>
+                  <a class="wm-line__title" href="${url}">${title}</a>
+                  ${variant}${props}${unit}
+                  <div class="wm-line__actions">
+                    <div class="wm-qty" role="group" aria-label="Quantity for ${title}">
+                      <button type="button" data-cart-qty-btn="-1" data-key="${key}" aria-label="Decrease quantity">&minus;</button>
+                      <output aria-live="polite">${Number(item.quantity) || 0}</output>
+                      <button type="button" data-cart-qty-btn="1" data-key="${key}" aria-label="Increase quantity">+</button>
+                    </div>
+                    <button type="button" class="wm-line__remove" data-cart-remove="${key}" aria-label="Remove ${title}">Remove</button>
                   </div>
-                  <button type="button" class="wm-line__remove" data-cart-remove="${key}" aria-label="Remove ${title}">Remove</button>
                 </div>
-              </div>
-              <p class="wm-line__price">${formatMoney(linePrice)}${original}</p>
-            </li>
-          `;
-          })
-          .join('');
+                <p class="wm-line__price">${formatMoney(linePrice)}${original}</p>
+              </li>
+            `;
+            })
+            .join('');
+        }
       }
 
       // Update Product Card Steppers across page
@@ -399,6 +407,8 @@
           }
         }
       });
+
+      document.dispatchEvent(new CustomEvent('wagmart:cart-updated', { detail: WagmartState.cart }));
     },
   };
 
@@ -1226,6 +1236,10 @@
           const priceRaw = card.getAttribute('data-product-price') || '';
           const price =
             parseInt(priceRaw.replace(/[^0-9]/g, ''), 10) * 100 || 79900;
+          const compareRaw = card.getAttribute('data-product-compare-price') || '';
+          const compare_at_price =
+            parseInt(compareRaw.replace(/[^0-9]/g, ''), 10) * 100 || Math.round(price * 1.25);
+          const vendor = card.getAttribute('data-product-vendor') || 'Wagmart';
           const image = card.getAttribute('data-product-image');
 
           // Immediately switch button to stepper with default quantity 1
@@ -1235,7 +1249,7 @@
           if (stepper) stepper.classList.remove('hidden');
           if (qtyDisplay) qtyDisplay.textContent = '1';
 
-          Cart.add(id, 1, false, { name, price, image });
+          Cart.add(id, 1, false, { name, price, compare_at_price, vendor, image });
         }
         return;
       }
@@ -1402,7 +1416,8 @@
     });
   }
 
-  // Shared with assets/header.js (search, quick view, header overlays)
+  // Shared with assets/header.js and assets/cart.js
+  window.WagmartState = WagmartState;
   window.WagmartCart = Cart;
   window.WagmartFormatMoney = formatMoney;
   window.WagmartEscapeHtml = escapeHtml;

@@ -1,0 +1,24 @@
+{
+  "name": "wagmart",
+  "version": "1.0.0",
+  "description": "> A modern, premium pet supplies storefront theme for Shopify Online Store 2.0.",
+  "main": "products.js",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://amitsolution200@github.com/amitsolution200/wagmart-shopify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/amitsolution200/wagmart-shopify/issues"
+  },
+  "homepage": "https://github.com/amitsolution200/wagmart-shopify#readme"
+}

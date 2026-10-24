@@ -18,9 +18,11 @@
     assign prod_title = product.title
     assign prod_url = product.url
     assign prod_desc = product.description | strip_html | truncate: 90
-    assign prod_price = product.price | money
+    assign prod_price_num = product.price | divided_by: 100
+    assign prod_price = '₹' | append: prod_price_num
     if product.compare_at_price > product.price
-      assign prod_compare_price = product.compare_at_price | money
+      assign prod_comp_num = product.compare_at_price | divided_by: 100
+      assign prod_compare_price = '₹' | append: prod_comp_num
     else
       assign prod_compare_price = ''
     endif
@@ -94,9 +96,14 @@
       </button>
     </div>
 
-    {% comment %} 2. PRODUCT TITLE & SUBTITLE {% endcomment %}
+    {% comment %} 2. PRODUCT TITLE, RATING & SUBTITLE {% endcomment %}
     <div class="px-1.5 pt-3.5">
-      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#7a46e5] transition-colors duration-200">
+      <div class="flex items-center gap-1.5 mb-1 text-xs">
+        <span style="color:#F59E0B;letter-spacing:1px;" aria-hidden="true">★★★★★</span>
+        <span class="font-bold text-[#111827]">{{ mock_rating | default: '4.8' }}</span>
+        <span class="text-neutral-400">({{ mock_reviews | default: '94' }})</span>
+      </div>
+      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#1B3A2A] transition-colors duration-200">
         <a href="{{ prod_url }}" class="hover:underline">{{ prod_title }}</a>
       </h3>
 

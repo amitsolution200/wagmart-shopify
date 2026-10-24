@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1B3A2A">
+  <title>Your Shopping Cart &ndash; Wagmart Pet Supplies</title>
+  <meta name="description" content="Review your Wagmart Pet Supplies shopping cart. Free express shipping on orders above ₹499 across Surat and India.">
+
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./assets/theme.css">
+  <link rel="stylesheet" href="./assets/header.css">
+  <link rel="stylesheet" href="./assets/cart.css">
+
+  <script>
+    window.Wagmart = { moneyFormat: "₹{{amount_no_decimals}}" };
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const state = params.get('state');
+      if (state === 'empty') {
+        try {
+          localStorage.removeItem('wagmart_local_cart');
+          localStorage.removeItem('wagmart_active_coupon');
+        } catch (e) {}
+        window.__WM_INITIAL_CART__ = { items: [], item_count: 0, total_price: 0 };
+      } else {
+        const seedItems = [
+          {
+            id: 'grooming-glove-1',
+            key: 'grooming-glove-1',
+            product_id: 'grooming-glove-1',
+            variant_id: 'grooming-glove-1',
+            title: 'Gentle Silicone Pet Grooming & De-Shedding Glove',
+            product_title: 'Gentle Silicone Pet Grooming & De-Shedding Glove',
+            variant_title: 'Emerald Green • Right Hand (Standard)',
+            vendor: 'Wagmart Pro',
+            url: './product_preview.html',
+            price: 33000,
+            final_price: 33000,
+            compare_at_price: 41500,
+            original_price: 41500,
+            original_line_price: 41500,
+            final_line_price: 33000,
+            quantity: 1,
+            max_stock: 14,
+            image: './assets/catalog-bath-massage-brush.webp'
+          },
+          {
+            id: 'paw-cleaner-cup-2',
+            key: 'paw-cleaner-cup-2',
+            product_id: 'paw-cleaner-cup-2',
+            variant_id: 'paw-cleaner-cup-2',
+            title: '360° Soft Silicone Muddy Paw Cleaner & Washer Cup',
+            product_title: '360° Soft Silicone Muddy Paw Cleaner & Washer Cup',
+            variant_title: 'Forest Green • Medium / Large Dogs',
+            vendor: 'Wagmart Care',
+            url: './product_preview.html',
+            price: 39900,
+            final_price: 39900,
+            compare_at_price: 54900,
+            original_price: 54900,
+            original_line_price: 54900,
+            final_line_price: 39900,
+            quantity: 1,
+            max_stock: 2,
+            image: './assets/paw-cleaner-kit.webp'
+          },
+          {
+            id: 'cotton-rope-toy-3',
+            key: 'cotton-rope-toy-3',
+            product_id: 'cotton-rope-toy-3',
+            variant_id: 'cotton-rope-toy-3',
+            title: 'Heavy-Duty Braided Cotton Dental Tug & Chew Toy',
+            product_title: 'Heavy-Duty Braided Cotton Dental Tug & Chew Toy',
+            variant_title: 'Natural Multi-Weave • Large 3-Knot',
+            vendor: 'Wagmart Play',
+            url: './product_preview.html',
+            price: 29900,
+            final_price: 29900,
+            compare_at_price: 39900,
+            original_price: 39900,
+            original_line_price: 39900,
+            final_line_price: 29900,
+            quantity: 1,
+            max_stock: 12,
+            image: './assets/catalog-rope-leash.webp'
+          }
+        ];
+        const seedCart = {
+          items: seedItems,
+          item_count: 3,
+          total_price: 102800
+        };
+        if (state === 'filled' || !localStorage.getItem('wagmart_local_cart')) {
+          try {
+            localStorage.setItem('wagmart_local_cart', JSON.stringify(seedCart));
+          } catch (e) {}
+        }
+        window.__WM_INITIAL_CART__ = seedCart;
+      }
+    })();
+  </script>
+</head>
+
+<body class="bg-[#F8F6F1] text-[#1F2937] antialiased min-h-screen flex flex-col font-sans" style="background-color: #F8F6F1 !important; margin: 0;">
+
+  <!-- =========================================================
+       EXISTING WAGMART HEADER (sections/header.liquid)
+       ========================================================= -->
+  <a class="wm-skip-link" href="#MainContent">Skip to content</a>
+
+  <header class="wm-header" data-wm-header>
+    <div class="wm-header__shell" data-header-shell>
+      <div class="wm-header__bar">
+        <div class="wm-header__start">
+          <button type="button" class="wm-icon-btn wm-only-mobile" data-drawer-open aria-controls="WmMobileDrawer" aria-expanded="false" aria-label="Open menu">
+            <svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+          </button>
+
+          <nav class="wm-nav" aria-label="Main">
+            <ul class="wm-nav__list">
+              <li>
+                <button type="button" class="wm-nav__link" id="WmTriggerBest" data-panel-trigger="bestsellers" aria-expanded="false" aria-controls="WmPanelBest">
+                  Bestsellers
+                  <svg class="wm-nav__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+              </li>
+              <li><a class="wm-nav__link" data-nav-plain href="/collections/all">All Products</a></li>
+              <li><a class="wm-nav__link" data-nav-plain href="/pages/about-us">About</a></li>
+              <li><a class="wm-nav__link" data-nav-plain href="/blogs/news">Blog</a></li>
+              <li><a class="wm-nav__link" data-nav-plain href="/pages/contact">Contact</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="wm-header__logo">
+          <a class="wm-logo" href="/" aria-label="WAGMART — Home">
+            <img src="./assets/wagmart-logo-header.webp" alt="WAGMART" width="520" height="176" loading="eager" fetchpriority="high" decoding="async">
+          </a>
+        </div>
+
+        <div class="wm-header__end">
+          <button type="button" class="wm-icon-btn" data-search-open aria-controls="WmSearchOverlay" aria-expanded="false" aria-label="Search">
+            <svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          </button>
+
+          <a class="wm-icon-btn wm-hide-mobile" href="/account" aria-label="Sign in">
+            <svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>
+          </a>
+
+          <button type="button" class="wm-icon-btn wm-cart-btn" data-open-cart aria-controls="cart-drawer" aria-expanded="false" aria-label="Open cart">
+            <svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-.9 11.1a2 2 0 0 1-2 1.9H8.4a2 2 0 0 1-2-1.9Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg>
+            <span class="wm-badge" data-cart-count>3</span>
+            <span class="wm-sr-only" data-cart-count-label>3 items in cart</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       MAIN CONTENT: REDESIGNED CART PAGE (sections/main-cart.liquid)
+       ========================================================= -->
+  <main id="MainContent" role="main" class="flex-1">
+    <div class="wm-cart-page" data-cart-page data-default-img="./assets/grooming.png">
+      <script type="application/json" id="wm-cart-initial-json">
+        {"items":[],"item_count":0,"total_price":0}
+      </script>
+      <script>
+        if (window.__WM_INITIAL_CART__) {
+          document.getElementById('wm-cart-initial-json').textContent = JSON.stringify(window.__WM_INITIAL_CART__);
+        }
+      </script>
+
+      <div class="wm-cart-container">
+        <!-- Breadcrumb -->
+        <nav class="wm-cart-breadcrumb" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span class="wm-cart-breadcrumb__sep" aria-hidden="true">/</span>
+          <span class="wm-cart-breadcrumb__current" aria-current="page">Shopping Cart</span>
+        </nav>
+
+        <!-- =======================================================
+             1. FILLED CART STATE
+             ======================================================= -->
+        <div class="wm-cart-filled-wrap" data-cart-filled-view>
+          <header class="wm-cart-header">
+            <div class="wm-cart-header__left">
+              <h1 class="wm-cart-header__title">Shopping Cart</h1>
+              <span class="wm-cart-header__count" data-cart-header-count>3 items</span>
+            </div>
+            <a href="./product_preview.html" class="wm-cart-header__continue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              <span>Continue shopping</span>
+            </a>
+          </header>
+
+          <!-- Two-column Grid (65% Left / 35% Right, gap 32px) -->
+          <form action="/cart" method="post" id="wm-cart-form" onsubmit="event.preventDefault(); alert('Proceeding to secure Wagmart checkout...');" novalidate>
+            <div class="wm-cart-grid">
+              <!-- LEFT COLUMN: Cart Items Card -->
+              <div class="wm-cart-left-col">
+                <div class="wm-cart-items-card">
+                  <div class="wm-cart-table-head" aria-hidden="true">
+                    <span>Product</span>
+                    <span>Price</span>
+                    <span>Quantity</span>
+                    <span style="text-align: right;">Total</span>
+                  </div>
+
+                  <div class="wm-cart-items-list" data-cart-page-items role="region" aria-live="polite" aria-label="Shopping cart items">
+                    <!-- Populated dynamically by assets/cart.js -->
+                  </div>
+
+                  <div class="wm-cart-items-footer">
+                    <div class="wm-cart-footer-bar">
+                      <button
+                        type="button"
+                        class="wm-cart-note-toggle"
+                        data-cart-note-toggle
+                        aria-expanded="false"
+                        aria-controls="wm-cart-note-panel"
+                      >
+                        <svg class="wm-cart-note-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <span>Add order note or special delivery instructions</span>
+                        <svg class="wm-cart-note-toggle__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+
+                      <button type="button" class="wm-cart-clear-btn" data-cart-clear-btn>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        <span>Clear cart</span>
+                      </button>
+                    </div>
+
+                    <div id="wm-cart-note-panel" class="wm-cart-note-drawer" data-cart-note-panel>
+                      <label for="wm-cart-note-textarea" class="sr-only">Order note</label>
+                      <textarea
+                        id="wm-cart-note-textarea"
+                        name="note"
+                        class="wm-cart-note-textarea"
+                        placeholder="E.g. Please call before delivery, leave package with security guard, or include gift message..."
+                        data-cart-note-input
+                      ></textarea>
+                      <div class="wm-cart-note-status" data-cart-note-status aria-live="polite"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Saved for Later Section -->
+                <div class="wm-cart-saved" data-saved-later-section hidden>
+                  <h2 class="wm-cart-saved__title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    <span>Saved for Later (<span data-saved-later-count>0</span>)</span>
+                  </h2>
+                  <div class="wm-cart-saved__grid" data-saved-later-list></div>
+                </div>
+              </div>
+
+              <!-- RIGHT COLUMN: Sticky Order Summary -->
+              <div class="wm-cart-right-col">
+                <aside class="wm-cart-summary" aria-labelledby="wm-cart-summary-heading" data-cart-summary>
+                  <h2 id="wm-cart-summary-heading" class="wm-cart-summary__title">Order Summary</h2>
+
+                  <!-- 1. Free-Shipping Progress Bar -->
+                  <div
+                    class="wm-cart-shipbar is-unlocked"
+                    data-cart-shipping-bar
+                    data-threshold-inr="499"
+                    role="region"
+                    aria-label="Free shipping progress"
+                  >
+                    <div class="wm-cart-shipbar__header">
+                      <span class="wm-cart-shipbar__icon" data-shipping-bar-icon aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                      <p class="wm-cart-shipbar__text" data-shipping-bar-text aria-live="polite">
+                        <strong>You've unlocked FREE Express Shipping!</strong>
+                      </p>
+                    </div>
+                    <div
+                      class="wm-cart-shipbar__track"
+                      role="progressbar"
+                      aria-valuemin="0"
+                      aria-valuemax="499"
+                      aria-valuenow="1028"
+                      data-shipping-bar-progressbar
+                    >
+                      <div class="wm-cart-shipbar__fill" data-shipping-bar-fill style="width: 100%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- 2. Coupon / Promo Code Field -->
+                  <div class="wm-cart-coupon" data-cart-coupon-box>
+                    <div class="wm-cart-coupon__form">
+                      <input
+                        type="text"
+                        class="wm-cart-coupon__input"
+                        placeholder="Enter promo code (e.g. WAGMART10)"
+                        aria-label="Promo or coupon code"
+                        data-coupon-input
+                      >
+                      <button type="button" class="wm-cart-coupon__btn" data-coupon-apply>Apply</button>
+                    </div>
+                    <p class="wm-cart-coupon__feedback" data-coupon-feedback aria-live="polite"></p>
+                    <div class="wm-cart-coupon__chip-wrap" data-coupon-chip-wrap hidden>
+                      <span class="wm-cart-coupon__chip">
+                        <span class="wm-cart-coupon__chip-code" data-coupon-chip-label>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                          <span data-coupon-code-text>WAGMART10</span>
+                        </span>
+                        <button type="button" class="wm-cart-coupon__chip-remove" data-coupon-remove aria-label="Remove coupon code">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 3. Cost Breakdown Rows -->
+                  <div class="wm-cart-summary__rows">
+                    <div class="wm-cart-summary__row">
+                      <span>Subtotal (<span data-summary-item-count>3</span> items)</span>
+                      <span class="wm-cart-summary__val" data-summary-subtotal>₹1,028</span>
+                    </div>
+
+                    <div class="wm-cart-summary__row is-discount" data-summary-discount-row>
+                      <span>Order Discount</span>
+                      <span class="wm-cart-summary__val" data-summary-discount>&minus;₹335</span>
+                    </div>
+
+                    <div class="wm-cart-summary__row">
+                      <span>Estimated Shipping</span>
+                      <span class="wm-cart-summary__val is-free" data-summary-shipping>FREE</span>
+                    </div>
+
+                    <div class="wm-cart-summary__row">
+                      <span>Estimated Taxes (GST)</span>
+                      <span class="wm-cart-summary__val" data-summary-tax>Included</span>
+                    </div>
+                  </div>
+
+                  <hr class="wm-cart-summary__divider">
+
+                  <!-- 4. Total Row -->
+                  <div class="wm-cart-summary__total-row">
+                    <div class="wm-cart-summary__total-label">
+                      Total Amount
+                      <small>Inclusive of all taxes</small>
+                    </div>
+                    <span class="wm-cart-summary__total-val" data-summary-total>₹1,028</span>
+                  </div>
+
+                  <!-- 5. Savings Pill -->
+                  <div class="wm-cart-summary__savings-pill" data-summary-savings-pill>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span data-summary-savings-text>You save ₹384 on this order</span>
+                  </div>
+
+                  <!-- 6. Primary Proceed to Checkout CTA -->
+                  <button
+                    type="submit"
+                    name="checkout"
+                    form="wm-cart-form"
+                    class="wm-cart-summary__checkout-btn"
+                    data-cart-checkout-btn
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>PROCEED TO CHECKOUT</span>
+                  </button>
+
+                  <!-- 7. Secondary Continue Shopping Link -->
+                  <a href="./product_preview.html" class="wm-cart-summary__continue">
+                    Continue shopping
+                  </a>
+
+                  <!-- 8. Optional Pincode Delivery Estimator -->
+                  <div class="wm-cart-pincode" data-cart-pincode>
+                    <p class="wm-cart-pincode__label">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Estimate Delivery Time
+                    </p>
+                    <div class="wm-cart-pincode__row">
+                      <input
+                        type="text"
+                        class="wm-cart-pincode__input"
+                        placeholder="Enter 6-digit pincode"
+                        maxlength="6"
+                        inputmode="numeric"
+                        value="395007"
+                        aria-label="Delivery pincode"
+                        data-cart-pincode-input
+                      >
+                      <button type="button" class="wm-cart-pincode__btn" data-cart-pincode-btn>Check</button>
+                    </div>
+                    <p class="wm-cart-pincode__result" data-cart-pincode-result aria-live="polite">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span>Delivery by <strong>Tue, 28 Oct</strong> &bull; COD Available</span>
+                    </p>
+                  </div>
+
+                  <!-- 9. Trust Badges (2x2 Grid, 14px text) -->
+                  <div class="wm-cart-trust" role="list" aria-label="Store guarantees">
+                    <div class="wm-cart-trust__item" role="listitem">
+                      <span class="wm-cart-trust__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      </span>
+                      <span class="wm-cart-trust__text">100% Secure Payments</span>
+                    </div>
+                    <div class="wm-cart-trust__item" role="listitem">
+                      <span class="wm-cart-trust__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                      </span>
+                      <span class="wm-cart-trust__text">Easy 7-Day Returns</span>
+                    </div>
+                    <div class="wm-cart-trust__item" role="listitem">
+                      <span class="wm-cart-trust__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                      </span>
+                      <span class="wm-cart-trust__text">Fast Express Delivery</span>
+                    </div>
+                    <div class="wm-cart-trust__item" role="listitem">
+                      <span class="wm-cart-trust__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                      </span>
+                      <span class="wm-cart-trust__text">Vet-Tested &amp; Safe</span>
+                    </div>
+                  </div>
+
+                  <!-- 10. Payment Icon Row -->
+                  <div class="wm-cart-payments" aria-label="Accepted payment methods">
+                    <span class="wm-cart-payment-pill">UPI</span>
+                    <span class="wm-cart-payment-pill">VISA</span>
+                    <span class="wm-cart-payment-pill">Mastercard</span>
+                    <span class="wm-cart-payment-pill">RuPay</span>
+                    <span class="wm-cart-payment-pill">COD</span>
+                  </div>
+                </aside>
+              </div>
+            </div>
+          </form>
+
+          <!-- BELOW THE CART: You May Also Like 4-Column Carousel -->
+          <section class="wm-cart-cross-sell" aria-labelledby="wm-cart-upsell-title">
+            <div class="wm-cart-cross-sell__header">
+              <div>
+                <span class="wm-cart-cross-sell__eyebrow">COMPLETE YOUR PET'S ROUTINE</span>
+                <h2 id="wm-cart-upsell-title" class="wm-cart-cross-sell__title">You May Also Like</h2>
+              </div>
+              <a href="./product_preview.html" class="wm-cart-header__continue">
+                <span>Explore all</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+            </div>
+
+            <div class="wm-cart-cross-sell__grid">
+              <!-- Card 1 -->
+              <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="upsell-nail-clipper" data-product-name="Safety Pet Nail Clipper & File" data-product-price="₹249" data-product-compare-price="₹349" data-product-vendor="Wagmart Care" data-product-image="./assets/catalog-nail-clipper.webp">
+                <div>
+                  <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                    <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Vet Pick</span>
+                    <img src="./assets/catalog-nail-clipper.webp" alt="Safety Pet Nail Clipper & File" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                  </div>
+                  <div class="px-1">
+                    <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.9</span><span class="text-neutral-400">(142)</span></div>
+                    <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">Safety Pet Nail Clipper &amp; File</h3>
+                    <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">Stainless steel blades with safety stop guard to prevent over-cutting.</p>
+                  </div>
+                </div>
+                <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                  <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹249</span><span class="text-[12px] text-neutral-400 line-through">₹349</span></div>
+                  <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                    <span>+ Add</span>
+                  </button>
+                  <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                    <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="upsell-feeder-bowl" data-product-name="Anti-Gulp Slow Feeder Maze Bowl" data-product-price="₹399" data-product-compare-price="₹599" data-product-vendor="Wagmart Naturals" data-product-image="./assets/catalog-steel-bowl.webp">
+                <div>
+                  <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                    <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Bestseller</span>
+                    <img src="./assets/catalog-steel-bowl.webp" alt="Anti-Gulp Slow Feeder Maze Bowl" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                  </div>
+                  <div class="px-1">
+                    <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.8</span><span class="text-neutral-400">(189)</span></div>
+                    <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">Anti-Gulp Slow Feeder Maze Bowl</h3>
+                    <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">Non-slip stainless base prevents gulping and supports healthy digestion.</p>
+                  </div>
+                </div>
+                <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                  <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹399</span><span class="text-[12px] text-neutral-400 line-through">₹599</span></div>
+                  <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                    <span>+ Add</span>
+                  </button>
+                  <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                    <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="upsell-plush-duck" data-product-name="Calming Plush Squeaky Duck Toy" data-product-price="₹349" data-product-compare-price="₹499" data-product-vendor="Wagmart Play" data-product-image="./assets/catalog-squeaky-duck.webp">
+                <div>
+                  <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                    <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Save 30%</span>
+                    <img src="./assets/catalog-squeaky-duck.webp" alt="Calming Plush Squeaky Duck Toy" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                  </div>
+                  <div class="px-1">
+                    <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.7</span><span class="text-neutral-400">(112)</span></div>
+                    <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">Calming Plush Squeaky Duck Toy</h3>
+                    <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">Ultra-soft reinforced ChewGuard lining for interactive indoor fetch.</p>
+                  </div>
+                </div>
+                <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                  <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹349</span><span class="text-[12px] text-neutral-400 line-through">₹499</span></div>
+                  <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                    <span>+ Add</span>
+                  </button>
+                  <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                    <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 4 -->
+              <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="upsell-ortho-bed" data-product-name="Orthopedic Memory Foam Pet Bed" data-product-price="₹1,499" data-product-compare-price="₹1,999" data-product-vendor="Wagmart Comfort" data-product-image="./assets/catalog-orthopedic-bed.webp">
+                <div>
+                  <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                    <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Top Rated</span>
+                    <img src="./assets/catalog-orthopedic-bed.webp" alt="Orthopedic Memory Foam Pet Bed" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                  </div>
+                  <div class="px-1">
+                    <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.9</span><span class="text-neutral-400">(276)</span></div>
+                    <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">Orthopedic Memory Foam Pet Bed</h3>
+                    <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">High-density foam bolster bed with removable machine-washable cover.</p>
+                  </div>
+                </div>
+                <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                  <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹1,499</span><span class="text-[12px] text-neutral-400 line-through">₹1,999</span></div>
+                  <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                    <span>+ Add</span>
+                  </button>
+                  <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                    <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                    <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- =======================================================
+             2. EMPTY CART STATE (snippets/cart-empty-state.liquid)
+             ======================================================= -->
+        <div data-cart-empty-container hidden>
+          <div class="wm-cart-empty-wrap" data-cart-empty-view>
+            <div class="wm-cart-empty-card">
+              <div class="wm-cart-empty-card__icon-circle" aria-hidden="true">
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14 22H50L47 54C46.8 56.2 45 58 42.8 58H21.2C19 58 17.2 56.2 17 54L14 22Z" fill="#FFFFFF" stroke="#1B3A2A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 22V16C23 11.0294 27.0294 7 32 7C36.9706 7 41 11.0294 41 16V22" stroke="#1B3A2A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <ellipse cx="32" cy="43" rx="6" ry="5" fill="#1B3A2A"/>
+                  <circle cx="23.5" cy="35.5" r="2.6" fill="#1B3A2A"/>
+                  <circle cx="29" cy="32.5" r="2.6" fill="#1B3A2A"/>
+                  <circle cx="35" cy="32.5" r="2.6" fill="#1B3A2A"/>
+                  <circle cx="40.5" cy="35.5" r="2.6" fill="#1B3A2A"/>
+                </svg>
+              </div>
+
+              <h1 class="wm-cart-empty-card__title">Your cart is empty</h1>
+              <p class="wm-cart-empty-card__subtext">
+                Looks like you haven't added anything yet. Explore our best-selling pet supplies.
+              </p>
+
+              <div class="wm-cart-empty-card__actions">
+                <a href="./product_preview.html" class="wm-cart-btn-primary">
+                  <span>Start Shopping</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+                <a href="#wm-cart-bestsellers" class="wm-cart-btn-outline">
+                  <span>View Bestsellers</span>
+                </a>
+              </div>
+
+              <div class="wm-cart-empty-chips">
+                <p class="wm-cart-empty-chips__label">Popular Categories</p>
+                <div class="wm-cart-empty-chips__list">
+                  <a href="./product_preview.html" class="wm-cart-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                    <span>Dry Food &amp; Kibble</span>
+                  </a>
+                  <a href="./product_preview.html" class="wm-cart-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                    <span>Grooming &amp; Bath</span>
+                  </a>
+                  <a href="./product_preview.html" class="wm-cart-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                    <span>Interactive Toys</span>
+                  </a>
+                  <a href="./product_preview.html" class="wm-cart-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <span>Accessories</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4-Product Bestsellers You Might Love Grid -->
+            <section id="wm-cart-bestsellers" class="wm-cart-cross-sell" aria-labelledby="wm-empty-bestsellers-title">
+              <div class="wm-cart-cross-sell__header">
+                <div>
+                  <span class="wm-cart-cross-sell__eyebrow">PET PARENT FAVORITES</span>
+                  <h2 id="wm-empty-bestsellers-title" class="wm-cart-cross-sell__title">Bestsellers You Might Love</h2>
+                </div>
+                <a href="./product_preview.html" class="wm-cart-header__continue">
+                  <span>View all products</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+              </div>
+
+              <div class="wm-cart-cross-sell__grid">
+                <!-- Empty State Bestseller 1 -->
+                <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="grooming-glove-1" data-product-name="Gentle Silicone Pet Grooming & De-Shedding Glove" data-product-price="₹330" data-product-compare-price="₹415" data-product-vendor="Wagmart Pro" data-product-image="./assets/catalog-bath-massage-brush.webp">
+                  <div>
+                    <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                      <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Bestseller</span>
+                      <img src="./assets/catalog-bath-massage-brush.webp" alt="Gentle Silicone Pet Grooming Glove" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                    </div>
+                    <div class="px-1">
+                      <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.8</span><span class="text-neutral-400">(126)</span></div>
+                      <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">Gentle Silicone Pet Grooming &amp; De-Shedding Glove</h3>
+                      <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">259 soft silicone tips gently lift loose fur while massaging your pet.</p>
+                    </div>
+                  </div>
+                  <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                    <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹330</span><span class="text-[12px] text-neutral-400 line-through">₹415</span></div>
+                    <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                      <span>+ Add</span>
+                    </button>
+                    <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                      <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Empty State Bestseller 2 -->
+                <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="paw-cleaner-cup-2" data-product-name="360° Soft Silicone Muddy Paw Cleaner & Washer Cup" data-product-price="₹399" data-product-compare-price="₹549" data-product-vendor="Wagmart Care" data-product-image="./assets/paw-cleaner-kit.webp">
+                  <div>
+                    <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                      <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Save 27%</span>
+                      <img src="./assets/paw-cleaner-kit.webp" alt="Silicone Paw Cleaner Cup" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                    </div>
+                    <div class="px-1">
+                      <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.9</span><span class="text-neutral-400">(214)</span></div>
+                      <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">360° Soft Silicone Muddy Paw Cleaner &amp; Washer Cup</h3>
+                      <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">Quickly rinses mud and dirt from paws after outdoor walks.</p>
+                    </div>
+                  </div>
+                  <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                    <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹399</span><span class="text-[12px] text-neutral-400 line-through">₹549</span></div>
+                    <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                      <span>+ Add</span>
+                    </button>
+                    <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                      <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Empty State Bestseller 3 -->
+                <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="cotton-rope-toy-3" data-product-name="Heavy-Duty Braided Cotton Dental Tug & Chew Toy" data-product-price="₹299" data-product-compare-price="₹399" data-product-vendor="Wagmart Play" data-product-image="./assets/catalog-rope-leash.webp">
+                  <div>
+                    <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                      <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Vet Approved</span>
+                      <img src="./assets/catalog-rope-leash.webp" alt="Heavy-Duty Braided Cotton Dental Tug & Chew Toy" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                    </div>
+                    <div class="px-1">
+                      <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.7</span><span class="text-neutral-400">(98)</span></div>
+                      <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">Heavy-Duty Braided Cotton Dental Tug &amp; Chew Toy</h3>
+                      <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">100% natural non-toxic cotton fibers clean teeth and massage gums.</p>
+                    </div>
+                  </div>
+                  <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                    <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹299</span><span class="text-[12px] text-neutral-400 line-through">₹399</span></div>
+                    <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                      <span>+ Add</span>
+                    </button>
+                    <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                      <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Empty State Bestseller 4 -->
+                <div class="group relative bg-white rounded-[20px] p-3 transition-all duration-300 border border-[#E5E7EB]/80 flex flex-col justify-between" data-product-card data-product-id="upsell-ortho-bed" data-product-name="Orthopedic Memory Foam Pet Bed" data-product-price="₹1,499" data-product-compare-price="₹1,999" data-product-vendor="Wagmart Comfort" data-product-image="./assets/catalog-orthopedic-bed.webp">
+                  <div>
+                    <div class="relative w-full aspect-square rounded-[14px] bg-[#FAF9F5] overflow-hidden mb-3 flex items-center justify-center p-4">
+                      <span class="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#1B3A2A] text-white">Top Rated</span>
+                      <img src="./assets/catalog-orthopedic-bed.webp" alt="Orthopedic Memory Foam Pet Bed" class="w-full h-full object-contain" width="240" height="240" loading="lazy">
+                    </div>
+                    <div class="px-1">
+                      <div class="flex items-center gap-1.5 mb-1 text-xs"><span style="color:#F59E0B;">★★★★★</span><span class="font-bold text-[#111827]">4.9</span><span class="text-neutral-400">(276)</span></div>
+                      <h3 class="font-jakarta text-[16px] font-bold text-[#111827] leading-[22px] line-clamp-2">Orthopedic Memory Foam Pet Bed</h3>
+                      <p class="mt-1 text-[12.5px] text-neutral-500 line-clamp-2">High-density foam bolster bed with removable machine-washable cover.</p>
+                    </div>
+                  </div>
+                  <div class="px-1 mt-auto pt-3 flex items-center justify-between gap-2">
+                    <div class="flex items-baseline gap-1.5"><span class="font-extrabold text-[18px] text-[#111827]">₹1,499</span><span class="text-[12px] text-neutral-400 line-through">₹1,999</span></div>
+                    <button type="button" class="h-[38px] bg-[#1B3A2A] hover:bg-[#12281D] text-white px-3.5 py-1 rounded-full flex items-center gap-1.5 text-[12px] font-bold cursor-pointer" data-add-to-cart>
+                      <span>+ Add</span>
+                    </button>
+                    <div class="hidden items-center bg-[#1B3A2A] text-white rounded-full h-[38px] px-1.5 shadow-sm" data-card-stepper>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="-1">&minus;</button>
+                      <span class="w-6 text-center font-extrabold text-[13px]" data-card-qty>1</span>
+                      <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer" data-card-stepper-btn data-delta="1">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- Undo Toast Notification -->
+      <div class="wm-cart-toast" data-cart-undo-toast role="status" aria-live="polite">
+        <span class="wm-cart-toast__text" data-cart-toast-msg>Item removed from cart</span>
+        <button type="button" class="wm-cart-toast__undo" data-cart-toast-undo>Undo</button>
+      </div>
+
+      <!-- Mobile Sticky Bottom Checkout Bar (<=768px when cart has items) -->
+      <div class="wm-cart-mobile-bar is-visible" data-cart-mobile-bar>
+        <div class="wm-cart-mobile-bar__inner">
+          <div class="wm-cart-mobile-bar__price-col">
+            <span class="wm-cart-mobile-bar__label">Total (<span data-mobile-item-count>3</span> items)</span>
+            <span class="wm-cart-mobile-bar__total" data-mobile-total>₹1,028</span>
+            <span class="wm-cart-mobile-bar__sub">Inclusive of all taxes</span>
+          </div>
+          <button type="submit" name="checkout" form="wm-cart-form" class="wm-cart-mobile-bar__btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>CHECKOUT</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================
+       CART DRAWER (snippets/cart-drawer.liquid)
+       ========================================================= -->
+  <div class="wm-cart" id="cart-drawer" aria-hidden="true" data-cart-drawer>
+    <div class="wm-backdrop" data-close-cart></div>
+    <div class="wm-cart__panel" role="dialog" aria-modal="true" aria-labelledby="WmCartTitle" tabindex="-1">
+      <div class="wm-cart__head">
+        <h2 class="wm-cart__title" id="WmCartTitle">
+          Your Cart<span class="wm-cart__count">(<span data-cart-total-qty id="cart-drawer-total-qty">3</span>)</span>
+        </h2>
+        <button type="button" class="wm-close-btn" data-close-cart aria-label="Close cart">
+          <svg class="wm-icon wm-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="wm-cart__progress" aria-hidden="true"></div>
+      <div class="wm-cart__body">
+        <p class="wm-cart__notice" role="alert" data-cart-notice></p>
+        <div id="cart-drawer-empty" class="wm-cart__empty hidden">
+          <h3>Your cart is empty</h3>
+          <p>Find grooming, walking and feeding essentials your pet will love.</p>
+        </div>
+        <ul id="cart-drawer-items" class="wm-cart__items" aria-label="Cart items"></ul>
+      </div>
+      <div id="cart-drawer-footer" class="wm-cart__foot">
+        <div class="wm-cart__row">
+          <span>Subtotal</span>
+          <strong id="cart-drawer-subtotal">₹1,028</strong>
+        </div>
+        <p class="wm-cart__fine">Taxes, discounts and shipping are calculated at checkout.</p>
+        <div class="wm-cart__actions">
+          <button type="button" class="wm-btn wm-btn--outline" data-close-cart><span class="wm-btn__label">Continue shopping</span></button>
+          <button type="button" class="wm-btn wm-btn--primary"><span class="wm-btn__label">Checkout</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       EXISTING FOOTER WITHOUT REPEATED CTA BANNER (sections/footer.liquid)
+       ========================================================= -->
+  <style>
+    .wm-site-footer { background-color: #16241D; color: #E2E8F0; font-family: 'Nunito', system-ui, sans-serif; padding-top: 56px; padding-bottom: 28px; }
+    .wm-site-footer__wrap { max-width: 1400px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 56px); }
+    .wm-site-footer__grid { display: grid; grid-template-columns: 1fr; gap: 40px 32px; padding-bottom: 48px; }
+    @media (min-width: 640px) and (max-width: 1023px) { .wm-site-footer__grid { grid-template-columns: 1.3fr 1fr 1fr; } .wm-footer-col--newsletter { grid-column: 1 / -1; } }
+    @media (min-width: 1024px) { .wm-site-footer__grid { grid-template-columns: 1.4fr 0.9fr 0.9fr 1.3fr; gap: 48px; } }
+    .wm-footer-logo-wrap { display: inline-block; background: #fff; padding: 8px 16px; border-radius: 12px; margin-bottom: 18px; }
+    .wm-footer-logo-img { height: 34px; width: auto; display: block; }
+    .wm-footer-bio { font-size: 14px; line-height: 1.65; color: #94A3B8; margin-bottom: 22px; max-width: 360px; }
+    .wm-footer-trust-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(46,96,74,0.3); border: 1px solid rgba(46,96,74,0.5); border-radius: 9999px; font-size: 12px; font-weight: 700; color: #A7F3D0; }
+    .wm-footer-title { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #FFF; margin-bottom: 20px; position: relative; padding-bottom: 10px; }
+    .wm-footer-title::after { content: ''; position: absolute; bottom: 0; left: 0; width: 24px; height: 2px; background: #8CBF6E; }
+    .wm-footer-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+    .wm-footer-link { color: #CBD5E1; text-decoration: none; font-size: 14.5px; font-weight: 600; }
+    .wm-footer-newsletter-form { display: flex; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 4px 4px 4px 14px; margin-bottom: 20px; }
+    .wm-footer-newsletter-input { flex: 1; background: transparent; border: none; color: #fff; font-size: 13.5px; outline: none; }
+    .wm-footer-newsletter-btn { background: #8CBF6E; color: #16241D; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 800; font-size: 13px; cursor: pointer; }
+    .wm-footer-contact-list { display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; color: #CBD5E1; }
+    .wm-footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; font-size: 12.5px; color: #94A3B8; }
+  </style>
+
+  <footer id="contact" class="wm-site-footer" role="contentinfo">
+    <div class="wm-site-footer__wrap">
+      <div class="wm-site-footer__grid">
+        <div>
+          <a href="/" class="wm-footer-logo-wrap" aria-label="Wagmart Home">
+            <img src="./assets/WAGMART-Logo.webp" alt="Wagmart" class="wm-footer-logo-img" width="140" height="34" loading="lazy">
+          </a>
+          <p class="wm-footer-bio">Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents.</p>
+          <div class="wm-footer-trust-pill">Over 3 Lakh+ Happy Pet Parents</div>
+        </div>
+        <div>
+          <h3 class="wm-footer-title">SHOP ESSENTIALS</h3>
+          <ul class="wm-footer-links">
+            <li><a href="/collections/all" class="wm-footer-link">All Products</a></li>
+            <li><a href="/pages/about-us" class="wm-footer-link">About Us</a></li>
+            <li><a href="/collections/dry-food" class="wm-footer-link">Dry Food &amp; Kibble</a></li>
+            <li><a href="/collections/all#grooming" class="wm-footer-link">Grooming &amp; Bath</a></li>
+            <li><a href="/collections/all#toys" class="wm-footer-link">Interactive Toys</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="wm-footer-title">CUSTOMER CARE</h3>
+          <ul class="wm-footer-links">
+            <li><a href="/pages/faq" class="wm-footer-link">Help &amp; FAQs</a></li>
+            <li><a href="/policies/shipping-policy" class="wm-footer-link">Shipping Policy</a></li>
+            <li><a href="/policies/refund-policy" class="wm-footer-link">Return &amp; Refund Policy</a></li>
+            <li><a href="/policies/privacy-policy" class="wm-footer-link">Privacy Policy</a></li>
+            <li><a href="/pages/contact" class="wm-footer-link">Contact Support</a></li>
+          </ul>
+        </div>
+        <div class="wm-footer-col--newsletter">
+          <h3 class="wm-footer-title">STAY IN TOUCH</h3>
+          <form class="wm-footer-newsletter-form" onsubmit="return false;">
+            <input type="email" placeholder="Enter your email address" class="wm-footer-newsletter-input" aria-label="Email address">
+            <button type="submit" class="wm-footer-newsletter-btn">Join</button>
+          </form>
+          <div class="wm-footer-contact-list">
+            <div>Shop No. 312, 3rd Floor, Shivalik Complex, Dabholi Gam Road, Katargam, Surat, Gujarat, 395004</div>
+            <div>+91 77779 85896 &bull; support@wagmart.com</div>
+          </div>
+        </div>
+      </div>
+      <div class="wm-footer-bottom">
+        <p style="margin:0;">&copy; 2026 Wagmart Pet Supplies. Crafted for the love of pets and their people.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./assets/theme.js" defer></script>
+  <script src="./assets/header.js" defer></script>
+  <script src="./assets/cart.js" defer></script>
+</body>
+</html>
