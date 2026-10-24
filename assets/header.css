@@ -276,7 +276,6 @@
 }
 
 .wm-only-mobile { display: inline-flex; }
-.wm-only-desktop { display: none; }
 .wm-hide-mobile { display: none; }
 
 /* -------------------------------------------------------------------------
@@ -381,18 +380,6 @@ a.wm-mega__link:hover { color: var(--wm-purple); transform: translateX(3px); }
   text-transform: uppercase;
   color: var(--wm-text-3);
   white-space: nowrap;
-}
-
-.wm-mega__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 28px;
-  padding-top: 18px;
-  border-top: 1px solid var(--wm-border);
-  font: 400 13px/1.4 var(--wm-font);
-  color: var(--wm-text-2);
 }
 
 .wm-link-arrow {
@@ -733,8 +720,6 @@ shopify-account.wm-account__component::part(signed-out-avatar):hover {
 .wm-btn--primary:hover { background: var(--wm-purple-600); box-shadow: 0 10px 22px -12px rgba(119, 67, 232, 0.8); }
 .wm-btn--outline { background: var(--wm-white); color: var(--wm-text); border-color: var(--wm-border); }
 .wm-btn--outline:hover { border-color: #d6d6dc; background: var(--wm-bg); }
-.wm-btn--ghost { background: transparent; color: var(--wm-text); }
-.wm-btn--ghost:hover { background: var(--wm-bg); }
 .wm-btn[disabled],
 .wm-btn[aria-disabled='true'] { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 .wm-btn.is-loading { pointer-events: none; }
@@ -1291,7 +1276,6 @@ a.wm-line__title:hover { color: var(--wm-purple); }
 @media (min-width: 1100px) {
   .wm-nav { display: block; }
   .wm-only-mobile { display: none; }
-  .wm-only-desktop { display: inline-flex; }
   .wm-header__logo img { height: 38px; }
 }
 

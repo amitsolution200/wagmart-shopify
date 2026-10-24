@@ -6,7 +6,6 @@
 
 {%- liquid
   assign c = cart_obj | default: cart
-  assign subtotal_cents = c.original_total_price | default: c.total_price | default: 0
   assign final_cents = c.total_price | default: 0
   assign discount_cents = c.total_discount | default: 0
   assign threshold_cents = 49900

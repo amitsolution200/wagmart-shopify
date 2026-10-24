@@ -487,7 +487,6 @@
   if article != blank and article.title != blank
     assign has_live_article = true
     assign live_title = article.title
-    assign live_url = article.url
     assign live_date = article.published_at | date: '%b %d, %Y'
     assign live_author = article.author | default: 'Wagmart Editorial'
     assign live_category = article.tags.first | default: 'Pet Care'
