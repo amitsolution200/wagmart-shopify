@@ -22,132 +22,268 @@
     currencySymbol: '₹',
   };
 
-  // Format Money Helper (cents to currency)
+  // Format Money Helper (cents to currency) using the shop's money format when available
   function formatMoney(cents) {
-    if (typeof Shopify !== 'undefined' && Shopify.formatMoney) {
-      return Shopify.formatMoney(cents);
+    const value = Number(cents) || 0;
+    const format = (window.Wagmart && window.Wagmart.moneyFormat) || '';
+    if (format && /\{\{\s*\w+\s*\}\}/.test(format)) {
+      const amount = value / 100;
+      const withDelimiters = (n, decimals, thousands, decimal) => {
+        const fixed = n.toFixed(decimals).split('.');
+        fixed[0] = fixed[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousands);
+        return fixed.join(decimal);
+      };
+      return format.replace(/\{\{\s*(\w+)\s*\}\}/, (_, key) => {
+        switch (key) {
+          case 'amount_no_decimals':
+            return withDelimiters(amount, 0, ',', '.');
+          case 'amount_with_comma_separator':
+            return withDelimiters(amount, 2, '.', ',');
+          case 'amount_no_decimals_with_comma_separator':
+            return withDelimiters(amount, 0, '.', ',');
+          case 'amount_with_apostrophe_separator':
+            return withDelimiters(amount, 2, "'", '.');
+          default:
+            return withDelimiters(amount, 2, ',', '.');
+        }
+      }).replace(/<[^>]*>/g, '');
     }
-    const val = (cents / 100).toFixed(0);
+    const val = (value / 100).toFixed(0);
     return WagmartState.currencySymbol + Number(val).toLocaleString('en-IN');
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   // =========================================================================
   // 1. AJAX CART INTEGRATION
   // =========================================================================
   const Cart = {
-    async fetch() {
-      try {
-        const res = await fetch('/cart.js');
-        if (!res.ok) throw new Error('Failed to fetch cart');
-        const data = await res.json();
-        WagmartState.cart = data;
-        this.render();
-      } catch (err) {
-        console.warn('Cart fetch error (preview fallback):', err);
-      }
+    _lastTrigger: null,
+
+    setLoading(isLoading) {
+      const drawer = document.getElementById('cart-drawer');
+      if (drawer) drawer.classList.toggle('is-loading', !!isLoading);
     },
 
-    async add(variantId, quantity = 1, openDrawer = true, productData = null) {
-      try {
-        const res = await fetch('/cart/add.js', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: variantId, quantity }),
-        });
-        if (!res.ok) throw new Error('Add to cart failed');
-        await this.fetch();
-        if (openDrawer) {
-          this.openDrawer();
-        }
-      } catch (err) {
-        console.error('Error adding to cart:', err);
-        // Fallback for preview mode without live backend
-        this.fallbackAdd(variantId, quantity, openDrawer, productData);
-      }
+    notify(message) {
+      const notice = document.querySelector('[data-cart-notice]');
+      if (notice) notice.textContent = message || '';
     },
 
-    fallbackAdd(productId, quantity = 1, openDrawer = true, productData = null) {
-      const existing = WagmartState.cart.items.find(
-        (i) => i.id == productId || i.product_id == productId
-      );
-      if (existing) {
-        existing.quantity += quantity;
-      } else {
-        WagmartState.cart.items.push({
-          id: productId,
-          product_id: productId,
-          quantity: quantity,
-          title: productData?.name || 'Pet Essential Item',
-          price: productData?.price || 79900,
-          image: productData?.image || '',
-        });
-      }
+    _recalcLocalCart() {
       WagmartState.cart.item_count = WagmartState.cart.items.reduce(
-        (acc, i) => acc + i.quantity,
+        (sum, item) => sum + (Number(item.quantity) || 0),
         0
       );
-      this.render();
-      if (openDrawer) {
-        this.openDrawer();
+      WagmartState.cart.total_price = WagmartState.cart.items.reduce(
+        (sum, item) => sum + ((Number(item.final_price) || Number(item.price) || 0) * (Number(item.quantity) || 0)),
+        0
+      );
+      try {
+        localStorage.setItem('wagmart_local_cart', JSON.stringify(WagmartState.cart));
+      } catch (e) {}
+    },
+
+    async fetch() {
+      try {
+        const res = await fetch('/cart.js', { headers: { Accept: 'application/json' } });
+        if (res.ok) {
+          const data = await res.json();
+          let localCart = null;
+          try {
+            localCart = JSON.parse(localStorage.getItem('wagmart_local_cart') || 'null');
+          } catch (e) {}
+          const mockItems = (localCart && Array.isArray(localCart.items))
+            ? localCart.items.filter((i) => isNaN(Number(i.id)) || Number(i.id) <= 0)
+            : [];
+          WagmartState.cart = data;
+          if (mockItems.length > 0) {
+            WagmartState.cart.items.push(...mockItems);
+            this._recalcLocalCart();
+          }
+          this.render();
+          return;
+        }
+      } catch (err) {
+        console.warn('Cart fetch error:', err);
       }
+      try {
+        const local = JSON.parse(localStorage.getItem('wagmart_local_cart') || 'null');
+        if (local && Array.isArray(local.items)) {
+          WagmartState.cart = local;
+        }
+      } catch (e) {}
+      this.render();
+    },
+
+    async add(variantId, quantity = 1, openDrawer = true, mockItem = null) {
+      this.notify('');
+      this.setLoading(true);
+
+      const targetQty = Math.max(1, Number(quantity) || 1);
+
+      // 1. Instant optimistic update in local state
+      let existing = WagmartState.cart.items.find(
+        (i) => i.id == variantId || i.product_id == variantId || (i.variant_id && i.variant_id == variantId)
+      );
+
+      if (existing) {
+        existing.quantity = Math.max(1, (Number(existing.quantity) || 1) + targetQty);
+        existing.final_line_price = (existing.final_price || existing.price || 0) * existing.quantity;
+      } else {
+        const priceVal = (mockItem && mockItem.price) || 79900;
+        const newItem = {
+          id: variantId,
+          key: String(variantId),
+          product_id: variantId,
+          variant_id: variantId,
+          title: (mockItem && mockItem.name) || 'Product',
+          product_title: (mockItem && mockItem.name) || 'Product',
+          price: priceVal,
+          final_price: priceVal,
+          original_line_price: priceVal,
+          final_line_price: priceVal * targetQty,
+          quantity: targetQty,
+          image: (mockItem && mockItem.image) || '',
+        };
+        WagmartState.cart.items.push(newItem);
+      }
+
+      this._recalcLocalCart();
+      this.render();
+
+      // 2. If it's a numeric Shopify variant, post to /cart/add.js
+      if (!isNaN(Number(variantId)) && Number(variantId) > 0) {
+        try {
+          const res = await fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ id: Number(variantId), quantity: targetQty }),
+          });
+          if (res.ok) {
+            await this.fetch();
+          }
+        } catch (err) {
+          console.warn('Shopify cart API warning (using local cart):', err);
+        }
+      }
+
+      this.setLoading(false);
+      if (openDrawer) this.openDrawer();
+      return true;
     },
 
     async update(keyOrId, quantity) {
-      try {
-        const res = await fetch('/cart/change.js', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: keyOrId, quantity }),
+      this.notify('');
+      this.setLoading(true);
+
+      const targetQty = Number(quantity);
+
+      // 1. Update in local state
+      const itemIndex = WagmartState.cart.items.findIndex(
+        (i) => i.id == keyOrId || i.key == keyOrId || i.product_id == keyOrId || (i.variant_id && i.variant_id == keyOrId)
+      );
+
+      if (itemIndex > -1) {
+        if (targetQty <= 0) {
+          WagmartState.cart.items.splice(itemIndex, 1);
+        } else {
+          WagmartState.cart.items[itemIndex].quantity = targetQty;
+          WagmartState.cart.items[itemIndex].final_line_price =
+            (WagmartState.cart.items[itemIndex].final_price || WagmartState.cart.items[itemIndex].price || 0) * targetQty;
+        }
+      } else if (targetQty > 0) {
+        WagmartState.cart.items.push({
+          id: keyOrId,
+          key: String(keyOrId),
+          product_id: keyOrId,
+          variant_id: keyOrId,
+          title: 'Product',
+          product_title: 'Product',
+          price: 79900,
+          final_price: 79900,
+          original_line_price: 79900,
+          final_line_price: 79900 * targetQty,
+          quantity: targetQty,
+          image: '',
         });
-        if (!res.ok) throw new Error('Update cart failed');
-        await this.fetch();
-      } catch (err) {
-        // Preview fallback
-        const item = WagmartState.cart.items.find(
-          (i) => (i.key || i.id) == keyOrId || i.product_id == keyOrId
-        );
-        if (item) {
-          if (quantity <= 0) {
-            WagmartState.cart.items = WagmartState.cart.items.filter(
-              (i) => (i.key || i.id) != keyOrId && i.product_id != keyOrId
-            );
-          } else {
-            item.quantity = quantity;
+      }
+
+      this._recalcLocalCart();
+      this.render();
+
+      // 2. If it's a numeric Shopify variant, post to /cart/change.js
+      if (!isNaN(Number(keyOrId)) && Number(keyOrId) > 0) {
+        try {
+          const res = await fetch('/cart/change.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ id: String(keyOrId), quantity: Math.max(0, targetQty) }),
+          });
+          if (res.ok) {
+            const data = await res.json().catch(() => null);
+            if (data) {
+              const mockItems = WagmartState.cart.items.filter((i) => isNaN(Number(i.id)) || Number(i.id) <= 0);
+              WagmartState.cart = data;
+              if (mockItems.length > 0) {
+                WagmartState.cart.items.push(...mockItems);
+                this._recalcLocalCart();
+              }
+              this.render();
+            }
           }
-          WagmartState.cart.item_count = WagmartState.cart.items.reduce(
-            (acc, i) => acc + i.quantity,
-            0
-          );
-          this.render();
+        } catch (err) {
+          console.warn('Shopify cart change API warning:', err);
         }
       }
+
+      this.setLoading(false);
     },
 
     async clear() {
+      this.setLoading(true);
       try {
-        await fetch('/cart/clear.js', { method: 'POST' });
-        await this.fetch();
+        await fetch('/cart/clear.js', { method: 'POST', headers: { Accept: 'application/json' } });
       } catch (err) {
-        WagmartState.cart.items = [];
-        WagmartState.cart.item_count = 0;
-        this.render();
+        this.notify('Your cart could not be cleared.');
       }
+      await this.fetch();
+      this.setLoading(false);
     },
 
     openDrawer() {
       const drawer = document.getElementById('cart-drawer');
-      if (drawer) {
-        drawer.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
+      if (!drawer) return;
+      if (!drawer.classList.contains('is-open')) {
+        this._lastTrigger = document.activeElement;
       }
+      document.dispatchEvent(new CustomEvent('wagmart:overlay-open', { detail: { id: 'cart-drawer' } }));
+      drawer.classList.add('is-open');
+      drawer.setAttribute('aria-hidden', 'false');
+      document.querySelectorAll('[data-open-cart]').forEach((b) => b.setAttribute('aria-expanded', 'true'));
+      document.body.classList.add('overflow-hidden');
+      const panel = drawer.querySelector('[role="dialog"]');
+      if (panel) setTimeout(() => panel.focus({ preventScroll: true }), 60);
     },
 
     closeDrawer() {
       const drawer = document.getElementById('cart-drawer');
-      if (drawer) {
-        drawer.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
+      if (!drawer || !drawer.classList.contains('is-open')) return;
+      drawer.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.querySelectorAll('[data-open-cart]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      document.body.classList.remove('overflow-hidden');
+      if (this._lastTrigger && typeof this._lastTrigger.focus === 'function') {
+        this._lastTrigger.focus({ preventScroll: true });
       }
+      this._lastTrigger = null;
     },
 
     render() {
@@ -161,6 +297,9 @@
           el.classList.add('hidden');
         }
       });
+      document.querySelectorAll('[data-cart-count-label]').forEach((el) => {
+        el.textContent = `${count} ${count === 1 ? 'item' : 'items'} in cart`;
+      });
 
       // Update drawer elements
       const listContainer = document.getElementById('cart-drawer-items');
@@ -169,10 +308,12 @@
       const subtotalEl = document.getElementById('cart-drawer-subtotal');
       const totalQuantityEl = document.getElementById('cart-drawer-total-qty');
 
+      if (totalQuantityEl) totalQuantityEl.textContent = count;
       if (!listContainer) return;
 
       if (WagmartState.cart.items.length === 0) {
         listContainer.classList.add('hidden');
+        listContainer.innerHTML = '';
         if (footerContainer) footerContainer.classList.add('hidden');
         if (emptyContainer) emptyContainer.classList.remove('hidden');
       } else {
@@ -180,42 +321,54 @@
         listContainer.classList.remove('hidden');
         if (footerContainer) footerContainer.classList.remove('hidden');
 
-        if (totalQuantityEl) totalQuantityEl.textContent = count;
         if (subtotalEl) {
-          const total = WagmartState.cart.total_price || 0;
-          subtotalEl.textContent = formatMoney(total);
+          subtotalEl.textContent = formatMoney(WagmartState.cart.total_price || 0);
         }
 
         listContainer.innerHTML = WagmartState.cart.items
           .map((item) => {
-            const priceFormatted = formatMoney(item.final_price || item.price || 0);
-            const imageSrc =
-              item.image ||
-              item.featured_image?.url ||
-              item.product_featured_image ||
-              '';
+            const key = escapeHtml(item.key || item.id);
+            const title = escapeHtml(item.product_title || item.title);
+            const url = escapeHtml(item.url || '#');
+            const rawImage = item.featured_image?.url || item.image || '';
+            const imageSrc = rawImage
+              ? escapeHtml(rawImage + (rawImage.includes('?') ? '&' : '?') + 'width=200')
+              : '';
+            const variant =
+              item.product_has_only_default_variant || !item.variant_title
+                ? ''
+                : `<p class="wm-line__variant">${escapeHtml(item.variant_title)}</p>`;
+            const props = Object.entries(item.properties || {})
+              .filter(([k, v]) => v && String(k).charAt(0) !== '_')
+              .map(([k, v]) => `<p class="wm-line__variant">${escapeHtml(k)}: ${escapeHtml(v)}</p>`)
+              .join('');
+            const unit =
+              item.quantity > 1
+                ? `<p class="wm-line__unit">${formatMoney(item.final_price || item.price || 0)} each</p>`
+                : '';
+            const linePrice = item.final_line_price != null ? item.final_line_price : (item.price || 0) * item.quantity;
+            const original =
+              item.original_line_price > linePrice ? `<s>${formatMoney(item.original_line_price)}</s>` : '';
 
             return `
-            <div class="p-3.5 bg-[#FAF8F5] rounded-2xl border border-[#EAE5D9] flex items-center gap-3.5" data-cart-item-id="${item.key || item.id}">
-              <div class="w-16 h-16 bg-white rounded-xl p-1.5 border border-[#F0EBE1] flex-shrink-0 flex items-center justify-center overflow-hidden">
-                <img src="${imageSrc}" alt="${item.title || item.product_title}" class="w-full h-full object-contain">
-              </div>
-              <div class="flex-1 min-w-0">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">WAGMART</span>
-                <h4 class="font-bold text-sm text-[#111827] truncate">${item.product_title || item.title}</h4>
-                <p class="text-xs text-[#7a46e5] font-semibold">${priceFormatted}</p>
-                <div class="flex items-center gap-2 mt-2">
-                  <button type="button" class="w-6 h-6 rounded-lg bg-white border border-[#D5CEBF] flex items-center justify-center text-gray-700 hover:bg-gray-100 cursor-pointer text-xs" data-cart-qty-btn="-1" data-key="${item.key || item.id}">-</button>
-                  <span class="text-xs font-bold text-gray-800 min-w-[20px] text-center">${item.quantity}</span>
-                  <button type="button" class="w-6 h-6 rounded-lg bg-white border border-[#D5CEBF] flex items-center justify-center text-gray-700 hover:bg-gray-100 cursor-pointer text-xs" data-cart-qty-btn="1" data-key="${item.key || item.id}">+</button>
+            <li class="wm-line" data-cart-item-id="${key}">
+              <a class="wm-line__media" href="${url}" tabindex="-1" aria-hidden="true">
+                ${imageSrc ? `<img src="${imageSrc}" alt="" width="84" height="84" loading="lazy">` : ''}
+              </a>
+              <div>
+                <a class="wm-line__title" href="${url}">${title}</a>
+                ${variant}${props}${unit}
+                <div class="wm-line__actions">
+                  <div class="wm-qty" role="group" aria-label="Quantity for ${title}">
+                    <button type="button" data-cart-qty-btn="-1" data-key="${key}" aria-label="Decrease quantity">&minus;</button>
+                    <output aria-live="polite">${Number(item.quantity) || 0}</output>
+                    <button type="button" data-cart-qty-btn="1" data-key="${key}" aria-label="Increase quantity">+</button>
+                  </div>
+                  <button type="button" class="wm-line__remove" data-cart-remove="${key}" aria-label="Remove ${title}">Remove</button>
                 </div>
               </div>
-              <button type="button" class="p-2 text-gray-400 hover:text-red-500 transition cursor-pointer" data-cart-remove="${item.key || item.id}" aria-label="Remove item">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-              </button>
-            </div>
+              <p class="wm-line__price">${formatMoney(linePrice)}${original}</p>
+            </li>
           `;
           })
           .join('');
@@ -335,7 +488,7 @@
 
         listContainer.innerHTML = WagmartState.wishlist
           .map((prod) => `
-            <div class="p-3.5 bg-[#FAF8F5] rounded-2xl border border-[#EAE5D9] flex items-center gap-3.5" data-wishlist-item="${prod.id}">
+            <div class="p-3.5 bg-neutral-50 rounded-2xl border border-[#EAE5D9] flex items-center gap-3.5" data-wishlist-item="${prod.id}">
               <div class="w-16 h-16 bg-white rounded-xl p-1.5 border border-[#F0EBE1] flex-shrink-0 flex items-center justify-center overflow-hidden">
                 <img src="${prod.image}" alt="${prod.name}" class="w-full h-full object-contain">
               </div>
@@ -358,100 +511,6 @@
           `)
           .join('');
       }
-    },
-  };
-
-  // =========================================================================
-  // 3. SEARCH MODAL & INSTANT FILTERING
-  // =========================================================================
-  const SearchModal = {
-    open() {
-      const modal = document.getElementById('search-modal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        const input = modal.querySelector('input[type="text"]');
-        if (input) setTimeout(() => input.focus(), 50);
-        document.body.classList.add('overflow-hidden');
-      }
-    },
-
-    close() {
-      const modal = document.getElementById('search-modal');
-      if (modal) {
-        modal.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-      }
-    },
-
-    async query(term) {
-      const resultsContainer = document.getElementById('search-results-list');
-      if (!resultsContainer) return;
-
-      const trimmed = term.trim().toLowerCase();
-      if (!trimmed) {
-        resultsContainer.innerHTML = `
-          <div class="text-center py-10 text-gray-400 text-sm">
-            Type keywords above to search all authentic Wagmart catalog supplies.
-          </div>
-        `;
-        return;
-      }
-
-      // First check local products on page
-      const cards = Array.from(document.querySelectorAll('[data-product-card]'));
-      const matches = cards
-        .map((c) => {
-          const name = c.getAttribute('data-product-name') || '';
-          const category = c.getAttribute('data-product-category') || '';
-          const price = c.getAttribute('data-product-price') || '';
-          const image = c.getAttribute('data-product-image') || '';
-          const id = c.getAttribute('data-product-id') || '';
-          return { id, name, category, price, image };
-        })
-        .filter(
-          (p) =>
-            p.name.toLowerCase().includes(trimmed) ||
-            p.category.toLowerCase().includes(trimmed)
-        );
-
-      if (matches.length === 0) {
-        resultsContainer.innerHTML = `
-          <div class="text-center py-10 text-gray-500 space-y-1">
-            <p class="font-semibold text-base text-gray-800">No products found</p>
-            <p class="text-xs text-gray-400">Try searching for "grooming", "bowl", "leash", "brush", or "wipes".</p>
-          </div>
-        `;
-        return;
-      }
-
-      resultsContainer.innerHTML = `
-        <div class="space-y-2.5">
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
-            ${matches.length} ${matches.length === 1 ? 'Product' : 'Products'} found
-          </p>
-          ${matches
-            .map(
-              (p) => `
-            <div class="p-3 bg-[#FAF8F5] hover:bg-white rounded-2xl border border-[#EAE5D9] flex items-center justify-between gap-4 transition-all" data-search-item-id="${p.id}">
-              <div class="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer" data-search-view="${p.id}">
-                <div class="w-14 h-14 bg-white rounded-xl p-1.5 border border-[#F0EBE1] flex-shrink-0 flex items-center justify-center">
-                  <img src="${p.image}" alt="${p.name}" class="w-full h-full object-contain">
-                </div>
-                <div class="min-w-0">
-                  <span class="text-[10px] font-bold text-gray-400 uppercase">WAGMART</span>
-                  <h4 class="font-bold text-sm text-[#111827] truncate">${p.name}</h4>
-                  <p class="text-xs text-[#7a46e5] font-medium">${p.price}</p>
-                </div>
-              </div>
-              <button type="button" class="px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-[#0F172A] text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer" data-search-add="${p.id}">
-                <span>Add</span>
-              </button>
-            </div>
-          `
-            )
-            .join('')}
-        </div>
-      `;
     },
   };
 
@@ -497,7 +556,15 @@
       }
       if (catEl) catEl.textContent = category;
       if (descEl) descEl.textContent = desc;
-      if (addBtn) addBtn.setAttribute('data-target-id', productId);
+      if (addBtn) {
+        addBtn.setAttribute('data-target-id', productId);
+        addBtn.disabled = false;
+      }
+      // Reset state that the header quick view may have changed
+      modal.querySelectorAll('[data-qv-specs]').forEach((el) => (el.hidden = false));
+      modal.querySelectorAll('[data-qv-link], [data-qv-note]').forEach((el) => (el.hidden = true));
+      const addLabel = modal.querySelector('[data-qv-add-label]');
+      if (addLabel) addLabel.textContent = 'Add to Cart';
 
       modal.classList.remove('hidden');
       document.body.classList.add('overflow-hidden');
@@ -673,19 +740,110 @@
     const scrollContainer = shopSection.querySelector('[data-products-scroll]');
     const prevBtn = shopSection.querySelector('[data-scroll-prev]');
     const nextBtn = shopSection.querySelector('[data-scroll-next]');
+    const dotsContainer = shopSection.querySelector('[data-products-dots]');
     const filterPills = Array.from(shopSection.querySelectorAll('[data-filter-tab]'));
 
-    if (scrollContainer && prevBtn && nextBtn) {
-      prevBtn.addEventListener('click', () => {
-        const w = scrollContainer.clientWidth * 0.75;
-        scrollContainer.scrollBy({ left: -w, behavior: 'smooth' });
-      });
+    if (!scrollContainer) return;
 
-      nextBtn.addEventListener('click', () => {
-        const w = scrollContainer.clientWidth * 0.75;
-        scrollContainer.scrollBy({ left: w, behavior: 'smooth' });
+    function getVisibleCards() {
+      return Array.from(scrollContainer.querySelectorAll('[data-product-card]:not(.hidden)'));
+    }
+
+    function getCurrentIndex() {
+      const cards = getVisibleCards();
+      if (cards.length === 0) return 0;
+      const currentScroll = scrollContainer.scrollLeft;
+      let closestIdx = 0;
+      let minDiff = Infinity;
+      cards.forEach((c, idx) => {
+        const diff = Math.abs(c.offsetLeft - currentScroll);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIdx = idx;
+        }
+      });
+      return closestIdx;
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const cards = getVisibleCards();
+        if (cards.length === 0) return;
+        const currentIdx = getCurrentIndex();
+        const targetIdx = Math.max(0, currentIdx - 1);
+        scrollContainer.scrollTo({ left: cards[targetIdx].offsetLeft, behavior: 'smooth' });
       });
     }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const cards = getVisibleCards();
+        if (cards.length === 0) return;
+        const currentIdx = getCurrentIndex();
+        const maxScroll = Math.max(0, scrollContainer.scrollWidth - scrollContainer.clientWidth);
+        const targetIdx = Math.min(cards.length - 1, currentIdx + 1);
+        const targetLeft = Math.min(maxScroll, cards[targetIdx].offsetLeft);
+        scrollContainer.scrollTo({ left: targetLeft, behavior: 'smooth' });
+      });
+    }
+
+    // Clickable Pagination Dots Manager
+    function updateDots() {
+      if (!dotsContainer) return;
+      const allDots = Array.from(dotsContainer.querySelectorAll('.carousel-dot'));
+      if (allDots.length === 0) return;
+
+      const visibleDots = allDots.filter((d) => window.getComputedStyle(d).display !== 'none');
+      const pageCount = visibleDots.length;
+      if (pageCount <= 1) return;
+
+      visibleDots.forEach((dot, idx) => {
+        if (!dot._hasThemeClick) {
+          dot._hasThemeClick = true;
+          dot.addEventListener('click', () => {
+            const currentScrollWidth = scrollContainer.scrollWidth;
+            const currentContainerWidth = scrollContainer.clientWidth;
+            const currentMax = Math.max(1, currentScrollWidth - currentContainerWidth);
+            const target = (currentMax / (pageCount - 1)) * idx;
+            scrollContainer.scrollTo({ left: target, behavior: 'smooth' });
+          });
+        }
+      });
+
+      const currentScrollWidth = scrollContainer.scrollWidth;
+      const currentContainerWidth = scrollContainer.clientWidth;
+      const currentMax = Math.max(1, currentScrollWidth - currentContainerWidth);
+      const scrollFraction = currentMax > 0 ? scrollContainer.scrollLeft / currentMax : 0;
+      const activeIdx = Math.min(pageCount - 1, Math.max(0, Math.round(scrollFraction * (pageCount - 1))));
+
+      visibleDots.forEach((dot, idx) => {
+        if (idx === activeIdx) {
+          dot.classList.add('is-active');
+          dot.setAttribute('aria-current', 'true');
+        } else {
+          dot.classList.remove('is-active');
+          dot.removeAttribute('aria-current');
+        }
+      });
+    }
+
+    let ticking = false;
+    scrollContainer.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateDots();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('resize', updateDots, { passive: true });
+    window.addEventListener('load', updateDots, { passive: true });
 
     // Category Tabs Filtering
     filterPills.forEach((btn) => {
@@ -711,12 +869,19 @@
             card.classList.add('hidden');
           }
         });
+
+        scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+        setTimeout(updateDots, 100);
       });
     });
+
+    setTimeout(updateDots, 100);
+    setTimeout(updateDots, 400);
+    setTimeout(updateDots, 1000);
   }
 
   // =========================================================================
-  // 8. PET REELS CAROUSEL & HOVER VIDEO PLAYBACK
+  // 8. PET REELS CAROUSEL & HOVER VIDEO PLAYBACK (WITH SOUND)
   // =========================================================================
   function initPetReels() {
     const section = document.getElementById('stories');
@@ -725,54 +890,138 @@
     const carousel = section.querySelector('[data-reels-carousel]');
     const prevBtn = section.querySelector('[data-reels-prev]');
     const nextBtn = section.querySelector('[data-reels-next]');
+    const dots = section.querySelectorAll('[data-reels-dot]');
+    const cards = section.querySelectorAll('[data-reel-card]');
 
-    if (carousel && prevBtn && nextBtn) {
-      prevBtn.addEventListener('click', () => {
-        carousel.scrollBy({ left: -320, behavior: 'smooth' });
-      });
-      nextBtn.addEventListener('click', () => {
-        carousel.scrollBy({ left: 320, behavior: 'smooth' });
+    const getStep = () => {
+      const firstCard = carousel ? carousel.querySelector('[data-reel-card]') : null;
+      return firstCard ? firstCard.offsetWidth + 16 : 320;
+    };
+
+    function updateArrowVisibility() {
+      if (!carousel || !prevBtn || !nextBtn) return;
+      const isScrollable = carousel.scrollWidth > carousel.clientWidth + 10;
+      if (!isScrollable) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        return;
+      }
+      prevBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+      prevBtn.disabled = carousel.scrollLeft <= 5;
+      nextBtn.disabled = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
+    }
+
+    function updateDots() {
+      if (!carousel || !dots.length) return;
+      const step = getStep();
+      const activeIndex = Math.min(dots.length - 1, Math.max(0, Math.round(carousel.scrollLeft / step)));
+      dots.forEach((dot, idx) => {
+        if (idx === activeIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
       });
     }
 
-    const cards = section.querySelectorAll('[data-reel-card]');
+    if (carousel && prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', () => {
+        carousel.scrollBy({ left: -getStep(), behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', () => {
+        carousel.scrollBy({ left: getStep(), behavior: 'smooth' });
+      });
+
+      carousel.addEventListener('scroll', () => {
+        updateArrowVisibility();
+        updateDots();
+      }, { passive: true });
+
+      window.addEventListener('resize', () => {
+        updateArrowVisibility();
+        updateDots();
+      }, { passive: true });
+
+      setTimeout(() => {
+        updateArrowVisibility();
+        updateDots();
+      }, 300);
+    }
+
+    // Pagination Dots Click Handler
+    if (dots.length && carousel) {
+      dots.forEach((dot) => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetIndex = parseInt(dot.getAttribute('data-reels-dot'), 10) || 0;
+          const step = getStep();
+          carousel.scrollTo({ left: targetIndex * step, behavior: 'smooth' });
+        });
+      });
+    }
+
+    // Quick Add Button Handler for each card
+    const quickAddBtns = section.querySelectorAll('[data-reel-quick-add]');
+    quickAddBtns.forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const card = btn.closest('[data-reel-card]');
+        if (!card) return;
+
+        const prodId = card.getAttribute('data-product-id') || 'reel-item-' + Date.now();
+        const prodName = card.getAttribute('data-product-name') || 'Wagmart Pet Essential';
+        const prodPriceStr = card.getAttribute('data-product-price') || '€24,95';
+        const prodImg = card.getAttribute('data-product-image') || '';
+
+        // Button feedback animation
+        btn.classList.add('scale-115');
+        const originalBg = btn.style.backgroundColor;
+        btn.style.backgroundColor = '#111111';
+        const icon = btn.querySelector('svg');
+        if (icon) icon.style.color = '#ffffff';
+
+        setTimeout(() => {
+          btn.classList.remove('scale-115');
+          btn.style.backgroundColor = originalBg;
+          if (icon) icon.style.color = '';
+        }, 300);
+
+        // Parse price to cents
+        const numeric = parseFloat(prodPriceStr.replace(/[^0-9.,]/g, '').replace(',', '.')) || 24.95;
+        const priceCents = Math.round(numeric * 100);
+
+        await Cart.add(prodId, 1, true, {
+          name: prodName,
+          price: priceCents,
+          image: prodImg,
+        });
+      });
+    });
+
+    // Hover Video Playback with Sound for each card (proper fit, no cut/zoom)
     cards.forEach((card) => {
       const rawYtId = card.getAttribute('data-youtube-id');
-      const cleanId = ReelModal.extractId(rawYtId);
+      const cleanId = (typeof ReelModal !== 'undefined' && ReelModal.extractId)
+        ? ReelModal.extractId(rawYtId)
+        : (rawYtId ? rawYtId.trim() : '');
       const videoContainer = card.querySelector('[data-reel-video]');
-      const playIndicator = card.querySelector('[data-play-indicator]');
-      const cardOverlay = card.querySelector('[data-card-overlay]');
       let hoverTimeout = null;
 
       function startVideo() {
         if (!cleanId || !videoContainer) return;
         card.setAttribute('data-playing', 'true');
 
-        if (playIndicator) {
-          playIndicator.classList.add('opacity-0', 'scale-90');
-          playIndicator.classList.remove('opacity-100', 'scale-100');
-        }
-        if (cardOverlay) {
-          cardOverlay.classList.add('opacity-0', 'translate-y-3');
-          cardOverlay.classList.remove('opacity-100', 'translate-y-0');
-        }
-
-        function sendYtCommand(func, args = []) {
-          try {
-            if (iframe && iframe.contentWindow) {
-              iframe.contentWindow.postMessage(
-                JSON.stringify({ event: 'command', func, args }),
-                '*'
-              );
-            }
-          } catch (err) {}
-        }
-
         let iframe = videoContainer.querySelector('iframe');
         if (!iframe) {
           iframe = document.createElement('iframe');
           iframe.className =
-            'absolute inset-0 w-full h-full object-cover pointer-events-none scale-[1.38] origin-center border-0';
+            'absolute inset-0 w-full h-full object-cover pointer-events-none border-0 rounded-[22px]';
+          iframe.style.width = '100%';
+          iframe.style.height = '100%';
+          iframe.style.objectFit = 'cover';
+          iframe.style.transform = 'none';
           iframe.setAttribute(
             'allow',
             'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
@@ -781,24 +1030,26 @@
             'title',
             card.getAttribute('data-reel-title') || 'Wagmart Reel'
           );
+
+          iframe.addEventListener('load', () => {
+            if (card.getAttribute('data-playing') === 'true') {
+              videoContainer.classList.remove('opacity-0', 'pointer-events-none');
+              videoContainer.classList.add('opacity-100');
+            }
+            try {
+              iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
+              iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
+              iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
+            } catch (e) {}
+          });
+
           videoContainer.appendChild(iframe);
         }
 
-        const targetSrc = `https://www.youtube.com/embed/${cleanId}?autoplay=1&mute=0&controls=0&loop=1&playlist=${cleanId}&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+        const targetSrc = `https://www.youtube-nocookie.com/embed/${cleanId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${cleanId}&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
         if (iframe.src !== targetSrc) {
           iframe.src = targetSrc;
         }
-
-        const triggerAudio = () => {
-          sendYtCommand('unMute');
-          sendYtCommand('setVolume', [100]);
-          sendYtCommand('playVideo');
-        };
-
-        iframe.onload = triggerAudio;
-        setTimeout(triggerAudio, 300);
-        setTimeout(triggerAudio, 800);
-        setTimeout(triggerAudio, 1500);
 
         videoContainer.classList.remove('opacity-0', 'pointer-events-none');
         videoContainer.classList.add('opacity-100');
@@ -811,19 +1062,14 @@
         }
         card.removeAttribute('data-playing');
 
-        if (playIndicator) {
-          playIndicator.classList.remove('opacity-0', 'scale-90');
-          playIndicator.classList.add('opacity-100', 'scale-100');
-        }
-        if (cardOverlay) {
-          cardOverlay.classList.remove('opacity-0', 'translate-y-3');
-          cardOverlay.classList.add('opacity-100', 'translate-y-0');
-        }
         if (videoContainer) {
           videoContainer.classList.remove('opacity-100');
           videoContainer.classList.add('opacity-0', 'pointer-events-none');
           const iframe = videoContainer.querySelector('iframe');
           if (iframe) {
+            try {
+              iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'stopVideo', args: [] }), '*');
+            } catch (e) {}
             iframe.src = 'about:blank';
             iframe.remove();
           }
@@ -831,43 +1077,24 @@
       }
 
       card.addEventListener('mouseenter', () => {
-        hoverTimeout = setTimeout(startVideo, 120);
+        hoverTimeout = setTimeout(startVideo, 180);
       });
 
       card.addEventListener('mouseleave', () => {
         stopVideo();
       });
 
-      // On click / tap: play unmuted video directly on the card
+      // On click on the card: DO NOT OPEN POPUP MODAL (per user request)
+      // Only navigate if clicking on product title/link with valid URL
       card.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (card.getAttribute('data-playing') === 'true') {
-          // If already playing, ensure sound is unmuted and loud
-          const iframe = videoContainer.querySelector('iframe');
-          if (iframe && iframe.contentWindow) {
-            try {
-              iframe.contentWindow.postMessage(
-                JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
-                '*'
-              );
-              iframe.contentWindow.postMessage(
-                JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }),
-                '*'
-              );
-              iframe.contentWindow.postMessage(
-                JSON.stringify({ event: 'command', func: 'playVideo', args: [] }),
-                '*'
-              );
-            } catch (err) {}
+        if (e.target.closest('[data-reel-quick-add]')) return;
+
+        const prodLink = e.target.closest('[data-product-link]');
+        if (prodLink) {
+          const url = card.getAttribute('data-product-url');
+          if (url && url !== '#shop' && url !== '#') {
+            window.location.href = url;
           }
-        } else {
-          cards.forEach((c) => {
-            if (c !== card && c.getAttribute('data-playing') === 'true') {
-              c.dispatchEvent(new Event('mouseleave'));
-            }
-          });
-          startVideo();
         }
       });
     });
@@ -892,19 +1119,45 @@
         // Close others
         faqContainer.querySelectorAll('[data-faq-item]').forEach((r) => {
           r.setAttribute('data-faq-open', 'false');
+          r.classList.remove('shadow-[0_4px_20px_rgba(0,0,0,0.05)]');
+          r.classList.add('shadow-[0_2px_10px_rgba(0,0,0,0.03)]');
+          const num = r.querySelector('[data-faq-num]');
+          if (num) {
+            num.classList.remove('text-[#7a46e5]');
+            num.classList.add('text-[#192226]');
+          }
           const content = r.querySelector('[data-faq-content]');
           const icon = r.querySelector('[data-faq-icon]');
-          if (content) content.style.gridTemplateRows = '0fr';
-          if (icon) icon.innerHTML = '+';
+          if (content) {
+            content.style.gridTemplateRows = '0fr';
+            content.style.opacity = '0';
+          }
+          if (icon) {
+            icon.innerHTML = '+';
+            icon.className = 'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white transition-colors';
+          }
         });
 
         // Toggle clicked
         if (!isCurrentlyOpen) {
           row.setAttribute('data-faq-open', 'true');
+          row.classList.remove('shadow-[0_2px_10px_rgba(0,0,0,0.03)]');
+          row.classList.add('shadow-[0_4px_20px_rgba(0,0,0,0.05)]');
+          const num = row.querySelector('[data-faq-num]');
+          if (num) {
+            num.classList.remove('text-[#192226]');
+            num.classList.add('text-[#7a46e5]');
+          }
           const content = row.querySelector('[data-faq-content]');
           const icon = row.querySelector('[data-faq-icon]');
-          if (content) content.style.gridTemplateRows = '1fr';
-          if (icon) icon.innerHTML = '&minus;';
+          if (content) {
+            content.style.gridTemplateRows = '1fr';
+            content.style.opacity = '1';
+          }
+          if (icon) {
+            icon.innerHTML = '&minus;';
+            icon.className = 'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white transition-colors';
+          }
         }
       });
     });
@@ -943,19 +1196,7 @@
         return;
       }
 
-      // 5. Open Search
-      if (e.target.closest('[data-open-search]')) {
-        e.preventDefault();
-        SearchModal.open();
-        return;
-      }
-
-      // 6. Close Search
-      if (e.target.closest('[data-close-search]')) {
-        e.preventDefault();
-        SearchModal.close();
-        return;
-      }
+      // 5-6. Search open/close is handled by assets/header.js
 
       // 7. Toggle Wishlist Button on Product Card
       const wishBtn = e.target.closest('[data-wishlist-btn]');
@@ -973,7 +1214,7 @@
         return;
       }
 
-      // 8. Add to Cart from Product Card (Do NOT open drawer, show stepper directly)
+      // 8. Add to Cart from Product Card (Do NOT open drawer, show stepper directly with default 1)
       const addBtn = e.target.closest('[data-add-to-cart]');
       if (addBtn) {
         e.stopPropagation();
@@ -986,12 +1227,20 @@
           const price =
             parseInt(priceRaw.replace(/[^0-9]/g, ''), 10) * 100 || 79900;
           const image = card.getAttribute('data-product-image');
+
+          // Immediately switch button to stepper with default quantity 1
+          const stepper = card.querySelector('[data-card-stepper]');
+          const qtyDisplay = card.querySelector('[data-card-qty]');
+          addBtn.classList.add('hidden');
+          if (stepper) stepper.classList.remove('hidden');
+          if (qtyDisplay) qtyDisplay.textContent = '1';
+
           Cart.add(id, 1, false, { name, price, image });
         }
         return;
       }
 
-      // 9. Card Quantity Stepper (+ / -)
+      // 9. Card Quantity Stepper (+ / -) -> When 1 is decremented, removes item and restores Add to Cart button
       const cardQtyBtn = e.target.closest('[data-card-stepper-btn]');
       if (cardQtyBtn) {
         e.stopPropagation();
@@ -1001,10 +1250,26 @@
           const id = card.getAttribute('data-product-id');
           const delta = parseInt(cardQtyBtn.getAttribute('data-delta'), 10) || 0;
           const currentItem = WagmartState.cart.items.find(
-            (i) => i.id == id || i.product_id == id
+            (i) => i.id == id || i.product_id == id || (i.variant_id && i.variant_id == id)
           );
-          const currentQty = currentItem ? currentItem.quantity : 0;
-          Cart.update(id, currentQty + delta);
+          const qtyDisplay = card.querySelector('[data-card-qty]');
+          const domQty = parseInt(qtyDisplay?.textContent?.trim() || '1', 10);
+          const currentQty = currentItem ? (Number(currentItem.quantity) || domQty || 1) : (domQty || 1);
+          const newQty = Math.max(0, currentQty + delta);
+
+          const addBtn = card.querySelector('[data-add-to-cart]');
+          const stepper = card.querySelector('[data-card-stepper]');
+
+          if (newQty <= 0) {
+            // Remove item from cart and immediately revert card to Add to Cart button
+            if (stepper) stepper.classList.add('hidden');
+            if (addBtn) addBtn.classList.remove('hidden');
+            if (qtyDisplay) qtyDisplay.textContent = '1';
+            Cart.update(id, 0);
+          } else {
+            if (qtyDisplay) qtyDisplay.textContent = newQty;
+            Cart.update(id, newQty);
+          }
         }
         return;
       }
@@ -1109,16 +1374,7 @@
         return;
       }
 
-      // 20. Mobile Menu Toggle
-      const mobileMenuToggle = e.target.closest('[data-mobile-menu-toggle]');
-      if (mobileMenuToggle) {
-        e.preventDefault();
-        const drawer = document.getElementById('mobile-menu-drawer');
-        if (drawer) {
-          drawer.classList.toggle('hidden');
-        }
-        return;
-      }
+      // 20. Mobile menu drawer is handled by assets/header.js
 
       // 21. Smooth Scroll to #shop
       const shopScrollBtn = e.target.closest('[data-scroll-to-shop]');
@@ -1136,63 +1392,39 @@
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         Cart.closeDrawer();
-        Wishlist.close();
-        SearchModal.close();
-        QuickView.close();
-        ReelModal.close();
+        const wishlistModal = document.getElementById('wishlist-modal');
+        if (wishlistModal && !wishlistModal.classList.contains('hidden')) Wishlist.close();
+        const qvModal = document.getElementById('quick-view-modal');
+        if (qvModal && !qvModal.classList.contains('hidden')) QuickView.close();
+        const reelModal = document.getElementById('reel-modal');
+        if (reelModal && !reelModal.classList.contains('hidden')) ReelModal.close();
       }
-    });
-
-    // Search Input Realtime Listener
-    const searchInput = document.getElementById('search-modal-input');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        SearchModal.query(e.target.value);
-      });
-    }
-
-    // Search Quick Pills
-    document.querySelectorAll('[data-search-pill]').forEach((pill) => {
-      pill.addEventListener('click', () => {
-        const val = pill.getAttribute('data-search-pill');
-        if (searchInput) {
-          searchInput.value = val;
-          SearchModal.query(val);
-        }
-      });
     });
   }
 
-  // =========================================================================
-  // STICKY HEADER SCROLL SHADOW
-  // =========================================================================
-  function initStickyHeader() {
-    const header = document.querySelector('header');
-    if (!header) return;
-
-    const onScroll = () => {
-      if (window.scrollY > 10) {
-        header.classList.add('header-scrolled', 'shadow-md');
-      } else {
-        header.classList.remove('header-scrolled', 'shadow-md');
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
+  // Shared with assets/header.js (search, quick view, header overlays)
+  window.WagmartCart = Cart;
+  window.WagmartFormatMoney = formatMoney;
+  window.WagmartEscapeHtml = escapeHtml;
+  window.WagmartQuickView = QuickView;
+  window.WagmartInitFAQ = initFAQ;
 
   // =========================================================================
   // INITIALIZATION ON DOM READY
   // =========================================================================
-  document.addEventListener('DOMContentLoaded', () => {
+  function bootTheme() {
     Cart.fetch();
     Wishlist.init();
-    initStickyHeader();
     initHeroBanner();
     initBestSellers();
     initPetReels();
     initFAQ();
     initEventListeners();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootTheme);
+  } else {
+    bootTheme();
+  }
 })();

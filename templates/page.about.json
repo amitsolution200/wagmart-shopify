@@ -1,0 +1,232 @@
+{
+  "sections": {
+    "about": {
+      "type": "about-page",
+      "blocks": {
+        "value-1": {
+          "type": "value",
+          "settings": {
+            "icon": "shield",
+            "title": "Pet-safe quality",
+            "text": "Every product is hand-picked and checked for safety, comfort and durability."
+          }
+        },
+        "value-2": {
+          "type": "value",
+          "settings": {
+            "icon": "truck",
+            "title": "Fast, reliable delivery",
+            "text": "Quick dispatch and tracked shipping to pet parents all over India."
+          }
+        },
+        "value-3": {
+          "type": "value",
+          "settings": {
+            "icon": "tag",
+            "title": "Honest pricing",
+            "text": "Premium essentials without the premium markup — great value, always."
+          }
+        },
+        "value-4": {
+          "type": "value",
+          "settings": {
+            "icon": "heart",
+            "title": "Made by pet parents",
+            "text": "We test what we sell with our own furry family before it reaches yours."
+          }
+        },
+        "value-5": {
+          "type": "value",
+          "settings": {
+            "icon": "support",
+            "title": "Friendly support",
+            "text": "Real people, ready to help on chat, email or phone whenever you need us."
+          }
+        },
+        "value-6": {
+          "type": "value",
+          "settings": {
+            "icon": "paw",
+            "title": "Happy-tail promise",
+            "text": "Not the right fit for your pet? Our easy returns have you covered."
+          }
+        },
+        "stat-1": {
+          "type": "stat",
+          "settings": {
+            "prefix": "",
+            "number": "3,00,000",
+            "suffix": "+",
+            "label": "Happy pet parents"
+          }
+        },
+        "stat-2": {
+          "type": "stat",
+          "settings": {
+            "prefix": "",
+            "number": "100",
+            "suffix": "+",
+            "label": "Curated products"
+          }
+        },
+        "stat-3": {
+          "type": "stat",
+          "settings": {
+            "prefix": "",
+            "number": "4.8",
+            "suffix": "/5",
+            "label": "Average rating"
+          }
+        },
+        "stat-4": {
+          "type": "stat",
+          "settings": {
+            "prefix": "",
+            "number": "24",
+            "suffix": " hr",
+            "label": "Order dispatch"
+          }
+        },
+        "team-1": {
+          "type": "team",
+          "settings": {
+            "name": "Founder Name",
+            "role": "Founder & CEO",
+            "social_platform": "linkedin",
+            "social_link": ""
+          }
+        },
+        "team-2": {
+          "type": "team",
+          "settings": {
+            "name": "Team Member",
+            "role": "Head of Products",
+            "social_platform": "instagram",
+            "social_link": ""
+          }
+        },
+        "team-3": {
+          "type": "team",
+          "settings": {
+            "name": "Team Member",
+            "role": "Customer Care Lead",
+            "social_platform": "instagram",
+            "social_link": ""
+          }
+        },
+        "team-4": {
+          "type": "team",
+          "settings": {
+            "name": "Team Member",
+            "role": "Operations",
+            "social_platform": "linkedin",
+            "social_link": ""
+          }
+        },
+        "testimonial-1": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Replace this with a real customer review.",
+            "author": "Customer name",
+            "detail": "Verified buyer",
+            "rating": 5
+          }
+        },
+        "testimonial-2": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Replace this with a real customer review.",
+            "author": "Customer name",
+            "detail": "Verified buyer",
+            "rating": 5
+          }
+        },
+        "testimonial-3": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Replace this with a real customer review.",
+            "author": "Customer name",
+            "detail": "Verified buyer",
+            "rating": 5
+          }
+        }
+      },
+      "block_order": [
+        "value-1",
+        "value-2",
+        "value-3",
+        "value-4",
+        "value-5",
+        "value-6",
+        "stat-1",
+        "stat-2",
+        "stat-3",
+        "stat-4",
+        "team-1",
+        "team-2",
+        "team-3",
+        "team-4",
+        "testimonial-1",
+        "testimonial-2",
+        "testimonial-3"
+      ],
+      "settings": {
+        "color_primary": "#7743e8",
+        "color_secondary": "#e33191",
+        "color_text": "#171717",
+        "color_background": "#ffffff",
+        "color_soft": "#f6f2fe",
+        "section_padding": 96,
+        "show_hero": true,
+        "hero_eyebrow": "About WAGMART",
+        "hero_heading": "Made with love for every wagging tail",
+        "hero_subheading": "We’re a team of pet parents on a mission to make quality dog & cat essentials simple, safe and affordable — delivered across India.",
+        "hero_overlay_color": "#1a0b3d",
+        "hero_overlay_opacity": 45,
+        "hero_height": "medium",
+        "hero_align": "center",
+        "hero_button_label": "Shop essentials",
+        "hero_button_link": "/collections/all",
+        "show_story": true,
+        "story_eyebrow": "Our story",
+        "story_heading": "It all started with one very happy pup",
+        "story_text": "<p>WAGMART began at home — with a curious pup, a fussy cat and a lot of products that just didn’t live up to their promises.</p><p>So we set out to do better: hand-picking grooming tools, feeders, toys and everyday essentials that we’d trust with our own pets. Today we’re proud to serve <strong>over 3 lakh happy pet parents</strong> across India.</p>",
+        "story_image_position": "left",
+        "story_badge_number": "3L+",
+        "story_badge_label": "Happy pet parents",
+        "story_button_label": "",
+        "show_mission_vision": true,
+        "mv_heading": "What drives us",
+        "mission_title": "Our Mission",
+        "mission_text": "To bring thoughtfully chosen, pet-safe essentials to every home in India — at honest prices, with care that goes beyond the checkout.",
+        "mission_icon": "target",
+        "vision_title": "Our Vision",
+        "vision_text": "A world where every pet is healthy, happy and truly part of the family — and every pet parent has a brand they can trust.",
+        "vision_icon": "eye",
+        "show_values": true,
+        "values_eyebrow": "Why pet parents choose us",
+        "values_heading": "Little things that make a big difference",
+        "values_subheading": "",
+        "values_columns": "3",
+        "show_stats": true,
+        "stats_heading": "WAGMART in numbers",
+        "stats_animate": true,
+        "show_team": true,
+        "team_eyebrow": "The pack",
+        "team_heading": "Meet the humans behind WAGMART",
+        "team_subheading": "Pet parents, product nerds and customer-care heroes — all working to make your pet’s day better.",
+        "show_testimonials": false,
+        "testimonials_eyebrow": "Loved by pet parents",
+        "testimonials_heading": "What our community says",
+        "show_cta": true,
+        "cta_heading": "Ready to spoil your best friend?",
+        "cta_text": "Explore pet-safe essentials loved by over 3 lakh pet parents across India.",
+        "cta_button_label": "Shop all products",
+        "cta_button_link": "/collections/all"
+      }
+    }
+  },
+  "order": [
+    "about"
+  ]
+}

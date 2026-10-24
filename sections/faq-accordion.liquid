@@ -4,10 +4,10 @@
 
 <section
   id="faq"
-  class="w-full relative bg-white overflow-hidden min-h-[780px] sm:min-h-[840px] lg:min-h-[880px]"
+  class="faq-section-wrap w-full relative bg-white overflow-hidden py-10 sm:py-14 md:py-16 min-h-[auto] md:min-h-[820px] lg:min-h-[880px]"
 >
-  {% comment %} Full-width Background Image {% endcomment %}
-  <div class="absolute inset-0 w-full h-full pointer-events-none select-none z-0 overflow-hidden">
+  {% comment %} Full-width Background Image: Hidden on mobile (<768px), properly shown on tablet and desktop {% endcomment %}
+  <div class="faq-bg-image-wrap absolute inset-0 w-full h-full pointer-events-none select-none z-0 overflow-hidden hidden md:block">
     <img
       src="{{ 'faq.webp' | asset_url }}"
       alt=""
@@ -20,7 +20,7 @@
   </div>
 
   {% comment %} Content Container {% endcomment %}
-  <div class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8 sm:pb-12 flex flex-col items-center">
+  <div class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-2 sm:pt-6 md:pt-10 pb-8 sm:pb-12 flex flex-col items-center">
     
     {% comment %} Eyebrow {% endcomment %}
     {%- assign badge_label = section.settings.badge_label | default: 'Frequently Asked Questions' -%}
@@ -33,11 +33,11 @@
     </h2>
 
     {% comment %} Accordion Rows {% endcomment %}
-    <div class="w-full max-w-[540px] sm:max-w-[600px] md:max-w-[650px] space-y-2.5 sm:space-y-3 mt-6 sm:mt-8 min-h-[440px] sm:min-h-[455px]">
+    <div class="faq-accordion-container w-full max-w-[540px] sm:max-w-[560px] md:max-w-[480px] lg:max-w-[650px] space-y-2.5 sm:space-y-3 mt-6 sm:mt-8 min-h-[auto] md:min-h-[440px]">
       {%- if section.blocks.size > 0 -%}
         {%- for block in section.blocks -%}
           {%- assign is_open = false -%}
-          {%- if forloop.index == 2 -%}{%- assign is_open = true -%}{%- endif -%}
+          {%- if forloop.first -%}{%- assign is_open = true -%}{%- endif -%}
           <div
             class="transition-[background-color,border-color,box-shadow] duration-300 ease-in-out rounded-[22px] sm:rounded-[26px] bg-white {% if is_open %}shadow-[0_4px_20px_rgba(0,0,0,0.05)]{% else %}shadow-[0_2px_10px_rgba(0,0,0,0.03)]{% endif %}"
             data-faq-item
@@ -51,7 +51,7 @@
               class="w-full px-4 sm:px-4 py-3 sm:py-3.5 flex items-center justify-between text-left gap-4 cursor-pointer group"
             >
               <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-                <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 transition-colors bg-[#7a46e5]/10 text-[#7a46e5]">
+                <span data-faq-num class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 transition-colors bg-[#7a46e5]/10 {% if is_open %}text-[#7a46e5]{% else %}text-[#192226]{% endif %}">
                   {{ forloop.index }}
                 </span>
                 <span class="font-bold text-sm sm:text-[15px] md:text-base text-[#192226] truncate sm:whitespace-normal">
@@ -79,15 +79,15 @@
         {%- endfor -%}
       {%- else -%}
         {% comment %} Default 6 FAQs matching React App {% endcomment %}
-        <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]" data-faq-item data-faq-open="false">
+        <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]" data-faq-item data-faq-open="true">
           <button type="button" data-faq-toggle class="w-full px-4 py-3 sm:py-3.5 flex items-center justify-between text-left gap-4 cursor-pointer">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">1</span>
+              <span data-faq-num class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#7a46e5]">1</span>
               <span class="font-bold text-sm sm:text-[15px] md:text-base text-[#192226]">What types of products does Wagmart offer?</span>
             </div>
-            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white" data-faq-icon>&#43;</div>
+            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white" data-faq-icon>&minus;</div>
           </button>
-          <div class="grid transition-[grid-template-rows] duration-300 ease-out" data-faq-content style="grid-template-rows: 0fr;">
+          <div class="grid transition-[grid-template-rows] duration-300 ease-out" data-faq-content style="grid-template-rows: 1fr;">
             <div class="overflow-hidden">
               <div class="pl-12 sm:pl-16 pr-8 sm:pr-10 pb-4 pt-0.5 text-xs sm:text-sm text-[#55606A] leading-[1.65]">
                 Wagmart offers a comprehensive collection of pet essentials including grooming gloves, slicker brushes, heavy-duty leashes, tactical collars, travel hammock seat covers, stainless steel bowl sets, hygiene wipes, nail trimmers, and stimulating toys for dogs and cats.
@@ -96,15 +96,15 @@
           </div>
         </div>
 
-        <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]" data-faq-item data-faq-open="true">
+        <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]" data-faq-item data-faq-open="false">
           <button type="button" data-faq-toggle class="w-full px-4 py-3 sm:py-3.5 flex items-center justify-between text-left gap-4 cursor-pointer">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#7a46e5]">2</span>
+              <span data-faq-num class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">2</span>
               <span class="font-bold text-sm sm:text-[15px] md:text-base text-[#192226]">How long does delivery take?</span>
             </div>
-            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-white text-[#192226] border border-[#D5CEBF]" data-faq-icon>&minus;</div>
+            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white" data-faq-icon>&#43;</div>
           </button>
-          <div class="grid transition-[grid-template-rows] duration-300 ease-out" data-faq-content style="grid-template-rows: 1fr;">
+          <div class="grid transition-[grid-template-rows] duration-300 ease-out" data-faq-content style="grid-template-rows: 0fr;">
             <div class="overflow-hidden">
               <div class="pl-12 sm:pl-16 pr-8 sm:pr-10 pb-4 pt-0.5 text-xs sm:text-sm text-[#55606A] leading-[1.65]">
                 We usually deliver orders within 3–7 business days, depending on your location. Metro cities may receive orders faster, while remote areas can take a little longer. Once your order is shipped, you will receive a tracking link via email or SMS.
@@ -116,7 +116,7 @@
         <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]" data-faq-item data-faq-open="false">
           <button type="button" data-faq-toggle class="w-full px-4 py-3 sm:py-3.5 flex items-center justify-between text-left gap-4 cursor-pointer">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">3</span>
+              <span data-faq-num class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">3</span>
               <span class="font-bold text-sm sm:text-[15px] md:text-base text-[#192226]">Do you offer Cash on Delivery (COD)?</span>
             </div>
             <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white" data-faq-icon>&#43;</div>
@@ -133,7 +133,7 @@
         <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]" data-faq-item data-faq-open="false">
           <button type="button" data-faq-toggle class="w-full px-4 py-3 sm:py-3.5 flex items-center justify-between text-left gap-4 cursor-pointer">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">4</span>
+              <span data-faq-num class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">4</span>
               <span class="font-bold text-sm sm:text-[15px] md:text-base text-[#192226]">Can I return or exchange a product?</span>
             </div>
             <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white" data-faq-icon>&#43;</div>
@@ -150,7 +150,7 @@
         <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]" data-faq-item data-faq-open="false">
           <button type="button" data-faq-toggle class="w-full px-4 py-3 sm:py-3.5 flex items-center justify-between text-left gap-4 cursor-pointer">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">5</span>
+              <span data-faq-num class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">5</span>
               <span class="font-bold text-sm sm:text-[15px] md:text-base text-[#192226]">How can I track my order?</span>
             </div>
             <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white" data-faq-icon>&#43;</div>
@@ -167,7 +167,7 @@
         <div class="rounded-[22px] sm:rounded-[26px] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)]" data-faq-item data-faq-open="false">
           <button type="button" data-faq-toggle class="w-full px-4 py-3 sm:py-3.5 flex items-center justify-between text-left gap-4 cursor-pointer">
             <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">6</span>
+              <span data-faq-num class="w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-[13px] font-bold flex items-center justify-center shrink-0 bg-[#7a46e5]/10 text-[#192226]">6</span>
               <span class="font-bold text-sm sm:text-[15px] md:text-base text-[#192226]">Are the products safe for my pet?</span>
             </div>
             <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#192226] text-white" data-faq-icon>&#43;</div>
@@ -192,6 +192,71 @@
     </div>
 
   </div>
+
+  <style>
+    /* Mobile (<768px): Do NOT show background image */
+    @media (max-width: 767px) {
+      .faq-bg-image-wrap {
+        display: none !important;
+      }
+    }
+
+    /* Tablet (768px - 1023px): Show background image properly */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .faq-bg-image-wrap {
+        display: block !important;
+      }
+      .faq-accordion-container {
+        max-width: 480px !important;
+      }
+    }
+
+    /* Desktop (1024px+): Original display */
+    @media (min-width: 1024px) {
+      .faq-bg-image-wrap {
+        display: block !important;
+      }
+      .faq-accordion-container {
+        max-width: 650px !important;
+      }
+    }
+
+    /* Silky-smooth accordion transitions */
+    .faq-accordion-container [data-faq-item] {
+      transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s ease, background-color 0.3s ease;
+    }
+
+    .faq-accordion-container [data-faq-content] {
+      display: grid !important;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      opacity: 0;
+    }
+
+    .faq-accordion-container [data-faq-item][data-faq-open="true"] [data-faq-content] {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    .faq-accordion-container [data-faq-content] > div {
+      overflow: hidden;
+    }
+
+    .faq-accordion-container [data-faq-icon] {
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .faq-accordion-container [data-faq-item][data-faq-open="true"] [data-faq-icon] {
+      transform: rotate(180deg);
+    }
+
+    .faq-accordion-container [data-faq-num] {
+      transition: color 0.25s ease, background-color 0.25s ease;
+    }
+  </style>
 </section>
 
 {% schema %}

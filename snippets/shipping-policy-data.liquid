@@ -1,0 +1,238 @@
+{% comment %}
+  Wagmart Shipping & Delivery Policy Data Snippet
+  - Tailored to Wagmart Pet Care & Pet Supplies store context
+  - Uses Wagmart brand font (Nunito)
+  - Modular data file rendered by sections/main-shipping-policy.liquid
+{% endcomment %}
+
+<style>
+  .wagmart-shipping-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-sections {
+      gap: 36px;
+    }
+  }
+
+  .wagmart-shipping-heading {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 22px;
+    line-height: 1.28;
+    font-weight: 700;
+    color: #111514;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-heading {
+      font-size: 26px;
+      line-height: 1.25;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-shipping-heading {
+      font-size: 30px;
+      line-height: 1.25;
+    }
+  }
+
+  .wagmart-shipping-text {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 25px;
+    font-weight: 500;
+    color: #4C4D4D;
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-text {
+      font-size: 16.5px;
+      line-height: 27px;
+      margin-top: 12px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-shipping-text {
+      font-size: 17.5px;
+      line-height: 28px;
+    }
+  }
+
+  .wagmart-shipping-bullets {
+    list-style-type: disc !important;
+    padding-left: 22px !important;
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+  }
+  .wagmart-shipping-bullets li {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 25px;
+    font-weight: 500;
+    color: #4C4D4D;
+    margin-top: 6px;
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-bullets li {
+      font-size: 16.5px;
+      line-height: 27px;
+      margin-top: 8px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-shipping-bullets li {
+      font-size: 17.5px;
+      line-height: 28px;
+    }
+  }
+  .wagmart-shipping-bullets li::marker {
+    color: #7a46e5;
+    font-size: 0.9em;
+  }
+  .wagmart-shipping-link {
+    color: #7a46e5;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+  }
+  .wagmart-shipping-link:hover {
+    color: #6332c9;
+  }
+</style>
+
+<div class="wagmart-shipping-sections">
+
+  {% comment %} Introduction {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">Introduction</h2>
+    <p class="wagmart-shipping-text">
+      At Wagmart, we are dedicated to delivering your pet supplies, food, grooming tools, and accessories safely, securely, and swiftly. We partner with India's leading courier networks to ensure prompt door-to-door delivery so your furry family members never have to wait for their favorite essentials.
+    </p>
+  </div>
+
+  {% comment %} 1. Order Processing Time {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">1. Order Processing Time</h2>
+    <p class="wagmart-shipping-text">
+      We work diligently to dispatch your orders as quickly as possible:
+    </p>
+    <ul class="wagmart-shipping-bullets">
+      <li>All standard orders are processed and verified within <strong>24 to 48 business hours</strong> (excluding Sundays and national holidays).</li>
+      <li>Orders placed before 1:00 PM IST on business days are prioritized for same-day packing and dispatch.</li>
+      <li>During festival sales or peak seasons, processing may occasionally take an additional 24 hours.</li>
+    </ul>
+  </div>
+
+  {% comment %} 2. Shipping Charges & Free Delivery {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">2. Shipping Charges &amp; Free Delivery</h2>
+    <p class="wagmart-shipping-text">
+      We believe in simple, transparent pricing with no hidden checkout fees:
+    </p>
+    <ul class="wagmart-shipping-bullets">
+      <li><strong>FREE Shipping:</strong> Applicable on all prepaid orders above <strong>₹499</strong> anywhere across India.</li>
+      <li><strong>Standard Orders (Below ₹499):</strong> A nominal flat shipping fee of <strong>₹49</strong> is applied at checkout.</li>
+      <li><strong>Cash on Delivery (COD):</strong> Available across serviceable pin codes with a standard COD handling fee of ₹30.</li>
+    </ul>
+  </div>
+
+  {% comment %} 3. Delivery Timelines {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">3. Estimated Delivery Timelines</h2>
+    <p class="wagmart-shipping-text">
+      Deliveries are carried out between 9:00 AM and 7:00 PM Monday through Saturday:
+    </p>
+    <ul class="wagmart-shipping-bullets">
+      <li><strong>Local Deliveries (Surat &amp; South Gujarat):</strong> 1 to 2 business days.</li>
+      <li><strong>Metro Cities (Mumbai, Delhi NCR, Bengaluru, Ahmedabad, Pune, Hyderabad, Chennai, Kolkata):</strong> 2 to 4 business days.</li>
+      <li><strong>Tier 2 &amp; Tier 3 Cities / Rest of India:</strong> 4 to 7 business days.</li>
+      <li><strong>Remote / Northeast / J&amp;K Locations:</strong> 7 to 10 business days depending on local logistics connectivity.</li>
+    </ul>
+  </div>
+
+  {% comment %} 4. Logistics & Courier Partners {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">4. Trusted Courier Partners</h2>
+    <p class="wagmart-shipping-text">
+      We ship exclusively through trusted, top-tier logistics providers with automated live tracking:
+    </p>
+    <ul class="wagmart-shipping-bullets">
+      <li>Blue Dart Express</li>
+      <li>Delhivery</li>
+      <li>DTDC</li>
+      <li>Xpressbees &amp; Shadowfax</li>
+      <li>India Post (for specialized rural pin codes)</li>
+    </ul>
+  </div>
+
+  {% comment %} 5. Tracking Your Pet Order {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">5. Real-Time Order Tracking</h2>
+    <p class="wagmart-shipping-text">
+      Once your pet package leaves our fulfillment center:
+    </p>
+    <ul class="wagmart-shipping-bullets">
+      <li>You will automatically receive an SMS, WhatsApp message, and Email containing your courier tracking number (AWB) and a direct live tracking link.</li>
+      <li>You can track the progress of your shipment 24/7 on the courier partner's portal.</li>
+      <li>Our pet care team actively monitors delayed shipments to ensure timely resolution.</li>
+    </ul>
+  </div>
+
+  {% comment %} 6. Delivery Address & Pin Code Accuracy {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">6. Address Accuracy</h2>
+    <p class="wagmart-shipping-text">
+      To ensure smooth delivery without delays:
+    </p>
+    <ul class="wagmart-shipping-bullets">
+      <li>Please provide a complete street address, apartment/house number, and landmark.</li>
+      <li>Double-check your 6-digit postal PIN code and valid mobile phone number.</li>
+      <li>Courier agents will contact you prior to delivery via call or SMS.</li>
+    </ul>
+  </div>
+
+  {% comment %} 7. Damaged, Tampered, or Missing Shipments {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">7. Damaged or Tampered Parcels</h2>
+    <p class="wagmart-shipping-text">
+      If the outer cardboard parcel appears severely tampered with, unsealed, or torn at the time of delivery, please <strong>refuse to accept it</strong> and notify us immediately. If you discover item damage upon opening, notify us within 48 hours with unboxing photos at <a href="mailto:support@wagmart.com" class="wagmart-shipping-link">support@wagmart.com</a> for an immediate replacement.
+    </p>
+  </div>
+
+  {% comment %} 8. Undelivered Packages & Re-Dispatch (RTO) {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">8. Failed Delivery Attempts &amp; RTO</h2>
+    <p class="wagmart-shipping-text">
+      Our courier partners make up to <strong>3 delivery attempts</strong> before returning a shipment to our Surat warehouse (Return to Origin - RTO). If a parcel is returned due to incorrect contact details or customer unavailability, our support team will reach out to you to confirm the correct address and arrange a re-dispatch.
+    </p>
+  </div>
+
+  {% comment %} 9. International Shipping {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">9. International Shipping</h2>
+    <p class="wagmart-shipping-text">
+      Currently, Wagmart ships exclusively to serviceable pin codes throughout India. We are actively working on expanding international pet care shipping to overseas pet parents in the near future.
+    </p>
+  </div>
+
+  {% comment %} 10. Shipping Inquiries & Support {% endcomment %}
+  <div class="wagmart-shipping-block">
+    <h2 class="wagmart-shipping-heading">10. Need Help with Your Delivery?</h2>
+    <p class="wagmart-shipping-text">
+      If your delivery is running late or you need to reschedule a courier delivery, reach out to our team:
+    </p>
+    <ul class="wagmart-shipping-bullets">
+      <li><strong>Email:</strong> <a href="mailto:support@wagmart.com" class="wagmart-shipping-link">support@wagmart.com</a></li>
+      <li><strong>Phone / WhatsApp:</strong> <a href="tel:+917777985896" class="wagmart-shipping-link">+91 77779 85896</a> (Mon – Sat: 9:00 AM – 7:00 PM IST)</li>
+      <li><strong>Fulfillment Hub:</strong> Shop No. 312, 3rd Floor, Shivalik Complex, Opposite Heny Heights, Near Dabholi Gam BRTS Bus Stop, Dabholi Gam Road, Katargam, Surat, Gujarat, 395004</li>
+      <li><strong>Online Support:</strong> Visit our <a href="{{ routes.root_url }}pages/contact" class="wagmart-shipping-link">Contact Page</a>.</li>
+    </ul>
+  </div>
+
+</div>

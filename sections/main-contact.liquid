@@ -1,0 +1,847 @@
+{% comment %}
+  Wagmart Contact Page Section (Shopify Online Store 2.0 Native Liquid)
+  Matches Reference Image 1 Layout & Structure with Wagmart Pet Brand Context:
+  - Hero Section: Eyebrow badge, condensed display heading "GET IN TOUCH", scroll-linked pet hero image
+  - Cream Container Section: #F5F2EF container, white badge, uppercase heading, and rock-solid 2-column split (Form Card Left + Info & Socials Right)
+  - Wagmart actual contact details: Phone (+91 77779 85896), Email (support@wagmart.com), Address, Hours
+  - Wagmart Brand Colors (#7A46E5, #1F2937, #FAF8F5) and typography (Bebas Neue + Nunito/Plus Jakarta Sans)
+  - Map Section: Contained grayscale Google Maps embed
+  - Native Wagmart Navbar and CTA+Footer are preserved via theme.liquid
+{% endcomment %}
+
+{%- capture multiline_default_address -%}
+Shop No. 312, 3rd Floor, Shivalik Complex,
+Opposite Heny Heights, Near Dabholi Gam BRTS Bus Stop,
+Dabholi Gam Road, Katargam,
+Surat, Gujarat, 395004
+{%- endcapture -%}
+
+{%- liquid
+  assign hero_badge = section.settings.hero_badge | default: 'Dedicated Pet Care Support'
+  assign hero_heading = section.settings.hero_heading | default: 'Get in Touch'
+  assign hero_image = section.settings.hero_image
+  
+  assign container_badge = section.settings.container_badge | default: 'Get in Touch'
+  assign container_heading = section.settings.container_heading | default: 'Have questions or need help with your pet? Reach out to us today.'
+
+  assign address_text = section.settings.address_text | default: multiline_default_address
+  assign phone_number = section.settings.phone_number | default: '+91 77779 85896'
+  assign phone_hours = section.settings.phone_hours | default: 'Mon – Sat: 9:00 AM – 7:00 PM IST'
+  assign email_address = section.settings.email_address | default: 'support@wagmart.com'
+  assign opening_hours = section.settings.opening_hours | default: 'Monday – Saturday: 9:00 AM – 7:00 PM IST'
+
+  assign map_query = section.settings.map_query | default: '21.234591,72.811109'
+  assign button_label = section.settings.button_label | default: 'Send Message'
+-%}
+
+<style>
+  .wagmart-contact-page {
+    width: 100%;
+    background-color: #ffffff;
+    color: #1F2421;
+    font-family: var(--font-sans, 'Nunito', system-ui, -apple-system, sans-serif);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .wagmart-font-display {
+    font-family: var(--font-sans, 'Nunito', system-ui, -apple-system, sans-serif);
+    letter-spacing: -0.025em;
+    font-weight: 900;
+  }
+
+  /* Spacing precisely matches Wagmart navbar shell */
+  .wagmart-contact-container {
+    max-width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(10px, 1.6vw, 20px);
+    padding-right: clamp(10px, 1.6vw, 20px);
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* ----------------------------------------------------
+     1. HERO SECTION
+     ---------------------------------------------------- */
+  .wagmart-hero {
+    padding-top: 28px;
+    padding-bottom: 24px;
+  }
+
+  .wagmart-hero-title {
+    color: #111827;
+    font-size: clamp(34px, 4.2vw, 56px);
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin-top: 12px;
+    margin-bottom: 24px;
+  }
+
+  .wagmart-hero-image-box {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 14px;
+    background-color: #F5F2EF;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+
+  .wagmart-hero-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (min-width: 768px) {
+    .wagmart-hero-image {
+      aspect-ratio: 16 / 7;
+    }
+  }
+
+  /* ----------------------------------------------------
+     2. CREAM CONTAINER SECTION (#F5F2EF)
+     ---------------------------------------------------- */
+  .wagmart-cream-section {
+    padding-top: 32px;
+    padding-bottom: 56px;
+  }
+
+  .wagmart-cream-card {
+    background-color: #F5F2EF;
+    border-radius: 16px;
+    padding: clamp(10px, 3.5vw, 48px);
+  }
+
+  .wagmart-cream-title {
+    color: #111827;
+    font-size: clamp(22px, 2.5vw, 36px);
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-top: 12px;
+    max-width: 860px;
+  }
+
+  /* Explicit 2-Column Split Grid */
+  .wagmart-split-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-top: 36px;
+    align-items: stretch;
+  }
+
+  @media (min-width: 900px) {
+    .wagmart-split-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 32px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .wagmart-split-grid {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: 40px;
+    }
+  }
+
+  /* Left Form Card */
+  .wagmart-form-card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: clamp(20px, 3vw, 36px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .wagmart-field-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+
+  @media (min-width: 600px) {
+    .wagmart-field-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .wagmart-field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wagmart-input-label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1F2421;
+    margin-bottom: 8px;
+  }
+
+  .wagmart-input {
+    width: 100%;
+    min-height: 50px;
+    border: 1px solid #E4E2E6;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #1F2421;
+    background-color: #FFFFFF;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .wagmart-input:focus {
+    border-color: #7A46E5;
+    box-shadow: 0 0 0 3px rgba(122, 70, 229, 0.15);
+  }
+
+  .wagmart-input::placeholder {
+    color: #A09891;
+  }
+
+  .wagmart-select-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .wagmart-select {
+    appearance: none;
+    cursor: pointer;
+    padding-right: 38px;
+  }
+
+  .wagmart-select-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #7A46E5;
+  }
+
+  .wagmart-textarea {
+    resize: vertical;
+    min-height: 140px;
+    padding: 14px 16px;
+  }
+
+  .wagmart-submit-btn {
+    width: 100%;
+    background: linear-gradient(to right, #7a46e5, #8451ed, #9361fa);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 9999px;
+    padding: 15px 24px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    margin-top: 22px;
+    box-shadow: 0 10px 25px -5px rgba(122, 70, 229, 0.38);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+  }
+
+  .wagmart-submit-btn:hover {
+    box-shadow: 0 14px 28px -4px rgba(122, 70, 229, 0.5);
+    transform: scale(1.015);
+  }
+
+  .wagmart-submit-btn:active {
+    transform: scale(0.985);
+  }
+
+  /* Right Info & Socials Column */
+  .wagmart-info-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .wagmart-info-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wagmart-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .wagmart-info-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #7A46E5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  .wagmart-info-content {
+    flex: 1;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-bottom: 18px;
+  }
+
+  .wagmart-info-title {
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #111827;
+    margin-bottom: 5px;
+    letter-spacing: 0.01em;
+  }
+
+  .wagmart-info-text {
+    font-size: 14.5px;
+    color: #4F463E;
+    line-height: 1.5;
+  }
+
+  .wagmart-info-link {
+    color: #1F2421;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    display: block;
+  }
+
+  .wagmart-info-link:hover {
+    color: #7A46E5;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* Social Media Pills */
+  .wagmart-socials-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .wagmart-social-pill {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    padding: 9px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4F463E;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s ease;
+  }
+
+  .wagmart-social-pill:hover {
+    border-color: #7A46E5;
+    color: #7A46E5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(122, 70, 229, 0.12);
+  }
+
+  /* ----------------------------------------------------
+     3. MAP SECTION
+     ---------------------------------------------------- */
+  .wagmart-map-section {
+    padding-bottom: 56px;
+  }
+
+  .wagmart-map-frame-box {
+    position: relative;
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background-color: #F5F2EF;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  }
+
+  .wagmart-map-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    background-color: #FFFFFF;
+    color: #111827;
+    border-radius: 9999px;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  /* Prevent forced uppercase in badges on contact page */
+  .wagmart-contact-page [class*="section-badge"] span,
+  .wagmart-contact-page .inline-flex span {
+    text-transform: none !important;
+    letter-spacing: 0.01em !important;
+  }
+
+  .wagmart-map-iframe {
+    width: 100%;
+    height: 500px;
+    border: 0;
+    display: block;
+    filter: grayscale(100%) contrast(95%) saturate(5%);
+    opacity: 0.94;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+  }
+
+  @media (min-width: 768px) {
+    .wagmart-map-iframe {
+      height: 500px;
+    }
+  }
+
+  .wagmart-map-iframe:hover {
+    filter: grayscale(15%) contrast(100%) saturate(80%);
+    opacity: 1;
+  }
+</style>
+
+<div class="wagmart-contact-page">
+
+  {% comment %} ========================================================
+     1. HERO SECTION (Matches Layout of Image 1 with Wagmart Pet Context)
+     ======================================================== {% endcomment %}
+  <section class="wagmart-hero">
+    <div class="wagmart-contact-container">
+      
+      {% render 'section-badge', label: hero_badge, class: 'mb-2 inline-flex' %}
+
+      <h1 class="wagmart-font-display wagmart-hero-title">
+        {{ hero_heading }}
+      </h1>
+
+      <div class="wagmart-hero-image-box">
+        {%- if hero_image != blank -%}
+          <img
+            src="{{ hero_image | image_url: width: 2000 }}"
+            alt="{{ hero_heading | escape }}"
+            width="{{ hero_image.width }}"
+            height="{{ hero_image.height }}"
+            loading="eager"
+            class="wagmart-hero-image"
+            data-wagmart-hero-img
+          >
+        {%- else -%}
+          <img
+            src="{{ 'contact-hero-banner.jpg' | asset_url }}"
+            alt="Wagmart Pet Care Support"
+            width="1920"
+            height="840"
+            loading="eager"
+            class="wagmart-hero-image"
+            data-wagmart-hero-img
+          >
+        {%- endif -%}
+      </div>
+
+    </div>
+  </section>
+
+  {% comment %} ========================================================
+     2. CREAM CONTAINER SECTION (#F5F2EF)
+     ======================================================== {% endcomment %}
+  <section class="wagmart-cream-section">
+    <div class="wagmart-contact-container">
+      
+      <div class="wagmart-cream-card">
+        
+        {% render 'section-badge', label: container_badge, class: 'mb-2 inline-flex bg-white shadow-xs' %}
+
+        <h2 class="wagmart-font-display wagmart-cream-title">
+          {{ container_heading }}
+        </h2>
+
+        <div class="wagmart-split-grid">
+          
+          {% comment %} Left Form Card {% endcomment %}
+          <div class="wagmart-form-card">
+            
+            {%- form 'contact', id: 'WagmartContactForm' -%}
+
+              {%- if form.posted_successfully? -%}
+                <div style="background-color: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; padding: 14px 16px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 700;">
+                  ✓ Thank you! Your message has been received. Our pet care team will email you back within 24 hours.
+                </div>
+              {%- endif -%}
+
+              {%- if form.errors -%}
+                <div style="background-color: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; padding: 14px 16px; border-radius: 10px; margin-bottom: 20px; font-size: 14px;">
+                  {{ form.errors | default_errors }}
+                </div>
+              {%- endif -%}
+
+              {% comment %} Row 1: Full Name & Email Address {% endcomment %}
+              <div class="wagmart-field-row">
+                <div class="wagmart-field">
+                  <label for="WagmartFormName" class="wagmart-input-label">Your Name <span style="color: #EF4444;">*</span></label>
+                  <input
+                    type="text"
+                    id="WagmartFormName"
+                    name="contact[name]"
+                    value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+                    placeholder="e.g. Sarah Jenkins"
+                    required
+                    autocomplete="name"
+                    class="wagmart-input"
+                  >
+                </div>
+
+                <div class="wagmart-field">
+                  <label for="WagmartFormEmail" class="wagmart-input-label">Email Address <span style="color: #EF4444;">*</span></label>
+                  <input
+                    type="email"
+                    id="WagmartFormEmail"
+                    name="contact[email]"
+                    value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+                    placeholder="sarah@example.com"
+                    required
+                    autocomplete="email"
+                    class="wagmart-input"
+                  >
+                </div>
+              </div>
+
+              {% comment %} Row 2: Order Number / Phone & Inquiry Topic {% endcomment %}
+              <div class="wagmart-field-row">
+                <div class="wagmart-field">
+                  <label for="WagmartFormOrder" class="wagmart-input-label">Order Number <span style="font-weight: 400; color: #8C827A;">(Optional)</span></label>
+                  <input
+                    type="text"
+                    id="WagmartFormOrder"
+                    name="contact[order_number]"
+                    value="{{ form.order_number }}"
+                    placeholder="e.g. #WM-10492"
+                    class="wagmart-input"
+                  >
+                </div>
+
+                <div class="wagmart-field">
+                  <label for="WagmartFormTopic" class="wagmart-input-label">Inquiry Topic <span style="color: #EF4444;">*</span></label>
+                  <div class="wagmart-select-wrap">
+                    <select
+                      id="WagmartFormTopic"
+                      name="contact[Topic]"
+                      required
+                      class="wagmart-input wagmart-select"
+                    >
+                      <option value="" disabled selected>Select an inquiry topic...</option>
+                      <option value="Product Advice & Sizing">Product Advice & Sizing</option>
+                      <option value="Order Tracking & Shipping">Order Tracking & Shipping</option>
+                      <option value="Returns & Exchanges">Returns & Exchanges</option>
+                      <option value="Grooming & Hygiene Care">Grooming & Hygiene Care</option>
+                      <option value="Other Inquiries">Other Inquiries</option>
+                    </select>
+                    <div class="wagmart-select-arrow">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m6 9 6 6 6-6"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% comment %} Row 3: Message Textarea {% endcomment %}
+              <div class="wagmart-field">
+                <label for="WagmartFormMessage" class="wagmart-input-label">Message <span style="color: #EF4444;">*</span></label>
+                <textarea
+                  id="WagmartFormMessage"
+                  name="contact[body]"
+                  rows="6"
+                  placeholder="How can we help you and your pet today? Include any helpful sizing or order details..."
+                  required
+                  class="wagmart-input wagmart-textarea"
+                >{{ form.body }}</textarea>
+              </div>
+
+              {% comment %} Submit Button {% endcomment %}
+              <button
+                type="submit"
+                id="WagmartFormSubmit"
+                class="wagmart-submit-btn"
+              >
+                <span>{{ button_label }}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m9 18 6-6-6-6"/>
+                </svg>
+              </button>
+
+            {%- endform -%}
+
+          </div>
+
+          {% comment %} Right Info & Socials Column (Wagmart Actual Details) {% endcomment %}
+          <div class="wagmart-info-col">
+            
+            <div class="wagmart-info-list">
+              
+              {% comment %} 1. ADDRESS {% endcomment %}
+              <div class="wagmart-info-item">
+                <div class="wagmart-info-icon-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </div>
+                <div class="wagmart-info-content">
+                  <h4 class="wagmart-font-display wagmart-info-title">Address:</h4>
+                  <p class="wagmart-info-text leading-relaxed">
+                    {{ address_text | newline_to_br }}
+                  </p>
+                </div>
+              </div>
+
+              {% comment %} 2. PHONE {% endcomment %}
+              <div class="wagmart-info-item">
+                <div class="wagmart-info-icon-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </div>
+                <div class="wagmart-info-content">
+                  <h4 class="wagmart-font-display wagmart-info-title">Phone:</h4>
+                  <div class="wagmart-info-text">
+                    <a href="tel:{{ phone_number | replace: ' ', '' }}" class="wagmart-info-link">
+                      {{ phone_number }}
+                    </a>
+                    <span style="font-size: 13px; color: #854D0E; font-weight: 600;">
+                      {{ phone_hours }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {% comment %} 3. EMAIL {% endcomment %}
+              <div class="wagmart-info-item">
+                <div class="wagmart-info-icon-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  </svg>
+                </div>
+                <div class="wagmart-info-content">
+                  <h4 class="wagmart-font-display wagmart-info-title">Email:</h4>
+                  <div class="wagmart-info-text">
+                    <a href="mailto:{{ email_address }}" class="wagmart-info-link">
+                      {{ email_address }}
+                    </a>
+                    <span style="font-size: 13px; color: #6B7280;">
+                      Typical response: Under 24 hours
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {% comment %} 4. OPENING HOURS {% endcomment %}
+              <div class="wagmart-info-item">
+                <div class="wagmart-info-icon-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+                  </svg>
+                </div>
+                <div class="wagmart-info-content" style="border-bottom: none;">
+                  <h4 class="wagmart-font-display wagmart-info-title">Opening Hours:</h4>
+                  <p class="wagmart-info-text">
+                    {{ opening_hours }}
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            {% comment %} Social Media Pills {% endcomment %}
+            {% comment %} <div class="wagmart-socials-row">
+              <a href="{{ settings.social_facebook_link | default: 'https://facebook.com' }}" target="_blank" rel="noopener noreferrer" class="wagmart-social-pill" aria-label="Facebook">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                <span>Facebook</span>
+              </a>
+
+              <a href="{{ settings.social_instagram_link | default: 'https://instagram.com' }}" target="_blank" rel="noopener noreferrer" class="wagmart-social-pill" aria-label="Instagram">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                <span>Instagram</span>
+              </a>
+
+              <a href="{{ settings.social_twitter_link | default: 'https://twitter.com' }}" target="_blank" rel="noopener noreferrer" class="wagmart-social-pill" aria-label="Twitter">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                <span>Twitter/X</span>
+              </a>
+
+              <a href="{{ settings.social_youtube_link | default: 'https://youtube.com' }}" target="_blank" rel="noopener noreferrer" class="wagmart-social-pill" aria-label="YouTube">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <span>YouTube</span>
+              </a>
+            </div> {% endcomment %}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  {% comment %} ========================================================
+     3. MAP SECTION
+     ======================================================== {% endcomment %}
+  <section class="wagmart-map-section">
+    <div class="wagmart-contact-container">
+      <div class="wagmart-map-frame-box">
+        <iframe
+          title="Wagmart Location Surat India"
+          src="https://maps.google.com/maps?q={{ map_query }}&hl=en&z=16&output=embed"
+          class="wagmart-map-iframe"
+          loading="lazy"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+{% schema %}
+{
+  "name": "Contact Page",
+  "tag": "section",
+  "class": "section-contact-page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero Section"
+    },
+    {
+      "type": "text",
+      "id": "hero_badge",
+      "label": "Hero Eyebrow Badge",
+      "default": "Dedicated Pet Care Support"
+    },
+    {
+      "type": "text",
+      "id": "hero_heading",
+      "label": "Hero Heading",
+      "default": "Get in Touch"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    },
+    {
+      "type": "header",
+      "content": "Cream Container Section"
+    },
+    {
+      "type": "text",
+      "id": "container_badge",
+      "label": "Container Badge",
+      "default": "Get in Touch"
+    },
+    {
+      "type": "textarea",
+      "id": "container_heading",
+      "label": "Container Heading",
+      "default": "Have questions or need help with your pet? Reach out to us today."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Submit Button Label",
+      "default": "Send Message"
+    },
+    {
+      "type": "header",
+      "content": "Contact Details"
+    },
+    {
+      "type": "textarea",
+      "id": "address_text",
+      "label": "Address Text",
+      "default": "Shop No. 312, 3rd Floor, Shivalik Complex,\nOpposite Heny Heights, Near Dabholi Gam BRTS Bus Stop,\nDabholi Gam Road, Katargam,\nSurat, Gujarat, 395004"
+    },
+    {
+      "type": "text",
+      "id": "phone_number",
+      "label": "Phone Number",
+      "default": "+91 77779 85896"
+    },
+    {
+      "type": "text",
+      "id": "phone_hours",
+      "label": "Phone Hours",
+      "default": "Mon – Sat: 9:00 AM – 7:00 PM IST"
+    },
+    {
+      "type": "text",
+      "id": "email_address",
+      "label": "Support Email",
+      "default": "support@wagmart.com"
+    },
+    {
+      "type": "text",
+      "id": "opening_hours",
+      "label": "Opening Hours",
+      "default": "Monday – Saturday: 9:00 AM – 7:00 PM IST"
+    },
+    {
+      "type": "header",
+      "content": "Map Section"
+    },
+    {
+      "type": "text",
+      "id": "map_query",
+      "label": "Map Coordinates / Location",
+      "default": "21.234591,72.811109"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact Page"
+    }
+  ]
+}
+{% endschema %}

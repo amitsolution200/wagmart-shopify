@@ -10,7 +10,7 @@ html {
 }
 body {
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
-  background-color: #FAF8F5;
+  background-color: #ffffff;
   color: #1F2937;
   overflow-x: hidden;
 }
@@ -186,6 +186,12 @@ body {
   transform: translateY(8px) !important;
 }
 
+/* Global Page Background */
+html,
+body {
+  background-color: #ffffff !important;
+}
+
 /* Sticky Header */
 #shopify-section-header,
 .shopify-section-header {
@@ -201,6 +207,7 @@ body {
   top: 0 !important;
   z-index: 50 !important;
   width: 100% !important;
+  background-color: #ffffff !important;
   transition: box-shadow 0.3s ease, background-color 0.3s ease !important;
 }
 
@@ -222,5 +229,31 @@ body {
 
 [data-add-to-cart].hidden {
   display: none !important;
+}
+
+[data-add-to-cart]:not(.hidden) {
+  display: inline-flex !important;
+}
+
+/* Slim page scrollbar */
+@supports (-moz-appearance: none) {
+  html {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(122, 70, 229, 0.45) transparent;
+  }
+}
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(122, 70, 229, 0.45);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(122, 70, 229, 0.75);
 }
 

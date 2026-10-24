@@ -18,7 +18,7 @@
     </div>
 
     {% comment %} Product Categories - Compact Filter Pills {% endcomment %}
-    <div class="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-8">
+    <div data-filter-bar class="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-8">
       <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-[#2B1B47] text-white shadow-xs" data-filter-tab="all">All Products</button>
       <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="grooming">Grooming &amp; Hygiene</button>
       <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="feeding">Feeding &amp; Bowls</button>
@@ -28,6 +28,317 @@
       <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="collars">Collars &amp; Leashes</button>
     </div>
 
+<style>
+  /* Wagmart Best Sellers Responsive Grid & Card Styling */
+  #shop [data-product-card] {
+    box-shadow: none !important;
+    filter: none !important;
+    border: 1px solid #EAE5D9 !important;
+    transition: border-color 0.25s ease, transform 0.25s ease !important;
+  }
+  #shop [data-product-card]:hover {
+    box-shadow: none !important;
+    filter: none !important;
+    transform: none !important;
+    border-color: #D5CEBF !important;
+  }
+  
+  /* Laptop / Desktop: 5 Cards Grid & Centered Filters */
+  @media (min-width: 1024px) {
+    #shop [data-filter-bar] {
+      justify-content: center !important;
+    }
+    #shop [data-products-scroll] [data-product-card] {
+      flex: 0 0 calc((100% - 4rem) / 5) !important;
+      width: calc((100% - 4rem) / 5) !important;
+      max-width: calc((100% - 4rem) / 5) !important;
+      min-width: calc((100% - 4rem) / 5) !important;
+      padding: 0.75rem 0.75rem 1rem !important;
+      scroll-snap-align: start !important;
+    }
+    #shop [data-product-card] .h-\[205px\],
+    #shop [data-product-card] .sm\:h-\[210px\] {
+      height: 170px !important;
+    }
+    #shop [data-product-card] h3 {
+      font-size: 0.95rem !important;
+      line-height: 1.3 !important;
+    }
+    #shop [data-product-card] p {
+      font-size: 0.75rem !important;
+      line-height: 1.35 !important;
+    }
+    #shop [data-product-card] [data-price-wrap] {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 2px !important;
+    }
+    #shop [data-product-card] [data-price-val] {
+      font-size: 1.15rem !important;
+      line-height: 1 !important;
+    }
+    #shop [data-product-card] [data-compare-val] {
+      font-size: 0.75rem !important;
+      line-height: 1 !important;
+    }
+    #shop [data-product-card] [data-add-to-cart] {
+      height: 38px !important;
+      padding-left: 0.35rem !important;
+      padding-right: 0.75rem !important;
+      gap: 0.35rem !important;
+    }
+    #shop [data-product-card] [data-add-to-cart] span:first-child {
+      width: 28px !important;
+      height: 28px !important;
+    }
+    #shop [data-product-card] [data-add-to-cart] span:last-child {
+      font-size: 11.5px !important;
+    }
+    #shop [data-product-card] [data-card-stepper] {
+      height: 38px !important;
+      padding: 0.25rem 0.4rem !important;
+      gap: 0.25rem !important;
+    }
+    #shop [data-product-card] [data-card-stepper] [data-card-stepper-btn] {
+      width: 26px !important;
+      height: 26px !important;
+    }
+    #shop [data-product-card] [data-card-stepper] [data-card-qty] {
+      font-size: 13px !important;
+      min-width: 18px !important;
+      padding: 0 0.2rem !important;
+    }
+  }
+
+  /* Tablet & Mobile Container Reset */
+  @media (max-width: 1023px) {
+    #shop [data-products-scroll] {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+
+  /* Tablet View: Filter Bar, 3 Cards Grid & Arrow Positioning (641px - 1023px) */
+  @media (min-width: 641px) and (max-width: 1023px) {
+    /* 1. Category Filter: Start cleanly from left with zero negative scroll clipping */
+    #shop [data-filter-bar] {
+      justify-content: flex-start !important;
+      padding-left: 0.25rem !important;
+      padding-right: 0.25rem !important;
+    }
+
+    /* 2. Section Gutter: 2.75rem (44px) padding so arrows sit outside the cards */
+    #shop .max-w-\[1500px\] {
+      padding-left: 2.75rem !important;
+      padding-right: 2.75rem !important;
+    }
+
+    /* 3. Navigation Arrows: In outer gutters, no overlapping onto cards */
+    #shop [data-scroll-prev] {
+      left: -2.35rem !important;
+      width: 36px !important;
+      height: 36px !important;
+    }
+    #shop [data-scroll-next] {
+      right: -2.35rem !important;
+      width: 36px !important;
+      height: 36px !important;
+    }
+
+    /* 4. 3 Cards Grid: Exactly (100% - 2rem)/3 with zero overflow */
+    #shop [data-products-scroll] [data-product-card] {
+      flex: 0 0 calc((100% - 2rem) / 3) !important;
+      width: calc((100% - 2rem) / 3) !important;
+      max-width: calc((100% - 2rem) / 3) !important;
+      min-width: calc((100% - 2rem) / 3) !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding: 0.75rem 0.75rem 1rem !important;
+      scroll-snap-align: start !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:first-child {
+      margin-left: 0 !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:last-child {
+      margin-right: 0 !important;
+    }
+
+    /* 5. Card Elements Proportions & Proper Content Display on Tablet (3-Card Grid) */
+    #shop [data-product-card] .h-\[205px\],
+    #shop [data-product-card] .sm\:h-\[210px\] {
+      height: 170px !important;
+    }
+    #shop [data-product-card] h3 {
+      font-size: 0.95rem !important;
+      line-height: 1.3 !important;
+    }
+    #shop [data-product-card] p {
+      font-size: 0.75rem !important;
+      line-height: 1.35 !important;
+    }
+    #shop [data-product-card] [data-price-wrap] {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 2px !important;
+    }
+    #shop [data-product-card] [data-price-val] {
+      font-size: 1.15rem !important;
+      line-height: 1 !important;
+    }
+    #shop [data-product-card] [data-compare-val] {
+      font-size: 0.75rem !important;
+      line-height: 1 !important;
+    }
+    #shop [data-product-card] [data-add-to-cart] {
+      height: 38px !important;
+      padding-left: 0.35rem !important;
+      padding-right: 0.75rem !important;
+      gap: 0.35rem !important;
+    }
+    #shop [data-product-card] [data-add-to-cart] span:first-child {
+      width: 28px !important;
+      height: 28px !important;
+    }
+    #shop [data-product-card] [data-add-to-cart] span:last-child {
+      font-size: 11.5px !important;
+    }
+    #shop [data-product-card] [data-card-stepper] {
+      height: 38px !important;
+      padding: 0.25rem 0.4rem !important;
+      gap: 0.25rem !important;
+    }
+    #shop [data-product-card] [data-card-stepper] [data-card-stepper-btn] {
+      width: 26px !important;
+      height: 26px !important;
+    }
+    #shop [data-product-card] [data-card-stepper] [data-card-qty] {
+      font-size: 13px !important;
+      min-width: 18px !important;
+      padding: 0 0.2rem !important;
+    }
+  }
+
+  /* Mobile View: 1 Full Card (100% width, arrows outside card in gutters, zero overlap) */
+  @media (max-width: 640px) {
+    /* 1. Section Gutter: 2.5rem (40px) padding so arrows sit outside the card */
+    #shop .max-w-\[1500px\] {
+      padding-left: 2.5rem !important;
+      padding-right: 2.5rem !important;
+    }
+
+    /* 2. Navigation Arrows: In outer gutters, no overlapping onto card */
+    #shop [data-scroll-prev] {
+      left: -2.15rem !important;
+      width: 32px !important;
+      height: 32px !important;
+    }
+    #shop [data-scroll-next] {
+      right: -2.15rem !important;
+      width: 32px !important;
+      height: 32px !important;
+    }
+
+    /* 3. Single Card Full Width */
+    #shop [data-products-scroll] {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    #shop [data-products-scroll] [data-product-card] {
+      flex: 0 0 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding: 0.85rem 0.85rem 1.15rem !important;
+      scroll-snap-align: start !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:first-child {
+      margin-left: 0 !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:last-child {
+      margin-right: 0 !important;
+    }
+
+    /* 4. Card Elements Proportions & Proper Content Display on Mobile */
+    #shop [data-product-card] .h-\[205px\],
+    #shop [data-product-card] .sm\:h-\[210px\] {
+      height: 190px !important;
+    }
+    #shop [data-product-card] h3 {
+      font-size: 1.05rem !important;
+      line-height: 1.35 !important;
+    }
+    #shop [data-product-card] p {
+      font-size: 0.825rem !important;
+      line-height: 1.4 !important;
+    }
+    #shop [data-product-card] [data-price-val] {
+      font-size: 1.25rem !important;
+      line-height: 1 !important;
+    }
+    #shop [data-product-card] [data-compare-val] {
+      font-size: 0.85rem !important;
+      line-height: 1 !important;
+    }
+    #shop [data-product-card] [data-add-to-cart] {
+      height: 40px !important;
+      padding-left: 0.45rem !important;
+      padding-right: 0.85rem !important;
+      gap: 0.45rem !important;
+    }
+    #shop [data-product-card] [data-card-stepper] {
+      height: 40px !important;
+      padding: 0.25rem 0.45rem !important;
+      gap: 0.35rem !important;
+    }
+  }
+
+  /* Clickable Carousel Dots */ 
+  #shop .carousel-dot {
+    display: inline-block !important;
+    height: 8px !important;
+    min-height: 8px !important;
+    border-radius: 9999px !important;
+    background-color: #D5CEBF !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 4px !important;
+    outline: none !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+  }
+  #shop .carousel-dot.is-active {
+    width: 26px !important;
+    min-width: 26px !important;
+    background-color: #7A46E5 !important;
+  }
+  #shop .carousel-dot:not(.is-active) {
+    width: 8px !important;
+    min-width: 8px !important;
+    background-color: #D5CEBF !important;
+  }
+  #shop .carousel-dot:hover:not(.is-active) {
+    background-color: #9D74EC !important;
+  }
+
+  /* Laptop: 5 Cards Grid -> 2 Dots visible */
+  @media (min-width: 1024px) {
+    #shop .carousel-dot:nth-child(n+3) {
+      display: none !important;
+    }
+  }
+
+  /* Tablet: 3 Cards Grid -> 3 Dots visible */
+  @media (min-width: 641px) and (max-width: 1023px) {
+    #shop .carousel-dot:nth-child(n+4) {
+      display: none !important;
+    }
+  }
+</style>
+
     {% comment %} Product Carousel with Responsive Cards {% endcomment %}
     <div class="relative group/carousel">
       
@@ -36,24 +347,24 @@
         type="button"
         data-scroll-prev
         aria-label="Previous products"
-        class="hidden sm:flex absolute -left-3 sm:-left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
+        class="flex absolute -left-2 sm:-left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
       >
-        {% render 'icon-chevron-left', class: 'w-5 h-5' %}
+        {% render 'icon-chevron-left', class: 'w-4 h-4 sm:w-5 sm:h-5' %}
       </button>
 
       <button
         type="button"
         data-scroll-next
         aria-label="Next products"
-        class="hidden sm:flex absolute -right-3 sm:-right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
+        class="flex absolute -right-2 sm:-right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
       >
-        {% render 'icon-chevron-right', class: 'w-5 h-5' %}
+        {% render 'icon-chevron-right', class: 'w-4 h-4 sm:w-5 sm:h-5' %}
       </button>
 
       {% comment %} Cards Container {% endcomment %}
       <div
         data-products-scroll
-        class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1 snap-x snap-mandatory"
+        class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1 snap-x snap-mandatory"
       >
         {%- if section.settings.collection != blank and section.settings.collection.products.size > 0 -%}
           {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
@@ -150,11 +461,44 @@
           %}
         {%- endif -%}
       </div>
+    </div>
 
+    {% comment %} Clickable Pagination Dots {% endcomment %}
+    <div
+      data-products-dots
+      class="flex items-center justify-center gap-2 mt-6 sm:mt-8 min-h-[16px] select-none"
+      role="tablist"
+      aria-label="Product carousel pagination"
+    >
+      {%- for i in (1..8) -%}
+        <button
+          type="button"
+          class="carousel-dot{% if forloop.first %} is-active{% endif %}"
+          data-dot-index="{{ forloop.index0 }}"
+          aria-label="Go to slide {{ forloop.index }}"
+          {% if forloop.first %}aria-current="true"{% endif %}
+        ></button>
+      {%- endfor -%}
+    </div>
+
+    {% comment %} Centered Collection Link Button {% endcomment %}
+    <div class="mt-8 sm:mt-10 flex justify-center">
+      {%- assign target_collection_url = section.settings.button_url | default: section.settings.collection.url | default: routes.all_products_collection_url -%}
+      {%- if target_collection_url == blank -%}
+        {%- assign target_collection_url = '/collections/all' -%}
+      {%- endif -%}
+      {%- assign btn_text = section.settings.button_label | default: 'View All Products' -%}
+      {% render 'theme-button',
+        text: btn_text,
+        href: target_collection_url,
+        class: 'text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 font-bold'
+      %}
     </div>
 
   </div>
 </section>
+
+
 
 {% schema %}
 {
@@ -191,6 +535,17 @@
       "step": 2,
       "default": 12,
       "label": "Products to show"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "View All Products"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button link"
     }
   ],
   "presets": [

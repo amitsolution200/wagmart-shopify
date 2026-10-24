@@ -1,0 +1,197 @@
+{%- comment -%}
+  WAGMART Bestsellers product showcase (used in the desktop dropdown and the mobile drawer).
+
+  Product source priority:
+    1. `source_collection` (header setting "Bestsellers collection")      -> labelled "Bestsellers"
+    2. A collection with handle `bestsellers` or `best-sellers`            -> labelled "Bestsellers"
+    3. All store products                                                  -> labelled "Featured picks"
+       (no sales ranking is implied until a real bestsellers collection exists)
+    4. If the store has no products yet and `show_preview` is true, a
+       clearly-tagged "Catalog preview" from the WAGMART catalog PDF is shown.
+       Preview cards have no price, no product link and cannot be added to cart.
+
+  Params:
+    source_collection - collection (optional)
+    limit             - number (default 10)
+    show_preview      - boolean
+    layout            - 'desktop' | 'mobile'
+    id_prefix         - string
+{%- endcomment -%}
+
+{%- liquid
+  assign limit = limit | default: 10
+  assign layout = layout | default: 'desktop'
+  assign id_prefix = id_prefix | default: 'wm-best'
+  assign source = source_collection
+  assign source_kind = 'bestsellers'
+
+  if source == blank or source.products_count == 0
+    assign source = blank
+    assign candidate = collections['bestsellers']
+    if candidate.id != blank and candidate.products_count > 0
+      assign source = candidate
+    else
+      assign candidate = collections['best-sellers']
+      if candidate.id != blank and candidate.products_count > 0
+        assign source = candidate
+      endif
+    endif
+  endif
+
+  if source == blank
+    assign source = collections.all
+    assign source_kind = 'featured'
+  endif
+
+  assign product_count = source.products.size
+  assign track_id = id_prefix | append: '-track'
+-%}
+
+{%- capture wm_preview -%}
+Pet Grooming Glove~catalog-grooming-glove.webp~Grooming Gloves~1
+|Silicone Bath & Massage Brush~catalog-bath-massage-brush.webp~Bath & Massage Brushes~1
+|2-in-1 Dematting & Deshedding Rake~catalog-dematting-rake.webp~Deshedding Tools~5
+|Self-Cleaning Slicker Brush~catalog-slicker-brush.webp~Grooming Brushes~1
+|Reusable Pet Hair Remover Roller~catalog-hair-remover-roller.webp~Pet Hair Removers~2
+|Retractable Dog Leash~catalog-retractable-leash.webp~Retractable Leashes~4
+|Reflective Rope Dog Leash~catalog-rope-leash.webp~Dog Leashes~1
+|Slow Feeder Dog Bowl~catalog-slow-feeder-bowl.webp~Slow Feeders~5
+|Smart Rolling Cat Ball~catalog-rolling-cat-ball.webp~Interactive Toys~4
+|Pet Nail Clipper with File~catalog-nail-clipper.webp~Nail Clippers & Grinders~2
+{%- endcapture -%}
+
+<div class="wm-best" data-carousel data-source="{% if product_count > 0 %}{{ source_kind }}{% else %}preview{% endif %}">
+  <div class="wm-best__head">
+    <p class="wm-best__eyebrow">
+      <span class="wm-mega__heading-dot" aria-hidden="true"></span>
+      {%- if product_count > 0 and source_kind == 'bestsellers' -%}
+        Bestsellers
+      {%- elsif product_count > 0 -%}
+        Featured picks
+      {%- else -%}
+        From the WAGMART catalog
+      {%- endif -%}
+    </p>
+    {%- if layout == 'desktop' -%}
+      {%- if product_count > 0 -%}
+        <a class="wm-link-arrow" href="{% if source_kind == 'bestsellers' %}{{ source.url }}{% else %}{{ routes.all_products_collection_url }}{% endif %}">
+          Shop all {% render 'wm-icon', name: 'arrow-right', class: 'wm-icon wm-icon--sm' %}
+        </a>
+      {%- elsif show_preview -%}
+        <span class="wm-best__note">Preview only — products are not listed in the store yet</span>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+
+  {%- if product_count > 0 or show_preview -%}
+    <div
+      class="wm-best__viewport"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="{% if source_kind == 'bestsellers' and product_count > 0 %}Bestsellers{% else %}Featured products{% endif %}"
+    >
+      {%- if layout == 'desktop' -%}
+        <button type="button" class="wm-best__arrow wm-best__arrow--prev" data-carousel-prev aria-controls="{{ track_id }}" aria-label="Previous products" disabled>
+          {% render 'wm-icon', name: 'arrow-left', class: 'wm-icon wm-icon--sm', stroke: 2 %}
+        </button>
+        <button type="button" class="wm-best__arrow wm-best__arrow--next" data-carousel-next aria-controls="{{ track_id }}" aria-label="Next products">
+          {% render 'wm-icon', name: 'arrow-right', class: 'wm-icon wm-icon--sm', stroke: 2 %}
+        </button>
+      {%- endif -%}
+
+      <div class="wm-best__track" id="{{ track_id }}" data-carousel-track tabindex="-1">
+        {%- if product_count > 0 -%}
+          {%- for product in source.products limit: limit -%}
+            {%- liquid
+              assign on_sale = false
+              if product.compare_at_price > product.price
+                assign on_sale = true
+              endif
+            -%}
+            <article class="wm-card" aria-label="{{ product.title | escape }}">
+              <a class="wm-card__media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+                {%- if product.featured_media -%}
+                  {{-
+                    product.featured_media
+                    | image_url: width: 600
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '240, 320, 420, 600',
+                      sizes: '(min-width: 1280px) 270px, (min-width: 768px) 24vw, 45vw',
+                      alt: product.featured_media.alt
+                  -}}
+                {%- else -%}
+                  <span class="wm-card__media-empty">{% render 'wm-icon', name: 'image', class: 'wm-icon' %}</span>
+                {%- endif -%}
+              </a>
+              <button type="button" class="wm-card__qv" data-quick-view="{{ product.handle }}" aria-label="Quick view: {{ product.title | escape }}" aria-haspopup="dialog">
+                {% render 'wm-icon', name: 'eye', class: 'wm-icon wm-icon--sm', stroke: 1.75 %}
+              </button>
+              <div class="wm-card__body">
+                <a class="wm-card__title wm-card__link" href="{{ product.url }}">{{ product.title | escape }}</a>
+                <p class="wm-card__price">
+                  {%- if on_sale -%}
+                    <span class="wm-sr-only">Sale price</span>
+                    <span class="is-sale">{% if product.price_varies %}From {% endif %}{{ product.price | money }}</span>
+                    <span class="wm-sr-only">Regular price</span>
+                    <s>{{ product.compare_at_price | money }}</s>
+                  {%- else -%}
+                    <span>{% if product.price_varies %}From {% endif %}{{ product.price | money }}</span>
+                  {%- endif -%}
+                  {%- unless product.available -%}
+                    <span class="wm-card__price--muted">· Sold out</span>
+                  {%- endunless -%}
+                </p>
+              </div>
+            </article>
+          {%- endfor -%}
+        {%- else -%}
+          {%- assign preview_items = wm_preview | strip | split: '|' -%}
+          {%- for raw in preview_items -%}
+            {%- liquid
+              assign p = raw | strip | split: '~'
+              assign p_title = p[0] | strip
+              assign p_image = p[1] | strip | asset_url
+              assign p_category = p[2] | strip
+              assign p_page = p[3] | strip
+            -%}
+            <article class="wm-card" data-preview aria-label="{{ p_title | escape }} (catalog preview)">
+              <div class="wm-card__media">
+                <span class="wm-card__tag">Preview</span>
+                <img src="{{ p_image }}" alt="{{ p_title | escape }}" width="311" height="311" loading="lazy" decoding="async">
+              </div>
+              <button
+                type="button"
+                class="wm-card__qv"
+                data-quick-view-preview
+                data-title="{{ p_title | escape }}"
+                data-image="{{ p_image }}"
+                data-category="{{ p_category | escape }}"
+                data-page="{{ p_page }}"
+                aria-label="Quick view: {{ p_title | escape }}"
+                aria-haspopup="dialog"
+              >
+                {% render 'wm-icon', name: 'eye', class: 'wm-icon wm-icon--sm', stroke: 1.75 %}
+              </button>
+              <div class="wm-card__body">
+                <a
+                  class="wm-card__title wm-card__link"
+                  href="/products/{{ p_title | handle }}"
+                >{{ p_title | escape }}</a>
+                <p class="wm-card__price wm-card__price--muted">Not listed yet</p>
+              </div>
+            </article>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+  {%- else -%}
+    <div class="wm-empty">
+      <span class="wm-empty__icon">{% render 'wm-icon', name: 'paw', class: 'wm-icon' %}</span>
+      <div>
+        <strong>New arrivals are on the way</strong>
+        Our products are being added to the store. Check back soon.
+      </div>
+    </div>
+  {%- endif -%}
+</div>

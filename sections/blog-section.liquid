@@ -1,162 +1,311 @@
 {% comment %}
-  Wagmart "Pet Journal & Care Guides" Blog Section
+  Wagmart "The Latest from Majestic Pet" Editorial Blog Section
+  Clean 4-column layout matching the reference design.
+  Styles are scoped below (theme.css is a precompiled Tailwind build, so arbitrary utilities are not available).
 {% endcomment %}
 
-<section
-  id="blog"
-  aria-label="Wagmart Pet Journal and Blog"
-  class="w-full py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden scroll-mt-20 lg:scroll-mt-24"
->
-  <div class="absolute -top-32 -left-32 w-96 h-96 bg-[#7a46e5]/5 rounded-full blur-3xl pointer-events-none"></div>
-  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-[#219959]/5 rounded-full blur-3xl pointer-events-none"></div>
+<style>
+  .wm-blog {
+    background: #ffffff;
+    padding: 32px 0 40px;
+    scroll-margin-top: 96px;
+  }
+  /*
+    Side spacing mirrors the navbar exactly:
+    outer = .wm-header side padding, inner = .wm-header__bar side padding, max = .wm-header__shell max-width.
+  */
+  .wm-blog__wrap {
+    --nav-outer: clamp(10px, 1.6vw, 20px);
+    --nav-inner: clamp(16px, 2vw, 30px);
+    box-sizing: border-box;
+    max-width: calc(1500px + (2 * var(--nav-outer)));
+    margin: 0 auto;
+    padding: 0 calc(var(--nav-outer) + var(--nav-inner));
+  }
+  @media (max-width: 767px) {
+    .wm-blog__wrap { --nav-inner: 8px; }
+  }
+  /* Header: centered + button below (mobile/tablet), heading left + button right (laptop/desktop) */
+  .wm-blog__head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    margin: 0 0 22px;
+  }
+  .wm-blog__btn { flex-shrink: 0; }
+  .wm-blog__title {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: #111111;
+  }
+  /*
+    Responsive Blog Grid:
+    - Mobile (<640px)    : 1 grid (single card per row)
+    - Tablet (640-1023px): 2 grid (2 cards per row)
+    - Laptop & Desktop (>=1024px): 4 grid (4 cards per row, as above)
+    - No pagination dots
+  */
+  .wm-blog__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 
-  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-    
-    {% comment %} Section Header {% endcomment %}
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-14">
-      <div class="space-y-3 max-w-2xl">
-        {%- assign badge_label = section.settings.badge_label | default: 'Pet Journal & Care Guides' -%}
-        {% render 'section-badge', label: badge_label, class: 'mb-1' %}
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#111827] tracking-tight leading-[1.15]">
-          {{ section.settings.title | default: 'Expert Tips & Stories for' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Happier, Healthier' }}</span> Pets
-        </h2>
-        <p class="text-base sm:text-lg text-neutral-600 font-medium leading-relaxed">
-          {{ section.settings.subtitle | default: 'Explore science-backed grooming techniques, veterinary nutrition insights, and fun indoor enrichment activities curated by certified pet care specialists.' }}
-        </p>
-      </div>
+  /* Card */
+  .wm-blog-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    text-align: left;
+  }
+  .wm-blog-card__media {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #f2f2f2;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 12px;
+  }
+  .wm-blog-card__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wm-blog-card:hover .wm-blog-card__media img {
+    transform: scale(1.05);
+  }
+  .wm-blog-card__title {
+    margin: 0 0 4px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #111111;
+  }
+  .wm-blog-card__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .wm-blog-card:hover .wm-blog-card__title a,
+  .wm-blog-card__title a:hover {
+    color: #7a46e5;
+  }
 
-      <div class="shrink-0 flex items-center gap-3">
-        {% render 'theme-button', text: 'Featured Article', href: '#blog' %}
-      </div>
+  .wm-blog-card__date {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    color: #9a9a9a;
+  }
+  .wm-blog-card__excerpt {
+    margin: 0 0 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #555555;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .wm-blog-card__foot {
+    margin-top: auto;
+  }
+
+  /* Read more: no underline by default; underline grows left -> right only while the card is hovered */
+  .wm-blog-card__more {
+    display: inline-block;
+    position: relative;
+    padding-bottom: 3px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #2b3a55;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: left 100%;
+    background-size: 0% 1.5px;
+    transition:
+      background-size 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+      color 0.3s ease;
+  }
+  .wm-blog-card:hover .wm-blog-card__more,
+  .wm-blog-card__more:focus-visible {
+    color: #7a46e5;
+    background-size: 100% 1.5px;
+  }
+
+  .wm-blog-title-br {
+    display: inline;
+  }
+  @media (min-width: 640px) {
+    .wm-blog-title-br { display: none; }
+    .wm-blog { padding: 40px 0 44px; }
+    .wm-blog__head { margin-bottom: 24px; }
+    .wm-blog__title { font-size: 28px; }
+    .wm-blog__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+  }
+
+  /* Laptop & Desktop (>= 1024px): Heading left, button right in one line, 4-column static grid, no dots */
+  @media (min-width: 1024px) {
+    .wm-blog { padding: 44px 0 48px; }
+    .wm-blog__head {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      text-align: left;
+      margin-bottom: 26px;
+    }
+    .wm-blog__title { font-size: 30px; }
+    .wm-blog__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wm-blog__grid { scroll-behavior: auto; }
+    .wm-blog-card__media img,
+    .wm-blog-card__more { transition: none; }
+  }
+</style>
+
+{%- liquid
+  assign default_images = 'dog-groomed.webp,slow-feeder-nutrition.webp,cat-relaxing.webp,dog-owner-happy.webp' | split: ','
+  assign default_titles = 'Flea and Tick Prevention: What Actually Works|Do Dogs Really Need Grain-Free Food?|Signs Your Cat Might Be Overdue for a Vet Visit|How to Stop a Puppy From Chewing Everything' | split: '|'
+  assign default_excerpts = 'There’s a lot of noise out there about home remedies, but a few methods have real evidence...|Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing...|Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious...|Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it rather than trying to stop it.' | split: '|'
+  assign default_urls = '/blogs/news/flea-and-tick-prevention-what-actually-works|/blogs/news/do-dogs-really-need-grain-free-food|/blogs/news/signs-your-cat-might-be-overdue-for-a-vet-visit|/blogs/news/how-to-stop-a-puppy-from-chewing-everything' | split: '|'
+
+  # Button -> blog page (setting > selected blog > 'news' / 'blog' handle > fallback)
+  assign blog_page_url = section.settings.button_link
+  if blog_page_url == blank and section.settings.blog != blank
+    assign blog_page_url = section.settings.blog.url
+  endif
+  if blog_page_url == blank
+    if blogs.news.id != blank
+      assign blog_page_url = blogs.news.url
+    elsif blogs.blog.id != blank
+      assign blog_page_url = blogs.blog.url
+    else
+      assign blog_page_url = '/blogs/news'
+    endif
+  endif
+  assign blog_btn_text = section.settings.button_text | default: 'View All Blogs'
+-%}
+
+<section id="blog" class="wm-blog" aria-label="Wagmart Pet Journal and Blog">
+  <div class="wm-blog__wrap">
+    <div class="wm-blog__head">
+      <h2 class="wm-blog__title">
+        {%- if section.settings.title != blank -%}
+          {%- if section.settings.title == 'The Latest from Majestic Pet' -%}
+            The Latest from<br class="wm-blog-title-br"> Majestic Pet
+          {%- else -%}
+            {{ section.settings.title }}
+          {%- endif -%}
+        {%- else -%}
+          The Latest from<br class="wm-blog-title-br"> Majestic Pet
+        {%- endif -%}
+      </h2>
+      {% render 'theme-button', text: blog_btn_text, href: blog_page_url, class: 'wm-blog__btn' %}
     </div>
 
-    {% comment %} 4 Blog Cards Grid {% endcomment %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 justify-items-center sm:justify-items-stretch">
-      {%- if section.settings.blog != blank and section.settings.blog.articles.size > 0 -%}
-        {%- for article in section.settings.blog.articles limit: 4 -%}
-          <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
-            <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
-              {%- if article.image -%}
+    <div class="wm-blog__grid">
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign idx = forloop.index0 | modulo: 4
+            assign url = block.settings.article_url
+            if url == blank
+              assign url = default_urls[idx]
+            endif
+          -%}
+          <article class="wm-blog-card" {{ block.shopify_attributes }}>
+            <a href="{{ url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 800 | image_tag:
+                  loading: 'lazy',
+                  widths: '400, 600, 800',
+                  sizes: '(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw',
+                  alt: block.settings.title
+                }}
+              {%- else -%}
                 <img
-                  src="{{ article.image | image_url: width: 600 }}"
-                  alt="{{ article.title | escape }}"
+                  src="{{ default_images[idx] | asset_url }}"
+                  alt="{{ block.settings.title | escape }}"
                   loading="lazy"
-                  class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                  width="380"
-                  height="210"
+                  width="600"
+                  height="356"
                 >
               {%- endif -%}
-              <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
-                <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-                  {{ article.tags.first | default: 'Pet Care' }}
-                </span>
-              </div>
-            </div>
-
-            <div class="flex flex-col flex-1 px-1.5 pt-3.5">
-              <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
-                <a href="{{ article.url }}">{{ article.title }}</a>
-              </h3>
-              <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
-                {{ article.excerpt_or_content | strip_html | truncate: 110 }}
-              </p>
-              <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
-                <span>{{ article.published_at | date: "%d %b %Y" }}</span>
-                <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
-                <span>4 min read</span>
-              </div>
+            </a>
+            <h3 class="wm-blog-card__title">
+              <a href="{{ url }}">{{ block.settings.title }}</a>
+            </h3>
+            <p class="wm-blog-card__date">{{ block.settings.date | default: 'Jul 23, 2026' }}</p>
+            <p class="wm-blog-card__excerpt">{{ block.settings.excerpt }}</p>
+            <div class="wm-blog-card__foot">
+              <a href="{{ url }}" class="wm-blog-card__more">{{ block.settings.read_more_text | default: 'Read more' }}</a>
             </div>
           </article>
         {%- endfor -%}
+
+      {%- elsif section.settings.blog != blank and section.settings.blog.articles.size > 0 -%}
+        {%- for article in section.settings.blog.articles limit: 4 -%}
+          {%- assign idx = forloop.index0 | modulo: 4 -%}
+          <article class="wm-blog-card">
+            <a href="{{ article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+              {%- if article.image -%}
+                {{ article.image | image_url: width: 800 | image_tag:
+                  loading: 'lazy',
+                  widths: '400, 600, 800',
+                  sizes: '(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw',
+                  alt: article.title
+                }}
+              {%- else -%}
+                <img src="{{ default_images[idx] | asset_url }}" alt="{{ article.title | escape }}" loading="lazy" width="600" height="356">
+              {%- endif -%}
+            </a>
+            <h3 class="wm-blog-card__title">
+              <a href="{{ article.url }}">{{ article.title }}</a>
+            </h3>
+            <p class="wm-blog-card__date">{{ article.published_at | date: '%b %d, %Y' }}</p>
+            <p class="wm-blog-card__excerpt">{{ article.excerpt_or_content | strip_html | truncate: 140 }}</p>
+            <div class="wm-blog-card__foot">
+              <a href="{{ article.url }}" class="wm-blog-card__more">Read more</a>
+            </div>
+          </article>
+        {%- endfor -%}
+
       {%- else -%}
-        {% comment %} Default 4 Curated Pet Blog Articles matching React source {% endcomment %}
-        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
-          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
-            <img src="{{ 'dog-owner-happy.webp' | asset_url }}" alt="Simple Ways to Keep Your Pet Happy and Healthy" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
-            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
-              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Pet Care</span>
-            </div>
-          </div>
-          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
-            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
-              Simple Ways to Keep Your Pet Happy and Healthy
+        {%- for i in (0..3) -%}
+          {%- assign card_link = default_urls[i] -%}
+          <article class="wm-blog-card">
+            <a href="{{ card_link }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+              <img src="{{ default_images[i] | asset_url }}" alt="{{ default_titles[i] | escape }}" loading="lazy" width="600" height="356">
+            </a>
+            <h3 class="wm-blog-card__title">
+              <a href="{{ card_link }}">{{ default_titles[i] }}</a>
             </h3>
-            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
-              Discover simple everyday habits that help your furry companion feel comfortable, active, and cared for.
-            </p>
-            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
-              <span>13 Oct 2026</span>
-              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
-              <span>4 min read</span>
+            <p class="wm-blog-card__date">Jul 23, 2026</p>
+            <p class="wm-blog-card__excerpt">{{ default_excerpts[i] }}</p>
+            <div class="wm-blog-card__foot">
+              <a href="{{ card_link }}" class="wm-blog-card__more">Read more</a>
             </div>
-          </div>
-        </article>
-
-        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
-          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
-            <img src="{{ 'dog-groomed.webp' | asset_url }}" alt="How to Keep Your Pet's Coat Healthy" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
-            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
-              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Grooming</span>
-            </div>
-          </div>
-          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
-            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
-              How to Keep Your Pet's Coat Healthy &amp; Tangle-Free
-            </h3>
-            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
-              A calm, gentle step-by-step grooming routine using slicker brushes, de-shedding gloves, and natural coat balms.
-            </p>
-            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
-              <span>12 Oct 2026</span>
-              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
-              <span>5 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
-          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
-            <img src="{{ 'slow-feeder-nutrition.webp' | asset_url }}" alt="The Complete Guide to Slow Feeders" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
-            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
-              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Nutrition</span>
-            </div>
-          </div>
-          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
-            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
-              The Complete Guide to Slow Feeders &amp; Healthy Digestion
-            </h3>
-            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
-              Why rapid eating can trigger dangerous bloating and how interactive maze bowls turn mealtime into a mental puzzle.
-            </p>
-            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
-              <span>08 Oct 2026</span>
-              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
-              <span>4 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="group relative flex flex-col w-full max-w-[380px] sm:max-w-none bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 cursor-pointer">
-          <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 shrink-0">
-            <img src="{{ 'cat-relaxing.webp' | asset_url }}" alt="Simple Indoor Enrichment Games" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" width="380" height="210">
-            <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
-              <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">Pet Wellness</span>
-            </div>
-          </div>
-          <div class="flex flex-col flex-1 px-1.5 pt-3.5">
-            <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 text-left group-hover:text-[#7a46e5] transition-colors duration-200">
-              Simple Indoor Enrichment Games for Cats and Dogs
-            </h3>
-            <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 text-left font-normal">
-              Keep your furry companions mentally stimulated and curb separation anxiety on rainy days with interactive puzzle toys.
-            </p>
-            <div class="mt-auto pt-4 flex items-center text-neutral-400 text-[12px] font-normal tracking-tight">
-              <span>29 Sep 2026</span>
-              <div class="h-3 w-px bg-neutral-300 mx-3 shrink-0" aria-hidden="true"></div>
-              <span>6 min read</span>
-            </div>
-          </div>
-        </article>
+          </article>
+        {%- endfor -%}
       {%- endif -%}
     </div>
 
@@ -169,37 +318,111 @@
   "settings": [
     {
       "type": "text",
-      "id": "badge_label",
-      "label": "Badge label",
-      "default": "Pet Journal & Care Guides"
-    },
-    {
-      "type": "text",
       "id": "title",
-      "label": "Title",
-      "default": "Expert Tips & Stories for"
+      "label": "Heading",
+      "default": "The Latest from Majestic Pet"
     },
     {
       "type": "text",
-      "id": "title_accent",
-      "label": "Title accent",
-      "default": "Happier, Healthier"
+      "id": "button_text",
+      "label": "Button text",
+      "default": "View All Blogs"
     },
     {
-      "type": "textarea",
-      "id": "subtitle",
-      "label": "Subtitle",
-      "default": "Explore science-backed grooming techniques, veterinary nutrition insights, and fun indoor enrichment activities curated by certified pet care specialists."
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "Defaults to the selected blog, or the blog with handle 'news' / 'blog'."
     },
     {
       "type": "blog",
       "id": "blog",
-      "label": "Blog"
+      "label": "Blog (optional)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "article",
+      "name": "Blog Article",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Article Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Flea and Tick Prevention: What Actually Works"
+        },
+        {
+          "type": "text",
+          "id": "date",
+          "label": "Date",
+          "default": "Jul 23, 2026"
+        },
+        {
+          "type": "textarea",
+          "id": "excerpt",
+          "label": "Excerpt",
+          "default": "There's a lot of noise out there about home remedies, but a few methods have real evidence..."
+        },
+        {
+          "type": "url",
+          "id": "article_url",
+          "label": "Article Link"
+        },
+        {
+          "type": "text",
+          "id": "read_more_text",
+          "label": "Link Text",
+          "default": "Read more"
+        }
+      ]
     }
   ],
   "presets": [
     {
-      "name": "Blog Section"
+      "name": "Blog Section",
+      "settings": {
+        "title": "The Latest from Majestic Pet",
+        "button_text": "View All Blogs"
+      },
+      "blocks": [
+        {
+          "type": "article",
+          "settings": {
+            "title": "Flea and Tick Prevention: What Actually Works",
+            "date": "Jul 23, 2026",
+            "excerpt": "There's a lot of noise out there about home remedies, but a few methods have real evidence..."
+          }
+        },
+        {
+          "type": "article",
+          "settings": {
+            "title": "Do Dogs Really Need Grain-Free Food?",
+            "date": "Jul 23, 2026",
+            "excerpt": "Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing..."
+          }
+        },
+        {
+          "type": "article",
+          "settings": {
+            "title": "Signs Your Cat Might Be Overdue for a Vet Visit",
+            "date": "Jul 23, 2026",
+            "excerpt": "Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious..."
+          }
+        },
+        {
+          "type": "article",
+          "settings": {
+            "title": "How to Stop a Puppy From Chewing Everything",
+            "date": "Jul 23, 2026",
+            "excerpt": "Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it rather than trying to stop it."
+          }
+        }
+      ]
     }
   ]
 }

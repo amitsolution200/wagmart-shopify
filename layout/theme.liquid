@@ -30,22 +30,40 @@
   {%- # theme-check-disable RemoteAsset -%}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
   {%- # theme-check-enable RemoteAsset -%}
 
   {% comment %} Compiled Theme CSS with Tailwind utilities {% endcomment %}
   {{ 'theme.css' | asset_url | stylesheet_tag }}
+  {% comment %} WAGMART header / navigation (unlayered so it overrides Tailwind layers) {% endcomment %}
+  {{ 'header.css' | asset_url | stylesheet_tag }}
+
+  <script>
+    window.Wagmart = { moneyFormat: {{ shop.money_format | json }} };
+  </script>
 
   {{ content_for_header }}
 </head>
 
-<body class="bg-[#FAF8F5] text-[#1F2937] antialiased selection:bg-[#7a46e5]/20 selection:text-[#7a46e5] overflow-x-clip min-h-screen flex flex-col font-sans">
+<body class="bg-white text-[#1F2937] antialiased selection:bg-[#7a46e5]/20 selection:text-[#7a46e5] overflow-x-clip min-h-screen flex flex-col font-sans" style="background-color: #ffffff !important;">
  
 
   {% section 'header' %}
 
   <main id="MainContent" role="main" class="flex-1">
-    {{ content_for_layout }}
+    {%- if request.path contains 'privacy-policy' or policy.title contains 'Privacy' -%}
+      {% section 'main-privacy-policy' %}
+    {%- elsif request.path contains 'refund' or request.path contains 'return' or policy.title contains 'Refund' or policy.title contains 'Return' -%}
+      {% section 'main-refund-policy' %}
+    {%- elsif request.path contains 'shipping' or policy.title contains 'Shipping' -%}
+      {% section 'main-shipping-policy' %}
+    {%- elsif request.path contains 'faq' or page.handle == 'faq' -%}
+      {% section 'main-faq' %}
+    {%- elsif request.path contains '/blogs/' and request.path != '/blogs/news' and request.path != '/blogs/news/' and request.path != '/blogs' and request.path != '/blogs/' -%}
+      {% section 'main-article' %}
+    {%- else -%}
+      {{ content_for_layout }}
+    {%- endif -%}
   </main>
 
   {% section 'footer' %}
@@ -59,5 +77,6 @@
 
   {% comment %} Theme Engine Script {% endcomment %}
   <script src="{{ 'theme.js' | asset_url }}" defer></script>
+  <script src="{{ 'header.js' | asset_url }}" defer></script>
 </body>
 </html>

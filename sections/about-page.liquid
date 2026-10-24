@@ -1,0 +1,1047 @@
+{%- comment -%}
+  ============================================================================
+  WAGMART — About Page section (Online Store 2.0)
+  ----------------------------------------------------------------------------
+  Every piece of content comes from the Theme Editor (settings + blocks).
+  Parts (each toggleable with a checkbox):
+    1. Hero banner            (settings)
+    2. Our Story              (settings, falls back to the page's own content)
+    3. Mission & Vision       (settings)
+    4. Why Choose Us / Values (blocks: "value",       max 6)
+    5. Stats counters         (blocks: "stat",        max 4)
+    6. Team                   (blocks: "team",        max 8)
+    7. Testimonials           (blocks: "testimonial", max 6)
+    8. CTA banner             (settings)
+
+  CSS is scoped to #shopify-section-{{ section.id }}.
+  JS (vanilla, ~40 lines): scroll-reveal + number count-up. Content is fully
+  visible without JS and with prefers-reduced-motion.
+  ============================================================================
+{%- endcomment -%}
+
+{%- liquid
+  assign s = '#shopify-section-' | append: section.id
+  assign uid = section.id
+
+  comment
+    Count blocks per type so empty parts can be hidden on the storefront
+    (but still show an "add blocks" hint inside the Theme Editor).
+  endcomment
+  assign value_count = 0
+  assign stat_count = 0
+  assign team_count = 0
+  assign testimonial_count = 0
+  for block in section.blocks
+    case block.type
+      when 'value'
+        assign value_count = value_count | plus: 1
+      when 'stat'
+        assign stat_count = stat_count | plus: 1
+      when 'team'
+        assign team_count = team_count | plus: 1
+      when 'testimonial'
+        assign testimonial_count = testimonial_count | plus: 1
+    endcase
+  endfor
+
+  assign hero_heading = section.settings.hero_heading | default: page.title | default: 'About us'
+  assign overlay_opacity = section.settings.hero_overlay_opacity | divided_by: 100.0
+-%}
+
+{%- comment -%} ======================= SCOPED STYLES ======================= {%- endcomment -%}
+<style>
+  {{ s }} {
+    --ab-primary: {{ section.settings.color_primary | default: '#7743e8' }};
+    --ab-secondary: {{ section.settings.color_secondary | default: '#e33191' }};
+    --ab-text: {{ section.settings.color_text | default: '#171717' }};
+    --ab-muted: color-mix(in srgb, var(--ab-text) 62%, transparent);
+    --ab-bg: {{ section.settings.color_background | default: '#ffffff' }};
+    --ab-soft: {{ section.settings.color_soft | default: '#f6f2fe' }};
+    --ab-pad: {{ section.settings.section_padding }}px;
+    --ab-radius: 22px;
+    --ab-radius-sm: 14px;
+    --ab-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --ab-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --ab-font-head: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  }
+
+  /* ---------- Base ---------- */
+  {{ s }} .ab { background: var(--ab-bg); color: var(--ab-text); font-family: var(--ab-font); overflow: hidden; }
+  {{ s }} .ab *, {{ s }} .ab *::before, {{ s }} .ab *::after { box-sizing: border-box; }
+  {{ s }} .ab img { display: block; max-width: 100%; height: auto; }
+  {{ s }} .ab-container { width: min(1200px, 100% - 40px); margin-inline: auto; }
+  {{ s }} .ab-part { padding-block: calc(var(--ab-pad) * 0.65); }
+  {{ s }} .ab-part--soft { background: var(--ab-soft); }
+
+  {{ s }} .ab-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px;
+    font: 700 12px/1 var(--ab-font); letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ab-primary);
+  }
+  {{ s }} .ab-eyebrow::before {
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary));
+  }
+  {{ s }} .ab-h2 {
+    margin: 0 0 14px; font: 800 clamp(28px, 4.4vw, 44px)/1.12 var(--ab-font-head);
+    letter-spacing: -0.02em; color: var(--ab-text); text-wrap: balance;
+  }
+  {{ s }} .ab-lead { margin: 0; max-width: 62ch; font-size: clamp(15px, 1.6vw, 17px); line-height: 1.7; color: var(--ab-muted); }
+  {{ s }} .ab-head { margin-bottom: clamp(28px, 4vw, 48px); }
+  {{ s }} .ab-head--center { text-align: center; }
+  {{ s }} .ab-head--center .ab-lead { margin-inline: auto; }
+
+  /* ---------- Buttons ---------- */
+  {{ s }} .ab-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 52px; padding: 0 28px; border-radius: 999px;
+    font: 700 15px/1 var(--ab-font); text-decoration: none; cursor: pointer;
+    transition: transform 240ms var(--ab-ease), box-shadow 240ms var(--ab-ease), background-color 240ms ease;
+  }
+  {{ s }} .ab-btn svg { width: 18px; height: 18px; transition: transform 240ms var(--ab-ease); }
+  {{ s }} .ab-btn:hover svg { transform: translateX(4px); }
+  {{ s }} .ab-btn--primary {
+    color: #fff; background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary));
+    box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--ab-primary) 70%, transparent);
+  }
+  {{ s }} .ab-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 20px 36px -14px color-mix(in srgb, var(--ab-primary) 80%, transparent); }
+  {{ s }} .ab-btn--light { color: var(--ab-text); background: #fff; }
+  {{ s }} .ab-btn--light:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -16px rgba(0,0,0,.45); }
+  {{ s }} .ab-btn:focus-visible { outline: 3px solid var(--ab-secondary); outline-offset: 3px; }
+
+  /* ---------- Placeholders ---------- */
+  {{ s }} .ab-placeholder { width: 100%; height: 100%; background: var(--ab-soft); fill: color-mix(in srgb, var(--ab-primary) 35%, transparent); }
+  {{ s }} .ab-editor-hint {
+    padding: 18px; border: 2px dashed color-mix(in srgb, var(--ab-primary) 35%, transparent);
+    border-radius: var(--ab-radius-sm); text-align: center; color: var(--ab-muted); font-size: 14px;
+  }
+
+  /* ---------- 1. Hero ---------- */
+  {{ s }} .ab-hero {
+    position: relative; display: grid; align-items: center; isolation: isolate;
+    min-height: 460px; padding-block: 90px; color: #fff;
+    background: radial-gradient(120% 120% at 10% 0%, var(--ab-primary) 0%, color-mix(in srgb, var(--ab-primary) 60%, var(--ab-secondary)) 55%, var(--ab-secondary) 100%);
+  }
+  {{ s }} .ab-hero--medium { min-height: 520px; }
+  {{ s }} .ab-hero--large { min-height: 600px; }
+  {{ s }} .ab-hero__media, {{ s }} .ab-hero__overlay { position: absolute; inset: 0; z-index: -1; }
+  {{ s }} .ab-hero__media img { width: 100%; height: 100%; object-fit: cover; }
+  {{ s }} .ab-hero__overlay { background: {{ section.settings.hero_overlay_color }}; opacity: {{ overlay_opacity }}; }
+  {{ s }} .ab-hero__paws { position: absolute; inset: 0; z-index: -1; opacity: .12; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='11' cy='4' r='2'/%3E%3Ccircle cx='18' cy='8' r='2'/%3E%3Ccircle cx='20' cy='16' r='2'/%3E%3Cpath d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/%3E%3C/svg%3E");
+    background-size: 120px; }
+  {{ s }} .ab-hero__content { max-width: 720px; }
+  {{ s }} .ab-hero--center .ab-hero__content { margin-inline: auto; text-align: center; }
+  {{ s }} .ab-hero .ab-eyebrow { color: #fff; }
+  {{ s }} .ab-hero .ab-eyebrow::before { background: #fff; }
+  {{ s }} .ab-hero__title {
+    margin: 0 0 18px; font: 800 clamp(36px, 7vw, 68px)/1.04 var(--ab-font-head);
+    letter-spacing: -0.03em; text-wrap: balance; text-shadow: 0 2px 24px rgba(0,0,0,.18);
+  }
+  {{ s }} .ab-hero__sub { margin: 0 0 30px; font-size: clamp(16px, 2vw, 19px); line-height: 1.65; opacity: .94; }
+  {{ s }} .ab-hero--center .ab-hero__sub { margin-inline: auto; max-width: 60ch; }
+
+  /* ---------- 2. Story ---------- */
+  {{ s }} .ab-story { display: grid; gap: clamp(32px, 6vw, 72px); align-items: center; }
+  {{ s }} .ab-story__media { position: relative; }
+  {{ s }} .ab-story__frame {
+    position: relative; aspect-ratio: 4 / 5; border-radius: var(--ab-radius); overflow: hidden;
+    background: var(--ab-soft); box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--ab-primary) 45%, transparent);
+  }
+  {{ s }} .ab-story__frame img, {{ s }} .ab-story__frame svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  {{ s }} .ab-story__media::before {
+    content: ''; position: absolute; inset: auto -18px -18px auto; width: 60%; height: 60%; z-index: -1;
+    border-radius: var(--ab-radius); background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary)); opacity: .18;
+  }
+  {{ s }} .ab-story__badge {
+    position: absolute; left: 16px; bottom: 16px; display: grid; gap: 2px; padding: 14px 18px;
+    border-radius: var(--ab-radius-sm); background: rgba(255,255,255,.94); backdrop-filter: blur(8px);
+    box-shadow: 0 16px 32px -18px rgba(0,0,0,.35);
+  }
+  {{ s }} .ab-story__badge strong { font: 800 26px/1 var(--ab-font-head); background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  {{ s }} .ab-story__badge span { font-size: 13px; color: var(--ab-muted); }
+  {{ s }} .ab-rte { font-size: 16px; line-height: 1.8; color: var(--ab-muted); }
+  {{ s }} .ab-rte > * + * { margin-top: 1em; }
+  {{ s }} .ab-rte p { margin: 0; }
+  {{ s }} .ab-rte a { color: var(--ab-primary); }
+  {{ s }} .ab-rte strong { color: var(--ab-text); }
+  {{ s }} .ab-story__cta { margin-top: 28px; }
+
+  /* ---------- 3. Mission & Vision ---------- */
+  {{ s }} .ab-mv { display: grid; gap: 20px; }
+  {{ s }} .ab-mv__card {
+    position: relative; padding: clamp(26px, 4vw, 40px); border-radius: var(--ab-radius); background: var(--ab-bg);
+    border: 1px solid color-mix(in srgb, var(--ab-primary) 14%, transparent);
+    transition: transform 320ms var(--ab-ease), box-shadow 320ms var(--ab-ease);
+  }
+  {{ s }} .ab-mv__card:hover { transform: translateY(-4px); box-shadow: 0 26px 50px -30px color-mix(in srgb, var(--ab-primary) 55%, transparent); }
+  {{ s }} .ab-mv__card h3 { margin: 18px 0 10px; font: 800 24px/1.2 var(--ab-font-head); }
+  {{ s }} .ab-mv__card p { margin: 0; line-height: 1.75; color: var(--ab-muted); }
+
+  /* Shared icon chip */
+  {{ s }} .ab-icon {
+    display: inline-grid; place-items: center; width: 56px; height: 56px; flex: none; border-radius: 16px;
+    color: #fff; background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary));
+    box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--ab-primary) 80%, transparent); overflow: hidden;
+  }
+  {{ s }} .ab-icon svg { width: 26px; height: 26px; }
+  {{ s }} .ab-icon img { width: 100%; height: 100%; object-fit: cover; }
+  {{ s }} .ab-icon--img { background: var(--ab-soft); box-shadow: none; }
+
+  /* ---------- 4. Values ---------- */
+  {{ s }} .ab-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  {{ s }} .ab-value {
+    display: flex; flex-direction: column; gap: 14px; padding: 28px; border-radius: var(--ab-radius);
+    background: var(--ab-bg); border: 1px solid color-mix(in srgb, var(--ab-text) 8%, transparent);
+    transition: transform 320ms var(--ab-ease), border-color 320ms ease, box-shadow 320ms var(--ab-ease);
+  }
+  {{ s }} .ab-value:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--ab-primary) 35%, transparent); box-shadow: 0 24px 44px -30px color-mix(in srgb, var(--ab-primary) 60%, transparent); }
+  {{ s }} .ab-value:hover .ab-icon { transform: rotate(-6deg) scale(1.06); }
+  {{ s }} .ab-value .ab-icon { transition: transform 320ms var(--ab-ease); }
+  {{ s }} .ab-value h3 { margin: 0; font: 700 19px/1.3 var(--ab-font-head); }
+  {{ s }} .ab-value p { margin: 0; font-size: 15px; line-height: 1.7; color: var(--ab-muted); }
+
+  /* ---------- 5. Stats ---------- */
+  {{ s }} .ab-stats {
+    position: relative; padding: clamp(32px, 5vw, 56px) clamp(20px, 4vw, 48px); border-radius: var(--ab-radius);
+    color: #fff; background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary)); overflow: hidden; isolation: isolate;
+  }
+  {{ s }} .ab-stats::after {
+    content: ''; position: absolute; inset: -40% -10% auto auto; width: 60%; aspect-ratio: 1; z-index: -1;
+    border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 70%);
+  }
+  {{ s }} .ab-stats__title { margin: 0 0 28px; text-align: center; font: 800 clamp(22px, 3vw, 30px)/1.2 var(--ab-font-head); }
+  {{ s }} .ab-stats__list { display: grid; gap: 28px 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; text-align: center; }
+  {{ s }} .ab-stat__num { display: block; font: 800 clamp(32px, 5vw, 52px)/1 var(--ab-font-head); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  {{ s }} .ab-stat__label { display: block; margin-top: 10px; font-size: 14px; opacity: .9; }
+
+  /* ---------- 6. Team ---------- */
+  {{ s }} .ab-team { display: grid; gap: 22px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+  {{ s }} .ab-member { text-align: center; }
+  {{ s }} .ab-member__photo {
+    position: relative; aspect-ratio: 1; margin-bottom: 14px; border-radius: var(--ab-radius); overflow: hidden;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--ab-primary) 18%, #fff), color-mix(in srgb, var(--ab-secondary) 18%, #fff));
+  }
+  {{ s }} .ab-member__photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ab-ease); }
+  {{ s }} .ab-member:hover .ab-member__photo img { transform: scale(1.05); }
+  {{ s }} .ab-member__initials { position: absolute; inset: 0; display: grid; place-items: center; font: 800 clamp(28px, 5vw, 44px)/1 var(--ab-font-head); color: var(--ab-primary); }
+  {{ s }} .ab-member__social {
+    position: absolute; right: 12px; bottom: 12px; display: inline-grid; place-items: center; width: 40px; height: 40px;
+    border-radius: 50%; background: #fff; color: var(--ab-text); box-shadow: 0 10px 20px -10px rgba(0,0,0,.4);
+    transition: color 200ms ease, transform 240ms var(--ab-ease);
+  }
+  {{ s }} .ab-member__social:hover { color: var(--ab-primary); transform: translateY(-2px); }
+  {{ s }} .ab-member__social:focus-visible { outline: 3px solid var(--ab-secondary); outline-offset: 2px; }
+  {{ s }} .ab-member__social svg { width: 18px; height: 18px; }
+  {{ s }} .ab-member h3 { margin: 0; font: 700 17px/1.3 var(--ab-font-head); }
+  {{ s }} .ab-member p { margin: 4px 0 0; font-size: 14px; color: var(--ab-muted); }
+
+  /* ---------- 7. Testimonials ---------- */
+  {{ s }} .ab-quotes {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 86%; gap: 18px; margin: 0; padding: 0 0 8px; list-style: none;
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; overscroll-behavior-x: contain;
+  }
+  {{ s }} .ab-quote {
+    scroll-snap-align: start; display: flex; flex-direction: column; gap: 18px; height: 100%; margin: 0;
+    padding: 28px; border-radius: var(--ab-radius); background: var(--ab-bg);
+    border: 1px solid color-mix(in srgb, var(--ab-text) 8%, transparent);
+  }
+  {{ s }} .ab-stars { display: flex; gap: 3px; color: #f5b301; }
+  {{ s }} .ab-stars svg { width: 18px; height: 18px; }
+  {{ s }} .ab-stars .is-off { color: color-mix(in srgb, var(--ab-text) 15%, transparent); }
+  {{ s }} .ab-quote blockquote { margin: 0; font-size: 16px; line-height: 1.75; color: var(--ab-text); }
+  {{ s }} .ab-quote figcaption { margin-top: auto; display: flex; align-items: center; gap: 12px; }
+  {{ s }} .ab-quote__avatar { display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: #fff; font-weight: 700; background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary)); }
+  {{ s }} .ab-quote cite { display: block; font-style: normal; font-weight: 700; }
+  {{ s }} .ab-quote small { display: block; font-size: 13px; color: var(--ab-muted); }
+
+  /* ---------- 8. CTA ---------- */
+  {{ s }} .ab-cta {
+    position: relative; display: grid; justify-items: center; gap: 16px; padding: clamp(40px, 7vw, 80px) 24px;
+    border-radius: var(--ab-radius); text-align: center; color: #fff; overflow: hidden; isolation: isolate;
+    background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary));
+  }
+  {{ s }} .ab-cta__bg { position: absolute; inset: 0; z-index: -2; }
+  {{ s }} .ab-cta__bg img { width: 100%; height: 100%; object-fit: cover; }
+  {{ s }} .ab-cta--has-bg::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(135deg, color-mix(in srgb, var(--ab-primary) 88%, transparent), color-mix(in srgb, var(--ab-secondary) 80%, transparent)); }
+  {{ s }} .ab-cta h2 { margin: 0; max-width: 20ch; font: 800 clamp(28px, 4.6vw, 46px)/1.1 var(--ab-font-head); letter-spacing: -0.02em; text-wrap: balance; }
+  {{ s }} .ab-cta p { margin: 0 0 10px; max-width: 56ch; font-size: clamp(15px, 1.8vw, 18px); line-height: 1.65; opacity: .94; }
+
+  /* ---------- Reveal on scroll (only when JS is running) ---------- */
+  {{ s }} .ab.ab-js .ab-reveal { opacity: 0; transform: translateY(26px); transition: opacity 700ms var(--ab-ease), transform 700ms var(--ab-ease); transition-delay: var(--ab-delay, 0ms); }
+  {{ s }} .ab.ab-js .ab-reveal.is-in { opacity: 1; transform: none; }
+
+  /* ---------- Breakpoints (mobile first) ---------- */
+  @media (min-width: 640px) {
+    {{ s }} .ab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    {{ s }} .ab-team { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    {{ s }} .ab-quotes { grid-auto-columns: 48%; }
+  }
+  @media (min-width: 990px) {
+    {{ s }} .ab-part { padding-block: var(--ab-pad); }
+    {{ s }} .ab-hero { padding-block: 120px; }
+    {{ s }} .ab-hero--medium { min-height: 600px; }
+    {{ s }} .ab-hero--large { min-height: 760px; }
+    {{ s }} .ab-story { grid-template-columns: 1fr 1.05fr; }
+    {{ s }} .ab-story--right .ab-story__media { order: 2; }
+    {{ s }} .ab-mv { grid-template-columns: 1fr 1fr; gap: 26px; }
+    {{ s }} .ab-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    {{ s }} .ab-stats__list { grid-template-columns: repeat({{ stat_count | at_least: 1 | at_most: 4 }}, minmax(0, 1fr)); }
+    {{ s }} .ab-team { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
+    {{ s }} .ab-quotes { grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    {{ s }} .ab *, {{ s }} .ab *::before, {{ s }} .ab *::after { transition: none !important; animation: none !important; }
+    {{ s }} .ab.ab-js .ab-reveal { opacity: 1; transform: none; }
+  }
+</style>
+
+{%- comment -%} ======================= ICON LIBRARY (inline SVG) ======================= {%- endcomment -%}
+{%- capture icon_arrow -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>{%- endcapture -%}
+{%- capture icon_star -%}<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{%- endcapture -%}
+
+<div
+  class="ab"
+  id="About-{{ uid }}"
+  data-about
+  data-animate-stats="{{ section.settings.stats_animate }}"
+>
+
+  {%- comment -%} ============================ 1. HERO ============================ {%- endcomment -%}
+  {%- if section.settings.show_hero -%}
+    <section
+      class="ab-hero ab-hero--{{ section.settings.hero_height }}{% if section.settings.hero_align == 'center' %} ab-hero--center{% endif %}"
+      aria-labelledby="AboutHero-{{ uid }}"
+    >
+      {%- if section.settings.hero_image != blank -%}
+        <div class="ab-hero__media">
+          {%- assign hero_alt = section.settings.hero_image.alt | default: hero_heading -%}
+          {{-
+            section.settings.hero_image
+            | image_url: width: 2400
+            | image_tag:
+              loading: 'eager',
+              fetchpriority: 'high',
+              widths: '750, 1100, 1500, 1800, 2400',
+              sizes: '100vw',
+              alt: hero_alt
+          -}}
+        </div>
+        <div class="ab-hero__overlay" aria-hidden="true"></div>
+      {%- else -%}
+        {%- comment -%} Fallback: brand gradient + soft paw pattern {%- endcomment -%}
+        <div class="ab-hero__paws" aria-hidden="true"></div>
+      {%- endif -%}
+
+      <div class="ab-container">
+        <div class="ab-hero__content ab-reveal">
+          {%- if section.settings.hero_eyebrow != blank -%}
+            <p class="ab-eyebrow">{{ section.settings.hero_eyebrow | escape }}</p>
+          {%- endif -%}
+          <h1 class="ab-hero__title" id="AboutHero-{{ uid }}">{{ hero_heading | escape }}</h1>
+          {%- if section.settings.hero_subheading != blank -%}
+            <p class="ab-hero__sub">{{ section.settings.hero_subheading | escape | newline_to_br }}</p>
+          {%- endif -%}
+          {%- if section.settings.hero_button_label != blank and section.settings.hero_button_link != blank -%}
+            <a class="ab-btn ab-btn--light" href="{{ section.settings.hero_button_link }}">
+              {{ section.settings.hero_button_label | escape }} {{ icon_arrow }}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============================ 2. OUR STORY ============================ {%- endcomment -%}
+  {%- if section.settings.show_story -%}
+    {%- liquid
+      assign story_text = section.settings.story_text
+      if story_text == blank
+        assign story_text = page.content
+      endif
+      assign story_heading = section.settings.story_heading
+    -%}
+    <section
+      class="ab-part"
+      {% if story_heading != blank %}aria-labelledby="AboutStory-{{ uid }}"{% else %}aria-label="Our story"{% endif %}
+    >
+      <div class="ab-container">
+        <div class="ab-story{% if section.settings.story_image_position == 'right' %} ab-story--right{% endif %}">
+          <div class="ab-story__media ab-reveal">
+            <div class="ab-story__frame">
+              {%- if section.settings.story_image != blank -%}
+                {%- assign story_alt = section.settings.story_image.alt | default: story_heading | default: 'Our story' -%}
+                {{-
+                  section.settings.story_image
+                  | image_url: width: 1200
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '400, 600, 800, 1000, 1200',
+                    sizes: '(min-width: 990px) 560px, 100vw',
+                    alt: story_alt
+                -}}
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'ab-placeholder' }}
+              {%- endif -%}
+            </div>
+            {%- if section.settings.story_badge_number != blank -%}
+              <div class="ab-story__badge">
+                <strong>{{ section.settings.story_badge_number | escape }}</strong>
+                {%- if section.settings.story_badge_label != blank -%}
+                  <span>{{ section.settings.story_badge_label | escape }}</span>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+
+          <div class="ab-story__body ab-reveal" style="--ab-delay: 120ms;">
+            {%- if section.settings.story_eyebrow != blank -%}
+              <p class="ab-eyebrow">{{ section.settings.story_eyebrow | escape }}</p>
+            {%- endif -%}
+            {%- if story_heading != blank -%}
+              <h2 class="ab-h2" id="AboutStory-{{ uid }}">{{ story_heading | escape }}</h2>
+            {%- endif -%}
+            {%- if story_text != blank -%}
+              <div class="ab-rte">{{ story_text }}</div>
+            {%- elsif request.design_mode -%}
+              <p class="ab-editor-hint">Add your story in the “Our story text” setting.</p>
+            {%- endif -%}
+            {%- if section.settings.story_button_label != blank and section.settings.story_button_link != blank -%}
+              <div class="ab-story__cta">
+                <a class="ab-btn ab-btn--primary" href="{{ section.settings.story_button_link }}">
+                  {{ section.settings.story_button_label | escape }} {{ icon_arrow }}
+                </a>
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============================ 3. MISSION & VISION ============================ {%- endcomment -%}
+  {%- if section.settings.show_mission_vision -%}
+    <section
+      class="ab-part ab-part--soft"
+      {% if section.settings.mv_heading != blank %}aria-labelledby="AboutMV-{{ uid }}"{% else %}aria-label="Mission and vision"{% endif %}
+    >
+      <div class="ab-container">
+        {%- if section.settings.mv_heading != blank -%}
+          <div class="ab-head ab-head--center ab-reveal">
+            <h2 class="ab-h2" id="AboutMV-{{ uid }}">{{ section.settings.mv_heading | escape }}</h2>
+          </div>
+        {%- endif -%}
+
+        <div class="ab-mv">
+          {%- for key in (1..2) -%}
+            {%- liquid
+              if forloop.first
+                assign prefix = 'mission_'
+                assign fallback_title = 'Our Mission'
+              else
+                assign prefix = 'vision_'
+                assign fallback_title = 'Our Vision'
+              endif
+              assign k_title = prefix | append: 'title'
+              assign k_text = prefix | append: 'text'
+              assign k_icon = prefix | append: 'icon'
+              assign k_image = prefix | append: 'image'
+              assign mv_title = section.settings[k_title] | default: fallback_title
+              assign mv_text = section.settings[k_text]
+              assign mv_icon = section.settings[k_icon]
+              assign mv_image = section.settings[k_image]
+            -%}
+            <article class="ab-mv__card ab-reveal" style="--ab-delay: {{ forloop.index0 | times: 120 }}ms;">
+              {%- if mv_image != blank -%}
+                <span class="ab-icon ab-icon--img">
+                  {{- mv_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: mv_title, width: 56, height: 56 -}}
+                </span>
+              {%- else -%}
+                <span class="ab-icon">
+                  {%- case mv_icon -%}
+                    {%- when 'target' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    {%- when 'eye' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    {%- when 'heart' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                    {%- when 'star' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    {%- when 'leaf' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                    {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>
+                  {%- endcase -%}
+                </span>
+              {%- endif -%}
+              <h3>{{ mv_title | escape }}</h3>
+              {%- if mv_text != blank -%}
+                <p>{{ mv_text | escape | newline_to_br }}</p>
+              {%- elsif request.design_mode -%}
+                <p class="ab-editor-hint">Add text in the section settings.</p>
+              {%- endif -%}
+            </article>
+          {%- endfor -%}
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============================ 4. VALUES (blocks) ============================ {%- endcomment -%}
+  {%- if section.settings.show_values and value_count > 0 or section.settings.show_values and request.design_mode -%}
+    <section
+      class="ab-part"
+      {% if section.settings.values_heading != blank %}aria-labelledby="AboutValues-{{ uid }}"{% else %}aria-label="Why choose us"{% endif %}
+    >
+      <div class="ab-container">
+        <div class="ab-head ab-head--center ab-reveal">
+          {%- if section.settings.values_eyebrow != blank -%}
+            <p class="ab-eyebrow">{{ section.settings.values_eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.values_heading != blank -%}
+            <h2 class="ab-h2" id="AboutValues-{{ uid }}">{{ section.settings.values_heading | escape }}</h2>
+          {%- endif -%}
+          {%- if section.settings.values_subheading != blank -%}
+            <p class="ab-lead">{{ section.settings.values_subheading | escape }}</p>
+          {%- endif -%}
+        </div>
+
+        {%- if value_count > 0 -%}
+          <ul class="ab-grid{% if section.settings.values_columns == '3' %} ab-grid--3{% endif %}" role="list" style="margin:0;padding:0;list-style:none;">
+            {%- assign v_index = 0 -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'value' -%}
+                <li class="ab-value ab-reveal" style="--ab-delay: {{ v_index | modulo: 3 | times: 90 }}ms;" {{ block.shopify_attributes }}>
+                  {%- assign v_title = block.settings.title | default: 'Our value' -%}
+                  {%- if block.settings.image != blank -%}
+                    <span class="ab-icon ab-icon--img">
+                      {{- block.settings.image | image_url: width: 160 | image_tag: loading: 'lazy', alt: v_title, width: 56, height: 56 -}}
+                    </span>
+                  {%- else -%}
+                    <span class="ab-icon">
+                      {%- case block.settings.icon -%}
+                        {%- when 'shield' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                        {%- when 'truck' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+                        {%- when 'tag' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
+                        {%- when 'heart' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                        {%- when 'support' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+                        {%- when 'leaf' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                        {%- when 'award' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/></svg>
+                        {%- when 'smile' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>
+                        {%- when 'star' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>
+                      {%- endcase -%}
+                    </span>
+                  {%- endif -%}
+                  <h3>{{ v_title | escape }}</h3>
+                  {%- if block.settings.text != blank -%}
+                    <p>{{ block.settings.text | escape }}</p>
+                  {%- endif -%}
+                </li>
+                {%- assign v_index = v_index | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <p class="ab-editor-hint">Add “Value” blocks (up to 6) to fill this area.</p>
+        {%- endif -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============================ 5. STATS (blocks) ============================ {%- endcomment -%}
+  {%- if section.settings.show_stats and stat_count > 0 or section.settings.show_stats and request.design_mode -%}
+    <section class="ab-part" aria-label="{{ section.settings.stats_heading | default: 'Our numbers' | escape }}">
+      <div class="ab-container">
+        <div class="ab-stats ab-reveal">
+          {%- if section.settings.stats_heading != blank -%}
+            <h2 class="ab-stats__title">{{ section.settings.stats_heading | escape }}</h2>
+          {%- endif -%}
+          {%- if stat_count > 0 -%}
+            <ul class="ab-stats__list" role="list">
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'stat' -%}
+                  {%- liquid
+                    assign raw = block.settings.number | strip | default: '0'
+                    assign digits = raw | remove: ','
+                    assign num = digits | plus: 0
+                    assign numeric = false
+                    if num != 0 or digits == '0'
+                      assign numeric = true
+                    endif
+                    assign decimals = 0
+                    if digits contains '.'
+                      assign decimals = digits | split: '.' | last | size
+                    endif
+                    assign grouped = false
+                    if raw contains ','
+                      assign grouped = true
+                    endif
+                    assign stat_label = block.settings.label | default: 'Label'
+                  -%}
+                  <li class="ab-stat" {{ block.shopify_attributes }}>
+                    <span class="ab-stat__num" aria-hidden="true">
+                      {{- block.settings.prefix | escape -}}
+                      <span
+                        {% if numeric %}
+                          data-count-to="{{ digits }}" data-decimals="{{ decimals }}" data-grouped="{{ grouped }}"
+                        {% endif %}
+                      >{{ raw | escape }}</span>
+                      {{- block.settings.suffix | escape -}}
+                    </span>
+                    <span class="ab-stat__label" aria-hidden="true">{{ stat_label | escape }}</span>
+                    <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">
+                      {{- block.settings.prefix | escape }}{{ raw | escape }}{{ block.settings.suffix | escape }} {{ stat_label | escape -}}
+                    </span>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <p class="ab-editor-hint" style="color:#fff;border-color:rgba(255,255,255,.5);">Add “Stat” blocks (up to 4).</p>
+          {%- endif -%}
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============================ 6. TEAM (blocks) ============================ {%- endcomment -%}
+  {%- if section.settings.show_team and team_count > 0 or section.settings.show_team and request.design_mode -%}
+    <section
+      class="ab-part ab-part--soft"
+      {% if section.settings.team_heading != blank %}aria-labelledby="AboutTeam-{{ uid }}"{% else %}aria-label="Our team"{% endif %}
+    >
+      <div class="ab-container">
+        <div class="ab-head ab-head--center ab-reveal">
+          {%- if section.settings.team_eyebrow != blank -%}
+            <p class="ab-eyebrow">{{ section.settings.team_eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.team_heading != blank -%}
+            <h2 class="ab-h2" id="AboutTeam-{{ uid }}">{{ section.settings.team_heading | escape }}</h2>
+          {%- endif -%}
+          {%- if section.settings.team_subheading != blank -%}
+            <p class="ab-lead">{{ section.settings.team_subheading | escape }}</p>
+          {%- endif -%}
+        </div>
+
+        {%- if team_count > 0 -%}
+          <ul class="ab-team" role="list">
+            {%- assign t_index = 0 -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'team' -%}
+                {%- liquid
+                  assign m_name = block.settings.name | default: 'Team member'
+                  assign initials = ''
+                  assign words = m_name | split: ' '
+                  for w in words limit: 2
+                    assign first_letter = w | slice: 0, 1
+                    assign initials = initials | append: first_letter
+                  endfor
+                  assign initials = initials | upcase
+                -%}
+                <li class="ab-member ab-reveal" style="--ab-delay: {{ t_index | modulo: 4 | times: 80 }}ms;" {{ block.shopify_attributes }}>
+                  <div class="ab-member__photo">
+                    {%- if block.settings.photo != blank -%}
+                      {%- assign m_alt = block.settings.photo.alt | default: m_name -%}
+                      {{-
+                        block.settings.photo
+                        | image_url: width: 600
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '300, 450, 600',
+                          sizes: '(min-width: 990px) 280px, (min-width: 640px) 30vw, 45vw',
+                          alt: m_alt
+                      -}}
+                    {%- else -%}
+                      <span class="ab-member__initials" aria-hidden="true">{{ initials }}</span>
+                    {%- endif -%}
+
+                    {%- if block.settings.social_link != blank -%}
+                      <a
+                        class="ab-member__social"
+                        href="{{ block.settings.social_link }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="{{ m_name | escape }} on {{ block.settings.social_platform | capitalize }} (opens in a new tab)"
+                      >
+                        {%- case block.settings.social_platform -%}
+                          {%- when 'instagram' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg>
+                          {%- when 'linkedin' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                          {%- when 'facebook' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                          {%- when 'x' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 4l11.7 16H20L8.3 4H4z"/><path d="M4 20l6.8-6.8M13.2 10.8 20 4"/></svg>
+                          {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        {%- endcase -%}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                  <h3>{{ m_name | escape }}</h3>
+                  {%- if block.settings.role != blank -%}
+                    <p>{{ block.settings.role | escape }}</p>
+                  {%- endif -%}
+                </li>
+                {%- assign t_index = t_index | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <p class="ab-editor-hint">Add “Team member” blocks (up to 8).</p>
+        {%- endif -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============================ 7. TESTIMONIALS (blocks) ============================ {%- endcomment -%}
+  {%- if section.settings.show_testimonials and testimonial_count > 0 or section.settings.show_testimonials and request.design_mode -%}
+    <section
+      class="ab-part"
+      {% if section.settings.testimonials_heading != blank %}aria-labelledby="AboutQuotes-{{ uid }}"{% else %}aria-label="Testimonials"{% endif %}
+    >
+      <div class="ab-container">
+        <div class="ab-head ab-head--center ab-reveal">
+          {%- if section.settings.testimonials_eyebrow != blank -%}
+            <p class="ab-eyebrow">{{ section.settings.testimonials_eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.testimonials_heading != blank -%}
+            <h2 class="ab-h2" id="AboutQuotes-{{ uid }}">{{ section.settings.testimonials_heading | escape }}</h2>
+          {%- endif -%}
+        </div>
+
+        {%- if testimonial_count > 0 -%}
+          <ul class="ab-quotes" role="list" tabindex="0" aria-label="Customer testimonials, scroll horizontally on small screens">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'testimonial' -%}
+                {%- assign q_name = block.settings.author | default: 'Happy customer' -%}
+                <li class="ab-reveal" {{ block.shopify_attributes }}>
+                  <figure class="ab-quote">
+                    {%- if block.settings.rating > 0 -%}
+                      <div class="ab-stars" role="img" aria-label="Rated {{ block.settings.rating }} out of 5">
+                        {%- for i in (1..5) -%}
+                          <span class="{% if i > block.settings.rating %}is-off{% endif %}">{{ icon_star }}</span>
+                        {%- endfor -%}
+                      </div>
+                    {%- endif -%}
+                    <blockquote>
+                      <p style="margin:0;">“{{ block.settings.quote | default: 'Write a short customer quote here.' | escape }}”</p>
+                    </blockquote>
+                    <figcaption>
+                      <span class="ab-quote__avatar" aria-hidden="true">{{ q_name | slice: 0, 1 | upcase }}</span>
+                      <span>
+                        <cite>{{ q_name | escape }}</cite>
+                        {%- if block.settings.detail != blank -%}
+                          <small>{{ block.settings.detail | escape }}</small>
+                        {%- endif -%}
+                      </span>
+                    </figcaption>
+                  </figure>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <p class="ab-editor-hint">Add “Testimonial” blocks (up to 6).</p>
+        {%- endif -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============================ 8. CTA BANNER ============================ {%- endcomment -%}
+  {%- if section.settings.show_cta -%}
+    <section class="ab-part" aria-labelledby="AboutCta-{{ uid }}">
+      <div class="ab-container">
+        <div class="ab-cta ab-reveal{% if section.settings.cta_image != blank %} ab-cta--has-bg{% endif %}">
+          {%- if section.settings.cta_image != blank -%}
+            <div class="ab-cta__bg" aria-hidden="true">
+              {{-
+                section.settings.cta_image
+                | image_url: width: 1600
+                | image_tag: loading: 'lazy', widths: '800, 1200, 1600', sizes: '100vw', alt: ''
+              -}}
+            </div>
+          {%- endif -%}
+          <h2 id="AboutCta-{{ uid }}">{{ section.settings.cta_heading | default: 'Ready to get started?' | escape }}</h2>
+          {%- if section.settings.cta_text != blank -%}
+            <p>{{ section.settings.cta_text | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.cta_button_label != blank and section.settings.cta_button_link != blank -%}
+            <a class="ab-btn ab-btn--light" href="{{ section.settings.cta_button_link }}">
+              {{ section.settings.cta_button_label | escape }} {{ icon_arrow }}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+</div>
+
+{%- comment -%} ======================= SMALL VANILLA JS: reveal + counters ======================= {%- endcomment -%}
+<script>
+  (function () {
+    var root = document.getElementById('About-{{ uid }}');
+    if (!root || !('IntersectionObserver' in window)) return;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var designMode = {{ request.design_mode | json }};
+    if (reduce || designMode) return; // show everything instantly
+
+    root.classList.add('ab-js');
+
+    // 1) Reveal on scroll
+    var revealIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        revealIO.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    root.querySelectorAll('.ab-reveal').forEach(function (el) { revealIO.observe(el); });
+
+    // 2) Count-up numbers
+    if (root.dataset.animateStats !== 'true') return;
+
+    function format(value, decimals, grouped) {
+      if (grouped) {
+        return value.toLocaleString('en-IN', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      }
+      return value.toFixed(decimals);
+    }
+
+    function run(el) {
+      var target = parseFloat(el.dataset.countTo) || 0;
+      var decimals = parseInt(el.dataset.decimals, 10) || 0;
+      var grouped = el.dataset.grouped === 'true';
+      var duration = 1600;
+      var start = null;
+      function tick(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = format(target * eased, decimals, grouped);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    var countIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        run(entry.target);
+        countIO.unobserve(entry.target);
+      });
+    }, { threshold: 0.5 });
+    root.querySelectorAll('[data-count-to]').forEach(function (el) { countIO.observe(el); });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "About page",
+  "tag": "section",
+  "class": "section-about-page",
+  "enabled_on": { "templates": ["page"] },
+  "max_blocks": 24,
+  "settings": [
+    { "type": "header", "content": "Colors & spacing" },
+    { "type": "color", "id": "color_primary", "label": "Primary color", "default": "#7743e8" },
+    { "type": "color", "id": "color_secondary", "label": "Secondary color", "default": "#e33191" },
+    { "type": "color", "id": "color_text", "label": "Text color", "default": "#171717" },
+    { "type": "color", "id": "color_background", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "color_soft", "label": "Soft background (alternate parts)", "default": "#f6f2fe" },
+    { "type": "range", "id": "section_padding", "label": "Vertical spacing", "min": 40, "max": 140, "step": 4, "unit": "px", "default": 96 },
+
+    { "type": "header", "content": "1. Hero banner" },
+    { "type": "checkbox", "id": "show_hero", "label": "Show hero", "default": true },
+    { "type": "text", "id": "hero_eyebrow", "label": "Small label above heading", "default": "About WAGMART" },
+    { "type": "text", "id": "hero_heading", "label": "Heading", "default": "Made with love for every wagging tail", "info": "Falls back to the page title." },
+    { "type": "textarea", "id": "hero_subheading", "label": "Subheading", "default": "We’re a team of pet parents on a mission to make quality dog & cat essentials simple, safe and affordable — delivered across India." },
+    { "type": "image_picker", "id": "hero_image", "label": "Background image", "info": "Recommended 2400 × 1200px. Without an image a brand gradient is shown." },
+    { "type": "color", "id": "hero_overlay_color", "label": "Overlay color", "default": "#1a0b3d" },
+    { "type": "range", "id": "hero_overlay_opacity", "label": "Overlay opacity", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 45 },
+    {
+      "type": "select", "id": "hero_height", "label": "Height", "default": "medium",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ]
+    },
+    {
+      "type": "select", "id": "hero_align", "label": "Text alignment", "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ]
+    },
+    { "type": "text", "id": "hero_button_label", "label": "Button label", "default": "Shop essentials" },
+    { "type": "url", "id": "hero_button_link", "label": "Button link", "default": "/collections/all" },
+
+    { "type": "header", "content": "2. Our story" },
+    { "type": "checkbox", "id": "show_story", "label": "Show our story", "default": true },
+    { "type": "text", "id": "story_eyebrow", "label": "Small label", "default": "Our story" },
+    { "type": "text", "id": "story_heading", "label": "Heading", "default": "It all started with one very happy pup" },
+    { "type": "richtext", "id": "story_text", "label": "Our story text", "info": "If empty, the page’s own content (Admin › Pages) is shown.", "default": "<p>WAGMART began at home — with a curious pup, a fussy cat and a lot of products that just didn’t live up to their promises.</p><p>So we set out to do better: hand-picking grooming tools, feeders, toys and everyday essentials that we’d trust with our own pets. Today we’re proud to serve <strong>over 3 lakh happy pet parents</strong> across India.</p>" },
+    { "type": "image_picker", "id": "story_image", "label": "Image" },
+    {
+      "type": "select", "id": "story_image_position", "label": "Image position (desktop)", "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    { "type": "text", "id": "story_badge_number", "label": "Badge number", "default": "3L+", "info": "Leave empty to hide the badge." },
+    { "type": "text", "id": "story_badge_label", "label": "Badge label", "default": "Happy pet parents" },
+    { "type": "text", "id": "story_button_label", "label": "Button label" },
+    { "type": "url", "id": "story_button_link", "label": "Button link" },
+
+    { "type": "header", "content": "3. Mission & vision" },
+    { "type": "checkbox", "id": "show_mission_vision", "label": "Show mission & vision", "default": true },
+    { "type": "text", "id": "mv_heading", "label": "Heading", "default": "What drives us" },
+    { "type": "text", "id": "mission_title", "label": "Mission title", "default": "Our Mission" },
+    { "type": "textarea", "id": "mission_text", "label": "Mission text", "default": "To bring thoughtfully chosen, pet-safe essentials to every home in India — at honest prices, with care that goes beyond the checkout." },
+    {
+      "type": "select", "id": "mission_icon", "label": "Mission icon", "default": "target",
+      "options": [
+        { "value": "target", "label": "Target" },
+        { "value": "eye", "label": "Eye" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "star", "label": "Star" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "paw", "label": "Paw" }
+      ]
+    },
+    { "type": "image_picker", "id": "mission_image", "label": "Mission image (replaces icon)" },
+    { "type": "text", "id": "vision_title", "label": "Vision title", "default": "Our Vision" },
+    { "type": "textarea", "id": "vision_text", "label": "Vision text", "default": "A world where every pet is healthy, happy and truly part of the family — and every pet parent has a brand they can trust." },
+    {
+      "type": "select", "id": "vision_icon", "label": "Vision icon", "default": "eye",
+      "options": [
+        { "value": "target", "label": "Target" },
+        { "value": "eye", "label": "Eye" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "star", "label": "Star" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "paw", "label": "Paw" }
+      ]
+    },
+    { "type": "image_picker", "id": "vision_image", "label": "Vision image (replaces icon)" },
+
+    { "type": "header", "content": "4. Why choose us" },
+    { "type": "checkbox", "id": "show_values", "label": "Show values", "default": true },
+    { "type": "text", "id": "values_eyebrow", "label": "Small label", "default": "Why pet parents choose us" },
+    { "type": "text", "id": "values_heading", "label": "Heading", "default": "Little things that make a big difference" },
+    { "type": "textarea", "id": "values_subheading", "label": "Subheading" },
+    {
+      "type": "select", "id": "values_columns", "label": "Columns (desktop)", "default": "3",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" }
+      ]
+    },
+    { "type": "paragraph", "content": "Add up to 6 “Value” blocks." },
+
+    { "type": "header", "content": "5. Stats" },
+    { "type": "checkbox", "id": "show_stats", "label": "Show stats", "default": true },
+    { "type": "text", "id": "stats_heading", "label": "Heading" },
+    { "type": "checkbox", "id": "stats_animate", "label": "Animate numbers (count up)", "default": true },
+    { "type": "paragraph", "content": "Add up to 4 “Stat” blocks." },
+
+    { "type": "header", "content": "6. Team" },
+    { "type": "checkbox", "id": "show_team", "label": "Show team", "default": true },
+    { "type": "text", "id": "team_eyebrow", "label": "Small label", "default": "The pack" },
+    { "type": "text", "id": "team_heading", "label": "Heading", "default": "Meet the humans behind WAGMART" },
+    { "type": "textarea", "id": "team_subheading", "label": "Subheading", "default": "Pet parents, product nerds and customer-care heroes — all working to make your pet’s day better." },
+    { "type": "paragraph", "content": "Add up to 8 “Team member” blocks." },
+
+    { "type": "header", "content": "7. Testimonials" },
+    { "type": "checkbox", "id": "show_testimonials", "label": "Show testimonials", "default": false },
+    { "type": "text", "id": "testimonials_eyebrow", "label": "Small label", "default": "Loved by pet parents" },
+    { "type": "text", "id": "testimonials_heading", "label": "Heading", "default": "What our community says" },
+    { "type": "paragraph", "content": "Add up to 6 “Testimonial” blocks. Use real customer reviews only." },
+
+    { "type": "header", "content": "8. Call to action" },
+    { "type": "checkbox", "id": "show_cta", "label": "Show call to action", "default": true },
+    { "type": "text", "id": "cta_heading", "label": "Heading", "default": "Ready to spoil your best friend?" },
+    { "type": "textarea", "id": "cta_text", "label": "Text", "default": "Explore pet-safe essentials loved by over 3 lakh pet parents across India." },
+    { "type": "text", "id": "cta_button_label", "label": "Button label", "default": "Shop all products" },
+    { "type": "url", "id": "cta_button_link", "label": "Button link", "default": "/collections/all" },
+    { "type": "image_picker", "id": "cta_image", "label": "Background image (optional)" }
+  ],
+  "blocks": [
+    {
+      "type": "value",
+      "name": "Value",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "select", "id": "icon", "label": "Icon", "default": "paw",
+          "options": [
+            { "value": "paw", "label": "Paw" },
+            { "value": "shield", "label": "Shield / safe" },
+            { "value": "truck", "label": "Delivery truck" },
+            { "value": "tag", "label": "Price tag" },
+            { "value": "heart", "label": "Heart" },
+            { "value": "support", "label": "Support headset" },
+            { "value": "leaf", "label": "Leaf / natural" },
+            { "value": "award", "label": "Award" },
+            { "value": "smile", "label": "Smile" },
+            { "value": "star", "label": "Star" }
+          ]
+        },
+        { "type": "image_picker", "id": "image", "label": "Custom icon image (replaces icon)" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Pet-safe quality" },
+        { "type": "textarea", "id": "text", "label": "Description", "default": "Every product is hand-picked and checked for safety, comfort and durability." }
+      ]
+    },
+    {
+      "type": "stat",
+      "name": "Stat",
+      "limit": 4,
+      "settings": [
+        { "type": "text", "id": "prefix", "label": "Prefix", "info": "e.g. ₹" },
+        { "type": "text", "id": "number", "label": "Number", "default": "300000", "info": "Digits only, e.g. 300000, 3,00,000 or 4.8" },
+        { "type": "text", "id": "suffix", "label": "Suffix", "default": "+", "info": "e.g. +, %, /5" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Happy pet parents" }
+      ]
+    },
+    {
+      "type": "team",
+      "name": "Team member",
+      "limit": 8,
+      "settings": [
+        { "type": "image_picker", "id": "photo", "label": "Photo", "info": "Square image works best. Initials are shown if empty." },
+        { "type": "text", "id": "name", "label": "Name", "default": "Team member" },
+        { "type": "text", "id": "role", "label": "Role", "default": "Role / title" },
+        {
+          "type": "select", "id": "social_platform", "label": "Social platform", "default": "instagram",
+          "options": [
+            { "value": "instagram", "label": "Instagram" },
+            { "value": "linkedin", "label": "LinkedIn" },
+            { "value": "facebook", "label": "Facebook" },
+            { "value": "x", "label": "X (Twitter)" },
+            { "value": "website", "label": "Website" }
+          ]
+        },
+        { "type": "url", "id": "social_link", "label": "Social link" }
+      ]
+    },
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "limit": 6,
+      "settings": [
+        { "type": "textarea", "id": "quote", "label": "Quote", "default": "Write a short, real customer quote here." },
+        { "type": "text", "id": "author", "label": "Customer name", "default": "Customer name" },
+        { "type": "text", "id": "detail", "label": "Detail (optional)", "default": "Verified buyer" },
+        { "type": "range", "id": "rating", "label": "Star rating (0 hides stars)", "min": 0, "max": 5, "step": 1, "default": 5 }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "About page",
+      "blocks": [
+        { "type": "value", "settings": { "icon": "shield", "title": "Pet-safe quality", "text": "Every product is hand-picked and checked for safety, comfort and durability." } },
+        { "type": "value", "settings": { "icon": "truck", "title": "Fast, reliable delivery", "text": "Quick dispatch and tracked shipping to pet parents all over India." } },
+        { "type": "value", "settings": { "icon": "tag", "title": "Honest pricing", "text": "Premium essentials without the premium markup — great value, always." } },
+        { "type": "stat", "settings": { "number": "300000", "suffix": "+", "label": "Happy pet parents" } },
+        { "type": "stat", "settings": { "number": "100", "suffix": "+", "label": "Curated products" } },
+        { "type": "team", "settings": { "name": "Founder name", "role": "Founder & CEO" } },
+        { "type": "team", "settings": { "name": "Team member", "role": "Customer care" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

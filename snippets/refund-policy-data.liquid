@@ -1,0 +1,234 @@
+{% comment %}
+  Wagmart Refund & Returns Policy Data Snippet
+  - Tailored to Wagmart Pet Care & Pet Supplies store context
+  - Uses Wagmart brand font (Nunito)
+  - Modular data file rendered by sections/main-refund-policy.liquid
+{% endcomment %}
+
+<style>
+  .wagmart-refund-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (min-width: 768px) {
+    .wagmart-refund-sections {
+      gap: 36px;
+    }
+  }
+
+  .wagmart-refund-heading {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 22px;
+    line-height: 1.28;
+    font-weight: 700;
+    color: #111514;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  @media (min-width: 768px) {
+    .wagmart-refund-heading {
+      font-size: 26px;
+      line-height: 1.25;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-refund-heading {
+      font-size: 30px;
+      line-height: 1.25;
+    }
+  }
+
+  .wagmart-refund-text {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 25px;
+    font-weight: 500;
+    color: #4C4D4D;
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+  @media (min-width: 768px) {
+    .wagmart-refund-text {
+      font-size: 16.5px;
+      line-height: 27px;
+      margin-top: 12px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-refund-text {
+      font-size: 17.5px;
+      line-height: 28px;
+    }
+  }
+
+  .wagmart-refund-bullets {
+    list-style-type: disc !important;
+    padding-left: 22px !important;
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+  }
+  .wagmart-refund-bullets li {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 25px;
+    font-weight: 500;
+    color: #4C4D4D;
+    margin-top: 6px;
+  }
+  @media (min-width: 768px) {
+    .wagmart-refund-bullets li {
+      font-size: 16.5px;
+      line-height: 27px;
+      margin-top: 8px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-refund-bullets li {
+      font-size: 17.5px;
+      line-height: 28px;
+    }
+  }
+  .wagmart-refund-bullets li::marker {
+    color: #7a46e5;
+    font-size: 0.9em;
+  }
+  .wagmart-refund-link {
+    color: #7a46e5;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+  }
+  .wagmart-refund-link:hover {
+    color: #6332c9;
+  }
+</style>
+
+<div class="wagmart-refund-sections">
+
+  {% comment %} Introduction {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">Introduction &amp; Guarantee</h2>
+    <p class="wagmart-refund-text">
+      At Wagmart, we want both you and your pets to be 100% happy with your purchase. We understand that sometimes a pet collar might not fit, a toy may not be your dog's favorite, or a product might arrive damaged. This Refund &amp; Return Policy outlines our clear, straightforward guidelines on return windows, product condition criteria, exchange procedures, and refund processing.
+    </p>
+  </div>
+
+  {% comment %} 1. 7-Day Return Window {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">1. Return Window</h2>
+    <p class="wagmart-refund-text">
+      We offer a hassle-free <strong>7-day return policy</strong> from the date of product delivery. To qualify for a return or replacement:
+    </p>
+    <ul class="wagmart-refund-bullets">
+      <li>The return request must be initiated within 7 calendar days of delivery.</li>
+      <li>Items must be unused, in pristine condition, free of pet hair, odor, or bite marks.</li>
+      <li>All original tags, labels, brand packaging, and warranty cards must be intact.</li>
+      <li>Proof of purchase (order confirmation email or invoice) must be provided.</li>
+    </ul>
+  </div>
+
+  {% comment %} 2. Eligible Products for Return {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">2. Eligible Products</h2>
+    <p class="wagmart-refund-text">
+      The following pet supplies are eligible for return, exchange, or refund if all condition criteria are met:
+    </p>
+    <ul class="wagmart-refund-bullets">
+      <li>Pet Collars, Harnesses &amp; Leashes (unworn and with original tags).</li>
+      <li>Feeding Bowls, Automatic Dispensers &amp; Water Fountains (unopened or unused).</li>
+      <li>Grooming Brushes, Combs &amp; Nail Trimmers (unopened in sealed blister packaging).</li>
+      <li>Pet Travel Carriers, Crates &amp; Car Seat Covers.</li>
+      <li>Unused Pet Toys &amp; Interactive Play Accessories.</li>
+    </ul>
+  </div>
+
+  {% comment %} 3. Non-Returnable & Hygiene Items {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">3. Non-Returnable Items</h2>
+    <p class="wagmart-refund-text">
+      To protect the health, hygiene, and safety of all our furry customers, the following categories cannot be returned or refunded once opened:
+    </p>
+    <ul class="wagmart-refund-bullets">
+      <li>Pet Food, Treats, Chews &amp; Nutritional Supplements (due to health &amp; safety regulations).</li>
+      <li>Opened Shampoos, Conditioners, Wipes, Sprays &amp; Tick/Flea Treatments.</li>
+      <li>Used Pet Litter, Pee Pads &amp; Waste Bags.</li>
+      <li>Personalized or Custom-Engraved Pet ID Tags and Custom Apparel.</li>
+      <li>Clearance or Final Sale items explicitly marked as non-returnable.</li>
+    </ul>
+  </div>
+
+  {% comment %} 4. Damaged, Defective, or Incorrect Items {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">4. Damaged or Incorrect Items</h2>
+    <p class="wagmart-refund-text">
+      If you receive a package that was damaged in transit, contains a manufacturer defect, or is not what you ordered:
+    </p>
+    <ul class="wagmart-refund-bullets">
+      <li>Please report the issue within <strong>48 hours</strong> of delivery.</li>
+      <li>Share your Order ID and clear photos or a short video showing the damaged/defective product and outer courier box.</li>
+      <li>Our pet care team will arrange an immediate, free replacement or full refund including shipping charges.</li>
+    </ul>
+  </div>
+
+  {% comment %} 5. How to Initiate a Return {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">5. How to Request a Return</h2>
+    <p class="wagmart-refund-text">
+      Starting a return is simple and pet-parent friendly:
+    </p>
+    <ul class="wagmart-refund-bullets">
+      <li>Email us at <a href="mailto:support@wagmart.com" class="wagmart-refund-link">support@wagmart.com</a> or WhatsApp/Call us at <a href="tel:+917777985896" class="wagmart-refund-link">+91 77779 85896</a>.</li>
+      <li>Provide your Order ID, item(s) you wish to return, and reason for return.</li>
+      <li>Once approved, our courier partner will schedule a doorstep reverse pickup from your delivery address.</li>
+      <li>Please pack the item securely in its original packaging with all accessories included.</li>
+    </ul>
+  </div>
+
+  {% comment %} 6. Refund Process & Timelines {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">6. Refund Timelines &amp; Methods</h2>
+    <p class="wagmart-refund-text">
+      Once our warehouse team receives and inspects the returned pet item:
+    </p>
+    <ul class="wagmart-refund-bullets">
+      <li><strong>Inspection:</strong> Handled within 24 to 48 hours of warehouse arrival.</li>
+      <li><strong>Online Payments (UPI, Cards, Net Banking):</strong> Refunds are credited back to the original source payment method within <strong>5 to 7 business days</strong>.</li>
+      <li><strong>Cash on Delivery (COD) Orders:</strong> Refunds are transferred via direct Bank NEFT / IMPS or UPI after collecting your verified account details.</li>
+      <li>You will receive an automated confirmation email and SMS once the refund is dispatched.</li>
+    </ul>
+  </div>
+
+  {% comment %} 7. Size Exchanges for Pets {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">7. Size Exchanges</h2>
+    <p class="wagmart-refund-text">
+      Did the collar, harness, or pet jacket turn out too tight or loose? We offer <strong>free one-time size exchanges</strong> for unworn wearables! Just get in touch with our team with your pet's measurements and we will deliver the correct size directly to your doorstep.
+    </p>
+  </div>
+
+  {% comment %} 8. Order Cancellations {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">8. Order Cancellations</h2>
+    <p class="wagmart-refund-text">
+      You can cancel your order at any time before it has been dispatched from our Surat fulfillment hub. Once an order is handed over to our courier partners, it cannot be canceled in transit, but you may refuse delivery or request a return once delivered.
+    </p>
+  </div>
+
+  {% comment %} 9. Contact Us for Returns {% endcomment %}
+  <div class="wagmart-refund-block">
+    <h2 class="wagmart-refund-heading">9. Contact Customer Care</h2>
+    <p class="wagmart-refund-text">
+      Have questions or need assistance with your return? Our pet care support team is here to help:
+    </p>
+    <ul class="wagmart-refund-bullets">
+      <li><strong>Email:</strong> <a href="mailto:support@wagmart.com" class="wagmart-refund-link">support@wagmart.com</a></li>
+      <li><strong>Phone / WhatsApp:</strong> <a href="tel:+917777985896" class="wagmart-refund-link">+91 77779 85896</a> (Mon – Sat: 9:00 AM – 7:00 PM IST)</li>
+      <li><strong>Address:</strong> Shop No. 312, 3rd Floor, Shivalik Complex, Opposite Heny Heights, Near Dabholi Gam BRTS Bus Stop, Dabholi Gam Road, Katargam, Surat, Gujarat, 395004</li>
+      <li><strong>Online:</strong> Reach us via our <a href="{{ routes.root_url }}pages/contact" class="wagmart-refund-link">Contact Page</a>.</li>
+    </ul>
+  </div>
+
+</div>

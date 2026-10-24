@@ -1,157 +1,378 @@
-{% comment %}
-  Wagmart Header Section
-{% endcomment %}
+{%- comment -%}
+  WAGMART Header
+  - Desktop (≥1100px): Bestsellers ▾ | All Products | Blog | Contact — centred logo — Search / Account / Cart
+  - Tablet & mobile: Menu — centred logo — Search / (Account ≥768px) / Cart, with a slide-in navigation drawer
+  - Bestsellers carousel, account popover, search panel and cart drawer are wired up in assets/header.js
+{%- endcomment -%}
 
-<header class="sticky top-0 z-50 w-full transition-all">
-  <div class="w-full bg-white/95 backdrop-blur-md border-b border-[#EAECEF] transition-colors">
-    <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
-      
-      {% comment %} ==================== LEFT SECTION ==================== {% endcomment %}
-      <div class="flex-1 flex items-center justify-start">
-        {% comment %} Desktop Navigation Links {% endcomment %}
-        <nav class="hidden lg:flex items-center gap-6 xl:gap-8" aria-label="Main Navigation">
-          {%- if section.settings.menu != blank -%}
-            {%- for link in section.settings.menu.links -%}
-              <a
-                href="{{ link.url }}"
-                class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors {% if link.current %}text-[#7a46e5]{% endif %}"
+{%- liquid
+  assign blog_url = section.settings.blog_url
+  if blog_url == blank
+    if blogs.news.id != blank
+      assign blog_url = blogs.news.url
+    elsif blogs.blog.id != blank
+      assign blog_url = blogs.blog.url
+    endif
+  endif
+
+  assign contact_url = section.settings.contact_url
+  if contact_url == blank
+    if pages['contact'].id != blank
+      assign contact_url = pages['contact'].url
+    elsif pages['contact-us'].id != blank
+      assign contact_url = pages['contact-us'].url
+    endif
+  endif
+
+  assign about_url = section.settings.about_url
+  if about_url == blank
+    if pages['about'].id != blank
+      assign about_url = pages['about'].url
+    elsif pages['about-us'].id != blank
+      assign about_url = pages['about-us'].url
+    else
+      assign about_url = '/pages/about-us'
+    endif
+  endif
+
+  assign accounts_legacy = false
+  if routes.account_login_url contains '/account/login'
+    assign accounts_legacy = true
+  endif
+
+  assign account_menu_handle = section.settings.customer_account_menu.handle | default: 'customer-account-main-menu'
+  assign best_limit = section.settings.bestsellers_limit | default: 10
+  assign all_products_current = false
+  if request.path == routes.all_products_collection_url
+    assign all_products_current = true
+  endif
+-%}
+
+{%- capture logo_markup -%}
+  {%- if section.settings.logo != blank -%}
+    {{-
+      section.settings.logo
+      | image_url: width: 560
+      | image_tag:
+        alt: shop.name,
+        widths: '180, 280, 400, 560',
+        sizes: '180px',
+        loading: 'eager',
+        fetchpriority: 'high'
+    -}}
+  {%- else -%}
+    <img
+      src="{{ 'wagmart-logo-header.webp' | asset_url }}"
+      alt="{{ shop.name | default: 'WAGMART' | escape }}"
+      width="520"
+      height="176"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    >
+  {%- endif -%}
+{%- endcapture -%}
+
+<a class="wm-skip-link" href="#MainContent">Skip to content</a>
+
+<header class="wm-header" data-wm-header>
+  <div class="wm-header__shell" data-header-shell>
+    <div class="wm-header__bar">
+
+      {%- comment -%} ============ START: menu button (mobile) + primary nav (desktop) ============ {%- endcomment -%}
+      <div class="wm-header__start">
+        <button
+          type="button"
+          class="wm-icon-btn wm-only-mobile"
+          data-drawer-open
+          aria-controls="WmMobileDrawer"
+          aria-expanded="false"
+          aria-label="Open menu"
+        >
+          {% render 'wm-icon', name: 'menu' %}
+        </button>
+
+        <nav class="wm-nav" aria-label="Main">
+          <ul class="wm-nav__list">
+            <li>
+              <button
+                type="button"
+                class="wm-nav__link"
+                id="WmTriggerBest"
+                data-panel-trigger="bestsellers"
+                aria-expanded="false"
+                aria-controls="WmPanelBest"
               >
-                {{ link.title }}
-                {% if link.current %}
-                  <span class="absolute bottom-0 left-0 w-full h-[2px] bg-[#7a46e5] rounded-full"></span>
-                {% endif %}
-              </a>
-            {%- endfor -%}
-          {%- else -%}
-            <a href="#about" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">about</a>
-            <a href="#shop" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">product</a>
-            <a href="#blog" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">blog</a>
-            <a href="#contact" class="relative py-1 text-sm font-bold tracking-wide text-[#1F2937] hover:text-[#7a46e5] transition-colors">contact us</a>
-          {%- endif -%}
+                Bestsellers {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
+              </button>
+            </li>
+            <li>
+              <a class="wm-nav__link" data-nav-plain href="{{ routes.all_products_collection_url }}"{% if all_products_current %} aria-current="page"{% endif %}>All Products</a>
+            </li>
+            <li>
+              <a class="wm-nav__link" data-nav-plain href="{{ about_url }}"{% if request.path == about_url %} aria-current="page"{% endif %}>About</a>
+            </li>
+            <li>
+              {%- if blog_url != blank -%}
+                <a class="wm-nav__link" data-nav-plain href="{{ blog_url }}"{% if request.path contains blog_url %} aria-current="page"{% endif %}>Blog</a>
+              {%- else -%}
+                <span class="wm-nav__link is-placeholder" data-nav-plain aria-disabled="true" title="Create a blog or set the link in the header settings">Blog</span>
+              {%- endif -%}
+            </li>
+            <li>
+              {%- if contact_url != blank -%}
+                <a class="wm-nav__link" data-nav-plain href="{{ contact_url }}"{% if request.path == contact_url %} aria-current="page"{% endif %}>Contact</a>
+              {%- else -%}
+                <span class="wm-nav__link is-placeholder" data-nav-plain aria-disabled="true" title="Create a Contact page or set the link in the header settings">Contact</span>
+              {%- endif -%}
+            </li>
+          </ul>
         </nav>
-
-        {% comment %} Mobile & Tablet: Hamburger Menu Button {% endcomment %}
-        <button
-          type="button"
-          data-mobile-menu-toggle
-          aria-label="Toggle navigation menu"
-          class="lg:hidden p-2 text-[#1F2937] hover:text-[#7a46e5] flex items-center justify-center transition-colors active:scale-95 cursor-pointer"
-        >
-          {% render 'icon-menu', class: 'w-6 h-6' %}
-        </button>
       </div>
 
-      {% comment %} ==================== CENTER SECTION: LOGO ==================== {% endcomment %}
-      <div class="flex items-center justify-center shrink-0">
-        <a href="{{ routes.root_url }}" class="flex items-center group" aria-label="Wagmart Home">
-          {%- if section.settings.logo != blank -%}
-            <img
-              src="{{ section.settings.logo | image_url: width: 300 }}"
-              alt="{{ shop.name }}"
-              class="h-9 sm:h-10 md:h-11 w-auto object-contain transition-transform group-hover:scale-105"
-              width="{{ section.settings.logo.width }}"
-              height="{{ section.settings.logo.height }}"
-            >
-          {%- else -%}
-            <img
-              src="{{ 'WAGMART-Logo.webp' | asset_url }}"
-              alt="Wagmart Logo"
-              class="h-9 sm:h-10 md:h-11 w-auto object-contain transition-transform group-hover:scale-105"
-              width="180"
-              height="44"
-            >
-          {%- endif -%}
-        </a>
-      </div>
+      {%- comment -%} ============ CENTER: original WAGMART logo ============ {%- endcomment -%}
+      <a href="{{ routes.root_url }}" class="wm-header__logo" aria-label="{{ shop.name | escape }} — home" data-nav-plain>
+        {{ logo_markup }}
+      </a>
 
-      {% comment %} ==================== RIGHT SECTION: ACTIONS ==================== {% endcomment %}
-      <div class="flex-1 flex items-center justify-end gap-3 sm:gap-4">
-        {% comment %} Search Trigger Button {% endcomment %}
+      {%- comment -%} ============ END: search, account, cart ============ {%- endcomment -%}
+      <div class="wm-header__end">
         <button
           type="button"
-          data-open-search
-          aria-label="Search catalog"
-          class="p-2 text-[#1F2937] hover:text-[#7a46e5] transition-colors active:scale-95 cursor-pointer"
+          class="wm-icon-btn"
+          data-search-open
+          aria-controls="WmSearch"
+          aria-expanded="false"
+          aria-haspopup="dialog"
+          aria-label="Search products"
         >
-          {% render 'icon-search', class: 'w-5 h-5 stroke-[1.8]' %}
+          {% render 'wm-icon', name: 'search' %}
         </button>
 
-        {% comment %} Desktop: Wishlist Icon Button {% endcomment %}
-        <button
-          type="button"
-          data-open-wishlist
-          aria-label="View wishlist"
-          class="hidden lg:flex relative p-2 text-[#1F2937] hover:text-[#7a46e5] transition-colors active:scale-95 cursor-pointer"
-        >
-          {% render 'icon-heart', class: 'w-6 h-6 stroke-[1.8]' %}
-          <span class="hidden absolute top-0.5 right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs" data-wishlist-count>0</span>
-        </button>
+        {%- if shop.customer_accounts_enabled -%}
+          <div class="wm-account" data-account>
+            {%- comment -%}
+              Shopify's own account component (passwordless email, Shop and social sign-in).
+              It is controlled and secured by Shopify. If it is not available (e.g. local preview),
+              the accessible fallback popover below is used instead.
+            {%- endcomment -%}
+            <shopify-account class="wm-account__component" menu="{{ account_menu_handle }}">
+              <span slot="signed-out-avatar" class="wm-account__slot">
+                {% render 'wm-icon', name: 'user' %}
+                <span class="wm-sr-only">Account</span>
+              </span>
+            </shopify-account>
 
-        {% comment %} Shopping Cart Button {% endcomment %}
+            <button
+              type="button"
+              class="wm-icon-btn wm-account__fallback"
+              data-account-toggle
+              aria-controls="WmAccountPop"
+              aria-expanded="false"
+              aria-haspopup="dialog"
+              aria-label="{% if customer %}Your account{% else %}Sign in or create account{% endif %}"
+            >
+              {% render 'wm-icon', name: 'user' %}
+            </button>
+
+            <div
+              class="wm-account-pop"
+              id="WmAccountPop"
+              role="dialog"
+              aria-modal="false"
+              aria-labelledby="WmAccountTitle"
+              aria-hidden="true"
+              data-account-pop
+            >
+              <div class="wm-account-pop__head">
+                <h2 class="wm-account-pop__title" id="WmAccountTitle">
+                  {%- if customer -%}
+                    Hi{% if customer.first_name != blank %}, {{ customer.first_name | escape }}{% endif %}
+                  {%- else -%}
+                    Sign in or create account
+                  {%- endif -%}
+                </h2>
+                <button type="button" class="wm-close-btn" data-account-close aria-label="Close account panel">
+                  {% render 'wm-icon', name: 'close', class: 'wm-icon wm-icon--sm', stroke: 2 %}
+                </button>
+              </div>
+
+              {%- if customer -%}
+                <div class="wm-account-pop__stack">
+                  <a class="wm-btn wm-btn--outline" href="{{ routes.account_logout_url }}">
+                    {% render 'wm-icon', name: 'log-out', class: 'wm-icon wm-icon--sm' %}
+                    <span class="wm-btn__label">Sign out</span>
+                  </a>
+                </div>
+              {%- elsif accounts_legacy -%}
+                {%- form 'customer_login', novalidate: 'novalidate', class: 'wm-login', data-login-form: '' -%}
+                  <div class="wm-field">
+                    <label class="wm-sr-only" for="WmLoginEmail">Email</label>
+                    <input
+                      class="wm-field__input"
+                      type="email"
+                      id="WmLoginEmail"
+                      name="customer[email]"
+                      autocomplete="email"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      placeholder="Email"
+                      required
+                      aria-describedby="WmLoginError"
+                      data-login-email
+                    >
+                    <button type="submit" class="wm-field__submit" aria-label="Continue with email" data-login-continue>
+                      {% render 'wm-icon', name: 'arrow-right', class: 'wm-icon wm-icon--sm', stroke: 1.75 %}
+                    </button>
+                  </div>
+                  <div class="wm-field" data-login-password-row hidden>
+                    <label class="wm-sr-only" for="WmLoginPassword">Password</label>
+                    <input
+                      class="wm-field__input"
+                      type="password"
+                      id="WmLoginPassword"
+                      name="customer[password]"
+                      autocomplete="current-password"
+                      placeholder="Password"
+                      aria-describedby="WmLoginError"
+                      data-login-password
+                    >
+                  </div>
+                  <p class="wm-error" id="WmLoginError" role="alert" aria-live="polite" data-login-error>
+                    {%- if form.errors -%}{{ form.errors.messages['form'] | default: 'Incorrect email or password.' }}{%- endif -%}
+                  </p>
+                  <div class="wm-account-pop__stack" style="margin-top: 12px;">
+                    <button type="submit" class="wm-btn wm-btn--primary" data-login-submit hidden>
+                      <span class="wm-btn__label">Sign in</span>
+                    </button>
+                  </div>
+                {%- endform -%}
+                <div class="wm-divider">or</div>
+                <a class="wm-btn wm-btn--outline" href="{{ routes.account_register_url }}">
+                  <span class="wm-btn__label">Create account</span>
+                </a>
+              {%- else -%}
+                <div class="wm-account-pop__stack">
+                  <a class="wm-btn wm-btn--primary" href="{{ routes.account_login_url }}" data-account-link>
+                    <span class="wm-btn__label">Continue with email</span>
+                    {% render 'wm-icon', name: 'arrow-right', class: 'wm-icon wm-icon--sm', stroke: 1.75 %}
+                  </a>
+                  <a class="wm-btn wm-btn--outline" href="{{ routes.account_register_url }}" data-account-link>
+                    <span class="wm-btn__label">Create account</span>
+                  </a>
+                </div>
+                <p class="wm-account-pop__hint">Secure, passwordless sign-in powered by Shopify — we’ll email you a one-time code.</p>
+              {%- endif -%}
+
+              <div class="wm-account-pop__grid">
+                <a class="wm-btn wm-btn--outline" href="{{ routes.account_url }}">
+                  {% render 'wm-icon', name: 'package', class: 'wm-icon wm-icon--sm' %}
+                  <span class="wm-btn__label">Orders</span>
+                </a>
+                <a class="wm-btn wm-btn--outline" href="{% if accounts_legacy %}{{ routes.account_addresses_url }}{% else %}{{ routes.account_url }}{% endif %}">
+                  {% render 'wm-icon', name: 'user-circle', class: 'wm-icon wm-icon--sm' %}
+                  <span class="wm-btn__label">Profile</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+
         <button
           type="button"
+          class="wm-icon-btn"
           data-open-cart
-          aria-label="View shopping cart"
-          class="relative p-2 text-[#1F2937] hover:text-[#7a46e5] transition-colors active:scale-95 cursor-pointer"
+          aria-controls="cart-drawer"
+          aria-expanded="false"
+          aria-haspopup="dialog"
+          aria-label="Open cart"
         >
-          {% render 'icon-bag', class: 'w-6 h-6 stroke-[1.8]' %}
-          <span class="{% if cart.item_count == 0 %}hidden{% endif %} absolute top-0.5 right-0.5 bg-[#7a46e5] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs" data-cart-count>{{ cart.item_count }}</span>
+          {% render 'wm-icon', name: 'bag' %}
+          <span class="wm-badge{% if cart.item_count == 0 %} hidden{% endif %}" data-cart-count aria-hidden="true">{{ cart.item_count }}</span>
+          <span class="wm-sr-only" data-cart-count-label>{{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %} in cart</span>
         </button>
       </div>
+    </div>
 
+    {%- comment -%} ============ DESKTOP DROPDOWN PANELS ============ {%- endcomment -%}
+    <div class="wm-panel" id="WmPanelBest" data-panel="bestsellers" aria-labelledby="WmTriggerBest">
+      <div class="wm-panel__inner">
+        {% render 'header-bestsellers',
+          layout: 'desktop',
+          source_collection: section.settings.bestsellers_collection,
+          limit: best_limit,
+          show_preview: section.settings.show_catalog_preview,
+          id_prefix: 'WmBest'
+        %}
+      </div>
     </div>
   </div>
 
-  {% comment %} Mobile & Tablet Slide-Down Drawer {% endcomment %}
-  <div id="mobile-menu-drawer" class="hidden lg:hidden bg-white border-b border-[#EAECEF] px-6 py-6 space-y-4 shadow-xl">
-    <nav class="flex flex-col space-y-2.5">
-      {%- if section.settings.menu != blank -%}
-        {%- for link in section.settings.menu.links -%}
-          <a
-            href="{{ link.url }}"
-            class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5] flex items-center justify-between"
-          >
-            <span>{{ link.title }}</span>
-          </a>
-        {%- endfor -%}
-      {%- else -%}
-        <a href="#about" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">about</a>
-        <a href="#shop" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">product</a>
-        <a href="#blog" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">blog</a>
-        <a href="#contact" class="py-2 text-base font-bold tracking-wide border-b border-[#EAECEF] text-[#1F2937] hover:text-[#7a46e5]">contact us</a>
-      {%- endif -%}
-    </nav>
+  {%- comment -%} ============ MOBILE / TABLET NAVIGATION DRAWER ============ {%- endcomment -%}
+  <div class="wm-drawer" id="WmMobileDrawer" data-drawer aria-hidden="true">
+    <div class="wm-backdrop" data-drawer-close></div>
+    <div class="wm-drawer__panel" role="dialog" aria-modal="true" aria-label="Menu" tabindex="-1">
+      <div class="wm-drawer__head">
+        <a href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }} — home">{{ logo_markup }}</a>
+        <button type="button" class="wm-close-btn" data-drawer-close aria-label="Close menu">
+          {% render 'wm-icon', name: 'close', class: 'wm-icon wm-icon--sm', stroke: 2 %}
+        </button>
+      </div>
 
-    <div class="pt-2 flex flex-col gap-2.5">
-      <button
-        type="button"
-        data-open-wishlist
-        class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-[#EAECEF] text-[#1F2937] font-bold text-sm hover:bg-[#FAF8F5] transition-colors"
-      >
-        <div class="flex items-center gap-2">
-          {% render 'icon-heart', class: 'w-4 h-4' %}
-          <span>My Wishlist</span>
-        </div>
-        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full" data-wishlist-count>0</span>
-      </button>
-
-      <button
-        type="button"
-        data-open-search
-        class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#FAF4E6] rounded-xl text-sm font-bold text-[#2e1a47] border border-[#2e1a47]/10"
-      >
-        {% render 'icon-search', class: 'w-4 h-4' %}
-        <span>Search Catalog</span>
-      </button>
+      <div class="wm-drawer__body">
+        <ul class="wm-mnav">
+          <li>
+            <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>
+              <span>Bestsellers</span>
+              {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
+            </button>
+            <div class="wm-acc" id="WmMBest">
+              <div class="wm-acc__inner">
+                <div class="wm-acc__content">
+                  {% render 'header-bestsellers',
+                    layout: 'mobile',
+                    source_collection: section.settings.bestsellers_collection,
+                    limit: best_limit,
+                    show_preview: section.settings.show_catalog_preview,
+                    id_prefix: 'WmMBestC'
+                  %}
+                </div>
+              </div>
+            </div>
+          </li>
+          <li><a class="wm-mnav__link" href="{{ routes.all_products_collection_url }}">All Products</a></li>
+          <li><a class="wm-mnav__link" href="{{ about_url }}">About</a></li>
+          <li>
+            {%- if blog_url != blank -%}
+              <a class="wm-mnav__link" href="{{ blog_url }}">Blog</a>
+            {%- else -%}
+              <span class="wm-mnav__link is-placeholder" aria-disabled="true">Blog <span class="wm-soon">Soon</span></span>
+            {%- endif -%}
+          </li>
+          <li>
+            {%- if contact_url != blank -%}
+              <a class="wm-mnav__link" href="{{ contact_url }}">Contact</a>
+            {%- else -%}
+              <span class="wm-mnav__link is-placeholder" aria-disabled="true">Contact <span class="wm-soon">Soon</span></span>
+            {%- endif -%}
+          </li>
+          {%- if shop.customer_accounts_enabled -%}
+            <li>
+              <a class="wm-mnav__link" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}">
+                <span>{% if customer %}My Account{% else %}My Account · Sign in{% endif %}</span>
+                {% render 'wm-icon', name: 'user', class: 'wm-icon wm-icon--sm' %}
+              </a>
+            </li>
+          {%- endif -%}
+        </ul>
+      </div>
 
       {%- if section.settings.phone_number != blank -%}
-        <a
-          href="tel:{{ section.settings.phone_number | replace: ' ', '' }}"
-          class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#7a46e5] text-white rounded-xl text-sm font-semibold shadow-xs"
-        >
-          {% render 'icon-phone', class: 'w-4 h-4' %}
-          <span>Catalog Orders: {{ section.settings.phone_number }}</span>
-        </a>
+        <div class="wm-drawer__foot">
+          <a class="wm-btn wm-btn--outline" href="tel:{{ section.settings.phone_number | remove: ' ' }}">
+            <span class="wm-btn__label">Order by phone · {{ section.settings.phone_number }}</span>
+          </a>
+        </div>
       {%- endif -%}
     </div>
   </div>
@@ -160,17 +381,81 @@
 {% schema %}
 {
   "name": "Header",
+  "class": "shopify-section-header",
   "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
     {
       "type": "image_picker",
       "id": "logo",
-      "label": "Logo image"
+      "label": "Logo image",
+      "info": "Leave empty to use the bundled original WAGMART logo."
+    },
+    {
+      "type": "header",
+      "content": "Shop mega menu"
     },
     {
       "type": "link_list",
-      "id": "menu",
-      "label": "Menu",
-      "default": "main-menu"
+      "id": "shop_menu",
+      "label": "Shop menu",
+      "info": "Optional. Top-level links become columns and their nested links become categories. If empty, the built-in WAGMART categories are used and each links to the collection with the matching handle."
+    },
+    {
+      "type": "header",
+      "content": "Bestsellers dropdown"
+    },
+    {
+      "type": "collection",
+      "id": "bestsellers_collection",
+      "label": "Bestsellers collection",
+      "info": "Choose a collection sorted by best selling. If empty, a collection with the handle 'bestsellers' is used, otherwise all products are shown as 'Featured picks'."
+    },
+    {
+      "type": "range",
+      "id": "bestsellers_limit",
+      "label": "Products to show",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "show_catalog_preview",
+      "label": "Show catalog preview while the store has no products",
+      "info": "Displays tagged, non-purchasable preview cards from the WAGMART catalog. Hidden automatically once real products exist.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Links"
+    },
+    {
+      "type": "url",
+      "id": "about_url",
+      "label": "About link",
+      "info": "Defaults to the page with handle 'about' or 'about-us'."
+    },
+    {
+      "type": "url",
+      "id": "blog_url",
+      "label": "Blog link",
+      "info": "Defaults to the blog with handle 'news' or 'blog'."
+    },
+    {
+      "type": "url",
+      "id": "contact_url",
+      "label": "Contact link",
+      "info": "Defaults to the page with handle 'contact' or 'contact-us'."
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "Customer account menu",
+      "info": "Used by Shopify's account sheet. Defaults to 'customer-account-main-menu' (Orders, Profile)."
     },
     {
       "type": "text",

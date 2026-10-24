@@ -2,48 +2,223 @@
   Wagmart "Better Together" Curated Categories Section
 {% endcomment %}
 
+<style>
+  /*
+    Category cards layout
+    - Mobile  (<640px)     : Horizontal scroll, 1 card per view + pagination dots
+    - Tablet  (640-1023px) : Horizontal scroll, 2 cards per view + pagination dots
+    - Laptop & Desktop (>=1024px) : Reverted to exact original 5-card row (no scroll, no dots)
+  */
+  @media (max-width: 1023px) {
+    .wm-cat-grid {
+      --gap: 16px;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      gap: var(--gap);
+      padding: 6px 2px 14px 2px;
+    }
+    .wm-cat-grid::-webkit-scrollbar {
+      display: none;
+    }
+    .wm-cat-grid > a {
+      flex: 0 0 100%;
+      max-width: 100%;
+      min-width: 0;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .wm-cat-grid > a {
+      flex: 0 0 calc((100% - var(--gap)) / 2);
+      max-width: calc((100% - var(--gap)) / 2);
+    }
+  }
+
+  /* Laptop & Desktop (>= 1024px): Reverted to original 5-column layout */
+  @media (min-width: 1024px) {
+    .wm-cat-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+      overflow: visible;
+    }
+    .wm-cat-grid > a {
+      flex: none;
+      max-width: none;
+      min-width: 0;
+    }
+  }
+
+  /* Header layout */
+  .wm-cat-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .wm-cat-header__left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    z-index: 10;
+  }
+  .wm-cat-header__title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #1E2228;
+  }
+  .wm-cat-header__subtitle {
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    color: #6B7280;
+    font-weight: 400;
+    max-width: 460px;
+  }
+  .wm-cat-header__peeking {
+    display: none !important;
+  }
+  .wm-cat-header__btn {
+    display: flex;
+    justify-content: center;
+    align-self: center;
+    z-index: 10;
+  }
+
+  /* Laptop & Desktop (>= 1024px): Heading Left, Button Right in one line, peeking pet in center */
+  @media (min-width: 1024px) {
+    .wm-cat-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+      text-align: left;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .wm-cat-header__left {
+      align-items: flex-start;
+      text-align: left;
+      width: auto;
+      flex-shrink: 0;
+    }
+    .wm-cat-header__title {
+      font-size: 44px;
+    }
+    .wm-cat-header__subtitle {
+      font-size: 15px;
+      margin-top: 4px;
+      max-width: none;
+    }
+    .wm-cat-header__peeking {
+      display: flex !important;
+      align-items: flex-end;
+      justify-content: center;
+      flex: 1;
+      margin-bottom: -4px;
+      padding: 0 16px;
+      pointer-events: none;
+      user-select: none;
+    }
+    .wm-cat-header__btn {
+      align-self: flex-end;
+      justify-content: flex-end;
+      flex-shrink: 0;
+      padding-bottom: 4px;
+    }
+  }
+
+  /* Pagination dots (mobile & tablet only) */
+  .wm-cat-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .wm-cat-dots[hidden] { display: none; }
+  .wm-cat-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  .wm-cat-dot:hover { background: rgba(0, 0, 0, 0.4); }
+  .wm-cat-dot.is-active {
+    width: 22px;
+    background: #7a46e5;
+  }
+  .wm-cat-dot:focus-visible {
+    outline: 2px solid #7a46e5;
+    outline-offset: 3px;
+  }
+  @media (min-width: 1024px) {
+    .wm-cat-dots { display: none !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wm-cat-grid { scroll-behavior: auto; }
+  }
+</style>
+
 <section id="categories" class="py-14 sm:py-20 bg-white overflow-hidden">
   <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
     
-    {% comment %} Header {% endcomment %}
-    <div class="relative mb-6 sm:mb-8">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-        
-        {% comment %} Left Title & Subtitle {% endcomment %}
-        <div class="space-y-1.5 z-10">
-          {%- assign badge_label = section.settings.badge_label | default: 'Curated Categories' -%}
-          {% render 'section-badge', label: badge_label, class: 'mb-2' %}
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1E2228] tracking-tight">
-            {{ section.settings.title | default: 'Better' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Together' }}</span>
-          </h2>
-          <p class="text-sm sm:text-base text-[#6B7280] font-normal pt-0.5">
-            {{ section.settings.subtitle | default: 'Curated bundles for everyday pet care.' }}
-          </p>
-        </div>
-
-        {% comment %} Center-Right Peeking Dog and Cat Image {% endcomment %}
-        <div class="hidden lg:flex items-end justify-center flex-1 -mb-1 px-4 pointer-events-none select-none">
-          <img
-            src="{{ 'category-pet.webp' | asset_url }}"
-            alt="Happy puppy and cat peeking"
-            class="max-h-24 xl:max-h-28 w-auto object-contain"
-            loading="eager"
-            width="200"
-            height="112"
-          >
-        </div>
-
-        {% comment %} Right Action Button {% endcomment %}
-        <div class="self-start lg:self-end z-10 pb-1">
-          {%- assign btn_text = section.settings.button_text | default: 'View All Bundles' -%}
-          {% render 'theme-button', text: btn_text, href: '#shop' %}
-        </div>
-
+    {% comment %} Header: Heading left & button right in one line on laptop/desktop, centered on mobile/tablet {% endcomment %}
+    <div class="wm-cat-header">
+      
+      {% comment %} Left Title & Subtitle {% endcomment %}
+      <div class="wm-cat-header__left">
+        {%- assign badge_label = section.settings.badge_label | default: 'Curated Categories' -%}
+        {% render 'section-badge', label: badge_label, class: 'mb-2' %}
+        <h2 class="wm-cat-header__title">
+          {{ section.settings.title | default: 'Better' }} <span class="text-[#7a46e5]">{{ section.settings.title_accent | default: 'Together' }}</span>
+        </h2>
+        <p class="wm-cat-header__subtitle">
+          {{ section.settings.subtitle | default: 'Curated bundles for everyday pet care.' }}
+        </p>
       </div>
+
+      {% comment %} Center Peeking Dog and Cat Image (Laptop & Desktop only) {% endcomment %}
+      <div class="wm-cat-header__peeking">
+        <img
+          src="{{ 'category-pet.webp' | asset_url }}"
+          alt="Happy puppy and cat peeking"
+          class="max-h-24 xl:max-h-28 w-auto object-contain"
+          loading="eager"
+          width="200"
+          height="112"
+        >
+      </div>
+
+      {% comment %} Right Action Button {% endcomment %}
+      <div class="wm-cat-header__btn">
+        {%- assign btn_text = section.settings.button_text | default: 'View All Bundles' -%}
+        {% render 'theme-button', text: btn_text, href: '#shop' %}
+      </div>
+
     </div>
 
-    {% comment %} 5 Category Cards in Responsive Grid {% endcomment %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    {% comment %} 5 Category Cards: 1 (mobile) / 2 (tablet) / 5 (laptop & desktop) {% endcomment %}
+    <div class="wm-cat-grid" data-cat-track>
       
       {% comment %} Card 1: Fashion Store {% endcomment %}
       <a
@@ -177,8 +352,88 @@
 
     </div>
 
+    {% comment %} Mobile & Tablet Pagination Dots {% endcomment %}
+    <div class="wm-cat-dots" data-cat-dots role="group" aria-label="Curated categories pagination" hidden></div>
+
   </div>
 </section>
+
+<script>
+  (function () {
+    var section = document.getElementById('categories');
+    if (!section) return;
+    var track = section.querySelector('[data-cat-track]');
+    var dotsWrap = section.querySelector('[data-cat-dots]');
+    if (!track || !dotsWrap || track.dataset.catInit) return;
+    track.dataset.catInit = '1';
+
+    var cards = Array.prototype.slice.call(track.children);
+    var pages = 0;
+    var ticking = false;
+
+    function isCarousel() {
+      return window.innerWidth < 1024 && track.scrollWidth > track.clientWidth + 1;
+    }
+    function step() {
+      if (cards.length < 2) return track.clientWidth;
+      return cards[1].offsetLeft - cards[0].offsetLeft;
+    }
+    function perView() {
+      var s = step();
+      return s ? Math.max(1, Math.round((track.clientWidth + (s - cards[0].offsetWidth)) / s)) : 1;
+    }
+    function setActive() {
+      ticking = false;
+      if (!pages) return;
+      var s = step();
+      var maxScroll = track.scrollWidth - track.clientWidth;
+      var idx = track.scrollLeft >= maxScroll - 2 ? pages - 1 : Math.round(track.scrollLeft / s);
+      idx = Math.min(pages - 1, Math.max(0, idx));
+      Array.prototype.forEach.call(dotsWrap.children, function (dot, i) {
+        var on = i === idx;
+        dot.classList.toggle('is-active', on);
+        dot.setAttribute('aria-current', on ? 'true' : 'false');
+      });
+    }
+    function build() {
+      if (!isCarousel()) {
+        pages = 0;
+        dotsWrap.innerHTML = '';
+        dotsWrap.hidden = true;
+        return;
+      }
+      var next = Math.max(1, cards.length - perView() + 1);
+      if (next !== pages) {
+        pages = next;
+        dotsWrap.innerHTML = '';
+        for (var i = 0; i < pages; i++) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'wm-cat-dot';
+          b.setAttribute('aria-label', 'Go to category ' + (i + 1));
+          b.addEventListener('click', (function (n) {
+            return function () { track.scrollTo({ left: n * step(), behavior: 'smooth' }); };
+          })(i));
+          dotsWrap.appendChild(b);
+        }
+      }
+      dotsWrap.hidden = pages < 2;
+      setActive();
+    }
+
+    track.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(setActive); }
+    }, { passive: true });
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(build, 120);
+    });
+    window.addEventListener('load', build);
+    build();
+  })();
+</script>
 
 {% schema %}
 {

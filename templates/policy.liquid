@@ -1,0 +1,30 @@
+{% comment %}
+  Wagmart Policy Template
+  - Automatically loads dedicated custom sections for each policy
+{% endcomment %}
+
+{%- if policy.title contains 'Privacy' or request.path contains 'privacy' -%}
+  {% section 'main-privacy-policy' %}
+{%- elsif policy.title contains 'Refund' or policy.title contains 'Return' or request.path contains 'refund' or request.path contains 'return' -%}
+  {% section 'main-refund-policy' %}
+{%- elsif policy.title contains 'Shipping' or request.path contains 'shipping' -%}
+  {% section 'main-shipping-policy' %}
+{%- else -%}
+  <section class="py-12 sm:py-16 bg-[#ffffff] min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-[#6B7280] font-medium mb-6 sm:mb-8" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}" class="hover:text-[#7a46e5] transition-colors">Home</a>
+        <span class="text-[#D1D5DB]">/</span>
+        <span class="text-[#111827] font-semibold">{{ policy.title }}</span>
+      </nav>
+      <div class="bg-white rounded-3xl p-6 sm:p-10 lg:p-12 border border-[#EAE5D9] shadow-sm">
+        <h1 class="font-serif-title text-3xl sm:text-4xl font-bold text-[#111827] mb-6">
+          {{ policy.title }}
+        </h1>
+        <div class="prose max-w-none text-[#374151] font-nunito leading-relaxed space-y-4">
+          {{ policy.body }}
+        </div>
+      </div>
+    </div>
+  </section>
+{%- endif -%}

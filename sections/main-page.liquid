@@ -1,19 +1,26 @@
 {% comment %}
   Wagmart Static Page Section
+  - Automatically delegates to main-contact section if the page handle is contact or contact-us
 {% endcomment %}
 
-<section class="py-12 sm:py-16 bg-[#FAF8F5]">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="bg-white rounded-3xl p-8 sm:p-12 border border-[#EAE5D9] shadow-sm">
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827] mb-6">
-        {{ page.title }}
-      </h1>
-      <div class="prose max-w-none text-neutral-700 leading-relaxed space-y-4">
-        {{ page.content }}
+{%- if page.handle == 'contact' or page.handle == 'contact-us' or template.suffix == 'contact' -%}
+  {% section 'main-contact' %}
+{%- elsif page.handle == 'privacy-policy' or page.handle == 'privacy' or template.suffix == 'privacy-policy' -%}
+  {% section 'main-privacy-policy' %}
+{%- else -%}
+  <section class="py-12 sm:py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-3xl p-8 sm:p-12 border border-[#EAE5D9] shadow-sm">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827] mb-6">
+          {{ page.title }}
+        </h1>
+        <div class="prose max-w-none text-neutral-700 leading-relaxed space-y-4">
+          {{ page.content }}
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+{%- endif -%}
 
 {% schema %}
 {

@@ -1,26 +1,312 @@
 {% comment %}
-  Wagmart 404 Not Found Page Section
+  Wagmart 404 Page Section
+  - Converted from React reference to native Shopify Liquid
+  - Matches user reference screenshot with giant faded 404 typography, background grid overlays, error message, and Wagmart's branded pill button component
+  - Responsive across all device sizes (mobile, tablet, desktop)
 {% endcomment %}
 
-<section class="py-20 sm:py-28 bg-[#FAF8F5] text-center">
-  <div class="max-w-md mx-auto px-4">
-    <div class="w-24 h-24 rounded-full bg-[#7a46e5]/10 text-[#7a46e5] flex items-center justify-center text-4xl mx-auto mb-6">
-      🐾
-    </div>
-    <span class="text-xs font-black uppercase tracking-widest text-[#7a46e5]">404 Not Found</span>
-    <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827] mt-2 mb-3">
-      Oops! Page Not Found
+{%- liquid
+  assign error_code = section.settings.error_code | default: '404'
+  assign message_text = section.settings.message_text | default: "Oops! Something is not right. Let's get back on track."
+  assign button_label = section.settings.button_label | default: 'Back to Homepage'
+  assign button_url = section.settings.button_url | default: routes.root_url
+  if button_url == blank
+    assign button_url = routes.root_url
+  endif
+-%}
+
+<style>
+  .wagmart-404-page {
+    width: 100%;
+    min-height: clamp(520px, 78vh, 880px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(32px, 6vw, 80px) 16px;
+    background-color: #FFFFFF;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    font-family: var(--font-sans, 'Nunito', system-ui, -apple-system, sans-serif);
+  }
+
+  .wagmart-404-number-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+    margin-bottom: clamp(16px, 2.5vw, 32px);
+    padding-top: clamp(16px, 3vw, 40px);
+    padding-bottom: clamp(8px, 1.5vw, 20px);
+  }
+
+  /* Giant 404 Text with Wagmart Brand Purple Gradient matching reference */
+  .wagmart-404-number {
+    font-family: var(--font-sans, 'Nunito', system-ui, -apple-system, sans-serif);
+    font-weight: 800;
+    font-style: normal;
+    font-size: clamp(130px, 24vw, 380px);
+    line-height: 0.88;
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(180deg, #6C38E0 0%, #8451ED 35%, rgba(132, 81, 237, 0.18) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Realistic Gradient Overlay Fading out towards bottom into pure white */
+  .wagmart-404-fade-overlay {
+    position: absolute;
+    left: -100px;
+    right: -100px;
+    bottom: -30px;
+    height: 60%;
+    background: linear-gradient(to top, #FFFFFF 15%, rgba(255, 255, 255, 0.85) 60%, rgba(255, 255, 255, 0) 100%);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* Error Description Copy */
+  .wagmart-404-message {
+    font-size: clamp(15px, 1.8vw, 18px);
+    color: #6B7280;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    max-width: 520px;
+    margin: 0 auto clamp(24px, 3.5vw, 36px);
+    padding: 0 16px;
+    position: relative;
+    z-index: 30;
+  }
+
+  /* Action button container */
+  .wagmart-404-btn-wrap {
+    position: relative;
+    z-index: 30;
+  }
+
+  /* Button enhancement */
+  .wagmart-404-btn {
+    min-height: 50px;
+    padding-left: clamp(28px, 4vw, 40px) !important;
+    padding-right: clamp(28px, 4vw, 40px) !important;
+    font-size: clamp(14px, 1.6vw, 16px) !important;
+    letter-spacing: 0.01em;
+  }
+
+</style>
+
+<div class="wagmart-404-page">
+
+  <!-- 404 Display & Background Grids -->
+  <div class="wagmart-404-number-wrap">
+    
+
+    <!-- Exact 404 Headline with Brand Gradient -->
+    <h1 class="wagmart-404-number" aria-label="404 Page Not Found">
+      {{ error_code | escape }}
     </h1>
-    <p class="text-sm text-neutral-600 leading-relaxed mb-8">
-      The page you were looking for seems to have wandered off. Let's get you back to our happy pet supplies!
-    </p>
-    {% render 'theme-button', text: 'Return to Home', href: routes.root_url %}
+
+    <!-- Realistic gradient overlay fading 404 into bottom white background -->
+    <div class="wagmart-404-fade-overlay" aria-hidden="true"></div>
+
   </div>
-</section>
+
+  <!-- Error Message -->
+  <p class="wagmart-404-message">
+    {{ message_text | escape }}
+  </p>
+
+  <!-- Wagmart Branded Pill Button Component -->
+  <div class="wagmart-404-btn-wrap">
+    {% render 'theme-button',
+      text: button_label,
+      href: button_url,
+      show_arrow: false,
+      class: 'wagmart-404-btn'
+    %}
+  </div>
+
+</div>
+
+<div id="wagmart-fallback-refund" style="display: none;" class="wagmart-refund-page">
+  <style>
+    body:has(#wagmart-fallback-refund),
+    body:has(#wagmart-fallback-shipping) {
+      background-color: #ffffff !important;
+    }
+    .wagmart-fallback-header {
+      max-width: 840px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 48px 20px 8px;
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    }
+    @media (min-width: 768px) {
+      .wagmart-fallback-header { padding-top: 72px; padding-bottom: 12px; }
+    }
+    @media (min-width: 1024px) {
+      .wagmart-fallback-header { padding-top: 96px; }
+    }
+    .wagmart-fallback-title {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      font-size: 38px;
+      line-height: 1.15;
+      font-weight: 800;
+      color: #1E2228;
+      letter-spacing: -0.025em;
+      margin: 0;
+    }
+    @media (min-width: 640px) { .wagmart-fallback-title { font-size: 52px; } }
+    @media (min-width: 768px) { .wagmart-fallback-title { font-size: 64px; line-height: 68px; } }
+    @media (min-width: 1024px) { .wagmart-fallback-title { font-size: 80px; line-height: 88px; } }
+    .wagmart-fallback-date {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 28px;
+      font-weight: 500;
+      color: #555E68;
+      margin-top: 12px;
+    }
+    @media (min-width: 768px) { .wagmart-fallback-date { font-size: 18px; margin-top: 8px; } }
+    .wagmart-fallback-content {
+      max-width: 1000px;
+      margin: 32px auto 70px;
+      padding: 0 8px;
+    }
+    @media (min-width: 768px) {
+      .wagmart-fallback-content { margin-top: 40px; margin-bottom: 90px; padding: 0 24px; }
+    }
+    .wagmart-fallback-outer {
+      background-color: #eff0eb;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    @media (min-width: 640px) { .wagmart-fallback-outer { padding: 14px; } }
+    @media (min-width: 768px) { .wagmart-fallback-outer { border-radius: 16px; padding: 16px; } }
+    .wagmart-fallback-inner {
+      background-color: #fefffa;
+      border-radius: 16px;
+      padding: 24px 18px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    @media (min-width: 640px) { .wagmart-fallback-inner { padding: 30px 24px; } }
+    @media (min-width: 768px) { .wagmart-fallback-inner { border-radius: 16px; padding: 38px 32px; } }
+    @media (min-width: 1024px) { .wagmart-fallback-inner { padding: 46px 40px; } }
+  </style>
+  <header class="wagmart-fallback-header">
+    <h1 class="wagmart-fallback-title">Refund Policy</h1>
+    <div class="wagmart-fallback-date">Last updated: Apr 22, 2026</div>
+  </header>
+  <main class="wagmart-fallback-content">
+    <div class="wagmart-fallback-outer">
+      <div class="wagmart-fallback-inner">
+        {% render 'refund-policy-data' %}
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="wagmart-fallback-shipping" style="display: none;" class="wagmart-shipping-page">
+  <header class="wagmart-fallback-header">
+    <h1 class="wagmart-fallback-title">Shipping Policy</h1>
+    <div class="wagmart-fallback-date">Last updated: Apr 22, 2026</div>
+  </header>
+  <main class="wagmart-fallback-content">
+    <div class="wagmart-fallback-outer">
+      <div class="wagmart-fallback-inner">
+        {% render 'shipping-policy-data' %}
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="wagmart-fallback-faq" style="display: none;">
+  {% render 'faq-page-content' %}
+</div>
+
+<div id="wagmart-fallback-article" style="display: none;">
+  {% render 'article-page-content' %}
+</div>
+
+<script>
+  (function() {
+    try {
+      var p = (window.location.pathname || '').toLowerCase();
+      if (p.indexOf('refund') !== -1 || p.indexOf('return') !== -1) {
+        var page404 = document.querySelector('.wagmart-404-page');
+        if (page404) page404.style.display = 'none';
+        var ref = document.getElementById('wagmart-fallback-refund');
+        if (ref) ref.style.display = 'block';
+        document.title = 'Refund Policy – Wagmart';
+      } else if (p.indexOf('shipping') !== -1 || p.indexOf('delivery') !== -1) {
+        var page404 = document.querySelector('.wagmart-404-page');
+        if (page404) page404.style.display = 'none';
+        var ship = document.getElementById('wagmart-fallback-shipping');
+        if (ship) ship.style.display = 'block';
+        document.title = 'Shipping Policy – Wagmart';
+      } else if (p.indexOf('faq') !== -1) {
+        var page404 = document.querySelector('.wagmart-404-page');
+        if (page404) page404.style.display = 'none';
+        var faq = document.getElementById('wagmart-fallback-faq');
+        if (faq) faq.style.display = 'block';
+        document.title = 'FAQ – Wagmart';
+        if (typeof window.WagmartInitFAQ === 'function') window.WagmartInitFAQ();
+      } else if (p.indexOf('/blogs/') !== -1 && !p.endsWith('/blogs/news') && !p.endsWith('/blogs/news/')) {
+        var page404 = document.querySelector('.wagmart-404-page');
+        if (page404) page404.style.display = 'none';
+        var art = document.getElementById('wagmart-fallback-article');
+        if (art) art.style.display = 'block';
+        if (typeof window.WagmartInitArticle === 'function') window.WagmartInitArticle();
+      }
+    } catch(e) {}
+  })();
+</script>
 
 {% schema %}
 {
   "name": "404 Page",
-  "settings": []
+  "tag": "section",
+  "class": "section-404",
+  "settings": [
+    {
+      "type": "text",
+      "id": "error_code",
+      "label": "Error Code",
+      "default": "404"
+    },
+    {
+      "type": "text",
+      "id": "message_text",
+      "label": "Error Message",
+      "default": "Oops! Something is not right. Let's get back on track."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Back to Homepage"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button Link",
+      "info": "Defaults to store home page"
+    }
+  ],
+  "presets": [
+    {
+      "name": "404 Page"
+    }
+  ]
 }
 {% endschema %}

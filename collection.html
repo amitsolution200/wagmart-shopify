@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dog Food Collection – Wagmart Pet Store</title>
+  <meta name="description" content="Explore our premium dog food collection and nutritious pet supplies. Wagmart – Happy Pets, Better Lives.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="collection-page-body">
+
+  <!-- =========================================================
+       1. TOP BAR
+       ========================================================= -->
+  <div class="top-bar" role="region" aria-label="Announcement">
+    <div class="top-bar-inner">
+      <div class="top-bar-left">
+        <svg class="paw-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="4.5" cy="9.5" r="2.5"/>
+          <circle cx="9" cy="5.5" r="2.5"/>
+          <circle cx="15" cy="5.5" r="2.5"/>
+          <circle cx="19.5" cy="9.5" r="2.5"/>
+          <path d="M12 11c-3.5 0-6 2.5-6 6 0 2.2 2 4 6 4s6-1.8 6-4c0-3.5-2.5-6-6-6z"/>
+        </svg>
+        <span>Free shipping on orders over ₹999</span>
+      </div>
+      <div class="top-bar-right">
+        <a href="#track" class="top-bar-link">Track Order</a>
+        <span class="top-bar-divider" aria-hidden="true">|</span>
+        <a href="#help" class="top-bar-link">Help</a>
+        <span class="top-bar-divider" aria-hidden="true">|</span>
+        <button type="button" class="top-bar-dropdown-btn" aria-label="Select Country and Currency">
+          <span class="flag-icon" aria-hidden="true">🇮🇳</span>
+          <span>India (INR)</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="currentColor" aria-hidden="true">
+            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       2. MAIN HEADER
+       ========================================================= -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <!-- Brand Logo -->
+      <a href="collection.html" class="brand-logo" aria-label="Wagmart Home">
+        <div class="logo-paw-wrap">
+          <svg class="brand-paw" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <circle cx="4.5" cy="9.5" r="2.5"/>
+            <circle cx="9" cy="5.5" r="2.5"/>
+            <circle cx="15" cy="5.5" r="2.5"/>
+            <circle cx="19.5" cy="9.5" r="2.5"/>
+            <path d="M12 11c-3.5 0-6 2.5-6 6 0 2.2 2 4 6 4s6-1.8 6-4c0-3.5-2.5-6-6-6z"/>
+          </svg>
+        </div>
+        <div class="logo-text-block">
+          <span class="logo-brand-name">Wagmart</span>
+          <span class="logo-tagline">Happy Pets, Better Lives</span>
+        </div>
+      </a>
+
+      <!-- Primary Nav -->
+      <nav class="main-nav" aria-label="Primary Navigation">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+          <li class="nav-item"><a href="collection.html" class="nav-link active" aria-current="page">Shop</a></li>
+          <li class="nav-item"><a href="#dogs" class="nav-link">Dogs</a></li>
+          <li class="nav-item"><a href="#cats" class="nav-link">Cats</a></li>
+          <li class="nav-item"><a href="#grooming" class="nav-link">Grooming</a></li>
+          <li class="nav-item"><a href="#health" class="nav-link">Health</a></li>
+          <li class="nav-item"><a href="#travel" class="nav-link">Travel</a></li>
+          <li class="nav-item"><a href="#combos" class="nav-link">Combo Offers</a></li>
+        </ul>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Search Trigger / Bar -->
+        <button type="button" class="header-icon-btn" id="header-search-btn" aria-label="Search products">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+
+        <!-- User Account -->
+        <button type="button" class="header-icon-btn" aria-label="User Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+
+        <!-- Shopping Cart -->
+        <button type="button" class="header-icon-btn cart-btn" id="header-cart-btn" aria-label="Shopping Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="cart-count-badge" id="header-cart-count">0</span>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button type="button" class="header-icon-btn mobile-menu-toggle" id="mobile-menu-btn" aria-label="Toggle mobile menu" aria-expanded="false">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumb-container">
+    <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+      <ol class="breadcrumb-list">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-separator" aria-hidden="true">&gt;</li>
+        <li class="breadcrumb-item"><a href="collection.html">Shop</a></li>
+        <li class="breadcrumb-separator" aria-hidden="true">&gt;</li>
+        <li class="breadcrumb-item active" aria-current="page">Dog Food</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- =========================================================
+       3. SHOP BY COLLECTION CIRCLE ROW
+       ========================================================= -->
+  <section class="collection-circles-section" aria-labelledby="collection-row-heading">
+    <div class="collection-circles-card">
+      <div class="collection-header text-center">
+        <h1 class="collection-title serif-heading" id="collection-row-heading">Shop by Collection</h1>
+        <p class="collection-subtitle">Explore our wide range of pet products for a happier, healthier life.</p>
+      </div>
+
+      <!-- Horizontal Scrollable Row of 8 Circles -->
+      <div class="circles-row-track" id="collection-circles-container" role="list">
+        <!-- Rendered dynamically by script.js from collections array -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       MAIN COLLECTION LAYOUT (TOOLBAR + SIDEBAR + GRID/LIST)
+       ========================================================= -->
+  <main class="collection-main-container" id="main-content">
+
+    <!-- 4. TOOLBAR & ACTIVE FILTERS -->
+    <section class="collection-toolbar-section">
+      <div class="toolbar-top-row">
+        <!-- Left: Filter Toggle Button + Results Counter -->
+        <div class="toolbar-left">
+          <button type="button" class="btn-filter-toggle" id="filter-toggle-btn" aria-expanded="true" aria-controls="filter-sidebar">
+            <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="4" y1="21" x2="4" y2="14"/>
+              <line x1="4" y1="10" x2="4" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12" y2="3"/>
+              <line x1="20" y1="21" x2="20" y2="16"/>
+              <line x1="20" y1="12" x2="20" y2="3"/>
+              <line x1="1" y1="14" x2="7" y2="14"/>
+              <line x1="9" y1="8" x2="15" y2="8"/>
+              <line x1="17" y1="16" x2="23" y2="16"/>
+            </svg>
+            <span class="btn-filter-text">Filter</span>
+          </button>
+
+          <span class="toolbar-results-count" id="results-count-text">
+            Showing 1-12 of 24 results
+          </span>
+        </div>
+
+        <!-- Right: View Mode Switcher + Sort Dropdown -->
+        <div class="toolbar-right">
+          <!-- View switcher buttons (Grid vs List) -->
+          <div class="view-switcher" role="group" aria-label="Product display view">
+            <button type="button" class="view-btn active" id="view-grid-btn" data-view="grid" aria-label="Grid View" aria-pressed="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              </svg>
+            </button>
+            <button type="button" class="view-btn" id="view-list-btn" data-view="list" aria-label="List View" aria-pressed="false">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="4" width="4" height="4" rx="1"/>
+                <rect x="10" y="4" width="11" height="4" rx="1"/>
+                <rect x="3" y="10" width="4" height="4" rx="1"/>
+                <rect x="10" y="10" width="11" height="4" rx="1"/>
+                <rect x="3" y="16" width="4" height="4" rx="1"/>
+                <rect x="10" y="16" width="11" height="4" rx="1"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="sort-dropdown-wrap">
+            <label for="sort-select" class="sort-label">Sort by :</label>
+            <div class="custom-select-wrapper">
+              <select id="sort-select" class="sort-select" aria-label="Sort products by">
+                <option value="default" selected>Default Sorting</option>
+                <option value="price-asc">Price low to high</option>
+                <option value="price-desc">Price high to low</option>
+                <option value="rating">Rating</option>
+                <option value="newest">Newest</option>
+              </select>
+              <svg class="select-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 1L5 5L9 1"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Filters Row -->
+      <div class="active-filters-row" id="active-filters-bar">
+        <span class="active-filters-label">Active Filter :</span>
+        <div class="active-chips-container" id="active-chips-container">
+          <!-- Chips injected dynamically by script.js -->
+        </div>
+        <button type="button" class="clear-all-link" id="clear-all-filters-btn">Clear All</button>
+      </div>
+    </section>
+
+    <!-- CONTENT WRAPPER: SIDEBAR + PRODUCT GRID -->
+    <!-- data-sidebar="expanded" (State A) or "collapsed" (State B) -->
+    <!-- data-view="grid" (State A/B) or "list" (State C) -->
+    <div class="collection-content-layout" id="collection-layout" data-sidebar="expanded" data-view="grid">
+
+      <!-- =========================================================
+           5. FILTER SIDEBAR (LEFT)
+           ========================================================= -->
+      <aside class="filter-sidebar" id="filter-sidebar" aria-label="Filters">
+        <div class="filter-sidebar-header">
+          <h2 class="filter-sidebar-title">Filter Options</h2>
+          <button type="button" class="filter-drawer-close" id="drawer-close-btn" aria-label="Close Filter Drawer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-accordion">
+
+          <!-- SECTION 1: BY CATEGORIES -->
+          <div class="accordion-group is-open" data-filter-group="category">
+            <button type="button" class="accordion-header" aria-expanded="true">
+              <span class="accordion-title">By Categories</span>
+              <svg class="accordion-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 6.5L6 1.5L11 6.5"/>
+              </svg>
+            </button>
+            <div class="accordion-content">
+              <div class="filter-checkbox-list">
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="category" value="Dog Food" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Dog Food</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="category" value="Cat Food" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Cat Food</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="category" value="Toys" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Toys</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="category" value="Grooming" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Grooming</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="category" value="Accessories" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Accessories</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: BY PET TYPE -->
+          <div class="accordion-group is-open" data-filter-group="petType">
+            <button type="button" class="accordion-header" aria-expanded="true">
+              <span class="accordion-title">By Pet Type</span>
+              <svg class="accordion-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 6.5L6 1.5L11 6.5"/>
+              </svg>
+            </button>
+            <div class="accordion-content">
+              <div class="filter-checkbox-list">
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="petType" value="Dog" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Dog</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="petType" value="Cat" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Cat</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="petType" value="Puppy" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Puppy</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="petType" value="Kitten" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Kitten</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="petType" value="Senior" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Senior</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: PRICE DUAL RANGE SLIDER -->
+          <div class="accordion-group is-open" data-filter-group="price">
+            <button type="button" class="accordion-header" aria-expanded="true">
+              <span class="accordion-title">Price</span>
+              <svg class="accordion-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 6.5L6 1.5L11 6.5"/>
+              </svg>
+            </button>
+            <div class="accordion-content">
+              <div class="price-slider-wrap">
+                <div class="price-range-label" id="price-display-text">₹100 - ₹2,000</div>
+                <div class="dual-range-container">
+                  <div class="range-track-bg"></div>
+                  <div class="range-track-highlight" id="range-highlight"></div>
+                  <input type="range" id="price-min-range" min="100" max="2500" value="100" step="50" class="range-input range-input-min" aria-label="Minimum Price">
+                  <input type="range" id="price-max-range" min="100" max="2500" value="2000" step="50" class="range-input range-input-max" aria-label="Maximum Price">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 4: REVIEW STARS -->
+          <div class="accordion-group is-open" data-filter-group="rating">
+            <button type="button" class="accordion-header" aria-expanded="true">
+              <span class="accordion-title">Review</span>
+              <svg class="accordion-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 6.5L6 1.5L11 6.5"/>
+              </svg>
+            </button>
+            <div class="accordion-content">
+              <div class="filter-checkbox-list">
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="rating" value="5" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-stars-row">
+                    <span class="gold-stars">★★★★★</span>
+                    <span class="star-rating-text">5 Star</span>
+                  </span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="rating" value="4" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-stars-row">
+                    <span class="gold-stars">★★★★<span class="star-empty">★</span></span>
+                    <span class="star-rating-text">4 Star</span>
+                  </span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="rating" value="3" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-stars-row">
+                    <span class="gold-stars">★★★<span class="star-empty">★★</span></span>
+                    <span class="star-rating-text">3 Star</span>
+                  </span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="rating" value="2" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-stars-row">
+                    <span class="gold-stars">★★<span class="star-empty">★★★</span></span>
+                    <span class="star-rating-text">2 Star</span>
+                  </span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="rating" value="1" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-stars-row">
+                    <span class="gold-stars">★<span class="star-empty">★★★★</span></span>
+                    <span class="star-rating-text">1 Star</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 5: BY PROMOTIONS -->
+          <div class="accordion-group is-open" data-filter-group="promotions">
+            <button type="button" class="accordion-header" aria-expanded="true">
+              <span class="accordion-title">By Promotions</span>
+              <svg class="accordion-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 6.5L6 1.5L11 6.5"/>
+              </svg>
+            </button>
+            <div class="accordion-content">
+              <div class="filter-checkbox-list">
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="promotions" value="isNew" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">New Arrivals</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="promotions" value="isBestSeller" class="filter-checkbox" checked>
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Best Sellers</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="promotions" value="onSale" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">On Sale</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 6: AVAILABILITY -->
+          <div class="accordion-group is-open" data-filter-group="availability">
+            <button type="button" class="accordion-header" aria-expanded="true">
+              <span class="accordion-title">Availability</span>
+              <svg class="accordion-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 6.5L6 1.5L11 6.5"/>
+              </svg>
+            </button>
+            <div class="accordion-content">
+              <div class="filter-checkbox-list">
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="availability" value="inStock" class="filter-checkbox" checked>
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">In Stock</span>
+                </label>
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" name="availability" value="outOfStock" class="filter-checkbox">
+                  <span class="checkbox-box" aria-hidden="true"></span>
+                  <span class="checkbox-text">Out of Stock</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- =========================================================
+           6. PRODUCTS DISPLAY AREA (3-COL, 4-COL, OR LIST)
+           ========================================================= -->
+      <section class="products-area" aria-label="Products list">
+        
+        <!-- Products Container: Dynamically populated -->
+        <div class="products-grid-container" id="products-container">
+          <!-- Dynamically populated by script.js -->
+        </div>
+
+        <!-- Empty State (if no products match) -->
+        <div class="no-products-message hidden" id="no-products-msg">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+          <h3>No products match your selected filters</h3>
+          <p>Try resetting some filters or searching for another term.</p>
+          <button type="button" class="btn-reset-filters" id="btn-reset-empty">Reset All Filters</button>
+        </div>
+
+        <!-- 7. PAGINATION -->
+        <nav class="pagination-nav" id="pagination-nav" aria-label="Pagination">
+          <!-- Dynamically populated or rendered -->
+          <div class="pagination-inner" id="pagination-container">
+            <button type="button" class="page-btn page-arrow" id="page-prev" aria-label="Previous Page">&lt;</button>
+            <button type="button" class="page-btn page-num active" data-page="1">1</button>
+            <button type="button" class="page-btn page-num" data-page="2">2</button>
+            <button type="button" class="page-btn page-num" data-page="3">3</button>
+            <span class="page-ellipsis">...</span>
+            <button type="button" class="page-btn page-num" data-page="10">10</button>
+            <button type="button" class="page-btn page-arrow" id="page-next" aria-label="Next Page">&gt;</button>
+          </div>
+        </nav>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- =========================================================
+       8. FOOTER
+       ========================================================= -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-columns-grid">
+
+        <!-- Column 1: Brand & About -->
+        <div class="footer-col footer-col-brand">
+          <div class="brand-logo footer-brand">
+            <div class="logo-paw-wrap">
+              <svg class="brand-paw" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="4.5" cy="9.5" r="2.5"/>
+                <circle cx="9" cy="5.5" r="2.5"/>
+                <circle cx="15" cy="5.5" r="2.5"/>
+                <circle cx="19.5" cy="9.5" r="2.5"/>
+                <path d="M12 11c-3.5 0-6 2.5-6 6 0 2.2 2 4 6 4s6-1.8 6-4c0-3.5-2.5-6-6-6z"/>
+              </svg>
+            </div>
+            <div class="logo-text-block">
+              <span class="logo-brand-name">Wagmart</span>
+              <span class="logo-tagline">Happy Pets, Better Lives</span>
+            </div>
+          </div>
+          <p class="footer-about-text">
+            Premium pet products for a happier and healthier life. Trusted by pet lovers across India.
+          </p>
+          <div class="footer-social-icons">
+            <a href="#instagram" class="social-icon-btn" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+            </a>
+            <a href="#facebook" class="social-icon-btn" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+            </a>
+            <a href="#youtube" class="social-icon-btn" aria-label="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/>
+                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor"/>
+              </svg>
+            </a>
+            <a href="#pinterest" class="social-icon-btn" aria-label="Pinterest">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Column 2: Shop -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Shop</h4>
+          <ul class="footer-links-list">
+            <li><a href="#dog-food">Dog Food</a></li>
+            <li><a href="#cat-food">Cat Food</a></li>
+            <li><a href="#toys">Toys</a></li>
+            <li><a href="#grooming">Grooming</a></li>
+            <li><a href="#accessories">Accessories</a></li>
+            <li><a href="#gifts">Gifts</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Help & Support -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Help & Support</h4>
+          <ul class="footer-links-list">
+            <li><a href="#chat">Chat</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#shipping">Shipping & Returns</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+            <li><a href="#policies">Policies</a></li>
+            <li><a href="#account">My Account</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Company -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Company</h4>
+          <ul class="footer-links-list">
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#story">Our Story</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="#terms">Terms & Conditions</a></li>
+            <li><a href="#privacy">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 5: Contact -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Contact</h4>
+          <div class="footer-contact-items">
+            <div class="contact-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <a href="mailto:support@wagmart.in">support@wagmart.in</a>
+            </div>
+            <div class="contact-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <a href="tel:+919876543210">+91 98765 43210</a>
+            </div>
+            <div class="contact-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>Surat, Gujarat, India</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Bottom Copyright & Legal -->
+      <div class="footer-bottom-bar">
+        <div class="copyright-text">
+          &copy; 2024 Wagmart. All rights reserved.
+        </div>
+        <div class="legal-links">
+          <a href="#privacy">Privacy</a>
+          <a href="#terms">Terms</a>
+          <a href="#refund">Refund Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Drawer Overlay for Mobile / Tablet -->
+  <div class="sidebar-drawer-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Quick View Modal -->
+  <div class="quick-view-modal" id="quick-view-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="quick-view-backdrop" id="quick-view-backdrop"></div>
+    <div class="quick-view-dialog">
+      <button type="button" class="quick-view-close" id="quick-view-close" aria-label="Close modal">&times;</button>
+      <div class="quick-view-body" id="quick-view-body">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="products.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+{% comment %}
+  Wagmart Shipping Policy Section
+  - Exactly same layout structure, double-card styling, and typography as Privacy Policy
+  - Data separated into snippets/shipping-policy-data.liquid
+  - Responsive across all devices (mobile, tablet, desktop)
+  - Color palette: Page background #ffffff, Outer card #eff0eb, Inner card #fefffa, Text #111514 and #4C4D4D
+{% endcomment %}
+
+<style>
+  body:has(.wagmart-shipping-page) {
+    background-color: #ffffff !important;
+  }
+
+  .wagmart-shipping-page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #111514;
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .wagmart-shipping-header-container {
+    max-width: 840px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding-top: 48px;
+    padding-bottom: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-header-container {
+      padding-top: 72px;
+      padding-bottom: 12px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-shipping-header-container {
+      padding-top: 96px;
+    }
+  }
+
+  .wagmart-shipping-title {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 38px;
+    line-height: 1.15;
+    font-weight: 800;
+    color: #1E2228;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  @media (min-width: 640px) {
+    .wagmart-shipping-title {
+      font-size: 52px;
+    }
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-title {
+      font-size: 64px;
+      line-height: 68px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-shipping-title {
+      font-size: 80px;
+      line-height: 88px;
+    }
+  }
+
+  .wagmart-shipping-date {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 28px;
+    font-weight: 500;
+    color: #555E68;
+    margin-top: 12px;
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-date {
+      font-size: 18px;
+      margin-top: 8px;
+    }
+  }
+
+  .wagmart-shipping-content-container {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 32px;
+    margin-bottom: 70px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-content-container {
+      margin-top: 40px;
+      margin-bottom: 90px;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+  }
+
+  .wagmart-shipping-outer-card {
+    background-color: #eff0eb;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+  @media (min-width: 640px) {
+    .wagmart-shipping-outer-card {
+      padding: 14px;
+    }
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-outer-card {
+      border-radius: 16px;
+      padding: 16px;
+    }
+  }
+
+  .wagmart-shipping-inner-card {
+    background-color: #fefffa;
+    border-radius: 16px;
+    padding: 24px 18px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+  @media (min-width: 640px) {
+    .wagmart-shipping-inner-card {
+      padding: 30px 24px;
+    }
+  }
+  @media (min-width: 768px) {
+    .wagmart-shipping-inner-card {
+      border-radius: 16px;
+      padding: 38px 32px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wagmart-shipping-inner-card {
+      padding: 46px 40px;
+    }
+  }
+</style>
+
+<div class="wagmart-shipping-page">
+  {% comment %} Header Section {% endcomment %}
+  <header class="wagmart-shipping-header-container">
+    <h1 class="wagmart-shipping-title">
+      {{ section.settings.page_title | default: 'Shipping Policy' }}
+    </h1>
+    <div class="wagmart-shipping-date">
+      {{ section.settings.last_updated | default: 'Last updated: Apr 22, 2026' }}
+    </div>
+  </header>
+
+  {% comment %} Content Cards Container {% endcomment %}
+  <main class="wagmart-shipping-content-container">
+    <div class="wagmart-shipping-outer-card">
+      <div class="wagmart-shipping-inner-card">
+        {% render 'shipping-policy-data' %}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% schema %}
+{
+  "name": "Shipping Policy",
+  "settings": [
+    {
+      "type": "text",
+      "id": "page_title",
+      "label": "Page Title",
+      "default": "Shipping Policy"
+    },
+    {
+      "type": "text",
+      "id": "last_updated",
+      "label": "Last Updated Notice",
+      "default": "Last updated: Apr 22, 2026"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shipping Policy"
+    }
+  ]
+}
+{% endschema %}

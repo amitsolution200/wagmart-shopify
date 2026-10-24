@@ -49,7 +49,7 @@
 -%}
 
 <div
-  class="group relative shrink-0 w-[85vw] max-w-[340px] sm:w-[320px] md:w-[325px] lg:w-[335px] bg-[#FAF8F5] rounded-[22px] p-3 pb-5 border border-black/4 select-none transition-all duration-300 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06),0_4px_10px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_-6px_rgba(0,0,0,0.10),0_6px_14px_-3px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 flex flex-col justify-between snap-start cursor-pointer"
+  class="group relative shrink-0 w-[85vw] max-w-[340px] sm:w-[320px] md:w-[325px] lg:w-[335px] bg-[#FAF8F5] rounded-[22px] p-3 pb-5 border border-[#EAE5D9] hover:border-[#D5CEBF] select-none transition-all duration-300 flex flex-col justify-between snap-start cursor-pointer"
   data-product-card
   data-product-id="{{ prod_id }}"
   data-product-name="{{ prod_title | escape }}"
@@ -96,7 +96,7 @@
 
     {% comment %} 2. PRODUCT TITLE & SUBTITLE {% endcomment %}
     <div class="px-1.5 pt-3.5">
-      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-1 group-hover:text-[#7a46e5] transition-colors duration-200">
+      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#7a46e5] transition-colors duration-200">
         <a href="{{ prod_url }}" class="hover:underline">{{ prod_title }}</a>
       </h3>
 
@@ -107,14 +107,14 @@
   </div>
 
   {% comment %} 3. BOTTOM ROW: PRICE LOCKUP & ADD TO CART / STEPPER {% endcomment %}
-  <div class="px-1.5 mt-auto pt-4 flex items-center justify-between gap-3">
+  <div class="px-1 mt-auto pt-3 sm:pt-4 flex items-center justify-between gap-2">
     {% comment %} Price Lockup {% endcomment %}
-    <div class="flex items-baseline gap-1.5 min-w-0">
-      <span class="font-extrabold text-[22px] sm:text-[24px] text-[#111827] tracking-tight leading-none">
+    <div data-price-wrap class="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 min-w-0 pr-1">
+      <span data-price-val class="font-extrabold text-[19px] sm:text-[22px] text-[#111827] tracking-tight leading-none whitespace-nowrap">
         {{ prod_price }}
       </span>
       {%- if prod_compare_price != blank -%}
-        <span class="text-xs sm:text-[13px] text-neutral-400 line-through font-normal">
+        <span data-compare-val class="text-[11.5px] sm:text-[13px] text-neutral-400 line-through font-normal whitespace-nowrap">
           {{ prod_compare_price }}
         </span>
       {%- endif -%}
@@ -125,26 +125,26 @@
       {% comment %} Default Add to Cart Button {% endcomment %}
       <button
         type="button"
-        class="h-[42px] bg-black hover:bg-neutral-900 active:scale-95 text-white pl-1.5 pr-4 py-1 rounded-full flex items-center gap-2 shadow-sm transition-all duration-200 cursor-pointer group/btn shrink-0"
+        class="h-[38px] sm:h-[42px] bg-black hover:bg-neutral-900 active:scale-95 text-white pl-1.5 pr-3.5 sm:pr-4 py-1 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-sm transition-all duration-200 cursor-pointer group/btn shrink-0"
         data-add-to-cart
         aria-label="Add {{ prod_title | escape }} to Cart"
       >
-        <span class="w-7.5 h-7.5 rounded-full bg-white text-black flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform duration-200 shadow-xs">
+        <span class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white text-black flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform duration-200 shadow-xs">
           {% render 'icon-bag', class: 'w-3.5 h-3.5 stroke-[2.2]' %}
         </span>
-        <span class="font-bold text-[13px] tracking-tight whitespace-nowrap">
+        <span class="font-bold text-[12px] sm:text-[13px] tracking-tight whitespace-nowrap">
           Add to Cart
         </span>
       </button>
 
       {% comment %} Active Quantity Stepper (Shown when in cart) {% endcomment %}
       <div
-        class="hidden h-[42px] bg-black text-white px-1.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
+        class="hidden h-[38px] sm:h-[42px] bg-black text-white px-1.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
         data-card-stepper
       >
         <button
           type="button"
-          class="w-7.5 h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
+          class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
           data-card-stepper-btn
           data-delta="-1"
           aria-label="Decrease quantity"
@@ -152,13 +152,13 @@
           <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
 
-        <span class="text-white font-extrabold text-[13px] px-1.5 min-w-[20px] text-center select-none shrink-0" data-card-qty>
+        <span class="text-white font-extrabold text-[12.5px] sm:text-[13px] px-1 sm:px-1.5 min-w-[18px] text-center select-none shrink-0" data-card-qty>
           1
         </span>
 
         <button
           type="button"
-          class="w-7.5 h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
+          class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
           data-card-stepper-btn
           data-delta="1"
           aria-label="Increase quantity"

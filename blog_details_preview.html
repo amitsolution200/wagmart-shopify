@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flea and Tick Prevention: What Actually Works – Wagmart Pet Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      color: #2d3748;
+    }
+    
+  /* =============================================================
+     1. PAGE LAYOUT & CONTAINERS
+     ============================================================= */
+  .wm-article-page {
+    background: #ffffff;
+    padding: 32px 0 72px;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    color: #2d3748;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wm-article-page__wrap {
+    --nav-outer: clamp(0px, 1.6vw, 20px);
+    --nav-inner: clamp(16px, 2vw, 30px);
+    box-sizing: border-box;
+    max-width: calc(1240px + (2 * var(--nav-outer)));
+    margin: 0 auto;
+    padding: 0 calc(var(--nav-outer) + var(--nav-inner));
+  }
+  @media (max-width: 767px) {
+    .wm-article-page { padding: 20px 0 54px; }
+    .wm-article-page__wrap { --nav-inner: 10px; }
+  }
+
+  /* Focused Editorial Article Column (Optimal reading width) */
+  .wm-article-col {
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  /* =============================================================
+     2. BREADCRUMBS
+     ============================================================= */
+  .wm-article-crumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #718096;
+    margin-bottom: 22px;
+  }
+  .wm-article-crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+  .wm-article-crumbs a:hover {
+    color: #7a46e5;
+  }
+  .wm-article-crumbs__sep {
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .wm-article-crumbs__current {
+    color: #1a202c;
+    font-weight: 700;
+    max-width: 340px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (max-width: 640px) {
+    .wm-article-crumbs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      gap: 6px;
+      font-size: 12.5px;
+      margin-bottom: 16px;
+      padding-bottom: 2px;
+    }
+    .wm-article-crumbs::-webkit-scrollbar {
+      display: none;
+    }
+    .wm-article-crumbs a,
+    .wm-article-crumbs span {
+      flex-shrink: 0;
+    }
+    .wm-article-crumbs__current {
+      max-width: 260px;
+    }
+  }
+
+  /* =============================================================
+     3. ARTICLE HEADER & META
+     ============================================================= */
+  .wm-article-head {
+    margin-bottom: 24px;
+  }
+  .wm-article-meta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+  .wm-article-category {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(122, 70, 229, 0.08);
+    color: #7a46e5;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    
+  }
+  .wm-article-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #718096;
+    font-weight: 600;
+  }
+  .wm-article-meta-sep {
+    color: #cbd5e1;
+    font-size: 10px;
+  }
+
+  /* Editorial Title */
+  .wm-article-title {
+    margin: 0 0 18px;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: clamp(26px, 3.6vw, 40px);
+    font-weight: 800;
+    line-height: 1.24;
+    letter-spacing: -0.018em;
+    color: #111111;
+  }
+
+  /* Author Row & Social Sharing */
+  .wm-article-author-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px 0;
+    border-top: 1px solid #edf2f7;
+    border-bottom: 1px solid #edf2f7;
+    margin-bottom: 28px;
+  }
+  .wm-article-author-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #64748b;
+  }
+  .wm-article-author-name {
+    font-weight: 700;
+    color: #111111;
+  }
+
+  /* Share buttons */
+  .wm-article-share-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wm-article-share-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #718096;
+    margin-right: 2px;
+  }
+  .wm-article-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .wm-article-share-btn:hover {
+    background: #7a46e5;
+    border-color: #7a46e5;
+    color: #ffffff;
+  }
+  .wm-article-share-btn svg {
+    flex-shrink: 0;
+  }
+  .wm-article-share-btn--icon-only {
+    width: 34px;
+    padding: 0;
+  }
+
+  /* =============================================================
+     4. HERO FEATURED IMAGE
+     ============================================================= */
+  .wm-article-hero-wrap {
+    margin-bottom: 34px;
+  }
+  .wm-article-hero-media {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f1f5f9;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+  @media (min-width: 1024px) {
+    .wm-article-hero-media {
+      aspect-ratio: 16 / 7.5;
+      max-height: 550px;
+    }
+  }
+  .wm-article-hero-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%;
+    display: block;
+  }
+
+  /* =============================================================
+     5. EDITORIAL CONTENT BODY
+     ============================================================= */
+  .wm-article-body {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #2d3748;
+  }
+  .wm-article-body p {
+    margin: 0 0 20px;
+  }
+  .wm-article-body p:last-child {
+    margin-bottom: 0;
+  }
+  .wm-article-body h2 {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: clamp(21px, 2.3vw, 26px);
+    font-weight: 800;
+    color: #111111;
+    margin: 36px 0 16px;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+  .wm-article-body ul, .wm-article-body ol {
+    margin: 0 0 22px 0;
+    padding-left: 20px;
+  }
+  .wm-article-body li {
+    margin-bottom: 10px;
+    line-height: 1.7;
+  }
+  .wm-article-body strong {
+    color: #111111;
+    font-weight: 700;
+  }
+  .wm-article-body blockquote {
+    margin: 28px 0;
+    padding: 16px 22px;
+    border-left: 3px solid #7a46e5;
+    background: #fafafc;
+    border-radius: 0 10px 10px 0;
+    font-style: italic;
+    color: #334155;
+    font-size: 16.5px;
+    line-height: 1.65;
+  }
+  .wm-article-body blockquote p {
+    margin: 0;
+  }
+
+  /* Back to Blog Action */
+  .wm-article-nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid #edf2f7;
+  }
+  .wm-article-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 20px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #111111;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .wm-article-back-btn:hover {
+    background: #7a46e5;
+    border-color: #7a46e5;
+    color: #ffffff;
+  }
+
+  /* =============================================================
+     6. EXPLORE RELATED STORIES: EXACTLY 3 CARDS
+     - Matches the blog page card layout and styling 100%
+     ============================================================= */
+  .wm-related-section {
+    margin-top: 56px;
+    padding-top: 48px;
+    border-top: 1px solid #edf2f7;
+  }
+  .wm-related-head {
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .wm-related-title {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: clamp(22px, 2.4vw, 28px);
+    font-weight: 800;
+    color: #111111;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .wm-related-subtitle {
+    font-size: 14.5px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Responsive 3-Card Grid:
+     - Desktop (>= 1024px): 3 columns in a row
+     - Tablet (640-1023px): 3 columns in a row (or 2 on smaller tablet)
+     - Mobile (< 640px): 1 column (single card per row)
+  */
+  .wm-related-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  @media (min-width: 640px) {
+    .wm-related-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(16px, 2vw, 24px);
+    }
+  }
+
+  /* Card Component matching main-blog.liquid & blog-section.liquid EXACTLY */
+  .wm-blog-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    text-align: left;
+    height: 100%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    cursor: pointer;
+  }
+  .wm-blog-card__media {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #f2f2f2;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+  .wm-blog-card__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wm-blog-card:hover .wm-blog-card__media img {
+    transform: scale(1.05);
+  }
+  .wm-blog-card__title {
+    margin: 0 0 4px;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #111111;
+  }
+  .wm-blog-card__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .wm-blog-card:hover .wm-blog-card__title a,
+  .wm-blog-card__title a:hover {
+    color: #7a46e5;
+  }
+  .wm-blog-card__date {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    color: #9a9a9a;
+  }
+  .wm-blog-card__excerpt {
+    margin: 0 0 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #555555;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .wm-blog-card__foot {
+    margin-top: auto;
+  }
+  .wm-blog-card__more {
+    display: inline-block;
+    position: relative;
+    padding-bottom: 3px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #2b3a55;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: left 100%;
+    background-size: 0% 1.5px;
+    transition:
+      background-size 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+      color 0.3s ease;
+  }
+  .wm-blog-card:hover .wm-blog-card__more,
+  .wm-blog-card__more:focus-visible {
+    color: #7a46e5;
+    background-size: 100% 1.5px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wm-blog-card__media img,
+    .wm-blog-card__more {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  </style>
+</head>
+<body>
+  <!-- Mock Site Header -->
+  <header style="background: #ffffff; border-bottom: 1px solid #f0eee9; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; max-width: 1240px; margin: 0 auto;">
+    <div style="font-size: 22px; font-weight: 900; color: #111111; letter-spacing: -0.02em;">
+      WAG<span style="color: #7a46e5;">MART</span>
+    </div>
+    <nav style="display: flex; gap: 24px; font-size: 14.5px; font-weight: 700; color: #334155;">
+      <a href="#" style="color: inherit; text-decoration: none;">Shop All</a>
+      <a href="#" style="color: inherit; text-decoration: none;">Dogs</a>
+      <a href="#" style="color: inherit; text-decoration: none;">Cats</a>
+      <a href="#" style="color: #7a46e5; text-decoration: none;">Pet Journal</a>
+      <a href="#" style="color: inherit; text-decoration: none;">FAQ</a>
+    </nav>
+    <div style="font-size: 13px; font-weight: 700; color: #7a46e5; background: rgba(122, 70, 229, 0.08); padding: 6px 14px; border-radius: 999px;">
+      Free Shipping Over $49
+    </div>
+  </header>
+
+  <!-- Clean Editorial Article Content -->
+  <div id="wm-article-container" class="wm-article-page" aria-label="Wagmart Pet Journal Article">
+    <div class="wm-article-page__wrap">
+
+      <div class="wm-article-col">
+        <!-- 1. Breadcrumbs -->
+        <nav class="wm-article-crumbs" aria-label="Breadcrumb">
+          <a href="#">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Home
+          </a>
+          <span class="wm-article-crumbs__sep">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+          <a href="#">Pet Journal</a>
+          <span class="wm-article-crumbs__sep">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+          <span id="wm-art-crumb-cat" style="color: #64748b; font-weight: 500;">Health & Care</span>
+          <span class="wm-article-crumbs__sep">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+          <span id="wm-art-crumb-title" class="wm-article-crumbs__current">Flea and Tick Prevention: What Actually Works</span>
+        </nav>
+
+        <!-- 2. Header -->
+        <header class="wm-article-head">
+          <div class="wm-article-meta-row">
+            <span id="wm-art-category" class="wm-article-category">Health & Care</span>
+
+            <span class="wm-article-meta-item">
+              <span id="wm-art-date">Jul 23, 2026</span>
+            </span>
+
+            <span class="wm-article-meta-sep">•</span>
+
+            <span class="wm-article-meta-item">
+              <span id="wm-art-readtime">5 min read</span>
+            </span>
+          </div>
+
+          <h1 id="wm-art-title" class="wm-article-title">Flea and Tick Prevention: What Actually Works</h1>
+
+          <!-- Author Bar & Social Sharing -->
+          <div class="wm-article-author-bar">
+            <div class="wm-article-author-info">
+              <span>By</span>
+              <span id="wm-art-author" class="wm-article-author-name">Dr. Sarah Mitchell, DVM</span>
+            </div>
+
+            <div class="wm-article-share-group">
+              <span class="wm-article-share-label">Share:</span>
+              <button type="button" id="wm-share-copy-btn" class="wm-article-share-btn" onclick="copyArticleLink()">
+                <svg id="wm-share-copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span id="wm-share-copy-text">Copy Link</span>
+              </button>
+              <a href="#" class="wm-article-share-btn wm-article-share-btn--icon-only" aria-label="Share on X">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+              <a href="#" class="wm-article-share-btn wm-article-share-btn--icon-only" aria-label="Share on Facebook">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <!-- 3. Hero Featured Image -->
+        <div class="wm-article-hero-wrap">
+          <div class="wm-article-hero-media">
+            <img id="wm-art-img" src="/assets/dog-groomed.webp" alt="Flea and Tick Prevention: What Actually Works">
+          </div>
+        </div>
+
+        <!-- 4. Pure Clean Editorial Content Bodies -->
+        <!-- Article 0: Flea & Tick -->
+        <div id="wm-art-body-0" class="wm-article-body wm-art-body-block">
+          <p>
+            Warm weather brings adventures in dog parks, morning hikes through wooded trails, and sunny afternoons in the backyard with our furry companions. Unfortunately, it also marks peak season for fleas, ticks, and other persistent parasites. With warmer seasons expanding and temperature shifts occurring nationwide, veterinary dermatologists are seeing parasite transmission well into autumn and winter months, making comprehensive year-round protection essential.
+          </p>
+
+          <h2>Oral Chewables vs. Topical Treatments: What Works Best?</h2>
+          <p>
+            Pet parents often find themselves overwhelmed by the options available on clinic and pharmacy shelves. The two primary categories remain oral chewables and topical spot-on treatments, each offering distinct advantages depending on your pet's lifestyle, breed, and coat type:
+          </p>
+          <ul>
+            <li><strong>Oral Chewables (Isoxazolines):</strong> Modern monthly chewables provide rapid systemic protection. Within 8 to 12 hours of ingestion, adult fleas and ticks are neutralized before they have the opportunity to transmit dangerous pathogens like Lyme disease, Anaplasmosis, or tapeworms. Because they work from the inside out, they are completely waterproof and unaffected by frequent bathing or lake swimming.</li>
+            <li><strong>Topical Spot-on Treatments:</strong> Applied directly to the skin along the shoulder blades and dorsal line, topicals spread naturally across your pet's lipid layer. Many modern veterinary formulas feature contact repellent properties that deter parasites before they even make contact with the skin.</li>
+          </ul>
+
+          <blockquote>
+            <p>
+              "Always consult your primary veterinarian before switching preventative regimens. Dosages are strictly calibrated to body weight, and canine topicals containing permethrins can be lethal if accidentally ingested or groomed by household cats."
+            </p>
+          </blockquote>
+
+          <h2>The Reality About Natural Home Remedies</h2>
+          <p>
+            From apple cider vinegar sprays to garlic supplements, the internet is flooded with DIY pest repellents. While holistic pet wellness is wonderful, external parasites carry genuine health hazards that home concoctions simply cannot reliably mitigate:
+          </p>
+          <ul>
+            <li><strong>Garlic & Onions:</strong> Garlic is frequently suggested as a natural flea deterrent, but all members of the <em>Allium</em> botanical family contain thiosulfates that oxidize hemoglobin and damage red blood cells in both dogs and cats, leading to life-threatening hemolytic anemia.</li>
+            <li><strong>Essential Oils:</strong> Highly concentrated oils such as tea tree, eucalyptus, and pennyroyal are absorbed rapidly through pet skin and can cause neurological tremors or acute liver failure, particularly in felines who lack key liver glucuronidation enzymes.</li>
+          </ul>
+
+          <h2>The 95% Environmental Rule</h2>
+          <p>
+            Adult fleas visible on your pet represent only 5% of the total flea infestation. The remaining 95% exist in your carpets, furniture, and pet bedding as microscopic eggs, larvae, and pupae. Maintain regular weekly washing of pet beds in hot water and vacuum floorboards thoroughly to break the reproductive cycle.
+          </p>
+
+          <h2>Safe Removal If You Spot a Tick</h2>
+          <p>
+            If you discover an attached tick after an outdoor hike, avoid using heat, petroleum jelly, or twisting motions. Use fine-tipped tweezers or an authorized tick-removal hook, grasp the tick as close to the skin surface as possible, and pull upward with steady, even pressure. Clean the bite area with pet-safe antiseptic and monitor for lethargy or joint stiffness over the next two weeks.
+          </p>
+        </div>
+
+        <!-- Article 1: Grain-Free Food -->
+        <div id="wm-art-body-1" class="wm-article-body wm-art-body-block" style="display: none;">
+          <p>
+            Walking down the pet food aisle over the last decade, you could hardly miss the explosion of grain-free packaging boasting ancestral wolf diets and pristine raw ingredients. But in recent years, canine nutritionists and veterinary researchers have called for a more evidence-based perspective on what our dogs actually require for long-term health.
+          </p>
+
+          <h2>Canine Evolution: Dogs Are Not Wolves</h2>
+          <p>
+            While dogs share ancient ancestry with wolves, their tens of thousands of years co-evolving alongside human societies fundamentally adapted their digestive anatomy. Landmark genetic research published in <em>Nature</em> revealed that domestic dogs possess between 4 to 30 copies of the <strong>AMY2B gene</strong>, enabling them to produce abundant amylase enzymes and digest wholesome carbohydrates, whole grains, and starches with ease.
+          </p>
+
+          <blockquote>
+            <p>
+              "Wholesome grains like brown rice, oats, sorghum, and barley provide rich sources of soluble fiber, iron, magnesium, and essential B vitamins that support healthy cardiac tissue and smooth gastrointestinal transit."
+            </p>
+          </blockquote>
+
+          <h2>The FDA Investigation into Dilated Cardiomyopathy (DCM)</h2>
+          <p>
+            The U.S. FDA launched an investigation into potential correlations between certain boutique, exotic, and grain-free formulations and canine Dilated Cardiomyopathy (DCM), a serious condition that thins and weakens the cardiac heart muscle. Researchers identified that many grain-free foods heavily substituted grains with high concentrations of peas, lentils, chickpeas, and potatoes, which may interfere with amino acid absorption and taurine metabolism.
+          </p>
+
+          <h2>When Is Grain-Free Actually Necessary?</h2>
+          <p>
+            True grain allergies in canines are exceptionally rare, accounting for less than 1% of veterinary dermatology allergy cases. In reality, animal proteins such as chicken, beef, or dairy are significantly more likely culprits when an adverse food reaction or itchy skin occurs.
+          </p>
+        </div>
+
+        <!-- Article 2: Cat Vet Visit -->
+        <div id="wm-art-body-2" class="wm-article-body wm-art-body-block" style="display: none;">
+          <p>
+            Cats are evolutionary masters at concealing vulnerability. In the wild, displaying weakness or discomfort invites rival predators and threats. Even in the secure comfort of our living rooms, domestic cats instinctively mask medical problems until symptoms become significantly advanced. Learning to spot subtle behavioral shifts is the key to early veterinary intervention.
+          </p>
+
+          <h2>1. Subtle Shifts in Litter Box Habits</h2>
+          <p>
+            Any modification in urinary frequency, volume, or posture warrants prompt attention. Straining inside the litter box, crying out while urinating, or voiding outside the tray frequently signals painful conditions such as Feline Lower Urinary Tract Disease (FLUTD), sterile cystitis, or urethral blockages—a life-threatening medical emergency in male cats.
+          </p>
+
+          <h2>2. Grooming Changes: Over-Grooming vs. Neglect</h2>
+          <p>
+            A healthy feline spends up to 30% of their waking hours meticulously grooming. If you notice localized bald patches (especially along the caudal abdomen or inner thighs), this often points to stress-induced psychogenic alopecia or neuropathic bladder pain. Conversely, a dull, matted coat or flaky dandruff along the lower back suggests feline osteoarthritis, where twisting to groom has become too painful.
+          </p>
+
+          <blockquote>
+            <p>
+              "Cats aged seven and older should receive bi-annual veterinary wellness exams with routine blood chemistry and urinalysis panels to screen for kidney health, hypertension, and hyperthyroidism well before external symptoms emerge."
+            </p>
+          </blockquote>
+
+          <h2>3. Thirst & Appetite Anomalies</h2>
+          <p>
+            Hanging out over the water bowl, drinking from bathroom taps, or visiting the bowl frequently is often the earliest indicator of chronic renal insufficiency, hyperthyroidism, or feline diabetes.
+          </p>
+        </div>
+
+        <!-- Article 3: Puppy Chewing -->
+        <div id="wm-art-body-3" class="wm-article-body wm-art-body-block" style="display: none;">
+          <p>
+            Bringing a new puppy home is one of life’s purest joys—until your favorite pair of sneakers, the living room baseboards, and the TV remote fall victim to razor-sharp puppy teeth. The good news? Chewing is completely normal, instinctual developmental behavior. With thoughtful redirection and environmental management, you can protect your belongings while satisfying your puppy’s natural teething instincts.
+          </p>
+
+          <h2>Why Do Puppies Chew So Much?</h2>
+          <p>
+            Puppies explore the physical world through their mouth and senses. Between 12 weeks and 6 months of age, their 28 deciduous baby teeth fall out to make way for 42 permanent adult teeth. Chewing applies counter-pressure against the gums, providing immense soothing relief from the soreness of erupting adult molars.
+          </p>
+
+          <h2>The Golden Rule: Redirect, Never Punish</h2>
+          <p>
+            Scolding or punishing a puppy after they have chewed something only generates anxiety and confusion. Puppies live in the present moment. Instead, keep a rotating supply of sanctioned chew toys within arm’s reach throughout your house. Whenever you catch your pup gnawing on an unauthorized item, calmly interrupt them, swap it for a textured chew toy, and praise them enthusiastically the moment their teeth engage with the toy.
+          </p>
+
+          <blockquote>
+            <p>
+              "Freeze a whole peeled carrot or an interactive rubber toy packed with wet food and pumpkin. The chilled texture naturally numbs irritated puppy gums while providing 25-30 minutes of positive mental stimulation."
+            </p>
+          </blockquote>
+
+          <h2>Manage Your Environment</h2>
+          <p>
+            Proactive prevention is the cornerstone of puppy training. Store shoes inside closed closets, wrap electrical cords in plastic split tubing, and utilize puppy exercise pens to restrict unsupervised roaming until trustworthy house habits are firmly established.
+          </p>
+        </div>
+
+      </div><!-- /.wm-article-col -->
+
+      <!-- =========================================================
+           5. EXPLORE RELATED STORIES: EXACTLY 3 CARDS IN GRID
+           - Clicking ANY card opens that article dynamically!
+           ========================================================= -->
+      <section id="wm-related-section" class="wm-related-section" aria-label="Related Pet Journal Stories">
+        <div class="wm-related-head">
+          <h2 class="wm-related-title">Explore Related Stories</h2>
+          <p class="wm-related-subtitle">Continue reading expert veterinary advice, nutrition tips, and pet care guides.</p>
+        </div>
+
+        <!-- EXACTLY 3 CARDS IN THE GRID -->
+        <div id="wm-related-grid-wrap" class="wm-related-grid">
+
+          <!-- Card 0: Flea & Tick -->
+          <article
+            class="wm-blog-card"
+            data-article-idx="0"
+            onclick="window.openArticleCard(0, '#flea-tick', event)"
+            style="cursor: pointer; display: none;"
+          >
+            <a href="#flea-tick" class="wm-blog-card__media" tabindex="-1" aria-hidden="true" onclick="return window.openArticleCard(0, '#flea-tick', event)">
+              <img src="/assets/dog-groomed.webp" alt="Flea and Tick Prevention: What Actually Works" loading="lazy" width="600" height="450">
+            </a>
+            <h3 class="wm-blog-card__title">
+              <a href="#flea-tick" onclick="return window.openArticleCard(0, '#flea-tick', event)">Flea and Tick Prevention: What Actually Works</a>
+            </h3>
+            <p class="wm-blog-card__date">Jul 23, 2026</p>
+            <p class="wm-blog-card__excerpt">There’s a lot of noise out there about home remedies, but a few methods have real evidence to protect your pet all season long.</p>
+            <div class="wm-blog-card__foot">
+              <a href="#flea-tick" class="wm-blog-card__more" onclick="return window.openArticleCard(0, '#flea-tick', event)">Read more</a>
+            </div>
+          </article>
+
+          <!-- Card 1: Grain-Free Food -->
+          <article
+            class="wm-blog-card"
+            data-article-idx="1"
+            onclick="window.openArticleCard(1, '#grain-free', event)"
+            style="cursor: pointer; display: flex;"
+          >
+            <a href="#grain-free" class="wm-blog-card__media" tabindex="-1" aria-hidden="true" onclick="return window.openArticleCard(1, '#grain-free', event)">
+              <img src="/assets/slow-feeder-nutrition.webp" alt="Do Dogs Really Need Grain-Free Food?" loading="lazy" width="600" height="450">
+            </a>
+            <h3 class="wm-blog-card__title">
+              <a href="#grain-free" onclick="return window.openArticleCard(1, '#grain-free', event)">Do Dogs Really Need Grain-Free Food?</a>
+            </h3>
+            <p class="wm-blog-card__date">Jul 23, 2026</p>
+            <p class="wm-blog-card__excerpt">Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing for long-term health.</p>
+            <div class="wm-blog-card__foot">
+              <a href="#grain-free" class="wm-blog-card__more" onclick="return window.openArticleCard(1, '#grain-free', event)">Read more</a>
+            </div>
+          </article>
+
+          <!-- Card 2: Cat Vet Visit -->
+          <article
+            class="wm-blog-card"
+            data-article-idx="2"
+            onclick="window.openArticleCard(2, '#cat-vet', event)"
+            style="cursor: pointer; display: flex;"
+          >
+            <a href="#cat-vet" class="wm-blog-card__media" tabindex="-1" aria-hidden="true" onclick="return window.openArticleCard(2, '#cat-vet', event)">
+              <img src="/assets/cat-relaxing.webp" alt="Signs Your Cat Might Be Overdue for a Vet Visit" loading="lazy" width="600" height="450">
+            </a>
+            <h3 class="wm-blog-card__title">
+              <a href="#cat-vet" onclick="return window.openArticleCard(2, '#cat-vet', event)">Signs Your Cat Might Be Overdue for a Vet Visit</a>
+            </h3>
+            <p class="wm-blog-card__date">Jul 23, 2026</p>
+            <p class="wm-blog-card__excerpt">Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious changes in behavior.</p>
+            <div class="wm-blog-card__foot">
+              <a href="#cat-vet" class="wm-blog-card__more" onclick="return window.openArticleCard(2, '#cat-vet', event)">Read more</a>
+            </div>
+          </article>
+
+          <!-- Card 3: Puppy Chewing -->
+          <article
+            class="wm-blog-card"
+            data-article-idx="3"
+            onclick="window.openArticleCard(3, '#puppy-chewing', event)"
+            style="cursor: pointer; display: flex;"
+          >
+            <a href="#puppy-chewing" class="wm-blog-card__media" tabindex="-1" aria-hidden="true" onclick="return window.openArticleCard(3, '#puppy-chewing', event)">
+              <img src="/assets/dog-owner-happy.webp" alt="How to Stop a Puppy From Chewing Everything" loading="lazy" width="600" height="450">
+            </a>
+            <h3 class="wm-blog-card__title">
+              <a href="#puppy-chewing" onclick="return window.openArticleCard(3, '#puppy-chewing', event)">How to Stop a Puppy From Chewing Everything</a>
+            </h3>
+            <p class="wm-blog-card__date">Jul 23, 2026</p>
+            <p class="wm-blog-card__excerpt">Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it with positive reinforcement techniques.</p>
+            <div class="wm-blog-card__foot">
+              <a href="#puppy-chewing" class="wm-blog-card__more" onclick="return window.openArticleCard(3, '#puppy-chewing', event)">Read more</a>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    function copyArticleLink() {
+      var btn = document.getElementById('wm-share-copy-btn');
+      var text = document.getElementById('wm-share-copy-text');
+      if (text) text.textContent = 'Copied!';
+      if (btn) {
+        btn.style.background = '#059669';
+        btn.style.borderColor = '#059669';
+        btn.style.color = '#ffffff';
+      }
+      setTimeout(function() {
+        if (text) text.textContent = 'Copy Link';
+        if (btn) {
+          btn.style.background = '';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }
+      }, 2500);
+    }
+
+    var titles = [
+      "Flea and Tick Prevention: What Actually Works",
+      "Do Dogs Really Need Grain-Free Food?",
+      "Signs Your Cat Might Be Overdue for a Vet Visit",
+      "How to Stop a Puppy From Chewing Everything"
+    ];
+    var categories = ["Health & Care", "Nutrition", "Feline Care", "Training & Behavior"];
+    var authors = [
+      "Dr. Sarah Mitchell, DVM",
+      "Marcus Chen, Canine Nutritionist",
+      "Emily Watson, Feline Specialist",
+      "David Miller, Dog Trainer"
+    ];
+    var dates = ["Jul 23, 2026", "Jul 23, 2026", "Jul 23, 2026", "Jul 23, 2026"];
+    var readtimes = ["5 min read", "6 min read", "4 min read", "5 min read"];
+    var images = [
+      "/assets/dog-groomed.webp",
+      "/assets/slow-feeder-nutrition.webp",
+      "/assets/cat-relaxing.webp",
+      "/assets/dog-owner-happy.webp"
+    ];
+    var wmArticleSlugs = [
+      'flea-and-tick-prevention-what-actually-works',
+      'do-dogs-really-need-grain-free-food',
+      'signs-your-cat-might-be-overdue-for-a-vet-visit',
+      'how-to-stop-a-puppy-from-chewing-everything'
+    ];
+
+    function wmResolveArticleIndex() {
+      var hash = (window.location.hash || '').toLowerCase();
+      if (hash) {
+        if (hash.indexOf('chewing') !== -1 || hash.indexOf('puppy') !== -1 || hash.indexOf('article=3') !== -1 || hash.indexOf('article-3') !== -1) {
+          return 3;
+        }
+        if (hash.indexOf('cat') !== -1 || hash.indexOf('vet') !== -1 || hash.indexOf('article=2') !== -1 || hash.indexOf('article-2') !== -1) {
+          return 2;
+        }
+        if (hash.indexOf('grain') !== -1 || hash.indexOf('article=1') !== -1 || hash.indexOf('article-1') !== -1) {
+          return 1;
+        }
+        if (hash.indexOf('flea') !== -1 || hash.indexOf('tick') !== -1 || hash.indexOf('article=0') !== -1 || hash.indexOf('article-0') !== -1) {
+          return 0;
+        }
+      }
+
+      var path = (window.location.pathname + ' ' + window.location.search).toLowerCase();
+      if (path.indexOf('chewing') !== -1 || path.indexOf('puppy') !== -1) {
+        return 3;
+      }
+      if (path.indexOf('cat') !== -1 || path.indexOf('vet') !== -1) {
+        return 2;
+      }
+      if (path.indexOf('grain') !== -1) {
+        return 1;
+      }
+      if (path.indexOf('flea') !== -1 || path.indexOf('tick') !== -1) {
+        return 0;
+      }
+
+      return 0;
+    }
+
+    window.openArticleCard = function(targetIdx, hashTarget, event) {
+      if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+      }
+      var targetSlug = wmArticleSlugs[targetIdx];
+      if (targetSlug) {
+        if (window.history && window.history.pushState) {
+          window.history.pushState({ articleIdx: targetIdx }, '', '#' + targetSlug);
+        } else {
+          window.location.hash = targetSlug;
+        }
+      }
+      window.WagmartInitArticle();
+
+      var container = document.getElementById('wm-article-container');
+      if (container) {
+        var topPos = container.getBoundingClientRect().top + window.pageYOffset - 10;
+        window.scrollTo({ top: Math.max(0, topPos), behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return false;
+    };
+
+    window.WagmartInitArticle = function() {
+      var idx = wmResolveArticleIndex();
+
+      document.title = titles[idx] + " – Wagmart Pet Journal";
+
+      var crumbCat = document.getElementById('wm-art-crumb-cat');
+      if (crumbCat) crumbCat.textContent = categories[idx];
+      var crumbTitle = document.getElementById('wm-art-crumb-title');
+      if (crumbTitle) crumbTitle.textContent = titles[idx];
+
+      var titleEl = document.getElementById('wm-art-title');
+      if (titleEl) titleEl.textContent = titles[idx];
+      var catEl = document.getElementById('wm-art-category');
+      if (catEl) catEl.textContent = categories[idx];
+      var dateEl = document.getElementById('wm-art-date');
+      if (dateEl) dateEl.textContent = dates[idx];
+      var readEl = document.getElementById('wm-art-readtime');
+      if (readEl) readEl.textContent = readtimes[idx];
+
+      var authorEl = document.getElementById('wm-art-author');
+      if (authorEl) authorEl.textContent = authors[idx];
+
+      var imgEl = document.getElementById('wm-art-img');
+      if (imgEl && images[idx]) {
+        imgEl.removeAttribute('srcset');
+        imgEl.src = images[idx];
+        imgEl.alt = titles[idx];
+      }
+
+      // Switch article bodies
+      for (var b = 0; b < 4; b++) {
+        var bodyBlock = document.getElementById('wm-art-body-' + b);
+        if (bodyBlock) {
+          bodyBlock.style.display = (b === idx) ? 'block' : 'none';
+        }
+      }
+
+      // Update related cards: show exactly 3 cards, exclude active
+      var relCards = document.querySelectorAll('#wm-related-grid-wrap [data-article-idx]');
+      var count = 0;
+      relCards.forEach(function(card) {
+        var cIdx = parseInt(card.getAttribute('data-article-idx'), 10);
+        if (cIdx === idx || count >= 3) {
+          card.style.display = 'none';
+        } else {
+          card.style.display = 'flex';
+          count++;
+        }
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.WagmartInitArticle);
+    } else {
+      window.WagmartInitArticle();
+    }
+    window.addEventListener('hashchange', function() {
+      window.WagmartInitArticle();
+    });
+    window.addEventListener('popstate', function() {
+      window.WagmartInitArticle();
+    });
+  </script>
+</body>
+</html>

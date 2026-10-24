@@ -2,10 +2,29 @@
   Wagmart Hero Carousel Section
 {% endcomment %}
 
+<style>
+  /* Full-screen hero that starts at the very top of the page, underneath the floating navbar */
+  .wm-hero-full {
+    --hero-offset: var(--wm-header-total, 76px);
+    height: 100vh;                 /* fallback */
+    height: 100svh;                /* stable on mobile (address bar visible) */
+    min-height: 480px;             /* safety for very short landscape screens */
+    margin-top: calc(-1 * var(--hero-offset));
+  }
+  /* Keep slide content optically centred in the visible area below the navbar */
+  .wm-hero-full .hero-slide-content {
+    padding-top: var(--hero-offset);
+  }
+  .wm-hero-full [data-hero-prev],
+  .wm-hero-full [data-hero-next] {
+    top: calc(50% + (var(--hero-offset) / 2));
+  }
+</style>
+
 <section
   id="hero"
   aria-label="Pet Care Featured Highlights"
-  class="relative w-full h-[540px] sm:h-[600px] md:h-[640px] lg:h-[680px] xl:h-[700px] max-h-[92vh] bg-[#FAF8F5] overflow-hidden"
+  class="wm-hero-full relative w-full bg-white overflow-hidden"
 >
   {% comment %} Slides Container {% endcomment %}
   {%- if section.blocks.size > 0 -%}
@@ -38,7 +57,7 @@
 
         {% comment %} Left-side gradient overlay for slides with left layout (Slides 2-5) {% endcomment %}
         {%- if block.settings.layout == 'left' -%}
-          <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+          <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-white/90 via-white/65 to-transparent pointer-events-none z-[1]"></div>
         {%- endif -%}
 
         {% comment %} Slide Content Overlay {% endcomment %}
@@ -99,7 +118,7 @@
     {% comment %} Slide 2: Left {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-0 pointer-events-none -z-10" data-hero-slide>
       <img src="{{ 'hero-banner-2.webp' | asset_url }}" alt="Hero banner 2" class="absolute inset-0 w-full h-full object-cover object-right md:object-center select-none pointer-events-none" loading="lazy" width="1920" height="700">
-      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-white/90 via-white/65 to-transparent pointer-events-none z-[1]"></div>
       <div class="hero-slide-content relative z-10 w-full h-full max-w-7xl mx-auto flex items-center justify-start select-text">
         <div class="w-full max-w-md sm:max-w-lg md:max-w-[480px] lg:max-w-[520px] text-left py-6 sm:py-8 pointer-events-auto">
           <h1 class="font-nunito font-extrabold text-2xl sm:text-4xl md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.5rem] tracking-tight leading-[1.12] text-[#1E2228]">
@@ -119,7 +138,7 @@
     {% comment %} Slide 3: Left {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-0 pointer-events-none -z-10" data-hero-slide>
       <img src="{{ 'hero-banner-3.webp' | asset_url }}" alt="Hero banner 3" class="absolute inset-0 w-full h-full object-cover object-right md:object-center select-none pointer-events-none" loading="lazy" width="1920" height="700">
-      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-white/90 via-white/65 to-transparent pointer-events-none z-[1]"></div>
       <div class="hero-slide-content relative z-10 w-full h-full max-w-7xl mx-auto flex items-center justify-start select-text">
         <div class="w-full max-w-md sm:max-w-lg md:max-w-[480px] lg:max-w-[520px] text-left py-6 sm:py-8 pointer-events-auto">
           <h1 class="font-nunito font-extrabold text-2xl sm:text-4xl md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.5rem] tracking-tight leading-[1.12] text-[#1E2228]">
@@ -139,7 +158,7 @@
     {% comment %} Slide 4: Left {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-0 pointer-events-none -z-10" data-hero-slide>
       <img src="{{ 'hero-banner-4.webp' | asset_url }}" alt="Hero banner 4" class="absolute inset-0 w-full h-full object-cover object-right md:object-center select-none pointer-events-none" loading="lazy" width="1920" height="700">
-      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-white/90 via-white/65 to-transparent pointer-events-none z-[1]"></div>
       <div class="hero-slide-content relative z-10 w-full h-full max-w-7xl mx-auto flex items-center justify-start select-text">
         <div class="w-full max-w-md sm:max-w-lg md:max-w-[480px] lg:max-w-[520px] text-left py-6 sm:py-8 pointer-events-auto">
           <h1 class="font-nunito font-extrabold text-2xl sm:text-4xl md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.5rem] tracking-tight leading-[1.12] text-[#1E2228]">
@@ -159,7 +178,7 @@
     {% comment %} Slide 5: Left {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-0 pointer-events-none -z-10" data-hero-slide>
       <img src="{{ 'hero-banner-5.webp' | asset_url }}" alt="Hero banner 5" class="absolute inset-0 w-full h-full object-cover object-right md:object-center select-none pointer-events-none" loading="lazy" width="1920" height="700">
-      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/65 to-transparent pointer-events-none z-[1]"></div>
+      <div class="absolute inset-y-0 left-0 w-full sm:w-[70%] md:w-[58%] lg:w-[50%] bg-gradient-to-r from-white/90 via-white/65 to-transparent pointer-events-none z-[1]"></div>
       <div class="hero-slide-content relative z-10 w-full h-full max-w-7xl mx-auto flex items-center justify-start select-text">
         <div class="w-full max-w-md sm:max-w-lg md:max-w-[480px] lg:max-w-[520px] text-left py-6 sm:py-8 pointer-events-auto">
           <h1 class="font-nunito font-extrabold text-2xl sm:text-4xl md:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.5rem] tracking-tight leading-[1.12] text-[#1E2228]">

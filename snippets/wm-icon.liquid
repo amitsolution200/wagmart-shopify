@@ -1,0 +1,40 @@
+{%- comment -%}
+  WAGMART thin outline icon set (Lucide geometry, 1.5px stroke).
+  Usage: {% render 'wm-icon', name: 'search', class: 'wm-icon' %}
+{%- endcomment -%}
+<svg class="{{ class | default: 'wm-icon' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ stroke | default: 1.5 }}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  {%- case name -%}
+    {%- when 'search' -%}
+      <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+    {%- when 'user' -%}
+      <circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>
+    {%- when 'bag' -%}
+      <path d="M5.5 8h13l-.9 11.1a2 2 0 0 1-2 1.9H8.4a2 2 0 0 1-2-1.9Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>
+    {%- when 'menu' -%}
+      <path d="M4 7h16M4 12h16M4 17h10"/>
+    {%- when 'close' -%}
+      <path d="M18 6 6 18M6 6l12 12"/>
+    {%- when 'chevron-down' -%}
+      <path d="m6 9 6 6 6-6"/>
+    {%- when 'chevron-right' -%}
+      <path d="m9 6 6 6-6 6"/>
+    {%- when 'arrow-left' -%}
+      <path d="M19 12H5M11 18l-6-6 6-6"/>
+    {%- when 'arrow-right' -%}
+      <path d="M5 12h14M13 6l6 6-6 6"/>
+    {%- when 'eye' -%}
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>
+    {%- when 'package' -%}
+      <path d="m7.5 4.3 9 5.1M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>
+    {%- when 'user-circle' -%}
+      <circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="10" r="3"/><path d="M6.7 18.7a6 6 0 0 1 10.6 0"/>
+    {%- when 'trash' -%}
+      <path d="M4 7h16M10 11v6M14 11v6M5.5 7l1 12a2 2 0 0 0 2 1.8h7a2 2 0 0 0 2-1.8l1-12M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/>
+    {%- when 'paw' -%}
+      <circle cx="11" cy="4.5" r="2"/><circle cx="18" cy="8.5" r="2"/><circle cx="20" cy="15.5" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 15.37A3.5 3.5 0 0 1 9.5 10.5Z"/>
+    {%- when 'image' -%}
+      <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>
+    {%- when 'log-out' -%}
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+  {%- endcase -%}
+</svg>

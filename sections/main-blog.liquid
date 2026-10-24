@@ -1,51 +1,612 @@
 {% comment %}
-  Wagmart Blog Listing Section
+  Wagmart Blog Listing Section (Pet Journal)
+  - Laptop View (>=1024px):
+    * Big Featured Card: Left side Image, Right side Context (ALIGNED TO TOP, not center)
+    * Below Big Card: 3 Cards in a row
+  - Tablet View (640-1023px):
+    * 2 BY 2 GRID: All 4 cards in a 2x2 grid (NOT one big card)
+  - Mobile View (<640px):
+    * 1 Grid: Single card per row (vertical line)
+  - White background (#ffffff)
+  - No pagination dots
+  - All cards display proper image and context matching the homepage blog card layout design
 {% endcomment %}
 
-<section class="py-12 sm:py-16 bg-[#FAF8F5]">
-  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-2xl mx-auto mb-10">
-      {% render 'section-badge', label: 'Pet Journal', class: 'mb-3' %}
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#111827]">
-        {{ blog.title | default: 'Pet Care Guides & Stories' }}
+<style>
+  .wm-blog-page {
+    background: #ffffff;
+    padding: 36px 0 64px;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  }
+  .wm-blog-page__wrap {
+    --nav-outer: clamp(10px, 1.6vw, 20px);
+    --nav-inner: clamp(16px, 2vw, 30px);
+    box-sizing: border-box;
+    max-width: calc(1500px + (2 * var(--nav-outer)));
+    margin: 0 auto;
+    padding: 0 calc(var(--nav-outer) + var(--nav-inner));
+  }
+  @media (max-width: 767px) {
+    .wm-blog-page__wrap { --nav-inner: 8px; }
+  }
+
+  /* Header Section */
+  .wm-blog-page__head {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 36px;
+  }
+  .wm-blog-page__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(122, 70, 229, 0.08);
+    color: #7a46e5;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 12px;
+  }
+  .wm-blog-page__title {
+    margin: 0 0 10px;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: clamp(26px, 3.5vw, 42px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: #111111;
+  }
+  .wm-blog-page__subtitle {
+    margin: 0;
+    font-size: clamp(14px, 1.4vw, 16px);
+    line-height: 1.6;
+    color: #666666;
+  }
+
+  /* -------------------------------------------------------------
+     RESPONSIVE VIEW SWITCHER:
+     - Laptop/Desktop (>= 1024px): Big Top Card + 3 Cards Below
+     - Tablet & Mobile (< 1024px):
+       * Tablet (640-1023px): 2 BY 2 GRID (NOT one big card!)
+       * Mobile (< 640px)   : 1 Column Grid (single single)
+     ------------------------------------------------------------- */
+  .wm-blog-desktop-view {
+    display: none;
+  }
+  .wm-blog-mobile-tablet-view {
+    display: block;
+  }
+
+  /* Tablet & Mobile Grid (2x2 on Tablet, 1 col on Mobile) */
+  .wm-blog-tablet-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  @media (min-width: 640px) {
+    .wm-blog-tablet-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+  }
+
+  /* Laptop & Desktop View (>= 1024px) */
+  @media (min-width: 1024px) {
+    .wm-blog-mobile-tablet-view {
+      display: none;
+    }
+    .wm-blog-desktop-view {
+      display: block;
+    }
+  }
+
+  /* -------------------------------------------------------------
+     BIG FEATURED CARD (Laptop View):
+     - Left side Image
+     - Right side Context (ALIGNED TO TOP, NOT CENTER)
+     ------------------------------------------------------------- */
+  .wm-blog-featured {
+    margin-bottom: clamp(36px, 2vw, 48px);
+  }
+  .wm-blog-featured__inner {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(24px, 3vw, 40px);
+    align-items: start; /* Context at TOP, NOT centered */
+  }
+
+  .wm-blog-featured__media {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #f2f2f2;
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    min-height: 300px;
+  }
+  .wm-blog-featured__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wm-blog-featured:hover .wm-blog-featured__media img {
+    transform: scale(1.05);
+  }
+
+  .wm-blog-featured__badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(17, 17, 17, 0.85);
+    backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 6px 12px;
+    border-radius: 999px;
+    z-index: 2;
+  }
+
+  /* Right Side Context: TOP ALIGNED, NOT CENTERED */
+  .wm-blog-featured__context {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* TOP ALIGNED */
+    align-items: flex-start;
+    padding: 2px 0 0;
+  }
+  .wm-blog-featured__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .wm-blog-featured__category {
+    font-weight: 700;
+    color: #7a46e5;
+    background: rgba(122, 70, 229, 0.08);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .wm-blog-featured__date {
+    color: #9a9a9a;
+  }
+  .wm-blog-featured__sep {
+    color: #c4c4c4;
+    font-size: 10px;
+  }
+  .wm-blog-featured__read-time {
+    color: #888888;
+  }
+  .wm-blog-featured__title {
+    margin: 0 0 12px;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: clamp(22px, 2.2vw, 30px);
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #111111;
+    transition: color 0.25s ease;
+  }
+  .wm-blog-featured:hover .wm-blog-featured__title,
+  .wm-blog-featured__title:hover {
+    color: #7a46e5;
+  }
+  .wm-blog-featured__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .wm-blog-featured__excerpt {
+    margin: 0 0 18px;
+    font-size: clamp(14px, 1.15vw, 15px);
+    line-height: 1.65;
+    color: #555555;
+  }
+  .wm-blog-featured__foot {
+    margin-top: auto;
+    padding-top: 4px;
+  }
+  .wm-blog-featured__more {
+    display: inline-block;
+    position: relative;
+    padding-bottom: 3px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b3a55;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: left 100%;
+    background-size: 0% 1.5px;
+    transition:
+      background-size 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+      color 0.3s ease;
+  }
+  .wm-blog-featured:hover .wm-blog-featured__more,
+  .wm-blog-featured__more:focus-visible {
+    color: #7a46e5;
+    background-size: 100% 1.5px;
+  }
+
+  /* Desktop Subgrid: 3 Cards in a row */
+  .wm-blog-subgrid-title {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #111111;
+    margin: 0 0 20px;
+    letter-spacing: -0.01em;
+  }
+  .wm-blog-desktop-subgrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  /* -------------------------------------------------------------
+     CARD COMPONENT MATCHING HOMEPAGE BLOG SECTION EXACTLY
+     ------------------------------------------------------------- */
+  .wm-blog-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    text-align: left;
+    height: 100%;
+  }
+  .wm-blog-card__media {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #f2f2f2;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 12px;
+  }
+  .wm-blog-card__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wm-blog-card:hover .wm-blog-card__media img {
+    transform: scale(1.05);
+  }
+  .wm-blog-card__title {
+    margin: 0 0 4px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #111111;
+  }
+  .wm-blog-card__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .wm-blog-card:hover .wm-blog-card__title a,
+  .wm-blog-card__title a:hover {
+    color: #7a46e5;
+  }
+  .wm-blog-card__date {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    color: #9a9a9a;
+  }
+  .wm-blog-card__excerpt {
+    margin: 0 0 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #555555;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .wm-blog-card__foot {
+    margin-top: auto;
+  }
+  .wm-blog-card__more {
+    display: inline-block;
+    position: relative;
+    padding-bottom: 3px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #2b3a55;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: left 100%;
+    background-size: 0% 1.5px;
+    transition:
+      background-size 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+      color 0.3s ease;
+  }
+  .wm-blog-card:hover .wm-blog-card__more,
+  .wm-blog-card__more:focus-visible {
+    color: #7a46e5;
+    background-size: 100% 1.5px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wm-blog-card__media img,
+    .wm-blog-featured__media img,
+    .wm-blog-card__more,
+    .wm-blog-featured__more {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+{%- liquid
+  # Default Editorial Content matching homepage blog section
+  assign default_images = 'dog-groomed.webp,slow-feeder-nutrition.webp,cat-relaxing.webp,dog-owner-happy.webp' | split: ','
+  assign default_titles = 'Flea and Tick Prevention: What Actually Works|Do Dogs Really Need Grain-Free Food?|Signs Your Cat Might Be Overdue for a Vet Visit|How to Stop a Puppy From Chewing Everything' | split: '|'
+  assign default_excerpts = 'There’s a lot of noise out there about home remedies, but a few methods have real evidence to protect your pet all season long.|Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing for long-term health.|Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious changes in behavior.|Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it with positive reinforcement techniques.' | split: '|'
+  assign default_urls = '/blogs/news/flea-and-tick-prevention-what-actually-works|/blogs/news/do-dogs-really-need-grain-free-food|/blogs/news/signs-your-cat-might-be-overdue-for-a-vet-visit|/blogs/news/how-to-stop-a-puppy-from-chewing-everything' | split: '|'
+  assign default_categories = 'Health & Care|Nutrition|Feline Care|Training & Behavior' | split: '|'
+  assign default_dates = 'Jul 23, 2026|Jul 23, 2026|Jul 23, 2026|Jul 23, 2026' | split: '|'
+
+  # Check if Shopify store has live articles
+  assign has_live_articles = false
+  if blog != blank and blog.articles.size > 0
+    assign has_live_articles = true
+  endif
+
+  # First Big Featured Card Data
+  if has_live_articles
+    assign feat_article = blog.articles.first
+    assign feat_title = feat_article.title
+    assign feat_url = feat_article.url
+    assign feat_date = feat_article.published_at | date: '%b %d, %Y'
+    assign feat_excerpt = feat_article.excerpt_or_content | strip_html | truncate: 220
+    assign feat_category = feat_article.tags.first | default: 'Featured Story'
+    assign feat_image = feat_article.image
+  else
+    assign feat_title = default_titles[0]
+    assign feat_url = default_urls[0]
+    assign feat_date = default_dates[0]
+    assign feat_excerpt = default_excerpts[0]
+    assign feat_category = default_categories[0]
+    assign feat_image_name = default_images[0]
+  endif
+-%}
+
+<section class="wm-blog-page" aria-label="Wagmart Pet Journal and Guides">
+  <div class="wm-blog-page__wrap">
+
+    <!-- Header -->
+    <div class="wm-blog-page__head">
+      <span class="wm-blog-page__badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        Pet Journal
+      </span>
+      <h1 class="wm-blog-page__title">
+        {%- if blog.title != blank and blog.title != 'News' -%}
+          {{ blog.title }}
+        {%- else -%}
+          The Latest from Majestic Pet
+        {%- endif -%}
       </h1>
+      <p class="wm-blog-page__subtitle">
+        Expert veterinary advice, nutrition tips, and care guides crafted to keep your pets vibrant, healthy, and happy.
+      </p>
     </div>
 
-    {%- paginate blog.articles by 12 -%}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {%- for article in blog.articles -%}
-          <article class="group relative flex flex-col bg-[#FAF8F5] rounded-[22px] p-3 pb-5 overflow-hidden border border-black/[0.04] shadow-sm hover:shadow-md transition">
-            {%- if article.image -%}
-              <div class="relative w-full h-[210px] rounded-[14px] overflow-hidden bg-neutral-100 mb-3">
-                <img
-                  src="{{ article.image | image_url: width: 600 }}"
-                  alt="{{ article.title | escape }}"
-                  width="{{ article.image.width | default: 600 }}"
-                  height="{{ article.image.height | default: 420 }}"
-                  loading="lazy"
-                  class="w-full h-full object-cover"
-                >
-              </div>
+    <!-- =========================================================
+         1. LAPTOP & DESKTOP VIEW (>= 1024px):
+         - First Card is Big: Left Image, Right Context (ALIGNED TO TOP)
+         - Below: 3 Cards in a row
+         ========================================================= -->
+    <div class="wm-blog-desktop-view">
+      <!-- Big Featured Card -->
+      <article class="wm-blog-featured" aria-label="Featured Story">
+        <div class="wm-blog-featured__inner">
+          <!-- Left Side: Image -->
+          <a href="{{ feat_url }}" class="wm-blog-featured__media" tabindex="-1" aria-hidden="true">
+            <span class="wm-blog-featured__badge">Featured Story</span>
+            {%- if feat_image != blank -%}
+              {{ feat_image | image_url: width: 1000 | image_tag:
+                loading: 'eager',
+                widths: '500, 800, 1000',
+                sizes: '(min-width: 1024px) 50vw, 100vw',
+                alt: feat_title
+              }}
+            {%- else -%}
+              <img
+                src="{{ feat_image_name | asset_url }}"
+                alt="{{ feat_title | escape }}"
+                loading="eager"
+                width="800"
+                height="500"
+              >
             {%- endif -%}
-            <h2 class="font-jakarta text-[17.5px] font-bold text-[#111827] line-clamp-2 hover:text-[#7a46e5]">
-              <a href="{{ article.url }}">{{ article.title }}</a>
-            </h2>
-            <p class="mt-2 text-xs text-neutral-500 line-clamp-2">
-              {{ article.excerpt_or_content | strip_html | truncate: 100 }}
-            </p>
-            <div class="mt-auto pt-3 text-xs text-neutral-400">
-              {{ article.published_at | date: "%d %b %Y" }}
-            </div>
-          </article>
-        {%- endfor -%}
-      </div>
+          </a>
 
-      {%- if paginate.pages > 1 -%}
-        <div class="mt-12 flex justify-center gap-2">
-          {{ paginate | default_pagination }}
+          <!-- Right Side: Context (ALIGNED TO TOP, NOT CENTER) -->
+          <div class="wm-blog-featured__context">
+            <div class="wm-blog-featured__meta">
+              <span class="wm-blog-featured__category">{{ feat_category }}</span>
+              <span class="wm-blog-featured__sep">•</span>
+              <span class="wm-blog-featured__date">{{ feat_date }}</span>
+              <span class="wm-blog-featured__sep">•</span>
+              <span class="wm-blog-featured__read-time">5 min read</span>
+            </div>
+
+            <h2 class="wm-blog-featured__title">
+              <a href="{{ feat_url }}">{{ feat_title }}</a>
+            </h2>
+
+            <p class="wm-blog-featured__excerpt">
+              {{ feat_excerpt }}
+            </p>
+
+            <div class="wm-blog-featured__foot">
+              <a href="{{ feat_url }}" class="wm-blog-featured__more">Read more</a>
+            </div>
+          </div>
         </div>
-      {%- endif -%}
-    {%- endpaginate -%}
+      </article>
+
+      <!-- 3 Cards in a row -->
+      <div class="wm-blog-desktop-subgrid">
+        {%- if has_live_articles -%}
+          {%- for article in blog.articles offset: 1 limit: 3 -%}
+            {%- assign idx = forloop.index0 | plus: 1 | modulo: 4 -%}
+            <article class="wm-blog-card">
+              <a href="{{ article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+                {%- if article.image != blank -%}
+                  {{ article.image | image_url: width: 800 | image_tag:
+                    loading: 'lazy',
+                    widths: '400, 600, 800',
+                    sizes: '33vw',
+                    alt: article.title
+                  }}
+                {%- else -%}
+                  <img
+                    src="{{ default_images[idx] | asset_url }}"
+                    alt="{{ article.title | escape }}"
+                    loading="lazy"
+                    width="600"
+                    height="356"
+                  >
+                {%- endif -%}
+              </a>
+
+              <h3 class="wm-blog-card__title">
+                <a href="{{ article.url }}">{{ article.title }}</a>
+              </h3>
+
+              <p class="wm-blog-card__date">{{ article.published_at | date: '%b %d, %Y' }}</p>
+
+              <p class="wm-blog-card__excerpt">{{ article.excerpt_or_content | strip_html | truncate: 140 }}</p>
+
+              <div class="wm-blog-card__foot">
+                <a href="{{ article.url }}" class="wm-blog-card__more">Read more</a>
+              </div>
+            </article>
+          {%- endfor -%}
+
+        {%- else -%}
+          {%- for i in (1..3) -%}
+            {%- assign card_link = default_urls[i] -%}
+            <article class="wm-blog-card">
+              <a href="{{ card_link }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+                <img
+                  src="{{ default_images[i] | asset_url }}"
+                  alt="{{ default_titles[i] | escape }}"
+                  loading="lazy"
+                  width="600"
+                  height="356"
+                >
+              </a>
+
+              <h3 class="wm-blog-card__title">
+                <a href="{{ card_link }}">{{ default_titles[i] }}</a>
+              </h3>
+
+              <p class="wm-blog-card__date">{{ default_dates[i] }}</p>
+
+              <p class="wm-blog-card__excerpt">{{ default_excerpts[i] }}</p>
+
+              <div class="wm-blog-card__foot">
+                <a href="{{ card_link }}" class="wm-blog-card__more">Read more</a>
+              </div>
+            </article>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <!-- =========================================================
+         2. TABLET & MOBILE VIEW (< 1024px):
+         - Tablet View (640-1023px): 2 BY 2 GRID (NOT one big card!)
+         - Mobile View (< 640px)   : 1 Column Grid (single single)
+         - No pagination dots
+         ========================================================= -->
+    <div class="wm-blog-mobile-tablet-view">
+      <div class="wm-blog-tablet-grid">
+        {%- if has_live_articles -%}
+          {%- for article in blog.articles limit: 4 -%}
+            {%- assign idx = forloop.index0 | modulo: 4 -%}
+            <article class="wm-blog-card">
+              <a href="{{ article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+                {%- if article.image != blank -%}
+                  {{ article.image | image_url: width: 800 | image_tag:
+                    loading: 'lazy',
+                    widths: '400, 600, 800',
+                    sizes: '(min-width: 640px) 50vw, 100vw',
+                    alt: article.title
+                  }}
+                {%- else -%}
+                  <img
+                    src="{{ default_images[idx] | asset_url }}"
+                    alt="{{ article.title | escape }}"
+                    loading="lazy"
+                    width="600"
+                    height="356"
+                  >
+                {%- endif -%}
+              </a>
+
+              <h3 class="wm-blog-card__title">
+                <a href="{{ article.url }}">{{ article.title }}</a>
+              </h3>
+
+              <p class="wm-blog-card__date">{{ article.published_at | date: '%b %d, %Y' }}</p>
+
+              <p class="wm-blog-card__excerpt">{{ article.excerpt_or_content | strip_html | truncate: 140 }}</p>
+
+              <div class="wm-blog-card__foot">
+                <a href="{{ article.url }}" class="wm-blog-card__more">Read more</a>
+              </div>
+            </article>
+          {%- endfor -%}
+
+        {%- else -%}
+          {%- for i in (0..3) -%}
+            {%- assign card_link = default_urls[i] -%}
+            <article class="wm-blog-card">
+              <a href="{{ card_link }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+                <img
+                  src="{{ default_images[i] | asset_url }}"
+                  alt="{{ default_titles[i] | escape }}"
+                  loading="lazy"
+                  width="600"
+                  height="356"
+                >
+              </a>
+
+              <h3 class="wm-blog-card__title">
+                <a href="{{ card_link }}">{{ default_titles[i] }}</a>
+              </h3>
+
+              <p class="wm-blog-card__date">{{ default_dates[i] }}</p>
+
+              <p class="wm-blog-card__excerpt">{{ default_excerpts[i] }}</p>
+
+              <div class="wm-blog-card__foot">
+                <a href="{{ card_link }}" class="wm-blog-card__more">Read more</a>
+              </div>
+            </article>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+
   </div>
 </section>
 

@@ -124,73 +124,69 @@
     "pet_reels": {
       "type": "pet-reels",
       "blocks": {
-        "reel_food": {
+        "reel_1": {
           "type": "reel",
           "settings": {
-            "title": "Healthy Meals Happier Days",
-            "tag": "DOG FOOD",
+            "product_title": "Portable Muddy Paw Cleaner",
+            "product_price": "€24,95",
+            "product_compare_price": "€34,95",
+            "youtube_id": "AOr9WB0XIUY",
+            "story": "Gentle silicone bristles quickly wash away mud and grit before paws step inside."
+          }
+        },
+        "reel_2": {
+          "type": "reel",
+          "settings": {
+            "product_title": "Anti-Gulp Slow Feeder Bowl",
+            "product_price": "€29,95",
+            "product_compare_price": "€38,00",
             "youtube_id": "5H4sZNYtBFc",
-            "story": "Watch how excited Golden Max gets for his balanced, nutritious dinner served in our elevated stainless steel feeder!"
+            "story": "Promotes healthy digestion and turns mealtime into a fun, mindful maze."
           }
         },
-        "reel_grooming": {
+        "reel_3": {
           "type": "reel",
           "settings": {
-            "title": "Grooming Made Easy at Home",
-            "tag": "GROOMING",
+            "product_title": "Self-Cleaning Slicker Brush",
+            "product_price": "€19,95",
+            "product_compare_price": "€26,95",
             "youtube_id": "LB8Qfa9tTsU",
-            "story": "Gentle deshedding and coat care turning grooming time into a soothing massage your cat looks forward to every week."
+            "story": "One-click hair release effortlessly detangles mats without scratching sensitive skin."
           }
         },
-        "reel_toys": {
+        "reel_4": {
           "type": "reel",
           "settings": {
-            "title": "Playtime Never Ends",
-            "tag": "TOYS",
+            "product_title": "Interactive Wobble Giggle Ball",
+            "product_price": "€22,95",
+            "product_compare_price": "€29,95",
             "youtube_id": "vwz9XsIcRik",
-            "story": "High-energy puppy playtime with durable braided cotton rope toys and chew rings that keep tails wagging all afternoon."
+            "story": "No batteries required giggle sounds that keep energetic dogs happily engaged for hours."
           }
         },
-        "reel_travel": {
+        "reel_5": {
           "type": "reel",
           "settings": {
-            "title": "Ready For New Adventures",
-            "tag": "TRAVEL",
+            "product_title": "Waterproof Pet Car Seat Hammock",
+            "product_price": "€49,95",
+            "product_compare_price": "€64,95",
             "youtube_id": "GalPqZH1glY",
-            "story": "Worry-free road trips and safe scenic rides with the waterproof hammock seat cover and travel harness."
-          }
-        },
-        "reel_beds": {
-          "type": "reel",
-          "settings": {
-            "title": "Sleep Tight, Wake Bright",
-            "tag": "BEDS & MATS",
-            "youtube_id": "7gUf76myTkw",
-            "story": "Orthopedic memory foam pet beds providing gentle joint support and peaceful sleep for all pet sizes."
-          }
-        },
-        "reel_training": {
-          "type": "reel",
-          "settings": {
-            "title": "Smart Paws & Easy Training",
-            "tag": "TRAINING",
-            "youtube_id": "-XoqseUWfFg",
-            "story": "Rewarding good habits with tasty bites and interactive puzzle training treats."
+            "story": "Heavy-duty waterproof hammock shielding your back seat from mud, fur, and scratches."
           }
         }
       },
       "block_order": [
-        "reel_food",
-        "reel_grooming",
-        "reel_toys",
-        "reel_travel",
-        "reel_beds",
-        "reel_training"
+        "reel_1",
+        "reel_2",
+        "reel_3",
+        "reel_4",
+        "reel_5"
       ],
       "settings": {
-        "badge_label": "Pet Stories & Reels",
-        "title": "Real Pets.",
-        "title_accent": "Real Moments."
+        "badge_label": "",
+        "title": "Good Dogs. Great Style.",
+        "title_accent": "",
+        "subtitle": "Bold colours, curious faces and everyday adventures. Watch the videos and find your companion's next favourite accessory."
       }
     },
     "testimonials": {
@@ -204,18 +200,49 @@
     },
     "blog_section": {
       "type": "blog-section",
+      "blocks": {
+        "article_1": {
+          "type": "article",
+          "settings": {
+            "title": "Flea and Tick Prevention: What Actually Works",
+            "date": "Jul 23, 2026",
+            "excerpt": "There’s a lot of noise out there about home remedies, but a few methods have real evidence..."
+          }
+        },
+        "article_2": {
+          "type": "article",
+          "settings": {
+            "title": "Do Dogs Really Need Grain-Free Food?",
+            "date": "Jul 23, 2026",
+            "excerpt": "Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing..."
+          }
+        },
+        "article_3": {
+          "type": "article",
+          "settings": {
+            "title": "Signs Your Cat Might Be Overdue for a Vet Visit",
+            "date": "Jul 23, 2026",
+            "excerpt": "Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious..."
+          }
+        },
+        "article_4": {
+          "type": "article",
+          "settings": {
+            "title": "How to Stop a Puppy From Chewing Everything",
+            "date": "Jul 23, 2026",
+            "excerpt": "Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it rather than trying to sto..."
+          }
+        }
+      },
+      "block_order": [
+        "article_1",
+        "article_2",
+        "article_3",
+        "article_4"
+      ],
       "settings": {
-        "badge_label": "Pet Journal & Care Guides",
-        "title": "Expert Tips & Stories for",
-        "title_accent": "Happier, Healthier"
-      }
-    },
-    "faq_accordion": {
-      "type": "faq-accordion",
-      "settings": {
-        "badge_label": "Frequently Asked Questions",
-        "title": "Common",
-        "title_accent": "Questions"
+        "title": "The Latest from Majestic Pet",
+        "button_text": "View All Blogs"
       }
     }
   },
@@ -228,8 +255,7 @@
     "pet_trust",
     "pet_reels",
     "testimonials",
-    "blog_section",
-    "faq_accordion"
+    "blog_section"
   ]
 }
 

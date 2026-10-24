@@ -1,148 +1,850 @@
 {% comment %}
-  Wagmart Footer Section
+  Wagmart Premium Redesigned CTA & Footer Section
+  - Modern, responsive Two-Column CTA Banner with transparent pet product composition
+  - Beautiful, structured 4-column footer with rich navigation, newsletter, and contact details
+  - 100% mobile-friendly and tablet-optimized with zero negative-margin hacks
+  - Shopify Online Store 2.0 theme editor settings
 {% endcomment %}
 
-<footer id="contact" class="relative w-full select-none bg-[#ECE4DB] scroll-mt-24 font-sans">
+{%- capture default_footer_address -%}
+Shop No. 312, 3rd Floor, Shivalik Complex,
+Opposite Heny Heights, Near Dabholi Gam BRTS Bus Stop,
+Dabholi Gam Road, Katargam,
+Surat, Gujarat, 395004
+{%- endcapture -%}
+
+{%- liquid
+  assign show_cta = section.settings.show_cta | default: true
+  assign cta_eyebrow = section.settings.cta_eyebrow | default: 'MADE FOR HAPPY PETS'
+  assign cta_heading = section.settings.cta_heading | default: section.settings.cta_title | default: 'Everything Your Pet Needs'
+  assign cta_desc = section.settings.cta_desc | default: 'Discover everyday essentials for happier, healthier pets.'
+  assign cta_btn_text = section.settings.cta_btn_text | default: 'SHOP PET PRODUCTS'
+  assign cta_btn_link = section.settings.cta_btn_link
+  if cta_btn_link == blank
+    assign cta_btn_link = routes.all_products_collection_url | default: '/collections/all'
+  endif
+  assign cta_btn_secondary_text = section.settings.cta_btn_secondary_text | default: 'Call Us Now'
+  assign cta_btn_secondary_link = section.settings.cta_btn_secondary_link
   
-  {% comment %} Top CTA & Background Image Area {% endcomment %}
-  <div class="relative w-full overflow-hidden bg-white">
-    <img
-      src="{{ 'footer.webp' | asset_url }}"
-      alt="Wagmart Pet Care Footer"
-      class="w-full h-auto block select-none pointer-events-none"
-      loading="eager"
-      width="1920"
-      height="600"
-    >
+  if section.settings.cta_image != blank
+    assign cta_img_url = section.settings.cta_image | image_url: width: 1200
+  else
+    assign cta_img_url = 'wagmart-pet-products.png' | asset_url
+  endif
 
-    {% comment %} CTA Content Overlay {% endcomment %}
-    <div class="absolute top-[6%] sm:top-[10%] md:top-[12%] lg:top-[15%] left-3 sm:left-6 md:left-10 lg:left-[6%] max-w-[50%] sm:max-w-[48%] md:max-w-[44%] lg:max-w-[40%] z-10 pointer-events-auto">
-      <h2 class="font-serif-title text-[13px] sm:text-base md:text-2xl lg:text-3xl xl:text-6xl font-semibold text-[#1F2421] tracking-tight leading-[1.2]">
-        {{ section.settings.cta_title | default: 'Ready to Give Your Pet the Best Care? Contact Us Today!' }}
-      </h2>
+  if section.settings.address == blank or section.settings.address contains '123 PetCare Avenue'
+    assign footer_address = default_footer_address
+  else
+    assign footer_address = section.settings.address
+  endif
 
-      <div class="mt-2.5 sm:mt-4 md:mt-5 lg:mt-6">
-        <a
-          href="tel:{{ section.settings.phone | default: '+917777985896' | replace: ' ', '' }}"
-          class="group relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#7a46e5] via-[#8451ed] to-[#9361fa] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer overflow-hidden border border-white/25 select-none shadow-[0_10px_25px_-5px_rgba(122,70,229,0.38)] px-4 sm:px-6 py-2 sm:py-2.5 text-[11px] sm:text-xs md:text-sm lg:text-base gap-2"
-        >
-          <span class="relative z-10 tracking-wide">Call Us Now</span>
-          {% render 'icon-phone', class: 'relative z-10 shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]' %}
-        </a>
-      </div>
-    </div>
-  </div>
+  assign phone_num = section.settings.phone | default: '+91 77779 85896'
+  assign email_addr = section.settings.email | default: 'support@wagmart.com'
+  assign about_copy = section.settings.about_text | default: 'Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents.'
+-%}
 
-  {% comment %} Footer Columns & Links Area {% endcomment %}
-  <div class="relative w-full bg-[#ECE4DB] text-[#4B3F33] px-4 sm:px-6 md:px-10 lg:px-12 xl:px-16 pt-2 sm:pt-4 md:pt-6 pb-6 sm:pb-8 -mt-20 sm:-mt-28 md:-mt-44 lg:-mt-60 xl:-mt-72 z-20 pointer-events-auto">
-    <div class="max-w-[1400px] mx-auto">
-      
-      <div class="flex flex-col lg:flex-row items-stretch gap-8 lg:gap-0 pb-6 sm:pb-8 border-b border-[#D8CEBF]">
-        
-        {% comment %} COLUMN 1: Brand & Social {% endcomment %}
-        <div class="lg:w-[41%] lg:pr-8 xl:pr-12 lg:border-r lg:border-[#D8CEBF] flex flex-col justify-between">
-          <div>
-            <a href="{{ routes.root_url }}" class="inline-block mb-3.5 sm:mb-4 group" aria-label="Wagmart Home">
-              <img
-                src="{{ 'WAGMART-Logo.webp' | asset_url }}"
-                alt="Wagmart"
-                class="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform group-hover:scale-105"
-                width="160"
-                height="40"
-              >
-            </a>
-            <p class="text-[14px] sm:text-[15.5px] text-[#524538] leading-relaxed max-w-[360px] mb-6 font-normal">
-              {{ section.settings.about_text | default: 'Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents.' }}
-            </p>
+<style>
+  /* ==========================================================================
+     RENEWED WAGMART CTA BANNER & FOOTER STYLING
+     ========================================================================== */
+  
+  /* 1. Integrated CTA Banner */
+  .wm-site-cta {
+    background-color: #FAF8F5;
+    border-top: 1px solid #EAE5D9;
+    border-bottom: 1px solid #EAE5D9;
+    padding: 44px 0 52px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  }
+  @media (min-width: 768px) {
+    .wm-site-cta {
+      padding: 64px 0 72px;
+    }
+  }
+  @media (min-width: 1200px) {
+    .wm-site-cta {
+      padding: 76px 0 84px;
+    }
+  }
+
+  .wm-site-cta__wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 56px);
+  }
+
+  .wm-site-cta__grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  @media (min-width: 768px) {
+    .wm-site-cta__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(32px, 5vw, 72px);
+    }
+  }
+
+  /* Left: Product Composition Media */
+  .wm-site-cta__media {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+  .wm-site-cta__img {
+    width: 100%;
+    max-width: 580px;
+    height: auto;
+    max-height: 440px;
+    object-fit: contain;
+    aspect-ratio: 1200 / 896;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 14px 30px rgba(24, 59, 43, 0.09));
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (min-width: 1200px) {
+    .wm-site-cta__img {
+      max-height: 480px;
+    }
+  }
+  .wm-site-cta:hover .wm-site-cta__img {
+    transform: scale(1.02);
+  }
+
+  /* Right: CTA Copy & Actions */
+  .wm-site-cta__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  @media (min-width: 768px) {
+    .wm-site-cta__content {
+      align-items: flex-start;
+      text-align: left;
+      margin: 0;
+    }
+  }
+
+  .wm-site-cta__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #2E604A;
+    margin-bottom: 12px;
+  }
+  .wm-site-cta__eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #2E604A;
+  }
+
+  .wm-site-cta__heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(28px, 3.2vw, 46px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #183B2B;
+    margin: 0 0 16px 0;
+  }
+
+  .wm-site-cta__desc {
+    font-size: clamp(14.5px, 1.1vw, 16.5px);
+    line-height: 1.6;
+    color: #44564C;
+    margin: 0 0 28px 0;
+    max-width: 480px;
+  }
+
+  .wm-site-cta__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 440px;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  @media (min-width: 600px) {
+    .wm-site-cta__actions {
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      max-width: none;
+      gap: 18px;
+    }
+  }
+  @media (min-width: 768px) {
+    .wm-site-cta__actions {
+      justify-content: flex-start;
+      gap: 18px;
+    }
+  }
+
+  .wm-site-cta__btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #183B2B;
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 13.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 24px;
+    border-radius: 9999px;
+    box-shadow: 0 4px 14px rgba(24, 59, 43, 0.16);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+  @media (min-width: 600px) {
+    .wm-site-cta__btn-primary {
+      width: auto;
+      padding: 15px 32px;
+    }
+  }
+  .wm-site-cta__btn-primary:hover {
+    background-color: #24543E;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(24, 59, 43, 0.24);
+  }
+
+  .wm-site-cta__btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #ffffff;
+    color: #183B2B !important;
+    border: 1.5px solid #D5CEBF;
+    font-weight: 700;
+    font-size: 13.5px;
+    text-decoration: none;
+    padding: 13px 22px;
+    border-radius: 9999px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+  @media (min-width: 600px) {
+    .wm-site-cta__btn-secondary {
+      width: auto;
+      padding: 14px 26px;
+    }
+  }
+  .wm-site-cta__btn-secondary:hover {
+    border-color: #183B2B;
+    background-color: #FAF8F5;
+    transform: translateY(-1px);
+  }
+
+  .wm-site-cta__trust-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #556B5F;
+  }
+  @media (min-width: 768px) {
+    .wm-site-cta__trust-row {
+      justify-content: flex-start;
+    }
+  }
+  .wm-site-cta__trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .wm-site-cta__trust-icon {
+    width: 15px;
+    height: 15px;
+    color: #2E604A;
+  }
+
+  /* 2. Main Footer Styling */
+  .wm-site-footer {
+    background-color: #16241D;
+    color: #E2E8F0;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    position: relative;
+    width: 100%;
+    padding-top: 56px;
+    padding-bottom: 28px;
+  }
+  @media (min-width: 1024px) {
+    .wm-site-footer {
+      padding-top: 72px;
+    }
+  }
+
+  .wm-site-footer__wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 56px);
+  }
+
+  .wm-site-footer__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px 32px;
+    padding-bottom: 48px;
+  }
+  /* Tablet View (640px to 1023px): First row = 3 columns (Logo + 2 link columns), Second row = Stay in Touch full width */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .wm-site-footer__grid {
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 36px 28px;
+    }
+    .wm-footer-col--newsletter {
+      grid-column: 1 / -1;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 32px;
+    }
+    .wm-footer-newsletter-tablet-split {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+  }
+
+  /* Desktop View (1024px+): Original 4-Column Layout */
+  @media (min-width: 1024px) {
+    .wm-site-footer__grid {
+      grid-template-columns: 1.4fr 0.9fr 0.9fr 1.3fr;
+      gap: 48px;
+    }
+    .wm-footer-col--newsletter {
+      grid-column: auto;
+      border-top: none;
+      padding-top: 0;
+    }
+    .wm-footer-newsletter-tablet-split {
+      display: block;
+    }
+  }
+
+  /* Col 1: Brand & Bio */
+  .wm-footer-logo-wrap {
+    display: inline-block;
+    background-color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.25s ease;
+  }
+  .wm-footer-logo-wrap:hover {
+    transform: scale(1.04);
+  }
+  .wm-footer-logo-img {
+    height: 34px;
+    width: auto;
+    display: block;
+    object-contain: contain;
+  }
+
+  .wm-footer-bio {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #94A3B8;
+    margin-bottom: 22px;
+    max-width: 360px;
+  }
+
+  .wm-footer-social-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .wm-footer-social-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .wm-footer-social-btn:hover {
+    background-color: #7a46e5;
+    border-color: #7a46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(122, 70, 229, 0.4);
+  }
+
+  .wm-footer-trust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 6px 12px;
+    background-color: rgba(46, 96, 74, 0.3);
+    border: 1px solid rgba(46, 96, 74, 0.5);
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #A7F3D0;
+  }
+
+  /* Navigation Columns */
+  .wm-footer-title {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 10px;
+  }
+  .wm-footer-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 24px;
+    height: 2px;
+    background-color: #8CBF6E;
+    border-radius: 2px;
+  }
+
+  .wm-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .wm-footer-link {
+    color: #CBD5E1;
+    text-decoration: none;
+    font-size: 14.5px;
+    font-weight: 600;
+    transition: color 0.15s ease, transform 0.15s ease;
+    display: inline-block;
+  }
+  .wm-footer-link:hover {
+    color: #8CBF6E;
+    transform: translateX(3px);
+  }
+
+  /* Col 4: Newsletter & Contact */
+  .wm-footer-newsletter-text {
+    font-size: 13.5px;
+    color: #94A3B8;
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+
+  .wm-footer-newsletter-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 4px 4px 4px 14px;
+    margin-bottom: 22px;
+    transition: border-color 0.2s ease;
+  }
+  .wm-footer-newsletter-form:focus-within {
+    border-color: #8CBF6E;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .wm-footer-newsletter-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-family: inherit;
+  }
+  .wm-footer-newsletter-input::placeholder {
+    color: #64748B;
+  }
+  .wm-footer-newsletter-btn {
+    background-color: #8CBF6E;
+    color: #16241D;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wm-footer-newsletter-btn:hover {
+    background-color: #9DD27E;
+    transform: scale(1.02);
+  }
+
+  .wm-footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 13.5px;
+  }
+  .wm-footer-contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #CBD5E1;
+  }
+  .wm-footer-contact-icon {
+    width: 17px;
+    height: 17px;
+    color: #8CBF6E;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .wm-footer-contact-item a {
+    color: #E2E8F0;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.15s ease;
+  }
+  .wm-footer-contact-item a:hover {
+    color: #8CBF6E;
+  }
+
+  /* 3. Bottom Bar */
+  .wm-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    font-size: 12.5px;
+    color: #94A3B8;
+  }
+  @media (min-width: 768px) {
+    .wm-footer-bottom {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
+    }
+  }
+
+  .wm-footer-payments {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .wm-footer-payments span {
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+  }
+  .wm-footer-payments span:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Accessibility & Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .wm-site-cta__img,
+    .wm-site-cta__btn-primary,
+    .wm-footer-social-btn,
+    .wm-footer-link {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+<footer id="contact" class="wm-site-footer-wrapper scroll-mt-24" role="contentinfo" aria-label="Wagmart Site Footer">
+
+  {% comment %} =========================================================
+     TOP CTA BANNER (REPLACES OLD STATIC FOOTER.WEBP WITH NEGATIVE MARGINS)
+     ========================================================= {% endcomment %}
+  {%- if show_cta -%}
+    <section class="wm-site-cta" aria-labelledby="wm-site-cta-title">
+      <div class="wm-site-cta__wrap">
+        <div class="wm-site-cta__grid">
+          
+          {% comment %} Left: Transparent Pet Product Image {% endcomment %}
+          <div class="wm-site-cta__media">
+            <img
+              src="{{ cta_img_url }}"
+              alt="Wagmart Pet Care Essentials: dog food bag, bowl with kibble, grooming brush, shampoo bottle, rope toy and chew ball"
+              class="wm-site-cta__img"
+              loading="lazy"
+              width="1200"
+              height="896"
+            >
           </div>
 
-          <div>
-            <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3 font-serif-title">
-              FOLLOW WAGMART
-            </h4>
-            <div class="flex items-center gap-2.5">
-              <a href="{{ settings.social_facebook_link | default: 'https://facebook.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on Facebook" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>
+          {% comment %} Right: CTA Copy & Actions {% endcomment %}
+          <div class="wm-site-cta__content">
+            <div class="wm-site-cta__eyebrow">
+              <span class="wm-site-cta__eyebrow-dot" aria-hidden="true"></span>
+              <span>{{ cta_eyebrow }}</span>
+            </div>
+
+            <h2 id="wm-site-cta-title" class="wm-site-cta__heading">
+              {{ cta_heading }}
+            </h2>
+
+            <p class="wm-site-cta__desc">
+              {{ cta_desc }}
+            </p>
+
+            <div class="wm-site-cta__actions">
+              {%- if cta_btn_text != blank -%}
+                <a
+                  href="{{ cta_btn_link }}"
+                  class="wm-site-cta__btn-primary"
+                  aria-label="{{ cta_btn_text | escape }} - {{ cta_heading | escape }}"
+                >
+                  <span>{{ cta_btn_text }}</span>
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if cta_btn_secondary_text != blank -%}
+                <a
+                  href="{{ cta_btn_secondary_link | default: 'tel:' | append: phone_num | replace: ' ', '' }}"
+                  class="wm-site-cta__btn-secondary"
+                  aria-label="{{ cta_btn_secondary_text | escape }}"
+                >
+                  <svg class="w-4 h-4 text-[#2E604A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span>{{ cta_btn_secondary_text }}</span>
+                </a>
+              {%- endif -%}
+            </div>
+
+            <div class="wm-site-cta__trust-row">
+              <div class="wm-site-cta__trust-item">
+                <svg class="wm-site-cta__trust-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>100% Pet-Safe</span>
+              </div>
+              <div class="wm-site-cta__trust-item">
+                <svg class="wm-site-cta__trust-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>Free Shipping &gt; ₹499</span>
+              </div>
+              <div class="wm-site-cta__trust-item">
+                <svg class="wm-site-cta__trust-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>Quality Guaranteed</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {% comment %} =========================================================
+     MAIN FOOTER CONTENT
+     ========================================================= {% endcomment %}
+  <div class="wm-site-footer">
+    <div class="wm-site-footer__wrap">
+      
+      <div class="wm-site-footer__grid">
+        
+        {% comment %} COLUMN 1: Brand & Community {% endcomment %}
+        <div>
+          <a href="{{ routes.root_url }}" class="wm-footer-logo-wrap" aria-label="Wagmart Home">
+            <img
+              src="{{ 'WAGMART-Logo.webp' | asset_url }}"
+              alt="Wagmart"
+              class="wm-footer-logo-img"
+              width="140"
+              height="34"
+              loading="lazy"
+            >
+          </a>
+
+          <p class="wm-footer-bio">
+            {{ about_copy }}
+          </p>
+
+          <div class="wm-footer-social-row">
+            {%- if settings.social_facebook_link != blank -%}
+              <a href="{{ settings.social_facebook_link }}" target="_blank" rel="noopener noreferrer" class="wm-footer-social-btn" aria-label="Follow Wagmart on Facebook">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
               </a>
-              <a href="{{ settings.social_instagram_link | default: 'https://instagram.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on Instagram" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            {%- endif -%}
+
+            {%- if settings.social_instagram_link != blank -%}
+              <a href="{{ settings.social_instagram_link }}" target="_blank" rel="noopener noreferrer" class="wm-footer-social-btn" aria-label="Follow Wagmart on Instagram">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
               </a>
-              <a href="{{ settings.social_twitter_link | default: 'https://twitter.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on Twitter" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.936 9.936 0 0024 4.59z"></path></svg>
+            {%- endif -%}
+
+            {%- if settings.social_twitter_link != blank -%}
+              <a href="{{ settings.social_twitter_link }}" target="_blank" rel="noopener noreferrer" class="wm-footer-social-btn" aria-label="Follow Wagmart on Twitter">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
-              <a href="{{ settings.social_youtube_link | default: 'https://youtube.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Follow Wagmart on YouTube" class="w-10 h-10 sm:w-11 sm:h-11 bg-[#7a46e5] hover:bg-[#6835d4] text-white rounded-[6px] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+            {%- endif -%}
+
+            {%- if settings.social_youtube_link != blank -%}
+              <a href="{{ settings.social_youtube_link }}" target="_blank" rel="noopener noreferrer" class="wm-footer-social-btn" aria-label="Follow Wagmart on YouTube">
+                <svg class="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               </a>
+            {%- endif -%}
+          </div>
+
+          <div class="wm-footer-trust-pill">
+            <span>🐾</span>
+            <span>Over 3 Lakh+ Happy Pet Parents</span>
+          </div>
+        </div>
+
+        {% comment %} COLUMN 2: Shop Navigation {% endcomment %}
+        <div>
+          <h3 class="wm-footer-title">SHOP ESSENTIALS</h3>
+          <ul class="wm-footer-links">
+            <li><a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-footer-link">All Products</a></li>
+            {%- liquid
+              assign footer_about_url = '/pages/about-us'
+              if pages['about'].id != blank
+                assign footer_about_url = pages['about'].url
+              elsif pages['about-us'].id != blank
+                assign footer_about_url = pages['about-us'].url
+              endif
+            -%}
+            <li><a href="{{ footer_about_url }}" class="wm-footer-link">About Us</a></li>
+            <li><a href="/collections/dry-food" class="wm-footer-link">Dry Food &amp; Kibble</a></li>
+            <li><a href="/collections/all#grooming" class="wm-footer-link">Grooming &amp; Bath</a></li>
+            <li><a href="/collections/all#toys" class="wm-footer-link">Interactive Toys</a></li>
+          </ul>
+        </div>
+
+        {% comment %} COLUMN 3: Help & Policies {% endcomment %}
+        <div>
+          <h3 class="wm-footer-title">CUSTOMER CARE</h3>
+          <ul class="wm-footer-links">
+            <li><a href="/pages/faq" class="wm-footer-link">Help &amp; FAQs</a></li>
+            <li><a href="/policies/shipping-policy" class="wm-footer-link">Shipping Policy</a></li>
+            <li><a href="/policies/refund-policy" class="wm-footer-link">Return &amp; Refund Policy</a></li>
+            <li><a href="/policies/privacy-policy" class="wm-footer-link">Privacy Policy</a></li>
+            <li><a href="{{ pages['contact'].url | default: '/pages/contact' }}" class="wm-footer-link">Contact Support</a></li>
+          </ul>
+        </div>
+
+        {% comment %} COLUMN 4: Club & Direct Contact {% endcomment %}
+        <div class="wm-footer-col--newsletter">
+          <h3 class="wm-footer-title">STAY IN TOUCH</h3>
+          <div class="wm-footer-newsletter-tablet-split">
+            <div>
+              <p class="wm-footer-newsletter-text">
+                Join the Wagmart Pet Club for 10% off your first order, healthy pet care tips, and VIP flash sales.
+              </p>
+
+              <form action="/contact#contact_form" method="post" class="wm-footer-newsletter-form" onsubmit="alert('Thank you for subscribing to Wagmart!'); return false;">
+                <input
+                  type="email"
+                  name="contact[email]"
+                  placeholder="Enter your email address"
+                  required
+                  class="wm-footer-newsletter-input"
+                  aria-label="Email address for Wagmart newsletter"
+                >
+                <button type="submit" class="wm-footer-newsletter-btn" aria-label="Subscribe to newsletter">
+                  <span>Join</span>
+                </button>
+              </form>
+            </div>
+
+            <div class="wm-footer-contact-list">
+              <div class="wm-footer-contact-item">
+                <svg class="wm-footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>{{ footer_address | newline_to_br }}</span>
+              </div>
+
+              <div class="wm-footer-contact-item">
+                <svg class="wm-footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                <a href="tel:{{ phone_num | replace: ' ', '' }}">{{ phone_num }}</a>
+              </div>
+
+              <div class="wm-footer-contact-item">
+                <svg class="wm-footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                <a href="mailto:{{ email_addr }}">{{ email_addr }}</a>
+              </div>
             </div>
           </div>
         </div>
 
-        {% comment %} MIDDLE SECTION: Col 2 & Col 3 {% endcomment %}
-        <div class="lg:w-[34%] lg:px-6 xl:px-10 lg:border-r lg:border-[#D8CEBF] grid grid-cols-2 gap-4 sm:gap-6">
-          <div class="space-y-2 sm:space-y-2.5">
-            <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3.5 sm:mb-4 font-serif-title">
-              QUICK LINKS
-            </h4>
-            <ul class="space-y-2 sm:space-y-2.5 text-[15px] sm:text-[16px] font-medium">
-              <li><a href="#hero" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Home</a></li>
-              <li><a href="#shop" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Shop All</a></li>
-              <li><a href="#shop" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Dog Products</a></li>
-              <li><a href="#shop" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Cat Products</a></li>
-              <li><a href="#contact" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Contact Us</a></li>
-            </ul>
-          </div>
-
-          <div class="space-y-2 sm:space-y-2.5">
-            <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3.5 sm:mb-4 font-serif-title">
-              CUSTOMER SUPPORT
-            </h4>
-            <ul class="space-y-2 sm:space-y-2.5 text-[15px] sm:text-[16px] font-medium">
-              <li><a href="#hero" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">My Account</a></li>
-              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Track My Order</a></li>
-              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Shipping Information</a></li>
-              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">Returns &amp; Refunds</a></li>
-              <li><a href="#faq" class="text-[#4B3F33] hover:text-[#7a46e5] transition-colors inline-block">FAQ</a></li>
-            </ul>
-          </div>
-        </div>
-
-        {% comment %} COLUMN 4: Get In Touch {% endcomment %}
-        <div class="lg:w-[25%] lg:pl-6 xl:pl-10 space-y-2.5 sm:space-y-3">
-          <h4 class="font-bold text-xs sm:text-[13px] text-[#1F2421] tracking-widest uppercase mb-3.5 sm:mb-4 font-serif-title">
-            GET IN TOUCH
-          </h4>
-          <div class="space-y-2.5 sm:space-y-3 text-[15px] sm:text-[16px] font-medium">
-            <p class="text-[#524538] leading-relaxed">
-              {{ section.settings.address | default: '123 PetCare Avenue, Cityville, USA' }}
-            </p>
-            <p>
-              <a
-                href="tel:{{ section.settings.phone | default: '+91 77779 85896' | replace: ' ', '' }}"
-                class="text-[#7a46e5] hover:text-[#6835d4] font-bold text-[16px] sm:text-[17px] transition-colors inline-block"
-              >
-                {{ section.settings.phone | default: '+91 77779 85896' }}
-              </a>
-            </p>
-            <p>
-              <a
-                href="mailto:{{ section.settings.email | default: 'support@wagmart.com' }}"
-                class="text-[#524538] hover:text-[#7a46e5] transition-colors inline-block"
-              >
-                {{ section.settings.email | default: 'support@wagmart.com' }}
-              </a>
-            </p>
-          </div>
-        </div>
-
       </div>
 
-      {% comment %} Bottom Copyright Row {% endcomment %}
-      <div class="pt-4 sm:pt-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-[13px] text-[#6B5E51] font-medium text-center sm:text-left">
-        <p>&copy; {{ 'now' | date: '%Y' }} Wagmart. All rights reserved.</p>
-        <div class="flex items-center gap-4">
-          <a href="#hero" class="hover:text-[#7a46e5] transition-colors">Privacy Policy</a>
-          <span>&bull;</span>
-          <a href="#hero" class="hover:text-[#7a46e5] transition-colors">Terms of Service</a>
+      {% comment %} Bottom Copyright & Accepted Payment Methods {% endcomment %}
+      <div class="wm-footer-bottom">
+        <div>
+          <p class="m-0">&copy; {{ 'now' | date: '%Y' }} Wagmart Pet Supplies. Crafted for the love of pets and their people.</p>
+        </div>
+
+        <div class="wm-footer-payments" aria-label="Accepted Payment Methods">
+          {%- assign default_payments = 'visa,mastercard,american_express,paypal,diners_club,discover' | split: ',' -%}
+          {%- if shop.enabled_payment_types.size > 0 -%}
+            {%- for type in shop.enabled_payment_types -%}
+              <span>{{ type | payment_type_svg_tag: class: 'h-6 w-auto rounded-[4px]' }}</span>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for type in default_payments -%}
+              <span>{{ type | payment_type_svg_tag: class: 'h-6 w-auto rounded-[4px]' }}</span>
+            {%- endfor -%}
+          {%- endif -%}
         </div>
       </div>
 
@@ -152,37 +854,92 @@
 
 {% schema %}
 {
-  "name": "Footer",
+  "name": "Footer & CTA Banner",
   "settings": [
     {
+      "type": "header",
+      "content": "CTA Banner Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Show CTA Banner Above Footer",
+      "default": true
+    },
+    {
       "type": "text",
-      "id": "cta_title",
-      "label": "CTA headline",
-      "default": "Ready to Give Your Pet the Best Care? Contact Us Today!"
+      "id": "cta_eyebrow",
+      "label": "CTA Small Eyebrow",
+      "default": "MADE FOR HAPPY PETS"
+    },
+    {
+      "type": "text",
+      "id": "cta_heading",
+      "label": "CTA Main Headline",
+      "default": "Everything Your Pet Needs"
+    },
+    {
+      "type": "textarea",
+      "id": "cta_desc",
+      "label": "CTA Supporting Description",
+      "default": "Discover everyday essentials for happier, healthier pets."
+    },
+    {
+      "type": "text",
+      "id": "cta_btn_text",
+      "label": "CTA Primary Button Label",
+      "default": "SHOP PET PRODUCTS"
+    },
+    {
+      "type": "url",
+      "id": "cta_btn_link",
+      "label": "CTA Primary Button Link"
+    },
+    {
+      "type": "text",
+      "id": "cta_btn_secondary_text",
+      "label": "CTA Secondary Button Label",
+      "default": "Call Us Now"
+    },
+    {
+      "type": "url",
+      "id": "cta_btn_secondary_link",
+      "label": "CTA Secondary Button Link",
+      "info": "Leave blank to default to store phone number"
+    },
+    {
+      "type": "image_picker",
+      "id": "cta_image",
+      "label": "CTA Transparent Product Image",
+      "info": "Upload custom transparent PNG or leave blank for default wagmart-pet-products.png"
+    },
+    {
+      "type": "header",
+      "content": "Footer Brand & Contact Info"
     },
     {
       "type": "textarea",
       "id": "about_text",
-      "label": "About summary",
+      "label": "About Summary Text",
       "default": "Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents."
     },
     {
       "type": "text",
       "id": "phone",
-      "label": "Phone number",
+      "label": "Customer Phone Number",
       "default": "+91 77779 85896"
     },
     {
       "type": "text",
       "id": "email",
-      "label": "Email address",
+      "label": "Customer Support Email",
       "default": "support@wagmart.com"
     },
     {
-      "type": "text",
+      "type": "textarea",
       "id": "address",
-      "label": "Store address",
-      "default": "123 PetCare Avenue, Cityville, USA"
+      "label": "Store Physical Address",
+      "default": "Shop No. 312, 3rd Floor, Shivalik Complex,\nOpposite Heny Heights, Near Dabholi Gam BRTS Bus Stop,\nDabholi Gam Road, Katargam,\nSurat, Gujarat, 395004"
     }
   ]
 }
