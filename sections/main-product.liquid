@@ -36,10 +36,10 @@
   "@type": "Product",
   "name": {{ prod_title | json }},
   "image": [{{ schema_img | json }}],
-  "description": "Gently remove loose fur and mats while your pet enjoys a soothing massage. Soft food-grade silicone bristles, ergonomic non-slip grip, suitable for dogs and cats.",
+  "description": {{ product.description | strip_html | default: prod_title | json }},
   "brand": {
     "@type": "Brand",
-    "name": "Wagmart Pet Supplies"
+    "name": {{ product.vendor | default: shop.name | json }}
   },
   "offers": {
     "@type": "Offer",
@@ -139,35 +139,44 @@
         </div>
 
         {%- comment -%} 5. Short Description Excerpt {%- endcomment -%}
-        <p class="wm-info__short-desc">
-          Gently remove loose fur and mats while your pet enjoys a soothing massage. This grooming glove helps keep your pet's coat clean and healthy with soft silicone bristles.
-        </p>
+        {%- assign short_desc = product.metafields.custom.short_description | default: product.description | strip_html | truncatewords: 28 -%}
+        {%- if short_desc != blank -%}
+          <p class="wm-info__short-desc">
+            {{ short_desc }}
+          </p>
+        {%- endif -%}
 
         {%- comment -%} 6. Product Benefits / Features Checklist (2x2 Grid with green checks) {%- endcomment -%}
+        {%- liquid
+          assign feat_1 = product.metafields.custom.feature_1 | default: section.settings.feature_1 | default: '100% Pet-Safe Materials'
+          assign feat_2 = product.metafields.custom.feature_2 | default: section.settings.feature_2 | default: 'Tested & Vet Approved'
+          assign feat_3 = product.metafields.custom.feature_3 | default: section.settings.feature_3 | default: 'Suitable for Dogs & Cats'
+          assign feat_4 = product.metafields.custom.feature_4 | default: section.settings.feature_4 | default: 'Durable & Easy to Clean'
+        -%}
         <div class="wm-info__checklist" aria-label="Key product features">
           <div class="wm-info__check-item">
             <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
-            <span>Soft silicone bristles</span>
+            <span>{{ feat_1 }}</span>
           </div>
           <div class="wm-info__check-item">
             <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
-            <span>Gentle soothing massage</span>
+            <span>{{ feat_2 }}</span>
           </div>
           <div class="wm-info__check-item">
             <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
-            <span>Works on dogs &amp; cats</span>
+            <span>{{ feat_3 }}</span>
           </div>
           <div class="wm-info__check-item">
             <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
-            <span>Easy to clean &amp; durable</span>
+            <span>{{ feat_4 }}</span>
           </div>
         </div>
 
@@ -258,9 +267,7 @@
           {%- comment -%} Strip embedded image tags from product description to enforce image restriction {%- endcomment -%}
           {{ product.description | replace: '<img', '<span style="display:none"' | replace: '</img>', '</span>' }}
         {%- else -%}
-          <p>The pet grooming glove is designed to gently remove loose fur and mats while your pet enjoys a soothing massage. The soft and flexible silicone bristles effectively capture shed hair without pulling, making grooming a comfortable experience for your pet. It is easy to use, suitable for both dogs and cats, and helps keep their coat clean, smooth and healthy.</p>
-          <p>The ergonomic design fits comfortably in your hand, allowing better control during grooming sessions. The durable silicone material is safe for your pet's skin and easy to clean. Ideal for regular use, this grooming glove helps reduce shedding, promotes a healthier coat and strengthens the bond between you and your pet.</p>
-          <p>Suitable for all coat types and sizes, this grooming glove is a practical and effective tool for daily pet care at home.</p>
+          <p class="wm-pdp-desc-empty">No product description provided yet. You can add a rich product description in Shopify Admin &gt; Products.</p>
         {%- endif -%}
       </div>
     </section>
@@ -273,34 +280,66 @@
       <div class="wm-pdp-specs-wrap">
         <table class="wm-pdp-specs-table" aria-label="Product Specifications">
           <tbody>
-            <tr>
-              <th scope="row">Product Type</th>
-              <td>{{ product.type | default: 'Pet Grooming Glove' }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Material</th>
-              <td>{{ product.metafields.custom.material | default: 'Silicone' }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Suitable For</th>
-              <td>{{ product.metafields.custom.suitable_for | default: 'Dogs and Cats' }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Product Dimensions</th>
-              <td>{{ product.metafields.custom.dimensions | default: 'One Size (Fits Most)' }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Color</th>
-              <td>{{ product.metafields.custom.color | default: 'Blue / Turquoise' }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Package Includes</th>
-              <td>{{ product.metafields.custom.package_includes | default: '1 x Pet Grooming Glove' }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Care Instructions</th>
-              <td>{{ product.metafields.custom.care_instructions | default: 'Rinse with water and air dry' }}</td>
-            </tr>
+            {%- if product.type != blank -%}
+              <tr>
+                <th scope="row">Product Type</th>
+                <td>{{ product.type }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.vendor != blank -%}
+              <tr>
+                <th scope="row">Brand / Vendor</th>
+                <td>{{ product.vendor }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.selected_or_first_available_variant.sku != blank -%}
+              <tr>
+                <th scope="row">SKU</th>
+                <td>{{ product.selected_or_first_available_variant.sku }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.metafields.custom.material != blank -%}
+              <tr>
+                <th scope="row">Material</th>
+                <td>{{ product.metafields.custom.material }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.metafields.custom.suitable_for != blank -%}
+              <tr>
+                <th scope="row">Suitable For</th>
+                <td>{{ product.metafields.custom.suitable_for }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.metafields.custom.dimensions != blank -%}
+              <tr>
+                <th scope="row">Product Dimensions</th>
+                <td>{{ product.metafields.custom.dimensions }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.metafields.custom.color != blank -%}
+              <tr>
+                <th scope="row">Color</th>
+                <td>{{ product.metafields.custom.color }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.metafields.custom.package_includes != blank -%}
+              <tr>
+                <th scope="row">Package Includes</th>
+                <td>{{ product.metafields.custom.package_includes }}</td>
+              </tr>
+            {%- endif -%}
+            {%- if product.metafields.custom.care_instructions != blank -%}
+              <tr>
+                <th scope="row">Care Instructions</th>
+                <td>{{ product.metafields.custom.care_instructions }}</td>
+              </tr>
+            {%- endif -%}
+            {%- unless product.type != blank or product.vendor != blank or product.selected_or_first_available_variant.sku != blank or product.metafields.custom.material != blank or product.metafields.custom.suitable_for != blank -%}
+              <tr>
+                <th scope="row">Availability</th>
+                <td>{% if product.available %}In Stock{% else %}Out of Stock{% endif %}</td>
+              </tr>
+            {%- endunless -%}
           </tbody>
         </table>
       </div>
@@ -309,58 +348,60 @@
     {%- comment -%} =========================================================
        5. BENEFITS SECTION (Clean Rounded Container, 4 Dedicated Cards with Icons)
        ========================================================= {%- endcomment -%}
-    <section id="pdp-benefits" class="wm-pdp-card-section" aria-labelledby="benefits-heading">
-      <h2 id="benefits-heading" class="wm-pdp-section-heading">Benefits</h2>
-      <div class="wm-pdp-benefits-grid">
+    {%- unless section.settings.show_benefits == false -%}
+      <section id="pdp-benefits" class="wm-pdp-card-section" aria-labelledby="benefits-heading">
+        <h2 id="benefits-heading" class="wm-pdp-section-heading">{{ section.settings.benefits_heading | default: 'Benefits' }}</h2>
+        <div class="wm-pdp-benefits-grid">
 
-        <!-- Benefit 1: Removes Loose Fur -->
-        <div class="wm-benefit-card">
-          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 4c0 4 8 4 8 8s-8 4-8 8"/><path d="M4 8c0 2 4 2 4 4s-4 2-4 4"/><path d="M16 8c0 2 4 2 4 4s-4 2-4 4"/>
-            </svg>
+          <!-- Benefit 1 -->
+          <div class="wm-benefit-card">
+            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 4c0 4 8 4 8 8s-8 4-8 8"/><path d="M4 8c0 2 4 2 4 4s-4 2-4 4"/><path d="M16 8c0 2 4 2 4 4s-4 2-4 4"/>
+              </svg>
+            </div>
+            <h3 class="wm-benefit-card__title">{{ section.settings.b1_title | default: 'Premium Quality' }}</h3>
+            <p class="wm-benefit-card__desc">{{ section.settings.b1_desc | default: 'Effectively lifts loose hair and mats.' }}</p>
           </div>
-          <h3 class="wm-benefit-card__title">Removes Loose Fur</h3>
-          <p class="wm-benefit-card__desc">Effectively lifts loose hair and mats.</p>
-        </div>
 
-        <!-- Benefit 2: Gentle Massage -->
-        <div class="wm-benefit-card">
-          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="#064E3B">
-              <circle cx="6.5" cy="7.5" r="2.2"/><circle cx="17.5" cy="7.5" r="2.2"/><circle cx="10" cy="4.5" r="2"/><circle cx="14" cy="4.5" r="2"/>
-              <path d="M12 10.5c-3 0-5.5 2-5.5 4.5 0 2.2 1.8 3.5 3.5 4 1.2.3 2.8.3 4 0 1.7-.5 3.5-1.8 3.5-4 0-2.5-2.5-4.5-5.5-4.5z"/>
-            </svg>
+          <!-- Benefit 2 -->
+          <div class="wm-benefit-card">
+            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#064E3B">
+                <circle cx="6.5" cy="7.5" r="2.2"/><circle cx="17.5" cy="7.5" r="2.2"/><circle cx="10" cy="4.5" r="2"/><circle cx="14" cy="4.5" r="2"/>
+                <path d="M12 10.5c-3 0-5.5 2-5.5 4.5 0 2.2 1.8 3.5 3.5 4 1.2.3 2.8.3 4 0 1.7-.5 3.5-1.8 3.5-4 0-2.5-2.5-4.5-5.5-4.5z"/>
+              </svg>
+            </div>
+            <h3 class="wm-benefit-card__title">{{ section.settings.b2_title | default: 'Gentle & Soothing' }}</h3>
+            <p class="wm-benefit-card__desc">{{ section.settings.b2_desc | default: 'Soothes your pet and improves circulation.' }}</p>
           </div>
-          <h3 class="wm-benefit-card__title">Gentle Massage</h3>
-          <p class="wm-benefit-card__desc">Soothes your pet and improves circulation.</p>
-        </div>
 
-        <!-- Benefit 3: Clean & Healthy Coat -->
-        <div class="wm-benefit-card">
-          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
-              <circle cx="19" cy="5" r="1.5" fill="#064E3B"/>
-            </svg>
+          <!-- Benefit 3 -->
+          <div class="wm-benefit-card">
+            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+                <circle cx="19" cy="5" r="1.5" fill="#064E3B"/>
+              </svg>
+            </div>
+            <h3 class="wm-benefit-card__title">{{ section.settings.b3_title | default: 'Clean & Healthy Coat' }}</h3>
+            <p class="wm-benefit-card__desc">{{ section.settings.b3_desc | default: 'Helps keep the coat clean, smooth and tangle-free.' }}</p>
           </div>
-          <h3 class="wm-benefit-card__title">Clean &amp; Healthy Coat</h3>
-          <p class="wm-benefit-card__desc">Helps keep the coat clean, smooth and tangle-free.</p>
-        </div>
 
-        <!-- Benefit 4: Suitable for Dogs & Cats -->
-        <div class="wm-benefit-card">
-          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-            </svg>
+          <!-- Benefit 4 -->
+          <div class="wm-benefit-card">
+            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+              </svg>
+            </div>
+            <h3 class="wm-benefit-card__title">{{ section.settings.b4_title | default: 'Suitable for Dogs & Cats' }}</h3>
+            <p class="wm-benefit-card__desc">{{ section.settings.b4_desc | default: 'Works on all coat types and sizes.' }}</p>
           </div>
-          <h3 class="wm-benefit-card__title">Suitable for Dogs &amp; Cats</h3>
-          <p class="wm-benefit-card__desc">Works on all coat types and sizes.</p>
-        </div>
 
-      </div>
-    </section>
+        </div>
+      </section>
+    {%- endunless -%}
 
     {%- comment -%} =========================================================
        PAGE ENDS HERE: No other sections below Benefits
@@ -394,6 +435,99 @@
 {% schema %}
 {
   "name": "Product Information",
-  "settings": []
+  "settings": [
+    {
+      "type": "header",
+      "content": "Key Features"
+    },
+    {
+      "type": "text",
+      "id": "feature_1",
+      "label": "Feature 1",
+      "default": "100% Pet-Safe Materials"
+    },
+    {
+      "type": "text",
+      "id": "feature_2",
+      "label": "Feature 2",
+      "default": "Tested & Vet Approved"
+    },
+    {
+      "type": "text",
+      "id": "feature_3",
+      "label": "Feature 3",
+      "default": "Suitable for Dogs & Cats"
+    },
+    {
+      "type": "text",
+      "id": "feature_4",
+      "label": "Feature 4",
+      "default": "Durable & Easy to Clean"
+    },
+    {
+      "type": "header",
+      "content": "Product Benefits"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_benefits",
+      "label": "Show Benefits Section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "benefits_heading",
+      "label": "Benefits Heading",
+      "default": "Benefits"
+    },
+    {
+      "type": "text",
+      "id": "b1_title",
+      "label": "Benefit 1 Title",
+      "default": "Removes Loose Fur"
+    },
+    {
+      "type": "text",
+      "id": "b1_desc",
+      "label": "Benefit 1 Description",
+      "default": "Effectively lifts loose hair and mats."
+    },
+    {
+      "type": "text",
+      "id": "b2_title",
+      "label": "Benefit 2 Title",
+      "default": "Gentle Massage"
+    },
+    {
+      "type": "text",
+      "id": "b2_desc",
+      "label": "Benefit 2 Description",
+      "default": "Soothes your pet and improves circulation."
+    },
+    {
+      "type": "text",
+      "id": "b3_title",
+      "label": "Benefit 3 Title",
+      "default": "Clean & Healthy Coat"
+    },
+    {
+      "type": "text",
+      "id": "b3_desc",
+      "label": "Benefit 3 Description",
+      "default": "Helps keep the coat clean, smooth and tangle-free."
+    },
+    {
+      "type": "text",
+      "id": "b4_title",
+      "label": "Benefit 4 Title",
+      "default": "Suitable for Dogs & Cats"
+    },
+    {
+      "type": "text",
+      "id": "b4_desc",
+      "label": "Benefit 4 Description",
+      "default": "Works on all coat types and sizes."
+    }
+  ]
 }
 {% endschema %}

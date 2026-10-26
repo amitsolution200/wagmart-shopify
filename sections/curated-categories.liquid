@@ -248,7 +248,50 @@
 
     {% comment %} 5 Category Cards: 1 (mobile) / 2 (tablet) / 5 (laptop & desktop) {% endcomment %}
     <div class="wm-cat-grid" data-cat-track>
-      
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign col = block.settings.collection
+            assign card_url = col.url | default: routes.all_products_collection_url
+            assign card_title = block.settings.title | default: col.title | default: 'Category'
+            assign card_desc = block.settings.subtitle | default: col.description | strip_html | truncate: 90
+            assign card_img = block.settings.image | default: col.featured_image
+            assign card_bg = block.settings.bg_color | default: '#FDF0F0'
+            assign card_border = block.settings.border_color | default: '#FADBD8'
+          -%}
+          <a
+            href="{{ card_url }}"
+            class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
+            style="background-color: {{ card_bg }}; border: 1px solid {{ card_border }};"
+            {{ block.shopify_attributes }}
+          >
+            <div class="z-10 space-y-2">
+              <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
+                {{ card_title }}
+              </h3>
+              {%- if card_desc != blank -%}
+                <p class="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
+                  {{ card_desc }}
+                </p>
+              {%- endif -%}
+            </div>
+            <div class="mt-auto pt-6 flex items-end justify-center w-full z-10">
+              {%- if card_img != blank -%}
+                {{ card_img | image_url: width: 500 | image_tag:
+                  class: 'w-full max-h-[200px] sm:max-h-[220px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105',
+                  loading: 'lazy',
+                  widths: '250, 400, 500',
+                  alt: card_title
+                }}
+              {%- else -%}
+                <div class="w-full h-[180px] flex items-center justify-center bg-white/50 rounded-xl text-[#7a46e5]">
+                  {% render 'wm-icon', name: 'image', class: 'w-10 h-10 opacity-50' %}
+                </div>
+              {%- endif -%}
+            </div>
+          </a>
+        {%- endfor -%}
+      {%- else -%}
       {% comment %} Card 1: Fashion Store {% endcomment %}
       <a
         href="{{ url_fashion }}"
@@ -373,7 +416,7 @@
           >
         </div>
       </a>
-
+      {%- endif -%}
     </div>
 
     {% comment %} Mobile & Tablet Pagination Dots {% endcomment %}
@@ -492,6 +535,48 @@
       "id": "button_text",
       "label": "Button text",
       "default": "View All Bundles"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category_card",
+      "name": "Category Card",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom Card Image",
+          "info": "Optional. Defaults to the collection's featured image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Card Title",
+          "info": "Leave blank to use collection title."
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Card Subtitle"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Card Background Color",
+          "default": "#FDF0F0"
+        },
+        {
+          "type": "color",
+          "id": "border_color",
+          "label": "Card Border Color",
+          "default": "#FADBD8"
+        }
+      ]
     }
   ],
   "presets": [

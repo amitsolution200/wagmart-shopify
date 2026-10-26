@@ -72,26 +72,35 @@
       <a
         href="{{ url_1 }}"
         class="wm-bento-card wm-bento-card--1"
-        aria-label="Dog Nutrition — Subscribe to dog food"
+        aria-label="{{ section.settings.card1_title | default: 'Subscribe to dog food' | escape }}"
       >
-        <img
-          src="{{ 'bento-grid-1.webp' | asset_url }}"
-          alt="Golden retriever with dog treats"
-          class="wm-bento-card__bg-img"
-          loading="eager"
-          width="1539"
-          height="1022"
-        >
+        {%- if section.settings.image_1 != blank -%}
+          {{ section.settings.image_1 | image_url: width: 1600 | image_tag:
+            class: 'wm-bento-card__bg-img',
+            loading: 'eager',
+            widths: '600, 1000, 1600',
+            alt: section.settings.card1_title
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-grid-1.webp' | asset_url }}"
+            alt="Golden retriever with dog treats"
+            class="wm-bento-card__bg-img"
+            loading="eager"
+            width="1539"
+            height="1022"
+          >
+        {%- endif -%}
         <div class="wm-bento-card__overlay wm-bento-card__overlay--card1"></div>
         <div class="wm-bento-card__content">
-          <span class="wm-bento-card__category">Dog Nutrition</span>
+          <span class="wm-bento-card__category">{{ section.settings.card1_category | default: 'Dog Nutrition' }}</span>
           <h2 class="wm-bento-card__title">
-            Subscribe to<br>dog food.
+            {{ section.settings.card1_title | default: 'Subscribe to<br>dog food.' }}
           </h2>
           <p class="wm-bento-card__desc">
-            Healthy meals, on schedule, for a happier, brighter dog.
+            {{ section.settings.card1_desc | default: 'Healthy meals, on schedule, for a happier, brighter dog.' }}
           </p>
-          <span class="wm-bento-card__cta">Shop food</span>
+          <span class="wm-bento-card__cta">{{ section.settings.card1_cta | default: 'Shop food' }}</span>
         </div>
       </a>
 
@@ -99,26 +108,35 @@
       <a
         href="{{ url_2 }}"
         class="wm-bento-card wm-bento-card--2"
-        aria-label="New Pet Parents — Everything for week one"
+        aria-label="{{ section.settings.card2_title | default: 'Everything for week one' | escape }}"
       >
-        <img
-          src="{{ 'bento-grid-2.webp' | asset_url }}"
-          alt="Puppy resting cozily in knit blanket"
-          class="wm-bento-card__bg-img"
-          loading="lazy"
-          width="1156"
-          height="1360"
-        >
+        {%- if section.settings.image_2 != blank -%}
+          {{ section.settings.image_2 | image_url: width: 1200 | image_tag:
+            class: 'wm-bento-card__bg-img',
+            loading: 'lazy',
+            widths: '400, 800, 1200',
+            alt: section.settings.card2_title
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-grid-2.webp' | asset_url }}"
+            alt="Puppy resting cozily in knit blanket"
+            class="wm-bento-card__bg-img"
+            loading="lazy"
+            width="1156"
+            height="1360"
+          >
+        {%- endif -%}
         <div class="wm-bento-card__overlay wm-bento-card__overlay--card2"></div>
         <div class="wm-bento-card__content">
-          <span class="wm-bento-card__category">New Pet Parents</span>
+          <span class="wm-bento-card__category">{{ section.settings.card2_category | default: 'New Pet Parents' }}</span>
           <h3 class="wm-bento-card__title">
-            Everything for week one.
+            {{ section.settings.card2_title | default: 'Everything for week one.' }}
           </h3>
           <p class="wm-bento-card__desc">
-            Food, bowls, beds and toys &mdash; all in one place.
+            {{ section.settings.card2_desc | default: 'Food, bowls, beds and toys — all in one place.' }}
           </p>
-          <span class="wm-bento-card__cta">Shop the set</span>
+          <span class="wm-bento-card__cta">{{ section.settings.card2_cta | default: 'Shop the set' }}</span>
         </div>
       </a>
 
@@ -126,26 +144,35 @@
       <a
         href="{{ url_3 }}"
         class="wm-bento-card wm-bento-card--3"
-        aria-label="Toys & Treats — Playtime made better"
+        aria-label="{{ section.settings.card3_title | default: 'Playtime made better' | escape }}"
       >
-        <img
-          src="{{ 'bento-grid-3.webp' | asset_url }}"
-          alt="Puppy with playful rope toy"
-          class="wm-bento-card__bg-img"
-          loading="lazy"
-          width="1156"
-          height="1360"
-        >
+        {%- if section.settings.image_3 != blank -%}
+          {{ section.settings.image_3 | image_url: width: 1200 | image_tag:
+            class: 'wm-bento-card__bg-img',
+            loading: 'lazy',
+            widths: '400, 800, 1200',
+            alt: section.settings.card3_title
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-grid-3.webp' | asset_url }}"
+            alt="Puppy with playful rope toy"
+            class="wm-bento-card__bg-img"
+            loading="lazy"
+            width="1156"
+            height="1360"
+          >
+        {%- endif -%}
         <div class="wm-bento-card__overlay wm-bento-card__overlay--card3"></div>
         <div class="wm-bento-card__content">
-          <span class="wm-bento-card__category">Toys &amp; Treats</span>
+          <span class="wm-bento-card__category">{{ section.settings.card3_category | default: 'Toys & Treats' }}</span>
           <h3 class="wm-bento-card__title">
-            Playtime<br>made better.
+            {{ section.settings.card3_title | default: 'Playtime<br>made better.' }}
           </h3>
           <p class="wm-bento-card__desc">
-            Toys, treats and more for everyday joy.
+            {{ section.settings.card3_desc | default: 'Toys, treats and more for everyday joy.' }}
           </p>
-          <span class="wm-bento-card__cta">Shop now</span>
+          <span class="wm-bento-card__cta">{{ section.settings.card3_cta | default: 'Shop now' }}</span>
         </div>
       </a>
 
@@ -153,26 +180,35 @@
       <a
         href="{{ url_4 }}"
         class="wm-bento-card wm-bento-card--4"
-        aria-label="Dog Essentials — Everyday essentials"
+        aria-label="{{ section.settings.card4_title | default: 'Everyday essentials' | escape }}"
       >
-        <img
-          src="{{ 'bento-grid-4.webp' | asset_url }}"
-          alt="Playful dog with rope knot toy"
-          class="wm-bento-card__bg-img"
-          loading="lazy"
-          width="1156"
-          height="1360"
-        >
+        {%- if section.settings.image_4 != blank -%}
+          {{ section.settings.image_4 | image_url: width: 1200 | image_tag:
+            class: 'wm-bento-card__bg-img',
+            loading: 'lazy',
+            widths: '400, 800, 1200',
+            alt: section.settings.card4_title
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-grid-4.webp' | asset_url }}"
+            alt="Playful dog with rope knot toy"
+            class="wm-bento-card__bg-img"
+            loading="lazy"
+            width="1156"
+            height="1360"
+          >
+        {%- endif -%}
         <div class="wm-bento-card__overlay wm-bento-card__overlay--card4"></div>
         <div class="wm-bento-card__content">
-          <span class="wm-bento-card__category">Dog Essentials</span>
+          <span class="wm-bento-card__category">{{ section.settings.card4_category | default: 'Dog Essentials' }}</span>
           <h3 class="wm-bento-card__title">
-            Everyday essentials.
+            {{ section.settings.card4_title | default: 'Everyday essentials.' }}
           </h3>
           <p class="wm-bento-card__desc">
-            Toys, beds, leashes and more for real-life adventures.
+            {{ section.settings.card4_desc | default: 'Toys, beds, leashes and more for real-life adventures.' }}
           </p>
-          <span class="wm-bento-card__cta">Shop essentials</span>
+          <span class="wm-bento-card__cta">{{ section.settings.card4_cta | default: 'Shop essentials' }}</span>
         </div>
       </a>
 
@@ -180,26 +216,35 @@
       <a
         href="{{ url_5 }}"
         class="wm-bento-card wm-bento-card--5"
-        aria-label="Cat Care — Happier cats. Longer naps."
+        aria-label="{{ section.settings.card5_title | default: 'Happier cats. Longer naps.' | escape }}"
       >
-        <img
-          src="{{ 'bento-grid-5.webp' | asset_url }}"
-          alt="Cat being gently groomed with wooden brush"
-          class="wm-bento-card__bg-img"
-          loading="lazy"
-          width="1156"
-          height="1360"
-        >
+        {%- if section.settings.image_5 != blank -%}
+          {{ section.settings.image_5 | image_url: width: 1200 | image_tag:
+            class: 'wm-bento-card__bg-img',
+            loading: 'lazy',
+            widths: '400, 800, 1200',
+            alt: section.settings.card5_title
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-grid-5.webp' | asset_url }}"
+            alt="Cat being gently groomed with wooden brush"
+            class="wm-bento-card__bg-img"
+            loading="lazy"
+            width="1156"
+            height="1360"
+          >
+        {%- endif -%}
         <div class="wm-bento-card__overlay wm-bento-card__overlay--card5"></div>
         <div class="wm-bento-card__content">
-          <span class="wm-bento-card__category">Cat Care</span>
+          <span class="wm-bento-card__category">{{ section.settings.card5_category | default: 'Cat Care' }}</span>
           <h3 class="wm-bento-card__title">
-            Happier cats.<br>Longer naps.
+            {{ section.settings.card5_title | default: 'Happier cats.<br>Longer naps.' }}
           </h3>
           <p class="wm-bento-card__desc">
-            Grooming, wellness and daily care for a calmer, happier cat.
+            {{ section.settings.card5_desc | default: 'Grooming, wellness and daily care for a calmer, happier cat.' }}
           </p>
-          <span class="wm-bento-card__cta">Shop cat care</span>
+          <span class="wm-bento-card__cta">{{ section.settings.card5_cta | default: 'Shop cat care' }}</span>
         </div>
       </a>
 
@@ -207,26 +252,35 @@
       <a
         href="{{ url_6 }}"
         class="wm-bento-card wm-bento-card--6"
-        aria-label="Food & Treats — Real ingredients for happy pets"
+        aria-label="{{ section.settings.card6_title | default: 'Real ingredients for happy pets' | escape }}"
       >
-        <img
-          src="{{ 'bento-grid-6.webp' | asset_url }}"
-          alt="Bowl of pet food with dog paw reaching"
-          class="wm-bento-card__bg-img"
-          loading="lazy"
-          width="1539"
-          height="1022"
-        >
+        {%- if section.settings.image_6 != blank -%}
+          {{ section.settings.image_6 | image_url: width: 1600 | image_tag:
+            class: 'wm-bento-card__bg-img',
+            loading: 'lazy',
+            widths: '600, 1000, 1600',
+            alt: section.settings.card6_title
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-grid-6.webp' | asset_url }}"
+            alt="Bowl of pet food with dog paw reaching"
+            class="wm-bento-card__bg-img"
+            loading="lazy"
+            width="1539"
+            height="1022"
+          >
+        {%- endif -%}
         <div class="wm-bento-card__overlay wm-bento-card__overlay--card6"></div>
         <div class="wm-bento-card__content">
-          <span class="wm-bento-card__category">Food &amp; Treats</span>
+          <span class="wm-bento-card__category">{{ section.settings.card6_category | default: 'Food & Treats' }}</span>
           <h2 class="wm-bento-card__title">
-            Real ingredients<br>for happy pets.
+            {{ section.settings.card6_title | default: 'Real ingredients<br>for happy pets.' }}
           </h2>
           <p class="wm-bento-card__desc">
-            Nutritious food and tasty treats they'll love.
+            {{ section.settings.card6_desc | default: "Nutritious food and tasty treats they'll love." }}
           </p>
-          <span class="wm-bento-card__cta">Shop food &amp; treats</span>
+          <span class="wm-bento-card__cta">{{ section.settings.card6_cta | default: 'Shop food & treats' }}</span>
         </div>
       </a>
 
@@ -239,34 +293,232 @@
   "name": "Bento Grid (Shop by Need)",
   "settings": [
     {
+      "type": "header",
+      "content": "Card 1 (Top Left Large)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Card 1 Image"
+    },
+    {
+      "type": "text",
+      "id": "card1_category",
+      "label": "Card 1 Category",
+      "default": "Dog Nutrition"
+    },
+    {
+      "type": "text",
+      "id": "card1_title",
+      "label": "Card 1 Title",
+      "default": "Subscribe to dog food."
+    },
+    {
+      "type": "text",
+      "id": "card1_desc",
+      "label": "Card 1 Description",
+      "default": "Healthy meals, on schedule, for a happier, brighter dog."
+    },
+    {
+      "type": "text",
+      "id": "card1_cta",
+      "label": "Card 1 Button Label",
+      "default": "Shop food"
+    },
+    {
       "type": "url",
       "id": "link_1",
-      "label": "Card 1 Link (Dog Nutrition)"
+      "label": "Card 1 Link"
+    },
+    {
+      "type": "header",
+      "content": "Card 2 (Top Center)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Card 2 Image"
+    },
+    {
+      "type": "text",
+      "id": "card2_category",
+      "label": "Card 2 Category",
+      "default": "New Pet Parents"
+    },
+    {
+      "type": "text",
+      "id": "card2_title",
+      "label": "Card 2 Title",
+      "default": "Everything for week one."
+    },
+    {
+      "type": "text",
+      "id": "card2_desc",
+      "label": "Card 2 Description",
+      "default": "Food, bowls, beds and toys — all in one place."
+    },
+    {
+      "type": "text",
+      "id": "card2_cta",
+      "label": "Card 2 Button Label",
+      "default": "Shop the set"
     },
     {
       "type": "url",
       "id": "link_2",
-      "label": "Card 2 Link (New Pet Parents)"
+      "label": "Card 2 Link"
+    },
+    {
+      "type": "header",
+      "content": "Card 3 (Top Right)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_3",
+      "label": "Card 3 Image"
+    },
+    {
+      "type": "text",
+      "id": "card3_category",
+      "label": "Card 3 Category",
+      "default": "Toys & Treats"
+    },
+    {
+      "type": "text",
+      "id": "card3_title",
+      "label": "Card 3 Title",
+      "default": "Playtime made better."
+    },
+    {
+      "type": "text",
+      "id": "card3_desc",
+      "label": "Card 3 Description",
+      "default": "Toys, treats and more for everyday joy."
+    },
+    {
+      "type": "text",
+      "id": "card3_cta",
+      "label": "Card 3 Button Label",
+      "default": "Shop now"
     },
     {
       "type": "url",
       "id": "link_3",
-      "label": "Card 3 Link (Toys & Treats)"
+      "label": "Card 3 Link"
+    },
+    {
+      "type": "header",
+      "content": "Card 4 (Bottom Left)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_4",
+      "label": "Card 4 Image"
+    },
+    {
+      "type": "text",
+      "id": "card4_category",
+      "label": "Card 4 Category",
+      "default": "Dog Essentials"
+    },
+    {
+      "type": "text",
+      "id": "card4_title",
+      "label": "Card 4 Title",
+      "default": "Everyday essentials."
+    },
+    {
+      "type": "text",
+      "id": "card4_desc",
+      "label": "Card 4 Description",
+      "default": "Toys, beds, leashes and more for real-life adventures."
+    },
+    {
+      "type": "text",
+      "id": "card4_cta",
+      "label": "Card 4 Button Label",
+      "default": "Shop essentials"
     },
     {
       "type": "url",
       "id": "link_4",
-      "label": "Card 4 Link (Dog Essentials)"
+      "label": "Card 4 Link"
+    },
+    {
+      "type": "header",
+      "content": "Card 5 (Bottom Center)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_5",
+      "label": "Card 5 Image"
+    },
+    {
+      "type": "text",
+      "id": "card5_category",
+      "label": "Card 5 Category",
+      "default": "Cat Care"
+    },
+    {
+      "type": "text",
+      "id": "card5_title",
+      "label": "Card 5 Title",
+      "default": "Happier cats. Longer naps."
+    },
+    {
+      "type": "text",
+      "id": "card5_desc",
+      "label": "Card 5 Description",
+      "default": "Grooming, wellness and daily care for a calmer, happier cat."
+    },
+    {
+      "type": "text",
+      "id": "card5_cta",
+      "label": "Card 5 Button Label",
+      "default": "Shop cat care"
     },
     {
       "type": "url",
       "id": "link_5",
-      "label": "Card 5 Link (Cat Care)"
+      "label": "Card 5 Link"
+    },
+    {
+      "type": "header",
+      "content": "Card 6 (Bottom Right Large)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_6",
+      "label": "Card 6 Image"
+    },
+    {
+      "type": "text",
+      "id": "card6_category",
+      "label": "Card 6 Category",
+      "default": "Food & Treats"
+    },
+    {
+      "type": "text",
+      "id": "card6_title",
+      "label": "Card 6 Title",
+      "default": "Real ingredients for happy pets."
+    },
+    {
+      "type": "text",
+      "id": "card6_desc",
+      "label": "Card 6 Description",
+      "default": "Nutritious food and tasty treats they'll love."
+    },
+    {
+      "type": "text",
+      "id": "card6_cta",
+      "label": "Card 6 Button Label",
+      "default": "Shop food & treats"
     },
     {
       "type": "url",
       "id": "link_6",
-      "label": "Card 6 Link (Food & Treats)"
+      "label": "Card 6 Link"
     }
   ],
   "presets": [

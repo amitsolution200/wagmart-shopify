@@ -159,7 +159,16 @@
   <main class="wagmart-refund-content-container">
     <div class="wagmart-refund-outer-card">
       <div class="wagmart-refund-inner-card">
-        {% render 'refund-policy-data' %}
+        {%- # theme-check-disable UndefinedObject -%}
+        {%- assign admin_policy_content = policy.body | default: shop.refund_policy.body | default: page.content -%}
+        {%- # theme-check-enable UndefinedObject -%}
+        {%- if admin_policy_content != blank -%}
+          <div class="wagmart-policy-text prose max-w-none text-[#4C4D4D] space-y-4">
+            {{ admin_policy_content }}
+          </div>
+        {%- else -%}
+          {% render 'refund-policy-data' %}
+        {%- endif -%}
       </div>
     </div>
   </main>

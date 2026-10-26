@@ -722,33 +722,47 @@ Surat, Gujarat, 395004
 
         {% comment %} COLUMN 2: Shop Navigation {% endcomment %}
         <div>
-          <h3 class="wm-footer-title">SHOP ESSENTIALS</h3>
+          <h3 class="wm-footer-title">{{ section.settings.footer_menu_1_title | default: 'SHOP ESSENTIALS' }}</h3>
           <ul class="wm-footer-links">
-            <li><a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-footer-link">Collection</a></li>
-            {%- liquid
-              assign footer_about_url = '/pages/about-us'
-              if pages['about'].id != blank
-                assign footer_about_url = pages['about'].url
-              elsif pages['about-us'].id != blank
-                assign footer_about_url = pages['about-us'].url
-              endif
-            -%}
-            <li hidden><a href="{{ footer_about_url }}" class="wm-footer-link">About Us</a></li>
-            <li><a href="{{ routes.collections_url }}/dry-food" class="wm-footer-link">Dry Food &amp; Kibble</a></li>
-            <li><a href="{{ routes.all_products_collection_url }}#grooming" class="wm-footer-link">Grooming &amp; Bath</a></li>
-            <li><a href="{{ routes.all_products_collection_url }}#toys" class="wm-footer-link">Interactive Toys</a></li>
+            {%- assign f_menu_1 = section.settings.footer_menu_1 -%}
+            {%- if linklists[f_menu_1].links.size > 0 -%}
+              {%- for link in linklists[f_menu_1].links -%}
+                <li><a href="{{ link.url }}" class="wm-footer-link">{{ link.title }}</a></li>
+              {%- endfor -%}
+            {%- else -%}
+              <li><a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-footer-link">Collection</a></li>
+              {%- liquid
+                assign footer_about_url = '/pages/about-us'
+                if pages['about'].id != blank
+                  assign footer_about_url = pages['about'].url
+                elsif pages['about-us'].id != blank
+                  assign footer_about_url = pages['about-us'].url
+                endif
+              -%}
+              <li hidden><a href="{{ footer_about_url }}" class="wm-footer-link">About Us</a></li>
+              <li><a href="{{ routes.collections_url }}/dry-food" class="wm-footer-link">Dry Food &amp; Kibble</a></li>
+              <li><a href="{{ routes.all_products_collection_url }}#grooming" class="wm-footer-link">Grooming &amp; Bath</a></li>
+              <li><a href="{{ routes.all_products_collection_url }}#toys" class="wm-footer-link">Interactive Toys</a></li>
+            {%- endif -%}
           </ul>
         </div>
 
         {% comment %} COLUMN 3: Help & Policies {% endcomment %}
         <div>
-          <h3 class="wm-footer-title">CUSTOMER CARE</h3>
+          <h3 class="wm-footer-title">{{ section.settings.footer_menu_2_title | default: 'CUSTOMER CARE' }}</h3>
           <ul class="wm-footer-links">
-            <li><a href="/pages/faq" class="wm-footer-link">Help &amp; FAQs</a></li>
-            <li><a href="/policies/shipping-policy" class="wm-footer-link">Shipping Policy</a></li>
-            <li><a href="/policies/refund-policy" class="wm-footer-link">Return &amp; Refund Policy</a></li>
-            <li><a href="/policies/privacy-policy" class="wm-footer-link">Privacy Policy</a></li>
-            <li><a href="{{ pages['contact'].url | default: '/pages/contact' }}" class="wm-footer-link">Contact Support</a></li>
+            {%- assign f_menu_2 = section.settings.footer_menu_2 -%}
+            {%- if linklists[f_menu_2].links.size > 0 -%}
+              {%- for link in linklists[f_menu_2].links -%}
+                <li><a href="{{ link.url }}" class="wm-footer-link">{{ link.title }}</a></li>
+              {%- endfor -%}
+            {%- else -%}
+              <li><a href="/pages/faq" class="wm-footer-link">Help &amp; FAQs</a></li>
+              <li><a href="/policies/shipping-policy" class="wm-footer-link">Shipping Policy</a></li>
+              <li><a href="/policies/refund-policy" class="wm-footer-link">Return &amp; Refund Policy</a></li>
+              <li><a href="/policies/privacy-policy" class="wm-footer-link">Privacy Policy</a></li>
+              <li><a href="{{ pages['contact'].url | default: '/pages/contact' }}" class="wm-footer-link">Contact Support</a></li>
+            {%- endif -%}
           </ul>
         </div>
 
@@ -915,6 +929,34 @@ Surat, Gujarat, 395004
       "id": "address",
       "label": "Store Physical Address",
       "default": "Shop No. 312, 3rd Floor, Shivalik Complex,\nOpposite Heny Heights, Near Dabholi Gam BRTS Bus Stop,\nDabholi Gam Road, Katargam,\nSurat, Gujarat, 395004"
+    },
+    {
+      "type": "header",
+      "content": "Footer Navigation Menus"
+    },
+    {
+      "type": "text",
+      "id": "footer_menu_1_title",
+      "label": "Column 2 Heading",
+      "default": "SHOP ESSENTIALS"
+    },
+    {
+      "type": "link_list",
+      "id": "footer_menu_1",
+      "label": "Column 2 Navigation Menu",
+      "info": "Select the menu created in Shopify Admin > Online Store > Navigation."
+    },
+    {
+      "type": "text",
+      "id": "footer_menu_2_title",
+      "label": "Column 3 Heading",
+      "default": "CUSTOMER CARE"
+    },
+    {
+      "type": "link_list",
+      "id": "footer_menu_2",
+      "label": "Column 3 Navigation Menu",
+      "info": "Select the menu created in Shopify Admin > Online Store > Navigation."
     }
   ]
 }

@@ -46,6 +46,9 @@
   if request.path == routes.all_products_collection_url
     assign all_products_current = true
   endif
+
+  assign nav_menu_handle = section.settings.main_menu | default: 'main-menu'
+  assign nav_links = linklists[nav_menu_handle].links
 -%}
 
 {%- capture logo_markup -%}
@@ -94,38 +97,59 @@
 
         <nav class="wm-nav" aria-label="Main">
           <ul class="wm-nav__list">
-            <li>
-              <button
-                type="button"
-                class="wm-nav__link"
-                id="WmTriggerBest"
-                data-panel-trigger="bestsellers"
-                aria-expanded="false"
-                aria-controls="WmPanelBest"
-              >
-                Shop {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
-              </button>
-            </li>
-            <li>
-              <a class="wm-nav__link" data-nav-plain href="{{ routes.all_products_collection_url }}"{% if all_products_current %} aria-current="page"{% endif %}>Collection</a>
-            </li>
-            <li hidden>
-              <a class="wm-nav__link" data-nav-plain href="{{ about_url }}"{% if request.path == about_url %} aria-current="page"{% endif %}>About</a>
-            </li>
-            <li>
-              {%- if blog_url != blank -%}
-                <a class="wm-nav__link" data-nav-plain href="{{ blog_url }}"{% if request.path contains blog_url %} aria-current="page"{% endif %}>Blog</a>
-              {%- else -%}
-                <span class="wm-nav__link is-placeholder" data-nav-plain aria-disabled="true" title="Create a blog or set the link in the header settings">Blog</span>
-              {%- endif -%}
-            </li>
-            <li>
-              {%- if contact_url != blank -%}
-                <a class="wm-nav__link" data-nav-plain href="{{ contact_url }}"{% if request.path == contact_url %} aria-current="page"{% endif %}>Contact</a>
-              {%- else -%}
-                <span class="wm-nav__link is-placeholder" data-nav-plain aria-disabled="true" title="Create a Contact page or set the link in the header settings">Contact</span>
-              {%- endif -%}
-            </li>
+            {%- if nav_links.size > 0 -%}
+              {%- for link in nav_links -%}
+                {%- assign link_handle = link.title | downcase -%}
+                {%- if link_handle == 'shop' or link_handle contains 'bestseller' -%}
+                  <li>
+                    <button
+                      type="button"
+                      class="wm-nav__link"
+                      id="WmTriggerBest"
+                      data-panel-trigger="bestsellers"
+                      aria-expanded="false"
+                      aria-controls="WmPanelBest"
+                    >
+                      {{ link.title }} {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
+                    </button>
+                  </li>
+                {%- else -%}
+                  <li>
+                    <a class="wm-nav__link" data-nav-plain href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- else -%}
+              <li>
+                <button
+                  type="button"
+                  class="wm-nav__link"
+                  id="WmTriggerBest"
+                  data-panel-trigger="bestsellers"
+                  aria-expanded="false"
+                  aria-controls="WmPanelBest"
+                >
+                  Shop {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
+                </button>
+              </li>
+              <li>
+                <a class="wm-nav__link" data-nav-plain href="{{ routes.all_products_collection_url }}"{% if all_products_current %} aria-current="page"{% endif %}>Collection</a>
+              </li>
+              <li>
+                {%- if blog_url != blank -%}
+                  <a class="wm-nav__link" data-nav-plain href="{{ blog_url }}"{% if request.path contains blog_url %} aria-current="page"{% endif %}>Blog</a>
+                {%- else -%}
+                  <span class="wm-nav__link is-placeholder" data-nav-plain aria-disabled="true" title="Create a blog or set the link in the header settings">Blog</span>
+                {%- endif -%}
+              </li>
+              <li>
+                {%- if contact_url != blank -%}
+                  <a class="wm-nav__link" data-nav-plain href="{{ contact_url }}"{% if request.path == contact_url %} aria-current="page"{% endif %}>Contact</a>
+                {%- else -%}
+                  <span class="wm-nav__link is-placeholder" data-nav-plain aria-disabled="true" title="Create a Contact page or set the link in the header settings">Contact</span>
+                {%- endif -%}
+              </li>
+            {%- endif -%}
           </ul>
         </nav>
       </div>
@@ -321,43 +345,61 @@
 
       <div class="wm-drawer__body">
         <ul class="wm-mnav">
-          <li>
-            <div class="wm-mnav__row">
-              <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>Shop</button>
-              <button type="button" class="wm-mnav__toggle" aria-expanded="false" aria-controls="WmMBest" aria-label="Show Shop products" data-accordion-toggle>
-                {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
-              </button>
-            </div>
-            <div class="wm-acc" id="WmMBest">
-              <div class="wm-acc__inner">
-                <div class="wm-acc__content">
-                  {% render 'header-bestsellers',
-                    layout: 'mobile',
-                    source_collection: section.settings.bestsellers_collection,
-                    limit: best_limit,
-                    show_preview: section.settings.show_catalog_preview,
-                    id_prefix: 'WmMBestC'
-                  %}
+          {%- if nav_links.size > 0 -%}
+            {%- for link in nav_links -%}
+              {%- assign link_handle = link.title | downcase -%}
+              {%- if link_handle == 'shop' or link_handle contains 'bestseller' -%}
+                <li>
+                  <div class="wm-mnav__row">
+                    <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>{{ link.title }}</button>
+                    <button type="button" class="wm-mnav__toggle" aria-expanded="false" aria-controls="WmMBest" aria-label="Show {{ link.title }} products" data-accordion-toggle>
+                      {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
+                    </button>
+                  </div>
+                  <div class="wm-acc" id="WmMBest">
+                    <div class="wm-acc__inner">
+                      <div class="wm-acc__content">
+                        {% render 'header-bestsellers',
+                          layout: 'mobile',
+                          source_collection: section.settings.bestsellers_collection,
+                          limit: best_limit,
+                          show_preview: section.settings.show_catalog_preview,
+                          id_prefix: 'WmMBestC'
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              {%- else -%}
+                <li><a class="wm-mnav__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a></li>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- else -%}
+            <li>
+              <div class="wm-mnav__row">
+                <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>Shop</button>
+                <button type="button" class="wm-mnav__toggle" aria-expanded="false" aria-controls="WmMBest" aria-label="Show Shop products" data-accordion-toggle>
+                  {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
+                </button>
+              </div>
+              <div class="wm-acc" id="WmMBest">
+                <div class="wm-acc__inner">
+                  <div class="wm-acc__content">
+                    {% render 'header-bestsellers',
+                      layout: 'mobile',
+                      source_collection: section.settings.bestsellers_collection,
+                      limit: best_limit,
+                      show_preview: section.settings.show_catalog_preview,
+                      id_prefix: 'WmMBestC'
+                    %}
+                  </div>
                 </div>
               </div>
-            </div>
-          </li>
-          <li><a class="wm-mnav__link" href="{{ routes.all_products_collection_url }}">Collection</a></li>
-          <li hidden><a class="wm-mnav__link" href="{{ about_url }}">About</a></li>
-          <li>
-            {%- if blog_url != blank -%}
-              <a class="wm-mnav__link" href="{{ blog_url }}">Blog</a>
-            {%- else -%}
-              <span class="wm-mnav__link is-placeholder" aria-disabled="true">Blog <span class="wm-soon">Soon</span></span>
-            {%- endif -%}
-          </li>
-          <li>
-            {%- if contact_url != blank -%}
-              <a class="wm-mnav__link" href="{{ contact_url }}">Contact</a>
-            {%- else -%}
-              <span class="wm-mnav__link is-placeholder" aria-disabled="true">Contact <span class="wm-soon">Soon</span></span>
-            {%- endif -%}
-          </li>
+            </li>
+            <li><a class="wm-mnav__link" href="{{ routes.all_products_collection_url }}">Collection</a></li>
+            <li><a class="wm-mnav__link" href="{{ blog_url }}">Blog</a></li>
+            <li><a class="wm-mnav__link" href="{{ contact_url }}">Contact</a></li>
+          {%- endif -%}
           {%- if shop.customer_accounts_enabled -%}
             <li>
               <a class="wm-mnav__link" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}">
@@ -394,6 +436,13 @@
       "id": "logo",
       "label": "Logo image",
       "info": "Leave empty to use the bundled original WAGMART logo."
+    },
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "label": "Main navigation menu",
+      "default": "main-menu",
+      "info": "Select the menu created in Shopify Admin > Online Store > Navigation."
     },
     {
       "type": "header",

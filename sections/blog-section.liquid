@@ -183,24 +183,23 @@
 </style>
 
 {%- liquid
-  assign default_images = 'dog-groomed.webp,slow-feeder-nutrition.webp,cat-relaxing.webp,dog-owner-happy.webp' | split: ','
-  assign default_titles = 'Flea and Tick Prevention: What Actually Works|Do Dogs Really Need Grain-Free Food?|Signs Your Cat Might Be Overdue for a Vet Visit|How to Stop a Puppy From Chewing Everything' | split: '|'
-  assign default_excerpts = 'There’s a lot of noise out there about home remedies, but a few methods have real evidence...|Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing...|Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious...|Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it rather than trying to stop it.' | split: '|'
-  assign default_urls = '/blogs/news/flea-and-tick-prevention-what-actually-works|/blogs/news/do-dogs-really-need-grain-free-food|/blogs/news/signs-your-cat-might-be-overdue-for-a-vet-visit|/blogs/news/how-to-stop-a-puppy-from-chewing-everything' | split: '|'
+  # Dynamic Blog selection: selected blog > 'news' blog > 'blog' blog
+  assign target_blog = section.settings.blog
+  if target_blog == blank
+    if blogs.news.articles.size > 0
+      assign target_blog = blogs.news
+    elsif blogs.blog.articles.size > 0
+      assign target_blog = blogs.blog
+    endif
+  endif
 
-  # Button -> blog page (setting > selected blog > 'news' / 'blog' handle > fallback)
+  # Button -> blog page
   assign blog_page_url = section.settings.button_link
-  if blog_page_url == blank and section.settings.blog != blank
-    assign blog_page_url = section.settings.blog.url
+  if blog_page_url == blank and target_blog != blank
+    assign blog_page_url = target_blog.url
   endif
   if blog_page_url == blank
-    if blogs.news.id != blank
-      assign blog_page_url = blogs.news.url
-    elsif blogs.blog.id != blank
-      assign blog_page_url = blogs.blog.url
-    else
-      assign blog_page_url = '/blogs/news'
-    endif
+    assign blog_page_url = '/blogs/news'
   endif
   assign blog_btn_text = section.settings.button_text | default: 'View All Blogs'
 -%}
@@ -210,61 +209,17 @@
     <div class="wm-blog__head">
       <h2 class="wm-blog__title">
         {%- if section.settings.title != blank -%}
-          {%- if section.settings.title == 'The Latest from Majestic Pet' -%}
-            The Latest from<br class="wm-blog-title-br"> Majestic Pet
-          {%- else -%}
-            {{ section.settings.title }}
-          {%- endif -%}
+          {{ section.settings.title }}
         {%- else -%}
-          The Latest from<br class="wm-blog-title-br"> Majestic Pet
+          The Latest from<br class="wm-blog-title-br"> Wagmart Pet Journal
         {%- endif -%}
       </h2>
       {% render 'theme-button', text: blog_btn_text, href: blog_page_url, class: 'wm-blog__btn' %}
     </div>
 
     <div class="wm-blog__grid">
-      {%- if section.blocks.size > 0 -%}
-        {%- for block in section.blocks -%}
-          {%- liquid
-            assign idx = forloop.index0 | modulo: 4
-            assign url = block.settings.article_url
-            if url == blank
-              assign url = default_urls[idx]
-            endif
-          -%}
-          <article class="wm-blog-card" {{ block.shopify_attributes }}>
-            <a href="{{ url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
-              {%- if block.settings.image != blank -%}
-                {{ block.settings.image | image_url: width: 800 | image_tag:
-                  loading: 'lazy',
-                  widths: '400, 600, 800',
-                  sizes: '(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw',
-                  alt: block.settings.title
-                }}
-              {%- else -%}
-                <img
-                  src="{{ default_images[idx] | asset_url }}"
-                  alt="{{ block.settings.title | escape }}"
-                  loading="lazy"
-                  width="600"
-                  height="356"
-                >
-              {%- endif -%}
-            </a>
-            <h3 class="wm-blog-card__title">
-              <a href="{{ url }}">{{ block.settings.title }}</a>
-            </h3>
-            <p class="wm-blog-card__date">{{ block.settings.date | default: 'Jul 23, 2026' }}</p>
-            <p class="wm-blog-card__excerpt">{{ block.settings.excerpt }}</p>
-            <div class="wm-blog-card__foot">
-              <a href="{{ url }}" class="wm-blog-card__more">{{ block.settings.read_more_text | default: 'Read more' }}</a>
-            </div>
-          </article>
-        {%- endfor -%}
-
-      {%- elsif section.settings.blog != blank and section.settings.blog.articles.size > 0 -%}
-        {%- for article in section.settings.blog.articles limit: 4 -%}
-          {%- assign idx = forloop.index0 | modulo: 4 -%}
+      {%- if target_blog != blank and target_blog.articles.size > 0 -%}
+        {%- for article in target_blog.articles limit: 4 -%}
           <article class="wm-blog-card">
             <a href="{{ article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
               {%- if article.image -%}
@@ -275,7 +230,9 @@
                   alt: article.title
                 }}
               {%- else -%}
-                <img src="{{ default_images[idx] | asset_url }}" alt="{{ article.title | escape }}" loading="lazy" width="600" height="356">
+                <div class="w-full h-full min-h-[200px] flex items-center justify-center bg-[#f6f2fe] text-[#7a46e5]">
+                  {% render 'wm-icon', name: 'image', class: 'w-8 h-8 opacity-60' %}
+                </div>
               {%- endif -%}
             </a>
             <h3 class="wm-blog-card__title">
@@ -290,22 +247,15 @@
         {%- endfor -%}
 
       {%- else -%}
-        {%- for i in (0..3) -%}
-          {%- assign card_link = default_urls[i] -%}
-          <article class="wm-blog-card">
-            <a href="{{ card_link }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
-              <img src="{{ default_images[i] | asset_url }}" alt="{{ default_titles[i] | escape }}" loading="lazy" width="600" height="356">
-            </a>
-            <h3 class="wm-blog-card__title">
-              <a href="{{ card_link }}">{{ default_titles[i] }}</a>
-            </h3>
-            <p class="wm-blog-card__date">Jul 23, 2026</p>
-            <p class="wm-blog-card__excerpt">{{ default_excerpts[i] }}</p>
-            <div class="wm-blog-card__foot">
-              <a href="{{ card_link }}" class="wm-blog-card__more">Read more</a>
-            </div>
-          </article>
-        {%- endfor -%}
+        <div class="wm-blog-empty text-center py-12 px-4 col-span-full w-full">
+          <div class="w-12 h-12 rounded-full bg-[#f6f2fe] text-[#7a46e5] flex items-center justify-center mx-auto mb-3 shadow-2xs">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+            </svg>
+          </div>
+          <p class="text-base font-semibold text-[#111827]">No blog articles published yet</p>
+          <p class="text-xs text-neutral-500 mt-1">Articles published in Shopify Admin will appear here automatically.</p>
+        </div>
       {%- endif -%}
     </div>
 
@@ -320,7 +270,7 @@
       "type": "text",
       "id": "title",
       "label": "Heading",
-      "default": "The Latest from Majestic Pet"
+      "default": "The Latest from Wagmart Pet Journal"
     },
     {
       "type": "text",
@@ -337,92 +287,17 @@
     {
       "type": "blog",
       "id": "blog",
-      "label": "Blog (optional)"
-    }
-  ],
-  "blocks": [
-    {
-      "type": "article",
-      "name": "Blog Article",
-      "settings": [
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Article Image"
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Title",
-          "default": "Flea and Tick Prevention: What Actually Works"
-        },
-        {
-          "type": "text",
-          "id": "date",
-          "label": "Date",
-          "default": "Jul 23, 2026"
-        },
-        {
-          "type": "textarea",
-          "id": "excerpt",
-          "label": "Excerpt",
-          "default": "There's a lot of noise out there about home remedies, but a few methods have real evidence..."
-        },
-        {
-          "type": "url",
-          "id": "article_url",
-          "label": "Article Link"
-        },
-        {
-          "type": "text",
-          "id": "read_more_text",
-          "label": "Link Text",
-          "default": "Read more"
-        }
-      ]
+      "label": "Blog (optional)",
+      "info": "Select the blog from which articles should be loaded. Defaults to 'news'."
     }
   ],
   "presets": [
     {
       "name": "Blog Section",
       "settings": {
-        "title": "The Latest from Majestic Pet",
+        "title": "The Latest from Wagmart Pet Journal",
         "button_text": "View All Blogs"
-      },
-      "blocks": [
-        {
-          "type": "article",
-          "settings": {
-            "title": "Flea and Tick Prevention: What Actually Works",
-            "date": "Jul 23, 2026",
-            "excerpt": "There's a lot of noise out there about home remedies, but a few methods have real evidence..."
-          }
-        },
-        {
-          "type": "article",
-          "settings": {
-            "title": "Do Dogs Really Need Grain-Free Food?",
-            "date": "Jul 23, 2026",
-            "excerpt": "Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing..."
-          }
-        },
-        {
-          "type": "article",
-          "settings": {
-            "title": "Signs Your Cat Might Be Overdue for a Vet Visit",
-            "date": "Jul 23, 2026",
-            "excerpt": "Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious..."
-          }
-        },
-        {
-          "type": "article",
-          "settings": {
-            "title": "How to Stop a Puppy From Chewing Everything",
-            "date": "Jul 23, 2026",
-            "excerpt": "Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it rather than trying to stop it."
-          }
-        }
-      ]
+      }
     }
   ]
 }

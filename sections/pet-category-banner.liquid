@@ -4,20 +4,33 @@
 
 {%- liquid
   assign base_all_url = routes.all_products_collection_url | default: '/collections/all'
-  assign dog_col_url = base_all_url | append: '?pet=dog&title=Shop+For+Dogs'
-  assign cat_col_url = base_all_url | append: '?pet=cat&title=Shop+For+Cats'
-
-  for col in collections
-    if col.products.size > 0 and col.handle != 'all' and col.handle != 'frontpage'
-      assign ch = col.handle | downcase
-      assign ct = col.title | downcase
-      if ch == 'dogs' or ch == 'dog' or ch == 'for-dog' or ch == 'for-dogs' or ct == 'dogs' or ct == 'for dog'
-        assign dog_col_url = col.url
-      elsif ch == 'cats' or ch == 'cat' or ch == 'for-cat' or ch == 'for-cats' or ct == 'cats' or ct == 'for cat'
-        assign cat_col_url = col.url
+  assign dog_col_url = section.settings.dog_collection.url
+  if dog_col_url == blank
+    assign dog_col_url = base_all_url | append: '?pet=dog&title=Shop+For+Dogs'
+    for col in collections
+      if col.products.size > 0 and col.handle != 'all' and col.handle != 'frontpage'
+        assign ch = col.handle | downcase
+        if ch == 'dogs' or ch == 'dog' or ch == 'for-dog' or ch == 'for-dogs'
+          assign dog_col_url = col.url
+          break
+        endif
       endif
-    endif
-  endfor
+    endfor
+  endif
+
+  assign cat_col_url = section.settings.cat_collection.url
+  if cat_col_url == blank
+    assign cat_col_url = base_all_url | append: '?pet=cat&title=Shop+For+Cats'
+    for col in collections
+      if col.products.size > 0 and col.handle != 'all' and col.handle != 'frontpage'
+        assign ch = col.handle | downcase
+        if ch == 'cats' or ch == 'cat' or ch == 'for-cat' or ch == 'for-cats'
+          assign cat_col_url = col.url
+          break
+        endif
+      endif
+    endfor
+  endif
 -%}
 
 <section
@@ -95,14 +108,23 @@
         </div>
 
         <div class="absolute right-0 bottom-0 top-0 w-[50%] sm:w-[54%] md:w-[56%] lg:w-[58%] pointer-events-none select-none flex items-end justify-end">
-          <img
-            src="{{ 'banner-dog.webp' | asset_url }}"
-            alt="Happy Golden Retriever with bandana"
-            class="h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            loading="eager"
-            width="400"
-            height="440"
-          >
+          {%- if section.settings.dog_image != blank -%}
+            {{ section.settings.dog_image | image_url: width: 800 | image_tag:
+              class: 'h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]',
+              loading: 'eager',
+              widths: '400, 600, 800',
+              alt: 'Shop for Dogs'
+            }}
+          {%- else -%}
+            <img
+              src="{{ 'banner-dog.webp' | asset_url }}"
+              alt="Happy Golden Retriever with bandana"
+              class="h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              loading="eager"
+              width="400"
+              height="440"
+            >
+          {%- endif -%}
         </div>
       </div>
 
@@ -165,14 +187,23 @@
         </div>
 
         <div class="absolute right-0 bottom-0 top-0 w-[50%] sm:w-[54%] md:w-[56%] lg:w-[58%] pointer-events-none select-none flex items-end justify-end">
-          <img
-            src="{{ 'banner-cat.webp' | asset_url }}"
-            alt="Playful kitten with raised paw"
-            class="h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            loading="eager"
-            width="400"
-            height="440"
-          >
+          {%- if section.settings.cat_image != blank -%}
+            {{ section.settings.cat_image | image_url: width: 800 | image_tag:
+              class: 'h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]',
+              loading: 'eager',
+              widths: '400, 600, 800',
+              alt: 'Shop for Cats'
+            }}
+          {%- else -%}
+            <img
+              src="{{ 'banner-cat.webp' | asset_url }}"
+              alt="Playful kitten with raised paw"
+              class="h-full w-auto max-w-full object-contain object-right-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              loading="eager"
+              width="400"
+              height="440"
+            >
+          {%- endif -%}
         </div>
       </div>
 
@@ -202,6 +233,34 @@
       "id": "subtitle",
       "label": "Subtitle",
       "default": "Tailored nutrition, playful toys, and specialized care essentials curated specifically for dogs and cats."
+    },
+    {
+      "type": "header",
+      "content": "For Dog Card"
+    },
+    {
+      "type": "collection",
+      "id": "dog_collection",
+      "label": "Dog Collection"
+    },
+    {
+      "type": "image_picker",
+      "id": "dog_image",
+      "label": "Custom Dog Banner Image"
+    },
+    {
+      "type": "header",
+      "content": "For Cat Card"
+    },
+    {
+      "type": "collection",
+      "id": "cat_collection",
+      "label": "Cat Collection"
+    },
+    {
+      "type": "image_picker",
+      "id": "cat_image",
+      "label": "Custom Cat Banner Image"
     }
   ],
   "presets": [

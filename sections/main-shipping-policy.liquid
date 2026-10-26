@@ -159,7 +159,16 @@
   <main class="wagmart-shipping-content-container">
     <div class="wagmart-shipping-outer-card">
       <div class="wagmart-shipping-inner-card">
-        {% render 'shipping-policy-data' %}
+        {%- # theme-check-disable UndefinedObject -%}
+        {%- assign admin_policy_content = policy.body | default: shop.shipping_policy.body | default: page.content -%}
+        {%- # theme-check-enable UndefinedObject -%}
+        {%- if admin_policy_content != blank -%}
+          <div class="wagmart-policy-text prose max-w-none text-[#4C4D4D] space-y-4">
+            {{ admin_policy_content }}
+          </div>
+        {%- else -%}
+          {% render 'shipping-policy-data' %}
+        {%- endif -%}
       </div>
     </div>
   </main>

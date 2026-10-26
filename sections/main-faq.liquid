@@ -7,7 +7,46 @@
 {% schema %}
 {
   "name": "Main FAQ",
-  "settings": [],
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Badge label",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Common"
+    },
+    {
+      "type": "text",
+      "id": "title_accent",
+      "label": "Title Accent",
+      "default": "Questions"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "What types of products does Wagmart offer?"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "Wagmart offers a comprehensive collection of pet essentials including grooming gloves, slicker brushes, heavy-duty leashes, tactical collars, travel hammock seat covers, stainless steel bowl sets, hygiene wipes, nail trimmers, and stimulating toys for dogs and cats."
+        }
+      ]
+    }
+  ],
   "presets": [
     {
       "name": "Main FAQ"

@@ -161,7 +161,16 @@
   <main class="wagmart-privacy-content-container">
     <div class="wagmart-privacy-outer-card">
       <div class="wagmart-privacy-inner-card">
-        {% render 'privacy-policy-data' %}
+        {%- # theme-check-disable UndefinedObject -%}
+        {%- assign admin_policy_content = policy.body | default: shop.privacy_policy.body | default: page.content -%}
+        {%- # theme-check-enable UndefinedObject -%}
+        {%- if admin_policy_content != blank -%}
+          <div class="wagmart-policy-text prose max-w-none text-[#4C4D4D] space-y-4">
+            {{ admin_policy_content }}
+          </div>
+        {%- else -%}
+          {% render 'privacy-policy-data' %}
+        {%- endif -%}
       </div>
     </div>
   </main>

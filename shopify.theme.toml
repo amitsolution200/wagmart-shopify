@@ -1,0 +1,13 @@
+# Shopify CLI Theme Environments Configuration
+# Usage:
+#   shopify theme dev -e development
+#   shopify theme push -e development
+#   shopify theme pull -e development
+
+[environments.development]
+store = "gk2scz-zu.myshopify.com"
+theme = "159000527020"
+
+[environments.live]
+store = "gk2scz-zu.myshopify.com"
+theme = "158971429036"

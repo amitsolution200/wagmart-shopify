@@ -7,7 +7,14 @@
     "@playwright/test": "^1.64.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "theme:info": "shopify theme info",
+    "theme:list": "shopify theme list --store gk2scz-zu.myshopify.com",
+    "theme:dev": "shopify theme dev --store gk2scz-zu.myshopify.com --theme 159000527020",
+    "theme:check": "shopify theme check",
+    "theme:pull:dev": "shopify theme pull --store gk2scz-zu.myshopify.com --theme 159000527020",
+    "theme:push:dev": "shopify theme push --store gk2scz-zu.myshopify.com --theme 159000527020",
+    "mcp:start": "node mcp/shopify-store-mcp/server.mjs"
   },
   "repository": {
     "type": "git",

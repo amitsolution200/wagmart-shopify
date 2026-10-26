@@ -350,22 +350,10 @@
 </style>
 
 {%- liquid
-  # Default Editorial Content matching homepage blog section
-  assign default_images = 'dog-groomed.webp,slow-feeder-nutrition.webp,cat-relaxing.webp,dog-owner-happy.webp' | split: ','
-  assign default_titles = 'Flea and Tick Prevention: What Actually Works|Do Dogs Really Need Grain-Free Food?|Signs Your Cat Might Be Overdue for a Vet Visit|How to Stop a Puppy From Chewing Everything' | split: '|'
-  assign default_excerpts = 'There’s a lot of noise out there about home remedies, but a few methods have real evidence to protect your pet all season long.|Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing for long-term health.|Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious changes in behavior.|Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it with positive reinforcement techniques.' | split: '|'
-  assign default_urls = '/blogs/news/flea-and-tick-prevention-what-actually-works|/blogs/news/do-dogs-really-need-grain-free-food|/blogs/news/signs-your-cat-might-be-overdue-for-a-vet-visit|/blogs/news/how-to-stop-a-puppy-from-chewing-everything' | split: '|'
-  assign default_categories = 'Health & Care|Nutrition|Feline Care|Training & Behavior' | split: '|'
-  assign default_dates = 'Jul 23, 2026|Jul 23, 2026|Jul 23, 2026|Jul 23, 2026' | split: '|'
-
-  # Check if Shopify store has live articles
+  # Dynamic Blog Articles
   assign has_live_articles = false
   if blog != blank and blog.articles.size > 0
     assign has_live_articles = true
-  endif
-
-  # First Big Featured Card Data
-  if has_live_articles
     assign feat_article = blog.articles.first
     assign feat_title = feat_article.title
     assign feat_url = feat_article.url
@@ -373,13 +361,8 @@
     assign feat_excerpt = feat_article.excerpt_or_content | strip_html | truncate: 220
     assign feat_category = feat_article.tags.first | default: 'Featured Story'
     assign feat_image = feat_article.image
-  else
-    assign feat_title = default_titles[0]
-    assign feat_url = default_urls[0]
-    assign feat_date = default_dates[0]
-    assign feat_excerpt = default_excerpts[0]
-    assign feat_category = default_categories[0]
-    assign feat_image_name = default_images[0]
+    assign words = feat_article.content | strip_html | split: ' ' | size
+    assign read_minutes = words | divided_by: 200 | at_least: 1
   endif
 -%}
 
@@ -398,7 +381,7 @@
         {%- if blog.title != blank and blog.title != 'News' -%}
           {{ blog.title }}
         {%- else -%}
-          The Latest from Majestic Pet
+          The Latest from Wagmart Pet Journal
         {%- endif -%}
       </h1>
       <p class="wm-blog-page__subtitle">
@@ -406,142 +389,101 @@
       </p>
     </div>
 
-    <!-- =========================================================
-         1. LAPTOP & DESKTOP VIEW (>= 1024px):
-         - First Card is Big: Left Image, Right Context (ALIGNED TO TOP)
-         - Below: 3 Cards in a row
-         ========================================================= -->
-    <div class="wm-blog-desktop-view">
-      <!-- Big Featured Card -->
-      <article class="wm-blog-featured" aria-label="Featured Story">
-        <div class="wm-blog-featured__inner">
-          <!-- Left Side: Image -->
-          <a href="{{ feat_url }}" class="wm-blog-featured__media" tabindex="-1" aria-hidden="true">
-            <span class="wm-blog-featured__badge">Featured Story</span>
-            {%- if feat_image != blank -%}
-              {{ feat_image | image_url: width: 1000 | image_tag:
-                loading: 'eager',
-                widths: '500, 800, 1000',
-                sizes: '(min-width: 1024px) 50vw, 100vw',
-                alt: feat_title
-              }}
-            {%- else -%}
-              <img
-                src="{{ feat_image_name | asset_url }}"
-                alt="{{ feat_title | escape }}"
-                loading="eager"
-                width="800"
-                height="500"
-              >
-            {%- endif -%}
-          </a>
+    {%- if has_live_articles -%}
+      <!-- =========================================================
+           1. LAPTOP & DESKTOP VIEW (>= 1024px):
+           - First Card is Big: Left Image, Right Context (ALIGNED TO TOP)
+           - Below: 3 Cards in a row
+           ========================================================= -->
+      <div class="wm-blog-desktop-view">
+        <!-- Big Featured Card -->
+        <article class="wm-blog-featured" aria-label="Featured Story">
+          <div class="wm-blog-featured__inner">
+            <!-- Left Side: Image -->
+            <a href="{{ feat_url }}" class="wm-blog-featured__media" tabindex="-1" aria-hidden="true">
+              <span class="wm-blog-featured__badge">Featured Story</span>
+              {%- if feat_image != blank -%}
+                {{ feat_image | image_url: width: 1000 | image_tag:
+                  loading: 'eager',
+                  widths: '500, 800, 1000',
+                  sizes: '(min-width: 1024px) 50vw, 100vw',
+                  alt: feat_title
+                }}
+              {%- else -%}
+                <div class="w-full h-full flex items-center justify-center bg-[#f6f2fe] text-[#7a46e5] min-h-[300px]">
+                  {% render 'wm-icon', name: 'image', class: 'w-12 h-12 opacity-60' %}
+                </div>
+              {%- endif -%}
+            </a>
 
-          <!-- Right Side: Context (ALIGNED TO TOP, NOT CENTER) -->
-          <div class="wm-blog-featured__context">
-            <div class="wm-blog-featured__meta">
-              <span class="wm-blog-featured__category">{{ feat_category }}</span>
-              <span class="wm-blog-featured__sep">•</span>
-              <span class="wm-blog-featured__date">{{ feat_date }}</span>
-              <span class="wm-blog-featured__sep">•</span>
-              <span class="wm-blog-featured__read-time">5 min read</span>
-            </div>
+            <!-- Right Side: Context -->
+            <div class="wm-blog-featured__context">
+              <div class="wm-blog-featured__meta">
+                <span class="wm-blog-featured__category">{{ feat_category }}</span>
+                <span class="wm-blog-featured__sep">•</span>
+                <span class="wm-blog-featured__date">{{ feat_date }}</span>
+                <span class="wm-blog-featured__sep">•</span>
+                <span class="wm-blog-featured__read-time">{{ read_minutes }} min read</span>
+              </div>
 
-            <h2 class="wm-blog-featured__title">
-              <a href="{{ feat_url }}">{{ feat_title }}</a>
-            </h2>
+              <h2 class="wm-blog-featured__title">
+                <a href="{{ feat_url }}">{{ feat_title }}</a>
+              </h2>
 
-            <p class="wm-blog-featured__excerpt">
-              {{ feat_excerpt }}
-            </p>
+              <p class="wm-blog-featured__excerpt">
+                {{ feat_excerpt }}
+              </p>
 
-            <div class="wm-blog-featured__foot">
-              <a href="{{ feat_url }}" class="wm-blog-featured__more">Read more</a>
+              <div class="wm-blog-featured__foot">
+                <a href="{{ feat_url }}" class="wm-blog-featured__more">Read more</a>
+              </div>
             </div>
           </div>
-        </div>
-      </article>
+        </article>
 
-      <!-- 3 Cards in a row -->
-      <div class="wm-blog-desktop-subgrid">
-        {%- if has_live_articles -%}
-          {%- for article in blog.articles offset: 1 limit: 3 -%}
-            {%- assign idx = forloop.index0 | plus: 1 | modulo: 4 -%}
-            <article class="wm-blog-card">
-              <a href="{{ article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
-                {%- if article.image != blank -%}
-                  {{ article.image | image_url: width: 800 | image_tag:
-                    loading: 'lazy',
-                    widths: '400, 600, 800',
-                    sizes: '33vw',
-                    alt: article.title
-                  }}
-                {%- else -%}
-                  <img
-                    src="{{ default_images[idx] | asset_url }}"
-                    alt="{{ article.title | escape }}"
-                    loading="lazy"
-                    width="600"
-                    height="356"
-                  >
-                {%- endif -%}
-              </a>
+        <!-- Cards Subgrid -->
+        {%- if blog.articles.size > 1 -%}
+          <div class="wm-blog-desktop-subgrid">
+            {%- for article in blog.articles offset: 1 limit: 3 -%}
+              <article class="wm-blog-card">
+                <a href="{{ article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+                  {%- if article.image != blank -%}
+                    {{ article.image | image_url: width: 800 | image_tag:
+                      loading: 'lazy',
+                      widths: '400, 600, 800',
+                      sizes: '33vw',
+                      alt: article.title
+                    }}
+                  {%- else -%}
+                    <div class="w-full h-[220px] flex items-center justify-center bg-[#f6f2fe] text-[#7a46e5]">
+                      {% render 'wm-icon', name: 'image', class: 'w-8 h-8 opacity-60' %}
+                    </div>
+                  {%- endif -%}
+                </a>
 
-              <h3 class="wm-blog-card__title">
-                <a href="{{ article.url }}">{{ article.title }}</a>
-              </h3>
+                <h3 class="wm-blog-card__title">
+                  <a href="{{ article.url }}">{{ article.title }}</a>
+                </h3>
 
-              <p class="wm-blog-card__date">{{ article.published_at | date: '%b %d, %Y' }}</p>
+                <p class="wm-blog-card__date">{{ article.published_at | date: '%b %d, %Y' }}</p>
 
-              <p class="wm-blog-card__excerpt">{{ article.excerpt_or_content | strip_html | truncate: 140 }}</p>
+                <p class="wm-blog-card__excerpt">{{ article.excerpt_or_content | strip_html | truncate: 140 }}</p>
 
-              <div class="wm-blog-card__foot">
-                <a href="{{ article.url }}" class="wm-blog-card__more">Read more</a>
-              </div>
-            </article>
-          {%- endfor -%}
-
-        {%- else -%}
-          {%- for i in (1..3) -%}
-            {%- assign card_link = default_urls[i] -%}
-            <article class="wm-blog-card">
-              <a href="{{ card_link }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
-                <img
-                  src="{{ default_images[i] | asset_url }}"
-                  alt="{{ default_titles[i] | escape }}"
-                  loading="lazy"
-                  width="600"
-                  height="356"
-                >
-              </a>
-
-              <h3 class="wm-blog-card__title">
-                <a href="{{ card_link }}">{{ default_titles[i] }}</a>
-              </h3>
-
-              <p class="wm-blog-card__date">{{ default_dates[i] }}</p>
-
-              <p class="wm-blog-card__excerpt">{{ default_excerpts[i] }}</p>
-
-              <div class="wm-blog-card__foot">
-                <a href="{{ card_link }}" class="wm-blog-card__more">Read more</a>
-              </div>
-            </article>
-          {%- endfor -%}
+                <div class="wm-blog-card__foot">
+                  <a href="{{ article.url }}" class="wm-blog-card__more">Read more</a>
+                </div>
+              </article>
+            {%- endfor -%}
+          </div>
         {%- endif -%}
       </div>
-    </div>
 
-    <!-- =========================================================
-         2. TABLET & MOBILE VIEW (< 1024px):
-         - Tablet View (640-1023px): 2 BY 2 GRID (NOT one big card!)
-         - Mobile View (< 640px)   : 1 Column Grid (single single)
-         - No pagination dots
-         ========================================================= -->
-    <div class="wm-blog-mobile-tablet-view">
-      <div class="wm-blog-tablet-grid">
-        {%- if has_live_articles -%}
+      <!-- =========================================================
+           2. TABLET & MOBILE VIEW (< 1024px):
+           ========================================================= -->
+      <div class="wm-blog-mobile-tablet-view">
+        <div class="wm-blog-tablet-grid">
           {%- for article in blog.articles limit: 4 -%}
-            {%- assign idx = forloop.index0 | modulo: 4 -%}
             <article class="wm-blog-card">
               <a href="{{ article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
                 {%- if article.image != blank -%}
@@ -552,13 +494,9 @@
                     alt: article.title
                   }}
                 {%- else -%}
-                  <img
-                    src="{{ default_images[idx] | asset_url }}"
-                    alt="{{ article.title | escape }}"
-                    loading="lazy"
-                    width="600"
-                    height="356"
-                  >
+                  <div class="w-full h-[220px] flex items-center justify-center bg-[#f6f2fe] text-[#7a46e5]">
+                    {% render 'wm-icon', name: 'image', class: 'w-8 h-8 opacity-60' %}
+                  </div>
                 {%- endif -%}
               </a>
 
@@ -575,37 +513,23 @@
               </div>
             </article>
           {%- endfor -%}
-
-        {%- else -%}
-          {%- for i in (0..3) -%}
-            {%- assign card_link = default_urls[i] -%}
-            <article class="wm-blog-card">
-              <a href="{{ card_link }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
-                <img
-                  src="{{ default_images[i] | asset_url }}"
-                  alt="{{ default_titles[i] | escape }}"
-                  loading="lazy"
-                  width="600"
-                  height="356"
-                >
-              </a>
-
-              <h3 class="wm-blog-card__title">
-                <a href="{{ card_link }}">{{ default_titles[i] }}</a>
-              </h3>
-
-              <p class="wm-blog-card__date">{{ default_dates[i] }}</p>
-
-              <p class="wm-blog-card__excerpt">{{ default_excerpts[i] }}</p>
-
-              <div class="wm-blog-card__foot">
-                <a href="{{ card_link }}" class="wm-blog-card__more">Read more</a>
-              </div>
-            </article>
-          {%- endfor -%}
-        {%- endif -%}
+        </div>
       </div>
-    </div>
+
+    {%- else -%}
+      <!-- Clean Empty State (When no articles have been published in Shopify Admin yet) -->
+      <div class="wm-blog-empty text-center py-16 sm:py-24 px-4 max-w-lg mx-auto">
+        <div class="w-16 h-16 rounded-full bg-[#f6f2fe] text-[#7a46e5] flex items-center justify-center mx-auto mb-5 shadow-xs">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+          </svg>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-[#111827]">No blog articles published yet</h2>
+        <p class="text-sm sm:text-base text-neutral-600 mt-2 leading-relaxed">
+          Publish your articles in <strong>Shopify Admin &gt; Online Store &gt; Blog Posts</strong> to display them here automatically.
+        </p>
+      </div>
+    {%- endif -%}
 
   </div>
 </section>

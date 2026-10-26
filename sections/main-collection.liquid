@@ -101,15 +101,17 @@
     {%- comment -%} 2d. Category / Collection Sub-Navigation Circles {%- endcomment -%}
     <section class="wm-plp-subnav" aria-label="Shop by category">
       <div class="wm-plp-subnav__track" role="tablist">
-        <button type="button" class="wm-plp-subnav__item is-active" data-subnav-cat="all" role="tab" aria-selected="true">
+        <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item{% if collection.handle == 'all' or collection.handle == blank %} is-active{% endif %}" role="tab" aria-selected="{% if collection.handle == 'all' or collection.handle == blank %}true{% else %}false{% endif %}">
           <span class="wm-plp-subnav__ring">
             <img src="{{ img_kibble_1 }}" alt="All Pet Supplies" width="88" height="88" loading="eager">
           </span>
           <span class="wm-plp-subnav__label">All Products</span>
-        </button>
+        </a>
 
+        {%- assign custom_col_count = 0 -%}
         {%- for col in collections -%}
           {%- unless col.handle == 'all' or col.handle == 'frontpage' -%}
+            {%- assign custom_col_count = custom_col_count | plus: 1 -%}
             {%- liquid
               assign col_img = col.image | default: col.products.first.featured_image
               if col_img != blank
@@ -127,54 +129,57 @@
           {%- endunless -%}
         {%- endfor -%}
 
-        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Dog Food" role="tab" aria-selected="false">
-          <span class="wm-plp-subnav__ring">
-            <img src="{{ img_kibble_2 }}" alt="Dog Food" width="88" height="88" loading="eager">
-          </span>
-          <span class="wm-plp-subnav__label">Dog Food</span>
-        </button>
+        {%- if custom_col_count == 0 -%}
+          {%- comment -%} Default demo categories when no custom collections exist yet {%- endcomment -%}
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
+            <span class="wm-plp-subnav__ring">
+              <img src="{{ img_kibble_2 }}" alt="Dog Food" width="88" height="88" loading="eager">
+            </span>
+            <span class="wm-plp-subnav__label">Dog Food</span>
+          </a>
 
-        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Cat Food" role="tab" aria-selected="false">
-          <span class="wm-plp-subnav__ring">
-            <img src="{{ img_kibble_3 }}" alt="Cat Food" width="88" height="88" loading="eager">
-          </span>
-          <span class="wm-plp-subnav__label">Cat Food</span>
-        </button>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
+            <span class="wm-plp-subnav__ring">
+              <img src="{{ img_kibble_3 }}" alt="Cat Food" width="88" height="88" loading="eager">
+            </span>
+            <span class="wm-plp-subnav__label">Cat Food</span>
+          </a>
 
-        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Grooming" role="tab" aria-selected="false">
-          <span class="wm-plp-subnav__ring">
-            <img src="{{ img_brush }}" alt="Grooming" width="88" height="88" loading="eager">
-          </span>
-          <span class="wm-plp-subnav__label">Grooming</span>
-        </button>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
+            <span class="wm-plp-subnav__ring">
+              <img src="{{ img_brush }}" alt="Grooming" width="88" height="88" loading="eager">
+            </span>
+            <span class="wm-plp-subnav__label">Grooming</span>
+          </a>
 
-        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Toys" role="tab" aria-selected="false">
-          <span class="wm-plp-subnav__ring">
-            <img src="{{ img_rope }}" alt="Toys" width="88" height="88" loading="eager">
-          </span>
-          <span class="wm-plp-subnav__label">Toys</span>
-        </button>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
+            <span class="wm-plp-subnav__ring">
+              <img src="{{ img_rope }}" alt="Toys" width="88" height="88" loading="eager">
+            </span>
+            <span class="wm-plp-subnav__label">Toys</span>
+          </a>
 
-        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Beds" role="tab" aria-selected="false">
-          <span class="wm-plp-subnav__ring">
-            <img src="{{ img_bed }}" alt="Beds" width="88" height="88" loading="eager">
-          </span>
-          <span class="wm-plp-subnav__label">Beds</span>
-        </button>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
+            <span class="wm-plp-subnav__ring">
+              <img src="{{ img_bed }}" alt="Beds" width="88" height="88" loading="eager">
+            </span>
+            <span class="wm-plp-subnav__label">Beds</span>
+          </a>
 
-        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Accessories" role="tab" aria-selected="false">
-          <span class="wm-plp-subnav__ring">
-            <img src="{{ img_bowl }}" alt="Accessories" width="88" height="88" loading="eager">
-          </span>
-          <span class="wm-plp-subnav__label">Accessories</span>
-        </button>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
+            <span class="wm-plp-subnav__ring">
+              <img src="{{ img_bowl }}" alt="Accessories" width="88" height="88" loading="eager">
+            </span>
+            <span class="wm-plp-subnav__label">Accessories</span>
+          </a>
 
-        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Health Care" role="tab" aria-selected="false">
-          <span class="wm-plp-subnav__ring">
-            <img src="{{ img_paw }}" alt="Health Care" width="88" height="88" loading="eager">
-          </span>
-          <span class="wm-plp-subnav__label">Health Care</span>
-        </button>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
+            <span class="wm-plp-subnav__ring">
+              <img src="{{ img_paw }}" alt="Health Care" width="88" height="88" loading="eager">
+            </span>
+            <span class="wm-plp-subnav__label">Health Care</span>
+          </a>
+        {%- endif -%}
       </div>
     </section>
 
