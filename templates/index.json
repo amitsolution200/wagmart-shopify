@@ -11,7 +11,6 @@
   "sections": {
     "hero_banner": {
       "type": "hero-banner",
-      "settings": {},
       "blocks": {
         "slide_2": {
           "type": "slide",
@@ -63,7 +62,8 @@
         "slide_3",
         "slide_4",
         "slide_5"
-      ]
+      ],
+      "settings": {}
     },
     "curated_categories": {
       "type": "curated-categories",
@@ -81,12 +81,22 @@
         "badge_label": "Our Best Sellers",
         "title": "Loved by Pets, Chosen by Pet Parents",
         "subtitle": "Discover our most popular products for happier, healthier pets.",
-        "products_to_show": 12
+        "collection": "",
+        "products_to_show": 12,
+        "button_label": "View All Products",
+        "button_url": ""
       }
     },
     "shop_by_need": {
       "type": "shop-by-need",
-      "settings": {}
+      "settings": {
+        "link_1": "",
+        "link_2": "",
+        "link_3": "",
+        "link_4": "",
+        "link_5": "",
+        "link_6": ""
+      }
     },
     "pet_category_banner": {
       "type": "pet-category-banner",
@@ -104,9 +114,11 @@
         "title_accent": "Pets & Their People",
         "subtitle": "Thoughtfully chosen essentials for everyday pet care.",
         "col1_title": "Made for the Love They Give",
+        "col1_desc": "Discover thoughtful everyday essentials designed to make caring for your pets simpler and more enjoyable.",
         "metric_number": "3 Lakh+",
         "metric_label": "Happy Pet Parents",
-        "delivery_title": "Fast Delivery"
+        "delivery_title": "Fast Delivery",
+        "delivery_desc": "Everyday essentials delivered to your door."
       }
     },
     "pet_reels": {
@@ -116,6 +128,10 @@
           "type": "reel",
           "settings": {
             "product": "pet-grooming-glove",
+            "product_title": "",
+            "product_price": "",
+            "product_compare_price": "",
+            "product_url": "",
             "youtube_id": "AOr9WB0XIUY",
             "story": "Gentle silicone bristles quickly wash away mud and grit before paws step inside."
           }
@@ -124,6 +140,10 @@
           "type": "reel",
           "settings": {
             "product": "pet-grooming-glove",
+            "product_title": "",
+            "product_price": "",
+            "product_compare_price": "",
+            "product_url": "",
             "youtube_id": "5H4sZNYtBFc",
             "story": "Promotes healthy digestion and turns mealtime into a fun, mindful maze."
           }
@@ -132,6 +152,10 @@
           "type": "reel",
           "settings": {
             "product": "pet-grooming-glove",
+            "product_title": "",
+            "product_price": "",
+            "product_compare_price": "",
+            "product_url": "",
             "youtube_id": "LB8Qfa9tTsU",
             "story": "One-click hair release effortlessly detangles mats without scratching sensitive skin."
           }
@@ -140,6 +164,10 @@
           "type": "reel",
           "settings": {
             "product": "pet-grooming-glove",
+            "product_title": "",
+            "product_price": "",
+            "product_compare_price": "",
+            "product_url": "",
             "youtube_id": "vwz9XsIcRik",
             "story": "No batteries required giggle sounds that keep energetic dogs happily engaged for hours."
           }
@@ -148,6 +176,10 @@
           "type": "reel",
           "settings": {
             "product": "pet-grooming-glove",
+            "product_title": "",
+            "product_price": "",
+            "product_compare_price": "",
+            "product_url": "",
             "youtube_id": "GalPqZH1glY",
             "story": "Heavy-duty waterproof hammock shielding your back seat from mud, fur, and scratches."
           }
@@ -172,6 +204,16 @@
       "settings": {
         "badge_label": "Customer Reviews",
         "title": "The reviews say it all",
+        "subtitle": "Our rating truly speaks for itself — but the words behind it speak even louder and clearer, expressing our commitment.",
+        "rev1_quote": "I was k33inda nervous about taking Luna for grooming, but Petocare totally relaxed her and made the experience enjoyable.",
+        "rev1_name": "David Chen",
+        "rev1_role": "Dog Owner",
+        "rev2_quote": "Petocare truly transformed my golden retriever, Maxi! He looked amazing, was happy the whole time, and their exceptional care and professionalism far surpass any other groomers I have tried.",
+        "rev2_name": "James Thornton",
+        "rev2_role": "Cat Owner",
+        "rev3_quote": "As someone who owns three dogs I need a groomer I can fully trust.",
+        "rev3_name": "Marcus Williams",
+        "rev3_role": "Cat Owner",
         "rating_score": "4.96/5",
         "reviews_count": "5-Star Reviews: 500+"
       }
@@ -184,7 +226,9 @@
           "settings": {
             "title": "Flea and Tick Prevention: What Actually Works",
             "date": "Jul 23, 2026",
-            "excerpt": "There’s a lot of noise out there about home remedies, but a few methods have real evidence..."
+            "excerpt": "There’s a lot of noise out there about home remedies, but a few methods have real evidence...",
+            "article_url": "",
+            "read_more_text": "Read more"
           }
         },
         "article_2": {
@@ -192,7 +236,9 @@
           "settings": {
             "title": "Do Dogs Really Need Grain-Free Food?",
             "date": "Jul 23, 2026",
-            "excerpt": "Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing..."
+            "excerpt": "Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing...",
+            "article_url": "",
+            "read_more_text": "Read more"
           }
         },
         "article_3": {
@@ -200,7 +246,9 @@
           "settings": {
             "title": "Signs Your Cat Might Be Overdue for a Vet Visit",
             "date": "Jul 23, 2026",
-            "excerpt": "Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious..."
+            "excerpt": "Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious...",
+            "article_url": "",
+            "read_more_text": "Read more"
           }
         },
         "article_4": {
@@ -208,7 +256,9 @@
           "settings": {
             "title": "How to Stop a Puppy From Chewing Everything",
             "date": "Jul 23, 2026",
-            "excerpt": "Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it rather than trying to sto..."
+            "excerpt": "Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it rather than trying to sto...",
+            "article_url": "",
+            "read_more_text": "Read more"
           }
         }
       },
@@ -220,7 +270,9 @@
       ],
       "settings": {
         "title": "The Latest from Majestic Pet",
-        "button_text": "View All Blogs"
+        "button_text": "View All Blogs",
+        "button_link": "",
+        "blog": ""
       }
     }
   },
@@ -236,4 +288,3 @@
     "blog_section"
   ]
 }
-

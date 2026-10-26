@@ -16,6 +16,40 @@
     "social_facebook_link": "https://facebook.com",
     "social_instagram_link": "https://instagram.com",
     "social_twitter_link": "https://twitter.com",
-    "social_youtube_link": "https://youtube.com"
+    "social_youtube_link": "https://youtube.com",
+    "sections": {
+      "header": {
+        "type": "header",
+        "settings": {
+          "shop_menu": "",
+          "bestsellers_collection": "",
+          "bestsellers_limit": 10,
+          "show_catalog_preview": true,
+          "about_url": "",
+          "blog_url": "",
+          "contact_url": "",
+          "customer_account_menu": "",
+          "phone_number": "+91 77779 85896"
+        }
+      },
+      "footer": {
+        "type": "footer",
+        "settings": {
+          "show_cta": true,
+          "cta_eyebrow": "MADE FOR HAPPY PETS",
+          "cta_heading": "Everything Your Pet Needs",
+          "cta_desc": "Discover everyday essentials for happier, healthier pets.",
+          "cta_btn_text": "SHOP PET PRODUCTS",
+          "cta_btn_link": "",
+          "cta_btn_secondary_text": "Call Us Now",
+          "cta_btn_secondary_link": "",
+          "about_text": "Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents.",
+          "phone": "+91 77779 85896",
+          "email": "support@wagmart.com",
+          "address": "Shop No. 312, 3rd Floor, Shivalik Complex,\nOpposite Heny Heights, Near Dabholi Gam BRTS Bus Stop,\nDabholi Gam Road, Katargam,\nSurat, Gujarat, 395004"
+        }
+      }
+    },
+    "content_for_index": []
   }
 }
