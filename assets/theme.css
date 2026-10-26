@@ -187,17 +187,25 @@ body {
 }
 
 /* Global Page Background */
-html,
-body {
+/* Global Page Background & Sticky Header Scroll Context */
+html {
   background-color: #ffffff !important;
+  overflow-y: visible !important;
+  overflow-x: clip;
 }
 
-/* Sticky Header */
+body {
+  background-color: #ffffff !important;
+  overflow-x: clip !important;
+}
+
+/* Sticky Header - Persists at top across all scroll positions & account popups */
 #shopify-section-header,
-.shopify-section-header {
+.shopify-section-header,
+header.wm-header {
   position: sticky !important;
   top: 0 !important;
-  z-index: 50 !important;
+  z-index: 1000 !important;
   width: 100% !important;
 }
 
@@ -205,7 +213,7 @@ body {
 .shopify-section-header header {
   position: sticky !important;
   top: 0 !important;
-  z-index: 50 !important;
+  z-index: 1000 !important;
   width: 100% !important;
   background-color: #ffffff !important;
   transition: box-shadow 0.3s ease, background-color 0.3s ease !important;
@@ -233,6 +241,145 @@ body {
 
 [data-add-to-cart]:not(.hidden) {
   display: inline-flex !important;
+}
+
+/* Unified Quick View Modal Add to Cart Button & Stepper */
+.wm-qv-atc-btn {
+  height: 46px !important;
+  min-height: 46px !important;
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 22px 0 6px !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16) !important;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease !important;
+  font-family: inherit !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+}
+
+.wm-qv-atc-btn.hidden {
+  display: none !important;
+}
+
+.wm-qv-atc-btn:hover {
+  background-color: #1a1a1a !important;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.22) !important;
+}
+
+.wm-qv-atc-btn:active {
+  transform: scale(0.97);
+}
+
+.wm-qv-atc-icon {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.wm-qv-atc-btn:hover .wm-qv-atc-icon {
+  transform: scale(1.06);
+}
+
+.wm-qv-atc-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+  stroke: #000000 !important;
+  stroke-width: 2.2 !important;
+  display: block !important;
+}
+
+.wm-qv-atc-label {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: #FFFFFF !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
+
+.wm-qv-stepper {
+  height: 46px !important;
+  min-height: 46px !important;
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 6px !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16) !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+
+.wm-qv-stepper.hidden {
+  display: none !important;
+}
+
+.wm-qv-stepper-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border: none !important;
+  outline: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.15s ease !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+}
+
+.wm-qv-stepper-btn:hover {
+  background-color: #F3F4F6 !important;
+  transform: scale(1.06);
+}
+
+.wm-qv-stepper-btn:active {
+  transform: scale(0.92);
+}
+
+.wm-qv-stepper-btn svg {
+  width: 15px !important;
+  height: 15px !important;
+  stroke: #000000 !important;
+  stroke-width: 2.5 !important;
+  display: block !important;
+}
+
+.wm-qv-stepper-qty {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+  min-width: 24px !important;
+  text-align: center !important;
+  user-select: none !important;
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+  padding: 0 4px !important;
 }
 
 /* Slim page scrollbar */

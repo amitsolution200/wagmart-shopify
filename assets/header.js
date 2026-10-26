@@ -143,10 +143,11 @@
 
         trigger.addEventListener('click', (e) => {
           e.preventDefault();
-          // A mouse hover already opened it: keep it open instead of toggling closed
-          if (this.current === name && e.detail > 0 && canHover.matches && trigger.matches(':hover')) return;
-          if (this.current === name) this.close();
-          else this.open(name);
+          if (this.current === name) {
+            this.close({ returnFocus: true });
+          } else {
+            this.open(name);
+          }
         });
 
         trigger.addEventListener('keydown', (e) => {
@@ -326,11 +327,19 @@
 
       // Accordions (top level + nested category groups)
       this.el.querySelectorAll('[data-accordion-toggle]').forEach((toggle) => {
-        toggle.addEventListener('click', () => {
+        toggle.addEventListener('click', (e) => {
+          e.preventDefault();
           const target = document.getElementById(toggle.getAttribute('aria-controls'));
           if (!target) return;
           const willOpen = toggle.getAttribute('aria-expanded') !== 'true';
-          toggle.setAttribute('aria-expanded', String(willOpen));
+          const parentRow = toggle.closest('.wm-mnav__row');
+          if (parentRow) {
+            parentRow.querySelectorAll('[data-accordion-toggle]').forEach((el) => {
+              el.setAttribute('aria-expanded', String(willOpen));
+            });
+          } else {
+            toggle.setAttribute('aria-expanded', String(willOpen));
+          }
           target.classList.toggle('is-open', willOpen);
           if (willOpen) setTimeout(() => Carousel.refresh(target), 260);
         });
@@ -487,12 +496,16 @@
     },
 
     setState(html, showResults) {
-      this.idle.hidden = !!showResults;
-      this.results.hidden = !showResults;
-      this.results.innerHTML = showResults ? html : '';
-      this.input.setAttribute('aria-expanded', String(!!showResults && !!this.results.querySelector('[role="option"]')));
+      if (this.idle) this.idle.hidden = !!showResults;
+      if (this.results) {
+        this.results.hidden = !showResults;
+        this.results.innerHTML = showResults ? html : '';
+      }
+      if (this.input) {
+        this.input.setAttribute('aria-expanded', String(!!showResults && !!(this.results && this.results.querySelector('[role="option"]'))));
+        this.input.removeAttribute('aria-activedescendant');
+      }
       this.activeIndex = -1;
-      this.input.removeAttribute('aria-activedescendant');
     },
 
     skeleton() {
@@ -823,7 +836,11 @@
         const real = ev.target.closest('[data-quick-view]');
         if (real) {
           ev.preventDefault();
-          this.openProduct(real.dataset.quickView, real);
+          if (window.WagmartQuickView) {
+            window.WagmartQuickView.open(real.closest('[data-product-card]') || real.closest('.wm-card') || real.dataset.quickView);
+          } else {
+            this.openProduct(real.dataset.quickView, real);
+          }
         }
       });
       // Return focus to the card button when the modal closes

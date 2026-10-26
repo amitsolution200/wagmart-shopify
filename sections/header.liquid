@@ -103,13 +103,13 @@
                 aria-expanded="false"
                 aria-controls="WmPanelBest"
               >
-                Bestsellers {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
+                Shop {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
               </button>
             </li>
             <li>
-              <a class="wm-nav__link" data-nav-plain href="{{ routes.all_products_collection_url }}"{% if all_products_current %} aria-current="page"{% endif %}>All Products</a>
+              <a class="wm-nav__link" data-nav-plain href="{{ routes.all_products_collection_url }}"{% if all_products_current %} aria-current="page"{% endif %}>Collection</a>
             </li>
-            <li>
+            <li hidden>
               <a class="wm-nav__link" data-nav-plain href="{{ about_url }}"{% if request.path == about_url %} aria-current="page"{% endif %}>About</a>
             </li>
             <li>
@@ -322,10 +322,12 @@
       <div class="wm-drawer__body">
         <ul class="wm-mnav">
           <li>
-            <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>
-              <span>Bestsellers</span>
-              {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
-            </button>
+            <div class="wm-mnav__row">
+              <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>Shop</button>
+              <button type="button" class="wm-mnav__toggle" aria-expanded="false" aria-controls="WmMBest" aria-label="Show Shop products" data-accordion-toggle>
+                {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
+              </button>
+            </div>
             <div class="wm-acc" id="WmMBest">
               <div class="wm-acc__inner">
                 <div class="wm-acc__content">
@@ -340,8 +342,8 @@
               </div>
             </div>
           </li>
-          <li><a class="wm-mnav__link" href="{{ routes.all_products_collection_url }}">All Products</a></li>
-          <li><a class="wm-mnav__link" href="{{ about_url }}">About</a></li>
+          <li><a class="wm-mnav__link" href="{{ routes.all_products_collection_url }}">Collection</a></li>
+          <li hidden><a class="wm-mnav__link" href="{{ about_url }}">About</a></li>
           <li>
             {%- if blog_url != blank -%}
               <a class="wm-mnav__link" href="{{ blog_url }}">Blog</a>

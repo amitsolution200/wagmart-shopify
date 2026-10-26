@@ -1014,7 +1014,19 @@ function initCollectionPage() {
         // STATE C: List View Card
         const card = document.createElement('article');
         card.className = 'product-card-list';
+        card.setAttribute('data-plp-card', '');
         card.setAttribute('data-id', p.id);
+        card.setAttribute('data-title', p.name);
+        card.setAttribute('data-category', p.category);
+        card.setAttribute('data-price', p.price);
+        card.setAttribute('data-price-formatted', `₹${p.price.toLocaleString('en-IN')}`);
+        card.setAttribute('data-compare-price', p.oldPrice ? `₹${p.oldPrice.toLocaleString('en-IN')}` : '');
+        card.setAttribute('data-rating', p.rating);
+        card.setAttribute('data-reviews', p.reviews);
+        card.setAttribute('data-description', p.description);
+        card.setAttribute('data-image', p.image);
+        card.setAttribute('data-url', `index.html?product=${p.id}#product`);
+        card.setAttribute('data-available', p.inStock !== false ? 'true' : 'false');
         card.innerHTML = `
           <div class="list-img-wrap">
             <img src="${p.image}" alt="${p.name}" loading="lazy">
@@ -1039,6 +1051,12 @@ function initCollectionPage() {
               <button type="button" class="list-add-to-cart-btn btn-add-cart" data-id="${p.id}">
                 Add to Cart
               </button>
+              <button type="button" class="list-heart-btn btn-quick-view" data-id="${p.id}" data-plp-qv-trigger aria-label="Quick view ${p.name}" title="Quick View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
               <button type="button" class="list-heart-btn btn-wishlist ${isWishlisted ? 'is-wishlisted' : ''}" data-id="${p.id}" aria-label="Add to wishlist" title="Wishlist">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="${isWishlisted ? '#E11D48' : 'none'}" stroke="currentColor" stroke-width="2">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -1057,7 +1075,19 @@ function initCollectionPage() {
         // STATE A & B: Grid View Card
         const card = document.createElement('article');
         card.className = 'product-card';
+        card.setAttribute('data-plp-card', '');
         card.setAttribute('data-id', p.id);
+        card.setAttribute('data-title', p.name);
+        card.setAttribute('data-category', p.category);
+        card.setAttribute('data-price', p.price);
+        card.setAttribute('data-price-formatted', `₹${p.price.toLocaleString('en-IN')}`);
+        card.setAttribute('data-compare-price', p.oldPrice ? `₹${p.oldPrice.toLocaleString('en-IN')}` : '');
+        card.setAttribute('data-rating', p.rating);
+        card.setAttribute('data-reviews', p.reviews);
+        card.setAttribute('data-description', p.description);
+        card.setAttribute('data-image', p.image);
+        card.setAttribute('data-url', `index.html?product=${p.id}#product`);
+        card.setAttribute('data-available', p.inStock !== false ? 'true' : 'false');
         card.innerHTML = `
           <div class="card-image-wrap">
             ${discount > 0 ? `<span class="card-discount-badge">${discount}% off</span>` : ''}
@@ -1067,7 +1097,7 @@ function initCollectionPage() {
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
               </button>
-              <button type="button" class="card-action-btn btn-quick-view" data-id="${p.id}" aria-label="Quick View" title="Quick View">
+              <button type="button" class="card-action-btn btn-quick-view" data-id="${p.id}" data-plp-qv-trigger aria-label="Quick view ${p.name}" title="Quick View">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                   <circle cx="12" cy="12" r="3"/>
@@ -1160,67 +1190,22 @@ function initCollectionPage() {
         e.stopPropagation();
         const id = parseInt(btn.getAttribute('data-id'), 10);
         const product = allProducts.find(p => p.id === id);
-        if (product) openQuickView(product);
+        if (product) openQuickView(product, btn);
       });
     });
   }
 
-  // Quick View Modal
-  function openQuickView(product) {
-    if (!quickViewModal || !quickViewBody) return;
-    const discount = getDiscountPercent(product.price, product.oldPrice);
-
-    quickViewBody.innerHTML = `
-      <div style="display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start;">
-        <div style="background: #F4F0E8; border-radius: 12px; padding: 20px; display: flex; align-items: center; justify-content: center; height: 240px;">
-          <img src="${product.image}" alt="${product.name}" style="max-height: 200px; max-width: 100%; object-fit: contain;">
-        </div>
-        <div>
-          <div style="font-size: 12px; color: #6B7280; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">${product.category} · ${product.petType}</div>
-          <h2 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 10px; line-height: 1.3;">${product.name}</h2>
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
-            <span style="color: #F5A623; font-size: 15px;">★★★★★</span>
-            <span style="font-weight: 700; font-size: 13px;">${product.rating}</span>
-            <span style="color: #6B7280; font-size: 13px;">(${product.reviews} reviews)</span>
-          </div>
-          <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px;">
-            <span style="font-size: 24px; font-weight: 800; color: #D96B27;">₹${product.price.toLocaleString('en-IN')}</span>
-            ${product.oldPrice ? `<span style="font-size: 15px; color: #9CA3AF; text-decoration: line-through;">₹${product.oldPrice.toLocaleString('en-IN')}</span>` : ''}
-            ${discount > 0 ? `<span style="background: #1F4D2B; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">${discount}% OFF</span>` : ''}
-          </div>
-          <p style="font-size: 13.5px; color: #4B5563; line-height: 1.6; margin: 0 0 20px;">${product.description}</p>
-          <div style="display: flex; gap: 12px;">
-            <button type="button" class="list-add-to-cart-btn btn-modal-add" style="padding: 11px 24px; font-size: 14px;">
-              Add to Cart
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    const modalAddBtn = quickViewBody.querySelector('.btn-modal-add');
-    if (modalAddBtn) {
-      modalAddBtn.addEventListener('click', () => {
-        state.cartCount++;
-        localStorage.setItem('wagmart_cart_count', state.cartCount);
-        if (headerCartCount) headerCartCount.textContent = state.cartCount;
-        showToast(`🐾 "${product.name}" added to cart!`);
-        closeQuickView();
-      });
+  // Quick View Drawer
+  function openQuickView(product, triggerBtn) {
+    if (window.WagmartQuickView) {
+      const card = (triggerBtn && triggerBtn.closest('[data-plp-card]')) ||
+        document.querySelector(`[data-plp-card][data-id="${product.id}"]`);
+      if (card) {
+        window.WagmartQuickView.open(card, triggerBtn);
+        return;
+      }
     }
-
-    quickViewModal.classList.add('is-open');
-    quickViewModal.setAttribute('aria-hidden', 'false');
   }
-
-  function closeQuickView() {
-    if (!quickViewModal) return;
-    quickViewModal.classList.remove('is-open');
-    quickViewModal.setAttribute('aria-hidden', 'true');
-  }
-
-  if (quickViewClose) quickViewClose.addEventListener('click', closeQuickView);
-  if (quickViewBackdrop) quickViewBackdrop.addEventListener('click', closeQuickView);
 
   // =========================================================
   // PAGINATION CONTROLS (< 1 2 3 ... 10 >)

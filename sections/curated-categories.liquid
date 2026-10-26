@@ -212,19 +212,47 @@
       {% comment %} Right Action Button {% endcomment %}
       <div class="wm-cat-header__btn">
         {%- assign btn_text = section.settings.button_text | default: 'View All Bundles' -%}
-        {% render 'theme-button', text: btn_text, href: '#shop' %}
+        {%- assign all_col_url = routes.all_products_collection_url | default: '/collections/all' -%}
+        {% render 'theme-button', text: btn_text, href: all_col_url %}
       </div>
 
     </div>
+
+    {%- liquid
+      assign base_all_url = routes.all_products_collection_url | default: '/collections/all'
+
+      assign url_fashion = base_all_url | append: '?category=Accessories&title=Fashion+Store'
+      assign url_accessories = base_all_url | append: '?category=Accessories&title=Accessories+Store'
+      assign url_grooming = base_all_url | append: '?category=Grooming&title=Grooming+Store'
+      assign url_supplements = base_all_url | append: '?category=Health+Care&title=Supplements+Store'
+      assign url_toys = base_all_url | append: '?category=Toys&title=Toys+Store'
+
+      for col in collections
+        if col.products.size > 0 and col.handle != 'all' and col.handle != 'frontpage'
+          assign ch = col.handle | downcase
+          assign ct = col.title | downcase
+          if ch contains 'fashion' or ct contains 'fashion' or ch contains 'apparel' or ct contains 'apparel' or ch contains 'collar'
+            assign url_fashion = col.url
+          elsif ch contains 'accessor' or ct contains 'accessor' or ch contains 'travel' or ct contains 'travel'
+            assign url_accessories = col.url
+          elsif ch contains 'groom' or ct contains 'groom' or ch contains 'bath' or ch contains 'shampoo'
+            assign url_grooming = col.url
+          elsif ch contains 'supplement' or ct contains 'supplement' or ch contains 'health' or ct contains 'health' or ch contains 'hygiene'
+            assign url_supplements = col.url
+          elsif ch contains 'toy' or ct contains 'toy'
+            assign url_toys = col.url
+          endif
+        endif
+      endfor
+    -%}
 
     {% comment %} 5 Category Cards: 1 (mobile) / 2 (tablet) / 5 (laptop & desktop) {% endcomment %}
     <div class="wm-cat-grid" data-cat-track>
       
       {% comment %} Card 1: Fashion Store {% endcomment %}
       <a
-        href="#shop"
+        href="{{ url_fashion }}"
         class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#FDF0F0] border border-[#FADBD8] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
-        data-category-select="collars"
       >
         <div class="z-10 space-y-2">
           <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
@@ -248,9 +276,8 @@
 
       {% comment %} Card 2: Accessories Store {% endcomment %}
       <a
-        href="#shop"
+        href="{{ url_accessories }}"
         class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#EAF4FB] border border-[#D4EBF8] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
-        data-category-select="travel"
       >
         <div class="z-10 space-y-2">
           <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
@@ -274,9 +301,8 @@
 
       {% comment %} Card 3: Grooming Store {% endcomment %}
       <a
-        href="#shop"
+        href="{{ url_grooming }}"
         class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#FCF4E9] border border-[#F8E5CA] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
-        data-category-select="grooming"
       >
         <div class="z-10 space-y-2">
           <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
@@ -300,9 +326,8 @@
 
       {% comment %} Card 4: Supplements Store {% endcomment %}
       <a
-        href="#shop"
+        href="{{ url_supplements }}"
         class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#EAF7EE] border border-[#D0EFD8] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
-        data-category-select="hygiene"
       >
         <div class="z-10 space-y-2">
           <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">
@@ -326,9 +351,8 @@
 
       {% comment %} Card 5: Toys Store {% endcomment %}
       <a
-        href="#shop"
+        href="{{ url_toys }}"
         class="group flex flex-col justify-between text-left rounded-[1.5rem] p-5 sm:p-6 bg-[#F5EEF8] border border-[#EBD7F0] shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative overflow-hidden min-h-[380px] sm:min-h-[420px]"
-        data-category-select="toys"
       >
         <div class="z-10 space-y-2">
           <h3 class="text-xl sm:text-2xl font-extrabold text-[#111827] leading-tight tracking-tight group-hover:text-[#7a46e5] transition-colors">

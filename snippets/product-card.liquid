@@ -1,5 +1,5 @@
 {% comment %}
-  Renders interactive Wagmart Product Card
+  Renders interactive Wagmart Product Card (Exact Unified Design across Homepage, Collection Page, Cart Page & Product Details Page)
   Accepts:
   - product: {Object} Shopify Product Object (optional)
   - mock_id: {String} Fallback product ID
@@ -13,68 +13,137 @@
 {% endcomment %}
 
 {%- liquid
-  if product != blank
-    assign prod_id = product.selected_or_first_available_variant.id | default: product.id
+  assign fallback_asset_img = 'catalog-bath-massage-brush.webp' | asset_url
+  if product != blank and mock_id == blank
+    assign prod_id = product.selected_or_first_available_variant.id | default: product.variants.first.id | default: product.id
+    assign prod_handle = product.handle
+    assign prod_sku = product.selected_or_first_available_variant.sku | default: ''
+    assign prod_available = true
     assign prod_title = product.title
     assign prod_url = product.url
-    assign prod_desc = product.description | strip_html | truncate: 90
+    assign prod_desc = product.description | strip_html | strip
+    if prod_desc == blank
+      assign prod_desc = 'Crafted with pet-safe, vet-approved materials for daily comfort and care.'
+    endif
     assign prod_price_num = product.price | divided_by: 100
     assign prod_price = '₹' | append: prod_price_num
+    assign prod_comp_num = 0
+    assign prod_compare_price = ''
     if product.compare_at_price > product.price
       assign prod_comp_num = product.compare_at_price | divided_by: 100
       assign prod_compare_price = '₹' | append: prod_comp_num
-    else
-      assign prod_compare_price = ''
     endif
-    if product.featured_image
-      assign prod_image = product.featured_image | image_url: width: 500
+    if product.featured_image != blank
+      assign prod_image = product.featured_image | image_url: width: 640
     else
-      assign prod_image = 'paw-cleaner-kit.webp' | asset_url
+      assign prod_image = fallback_asset_img
     endif
-    assign prod_badge = 'Best Seller'
-    assign prod_category = product.type | default: 'grooming' | downcase
+    assign prod_images_list = ''
+    if product.images.size > 0
+      for img_obj in product.images limit: 8
+        assign img_u = img_obj | image_url: width: 800
+        if prod_images_list == blank
+          assign prod_images_list = img_u
+        else
+          assign prod_images_list = prod_images_list | append: '|' | append: img_u
+        endif
+      endfor
+    else
+      assign prod_images_list = prod_image
+    endif
+    assign prod_badge = mock_badge | default: 'Best Seller'
+
+    assign p_cols_text = ''
+    for col in product.collections
+      assign p_cols_text = p_cols_text | append: ' ' | append: col.title | append: ' ' | append: col.handle
+    endfor
+    assign p_tags_text = product.tags | join: ' '
+    assign search_meta = product.title | append: ' ' | append: product.type | append: ' ' | append: p_tags_text | append: ' ' | append: p_cols_text | downcase
+
+    assign cat_list = ''
+    if search_meta contains 'groom' or search_meta contains 'brush' or search_meta contains 'glove' or search_meta contains 'shampoo' or search_meta contains 'bath' or search_meta contains 'massage' or search_meta contains 'slicker' or search_meta contains 'comb' or search_meta contains 'rake' or search_meta contains 'deshed' or search_meta contains 'roller' or search_meta contains 'hair' or search_meta contains 'fur' or search_meta contains 'nail' or search_meta contains 'clipper' or search_meta contains 'grinder'
+      assign cat_list = cat_list | append: 'grooming,'
+    endif
+    if search_meta contains 'feed' or search_meta contains 'bowl' or search_meta contains 'water' or search_meta contains 'dispenser' or search_meta contains 'bottle' or search_meta contains 'food' or search_meta contains 'kibble' or search_meta contains 'treat' or search_meta contains 'meal'
+      assign cat_list = cat_list | append: 'feeding,'
+    endif
+    if search_meta contains 'hygiene' or search_meta contains 'care' or search_meta contains 'health' or search_meta contains 'supplement' or search_meta contains 'vitamin' or search_meta contains 'dental' or search_meta contains 'tooth' or search_meta contains 'oral' or search_meta contains 'paw' or search_meta contains 'cleaner' or search_meta contains 'shampoo' or search_meta contains 'wipe' or search_meta contains 'nail' or search_meta contains 'grinder' or search_meta contains 'clipper'
+      assign cat_list = cat_list | append: 'hygiene,'
+    endif
+    if search_meta contains 'toy' or search_meta contains 'ball' or search_meta contains 'rope' or search_meta contains 'chew' or search_meta contains 'plush' or search_meta contains 'squeak' or search_meta contains 'play' or search_meta contains 'teaser'
+      assign cat_list = cat_list | append: 'toys,'
+    endif
+    if search_meta contains 'travel' or search_meta contains 'carrier' or search_meta contains 'car' or search_meta contains 'seat' or search_meta contains 'hammock' or search_meta contains 'walk' or search_meta contains 'leash' or search_meta contains 'harness' or search_meta contains 'bottle' or search_meta contains 'bag' or search_meta contains 'accessor'
+      assign cat_list = cat_list | append: 'travel,'
+    endif
+    if search_meta contains 'collar' or search_meta contains 'leash' or search_meta contains 'harness' or search_meta contains 'rope' or search_meta contains 'retractable' or search_meta contains 'fashion' or search_meta contains 'apparel' or search_meta contains 'bandana' or search_meta contains 'accessor'
+      assign cat_list = cat_list | append: 'collars,'
+    endif
+    if cat_list == blank
+      assign cat_list = product.type | default: 'grooming' | downcase
+    endif
+    assign prod_category = cat_list
   else
     assign prod_id = mock_id | default: 'prod-default'
+    assign prod_handle = ''
+    assign prod_sku = ''
+    assign prod_available = true
     assign prod_title = mock_title | default: 'Paw Cleaner Kit'
-    assign prod_url = '#shop'
-    assign prod_desc = mock_subtitle | default: 'All-in-one gentle silicone dog paw washing cup and grooming slicker brush kit.'
+    assign prod_url = mock_url | default: collections['all'].products.first.url | default: '/products/pet-grooming-glove'
+    assign prod_desc = mock_subtitle | default: mock_desc | default: 'All-in-one gentle silicone dog paw washing cup and grooming slicker brush kit.'
     assign prod_price = mock_price | default: '₹799'
-    assign prod_compare_price = mock_original_price | default: '₹1,099'
+    assign prod_compare_price = mock_original_price | default: mock_compare_price | default: ''
     if mock_image contains '/'
       assign prod_image = mock_image
     else
       assign prod_image = mock_image | default: 'paw-cleaner-kit.webp' | asset_url
     endif
+    assign prod_images_list = prod_image
     assign prod_badge = mock_badge | default: 'Best Seller'
     assign prod_category = mock_category | default: 'grooming'
   endif
 -%}
 
 <div
-  class="group relative shrink-0 w-[85vw] max-w-[340px] sm:w-[320px] md:w-[325px] lg:w-[335px] bg-[#FAF8F5] rounded-[22px] p-3 pb-5 border border-[#EAE5D9] hover:border-[#D5CEBF] select-none transition-all duration-300 flex flex-col justify-between snap-start cursor-pointer"
+  class="wm-unified-card group relative shrink-0 w-[85vw] max-w-[340px] sm:w-[320px] md:w-[325px] lg:w-[335px] bg-[#FAF8F5] rounded-[22px] p-3 pb-4 border border-[#EAE5D9] hover:border-[#D5CEBF] select-none transition-all duration-300 flex flex-col justify-between snap-start cursor-pointer"
   data-product-card
   data-product-id="{{ prod_id }}"
+  data-handle="{{ prod_handle | escape }}"
+  data-sku="{{ prod_sku | escape }}"
+  data-available="{{ prod_available }}"
+  data-product-url="{{ prod_url }}"
   data-product-name="{{ prod_title | escape }}"
   data-product-price="{{ prod_price }}"
   data-product-original-price="{{ prod_compare_price }}"
+  data-product-compare-price="{{ prod_compare_price }}"
   data-product-image="{{ prod_image }}"
-  data-product-category="{{ prod_category }}"
+  data-images="{{ prod_images_list | escape }}"
+  data-product-category="{{ prod_category | escape }}"
   data-product-desc="{{ prod_desc | escape }}"
-  data-quick-view-trigger
+  data-title="{{ prod_title | escape }}"
+  data-category="{{ prod_category | split: ',' | first | default: 'Grooming' | escape }}"
+  data-price="{{ prod_price_num | default: 330 }}"
+  data-compare-price="{{ prod_comp_num | default: 0 }}"
+  data-image="{{ prod_image }}"
+  data-url="{{ prod_url }}"
+  data-desc="{{ prod_desc | escape }}"
   role="region"
   aria-label="{{ prod_title | escape }}"
 >
-  <div>
+  <div class="wm-unified-card__top">
     {% comment %} 1. HERO IMAGE STAGE {% endcomment %}
-    <div class="relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-white/80 shrink-0 select-none flex items-center justify-center p-2.5">
-      <img
-        src="{{ prod_image }}"
-        alt="{{ prod_title | escape }}"
-        class="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
-        loading="lazy"
-        width="300"
-        height="210"
-      >
+    <div class="wm-unified-card__media relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-white/80 shrink-0 select-none flex items-center justify-center p-2.5">
+      <a href="{{ prod_url }}" class="w-full h-full flex items-center justify-center" aria-label="{{ prod_title | escape }}">
+        <img
+          src="{{ prod_image }}"
+          alt="{{ prod_title | escape }}"
+          class="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+          loading="lazy"
+          width="300"
+          height="210"
+          onerror="this.onerror=null;this.src='{{ fallback_asset_img }}';"
+        >
+      </a>
 
       {% comment %} Top-Left Category Badge {% endcomment %}
       <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
@@ -83,27 +152,37 @@
         </span>
       </div>
 
-      {% comment %} Top-Right Wishlist Heart Button {% endcomment %}
-      <button
-        type="button"
-        class="absolute top-[12px] right-[12px] z-10 w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
-        data-wishlist-btn
-        aria-label="Wishlist {{ prod_title | escape }}"
-      >
-        <svg class="w-4.5 h-4.5 transition-transform duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-        </svg>
-      </button>
+      {% comment %} Top-Right Wishlist Heart + Quick View Eye Buttons {% endcomment %}
+      <div class="absolute top-[12px] right-[12px] z-10 flex flex-col gap-1.5">
+        <button
+          type="button"
+          class="w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+          data-wishlist-btn
+          aria-label="Wishlist {{ prod_title | escape }}"
+        >
+          <svg class="w-4.5 h-4.5 transition-transform duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+          data-plp-qv-trigger
+          data-quick-view-trigger
+          aria-label="Quick view {{ prod_title | escape }}"
+        >
+          <svg class="w-4 h-4 text-neutral-700 hover:text-[#1B3A2A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    {% comment %} 2. PRODUCT TITLE, RATING & SUBTITLE {% endcomment %}
-    <div class="px-1.5 pt-3.5">
-      <div class="flex items-center gap-1.5 mb-1 text-xs">
-        <span style="color:#F59E0B;letter-spacing:1px;" aria-hidden="true">★★★★★</span>
-        <span class="font-bold text-[#111827]">{{ mock_rating | default: '4.8' }}</span>
-        <span class="text-neutral-400">({{ mock_reviews | default: '94' }})</span>
-      </div>
-      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#1B3A2A] transition-colors duration-200">
+    {% comment %} 2. PRODUCT TITLE & SUBTITLE {% endcomment %}
+    <div class="wm-unified-card__info px-1.5 pt-3.5">
+      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#7a46e5] transition-colors duration-200">
         <a href="{{ prod_url }}" class="hover:underline">{{ prod_title }}</a>
       </h3>
 
@@ -114,7 +193,7 @@
   </div>
 
   {% comment %} 3. BOTTOM ROW: PRICE LOCKUP & ADD TO CART / STEPPER {% endcomment %}
-  <div class="px-1 mt-auto pt-3 sm:pt-4 flex items-center justify-between gap-2">
+  <div class="wm-unified-card__bottom px-1 mt-auto pt-3 sm:pt-4 flex items-center justify-between gap-2">
     {% comment %} Price Lockup {% endcomment %}
     <div data-price-wrap class="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 min-w-0 pr-1">
       <span data-price-val class="font-extrabold text-[19px] sm:text-[22px] text-[#111827] tracking-tight leading-none whitespace-nowrap">

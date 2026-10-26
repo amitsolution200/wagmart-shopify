@@ -1,4 +1,5 @@
 {{ 'cart.css' | asset_url | stylesheet_tag }}
+{{ 'collection.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
   assign has_items = false
@@ -7,7 +8,7 @@
   endif
 -%}
 
-<div class="wm-cart-page" data-cart-page data-default-img="{{ 'grooming.png' | asset_url }}">
+<div class="wm-cart-page" data-cart-page data-default-img="{{ 'catalog-grooming-glove.webp' | asset_url }}">
   <script type="application/json" id="wm-cart-initial-json">
     {{ cart | json }}
   </script>
@@ -113,74 +114,98 @@
         </div>
       </form>
 
-      {%- comment -%} BELOW THE CART: You May Also Like 4-Column Carousel {%- endcomment -%}
-      <section class="wm-cart-cross-sell" aria-labelledby="wm-cart-upsell-title">
-        <div class="wm-cart-cross-sell__header">
-          <div>
-            <span class="wm-cart-cross-sell__eyebrow">COMPLETE YOUR PET'S ROUTINE</span>
-            <h2 id="wm-cart-upsell-title" class="wm-cart-cross-sell__title">You May Also Like</h2>
-          </div>
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
-            <span>Explore all</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
-        </div>
+      {%- comment -%} BELOW THE CART: You May Also Like (Renders exact same collection product card) {%- endcomment -%}
+      {%- assign cross_sell_count = 0 -%}
+      {%- for prod in collections['all'].products -%}
+        {%- assign in_cart = false -%}
+        {%- for item in cart.items -%}
+          {%- if item.product_id == prod.id -%}
+            {%- assign in_cart = true -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- unless in_cart -%}
+          {%- assign cross_sell_count = cross_sell_count | plus: 1 -%}
+        {%- endunless -%}
+      {%- endfor -%}
 
-        <div class="wm-cart-cross-sell__grid">
-          {% render 'product-card',
-            mock_id: 'oatmeal-shampoo-5',
-            mock_title: 'Soothing Colloidal Oatmeal & Aloe Vera Pet Shampoo (300ml)',
-            mock_category: 'Grooming & Bath',
-            mock_vendor: 'Wagmart Care',
-            mock_price: '₹349',
-            mock_compare_price: '₹449',
-            mock_rating: '4.9',
-            mock_reviews: 142,
-            mock_badge: 'Vet Formula',
-            mock_image: 'grooming.png',
-            mock_desc: 'pH-balanced tear-free formula relieves dry, itchy skin and leaves coats silky soft.'
-          %}
-          {% render 'product-card',
-            mock_id: 'freeze-dried-treats-6',
-            mock_title: 'Single-Ingredient Freeze-Dried Chicken Breast Training Treats',
-            mock_category: 'Dry Food & Kibble',
-            mock_vendor: 'Wagmart Naturals',
-            mock_price: '₹249',
-            mock_compare_price: '₹320',
-            mock_rating: '4.8',
-            mock_reviews: 189,
-            mock_badge: 'High Protein',
-            mock_image: 'Dry_Food_Kibble.png',
-            mock_desc: '100% pure human-grade chicken breast with zero preservatives, grains, or fillers.'
-          %}
-          {% render 'product-card',
-            mock_id: 'puzzle-feeder-7',
-            mock_title: 'Interactive Slow-Feeder Treat Puzzle Bowl for Dogs & Cats',
-            mock_category: 'Interactive Toys',
-            mock_vendor: 'Wagmart Play',
-            mock_price: '₹499',
-            mock_compare_price: '₹699',
-            mock_rating: '4.7',
-            mock_reviews: 112,
-            mock_badge: 'Save 28%',
-            mock_image: 'Interactive_Toys.png',
-            mock_desc: 'Prevents gulping and bloating while providing mental stimulation during mealtime.'
-          %}
-          {% render 'product-card',
-            mock_id: 'orthopedic-bed-8',
-            mock_title: 'Calming Orthopedic Bolster Pet Bed with Washable Cover',
-            mock_category: 'Accessories',
-            mock_vendor: 'Wagmart Comfort',
-            mock_price: '₹1,499',
-            mock_compare_price: '₹1,999',
-            mock_rating: '4.9',
-            mock_reviews: 276,
-            mock_badge: 'Bestseller',
-            mock_image: 'Accessories_Leashes.png',
-            mock_desc: 'High-density memory foam base supports joints and soothes anxious pets to sleep.'
-          %}
-        </div>
-      </section>
+      {%- if cross_sell_count > 0 -%}
+        <section class="wm-cart-cross-sell" aria-labelledby="wm-cart-upsell-title">
+          <div class="wm-cart-cross-sell__header">
+            <div>
+              <span class="wm-cart-cross-sell__eyebrow">COMPLETE YOUR PET'S ROUTINE</span>
+              <h2 id="wm-cart-upsell-title" class="wm-cart-cross-sell__title">You May Also Like</h2>
+            </div>
+            <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
+              <span>Explore all</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+
+          <div class="wm-cart-cross-sell__grid">
+            {%- assign rendered_cs = 0 -%}
+            {%- for product in collections['all'].products limit: 4 -%}
+              {%- liquid
+                assign real_price_inr = product.price | divided_by: 100.0 | round
+                assign real_compare_inr = 0
+                if product.compare_at_price > product.price
+                  assign real_compare_inr = product.compare_at_price | divided_by: 100.0 | round
+                endif
+
+                if product.featured_image != blank
+                  assign real_img = product.featured_image | image_url: width: 640
+                else
+                  assign real_img = 'catalog-grooming-glove.webp' | asset_url
+                endif
+
+                assign second_img = ''
+                if product.images.size > 1
+                  assign second_img = product.images[1] | image_url: width: 640
+                endif
+
+                assign primary_cat = product.type
+                if primary_cat == blank
+                  assign primary_cat = product.collections.first.title | default: 'Grooming'
+                endif
+
+                assign promo_tags = ''
+                if product.compare_at_price > product.price
+                  assign promo_tags = 'sale'
+                endif
+                for tag in product.tags
+                  assign down_tag = tag | downcase
+                  if down_tag contains 'new'
+                    assign promo_tags = 'new'
+                  elsif down_tag contains 'bestseller'
+                    assign promo_tags = 'bestseller'
+                  endif
+                endfor
+
+                assign real_rating = product.metafields.reviews.rating.value
+                assign real_reviews = product.metafields.reviews.rating_count.value | default: 0
+                assign real_stock = product.selected_or_first_available_variant.inventory_quantity | default: 1
+                assign unique_prod_id = product.selected_or_first_available_variant.id | default: product.id
+                assign clean_card_desc = product.description | strip_html | truncate: 110
+              -%}
+              {% render 'collection-product-card',
+                card_id: unique_prod_id,
+                card_title: product.title,
+                card_url: product.url,
+                card_category: primary_cat,
+                card_price_inr: real_price_inr,
+                card_compare_inr: real_compare_inr,
+                card_rating: real_rating,
+                card_reviews: real_reviews,
+                card_image: real_img,
+                card_hover_image: second_img,
+                card_badge_promo: promo_tags,
+                card_stock: real_stock,
+                card_desc: clean_card_desc
+              %}
+              {%- assign rendered_cs = rendered_cs | plus: 1 -%}
+            {%- endfor -%}
+          </div>
+        </section>
+      {%- endif -%}
     </div>
 
     {%- comment -%} =======================================================

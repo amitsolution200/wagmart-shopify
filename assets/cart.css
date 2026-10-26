@@ -1558,18 +1558,7 @@
 
 @media (max-width: 640px) {
   .wm-cart-cross-sell__grid {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 14px;
-    padding-bottom: 8px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .wm-cart-cross-sell__grid > * {
-    flex: 0 0 76%;
-    max-width: 280px;
-    scroll-snap-align: start;
+    grid-template-columns: 1fr;
   }
 }
 

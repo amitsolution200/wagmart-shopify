@@ -42,10 +42,11 @@
           width="104"
           height="104"
           loading="lazy"
+          onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';"
         >
       {%- else -%}
         <img
-          src="{{ 'grooming.png' | asset_url }}"
+          src="{{ 'catalog-grooming-glove.webp' | asset_url }}"
           alt="{{ item_title | escape }}"
           width="104"
           height="104"

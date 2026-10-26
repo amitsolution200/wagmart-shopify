@@ -63,11 +63,11 @@
   {% section 'header' %}
 
   <main id="MainContent" role="main" class="flex-1">
-    {%- if request.path contains 'privacy-policy' or policy.title contains 'Privacy' -%}
+    {%- if request.path contains 'privacy-policy' or page_title contains 'Privacy' -%}
       {% section 'main-privacy-policy' %}
-    {%- elsif request.path contains 'refund' or request.path contains 'return' or policy.title contains 'Refund' or policy.title contains 'Return' -%}
+    {%- elsif request.path contains 'refund' or request.path contains 'return' or page_title contains 'Refund' or page_title contains 'Return' -%}
       {% section 'main-refund-policy' %}
-    {%- elsif request.path contains 'shipping' or policy.title contains 'Shipping' -%}
+    {%- elsif request.path contains 'shipping' or page_title contains 'Shipping' -%}
       {% section 'main-shipping-policy' %}
     {%- elsif request.path contains 'faq' or page.handle == 'faq' -%}
       {% section 'main-faq' %}

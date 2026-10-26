@@ -44,18 +44,29 @@
     </form>
 
     <div class="wm-search__body">
-      {%- comment -%} Idle state: suggested queries {%- endcomment -%}
+      {%- comment -%} Idle state: real store products {%- endcomment -%}
       <div data-search-idle>
-        <p class="wm-search__label">Popular searches</p>
-        <div class="wm-chips">
-          {%- assign suggestions = 'Dog brush,Pet wipes,Dog leash,Slow feeder,Grooming glove' | split: ',' -%}
-          {%- for term in suggestions -%}
-            <button type="button" class="wm-chip" data-search-term="{{ term }}">
-              {% render 'wm-icon', name: 'search', class: 'wm-icon wm-icon--xs', stroke: 2 %}
-              {{ term }}
-            </button>
-          {%- endfor -%}
-        </div>
+        {%- assign idle_products = collections.all.products -%}
+        {%- if idle_products.size > 0 -%}
+          <p class="wm-search__label">Products</p>
+          <ul class="wm-results" role="listbox" aria-label="Products">
+            {%- for product in idle_products limit: 6 -%}
+              <li>
+                <a class="wm-result" href="{{ product.url }}">
+                  {%- if product.featured_image -%}
+                    <img class="wm-result__thumb" src="{{ product.featured_image | image_url: width: 120 }}" alt="{{ product.title | escape }}" width="56" height="56" loading="lazy">
+                  {%- else -%}
+                    <span class="wm-result__thumb"></span>
+                  {%- endif -%}
+                  <span class="wm-result__text">
+                    <span class="wm-result__title">{{ product.title | escape }}</span>
+                    <span class="wm-result__meta">{{ product.price | money }}</span>
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
       </div>
 
       {%- comment -%} Live region: loading / results / empty / error (rendered by header.js) {%- endcomment -%}

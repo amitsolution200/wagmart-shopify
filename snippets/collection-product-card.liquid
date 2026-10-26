@@ -1,46 +1,40 @@
 {%- comment -%}
-  Wagmart Collection Product Card (Reusable for Grid 3-col, Grid 4-col, and List View)
-  Parameters:
-  - card_id: unique product/variant ID
-  - card_title: product title
-  - card_url: product URL
-  - card_category: category label (e.g. "Dog Food", "Grooming", "Accessories")
-  - card_pet: pet type tag ("dog", "cat", "puppy", "kitten", "senior")
-  - card_price_inr: selling price in INR (integer, e.g. 1299)
-  - card_compare_inr: compare-at price in INR (integer, e.g. 1599)
-  - card_rating: star rating string (e.g. "4.8")
-  - card_reviews: review count integer (e.g. 126)
-  - card_image: primary image URL
-  - card_hover_image: optional secondary image URL on hover
-  - card_badge_promo: optional promo tag ("bestseller", "new", "sale")
-  - card_ badge_text: optional custom badge text
-  - card_stock: stock count integer (0 = Sold Out, 1..5 = Low Stock hint)
-  - card_has_variants: boolean (if true, button says "Select Options" and opens Quick View)
-  - card_desc: 2-line product description (shown in List View & Quick View)
-  - card_unit_price: optional unit price in INR (e.g. "₹650/kg")
+  Wagmart Collection Product Card (snippets/collection-product-card.liquid)
+  - 100% identical to the Homepage Product Card (snippets/product-card.liquid)
+  - Supports both Grid View and Horizontal List View on the Collection Page
 {%- endcomment -%}
 
 {%- liquid
-  assign p_id = card_id | default: 'wm-prod-1'
-  assign p_title = card_title | default: 'Gentle Silicone Pet Grooming Glove'
+  assign p_id = card_id | default: 'wm-item-1'
+  assign p_handle = card_handle | default: ''
+  assign p_sku = card_sku | default: ''
+  assign p_title = card_title | default: 'Gentle Silicone Pet Grooming & De-Shedding Brush'
   assign p_url = card_url | default: '/products/pet-grooming-glove'
   assign p_cat = card_category | default: 'Grooming'
+  if p_cat == 'My Store 2' or p_cat == 'My Store' or p_cat == blank
+    assign p_cat = 'Grooming'
+  endif
+  assign p_cats_all = card_categories | default: p_cat
   assign p_pet = card_pet | default: 'dog,cat'
   assign p_price = card_price_inr | default: 330 | plus: 0
-  assign p_compare = card_compare_inr | default: 415 | plus: 0
-  assign p_rating = card_rating | default: '4.8'
-  assign p_reviews = card_reviews | default: 126
-  assign p_img = card_image | default: ''
-  assign p_hover_img = card_hover_image | default: ''
-  assign p_stock = card_stock | default: 18 | plus: 0
-  assign p_promo = card_badge_promo | default: 'sale'
-  assign p_has_variants = card_has_variants | default: false
-  assign p_desc = card_desc | default: 'Crafted with pet-safe materials and vet-approved nutrition to keep your furry companion healthy, active, and happy every day.'
-  assign p_unit = card_unit_price | default: ''
+  assign p_compare = card_compare_inr | default: 0 | plus: 0
+  assign p_rating = card_rating | default: ''
+  assign p_reviews = card_reviews | default: ''
+  assign p_stock = card_stock | default: 15 | plus: 0
+  assign p_promo = card_badge_promo | default: 'bestseller,sale'
+  assign p_img = card_image
+  assign p_images = card_images | default: card_image
+  assign p_desc = card_desc
+  if p_desc == blank
+    assign p_desc = 'Crafted with pet-safe, vet-approved materials for daily comfort and care.'
+  endif
   assign fallback_img = 'catalog-bath-massage-brush.webp' | asset_url
 
   if p_img == blank
     assign p_img = fallback_img
+  endif
+  if p_images == blank
+    assign p_images = p_img
   endif
 
   assign discount_pct = 0
@@ -54,180 +48,205 @@
     assign is_sold_out = true
   endif
 
-  assign is_low_stock = false
-  if p_stock > 0 and p_stock <= 4
-    assign is_low_stock = true
+  assign badge_text = 'Best Seller'
+  if is_sold_out
+    assign badge_text = 'Sold Out'
   endif
 -%}
 
-<article
-  class="wm-plp-card{% if is_sold_out %} is-sold-out{% endif %}"
-  data-plp-card
+<div
+  class="wm-plp-card wm-unified-card group relative w-full bg-[#FAF8F5] rounded-[22px] p-3 pb-4 border border-[#EAE5D9] hover:border-[#D5CEBF] select-none transition-all duration-300 flex flex-col justify-between cursor-pointer{% if is_sold_out %} is-sold-out{% endif %}"
   data-product-card
   data-product-id="{{ p_id }}"
-  data-product-name="{{ p_title | escape }}"
+  data-handle="{{ p_handle | escape }}"
+  data-sku="{{ p_sku | escape }}"
   data-product-url="{{ p_url }}"
-  data-product-category="{{ p_cat | downcase | escape }}"
-  data-product-category-label="{{ p_cat | escape }}"
-  data-product-pet="{{ p_pet | downcase | escape }}"
+  data-product-name="{{ p_title | escape }}"
   data-product-price="₹{{ p_price }}"
-  data-product-price-num="{{ p_price }}"
-  data-product-compare-num="{{ p_compare }}"
-  data-product-discount="{{ discount_pct }}"
-  data-product-rating="{{ p_rating }}"
-  data-product-reviews="{{ p_reviews }}"
-  data-product-stock="{{ p_stock }}"
-  data-product-promo="{{ p_promo | downcase | escape }}"
+  data-product-original-price="{% if p_compare > p_price %}₹{{ p_compare }}{% endif %}"
+  data-product-compare-price="{% if p_compare > p_price %}₹{{ p_compare }}{% endif %}"
   data-product-image="{{ p_img }}"
+  data-images="{{ p_images | escape }}"
+  data-product-category="{{ p_cat | downcase | escape }}"
   data-product-desc="{{ p_desc | escape }}"
-  data-has-variants="{{ p_has_variants }}"
+  data-title="{{ p_title | escape }}"
+  data-category="{{ p_cat | escape }}"
+  data-categories="{{ p_cats_all | downcase | escape }}"
+  data-pet="{{ p_pet | downcase | escape }}"
+  data-price="{{ p_price }}"
+  data-compare-price="{% if p_compare > p_price %}{{ p_compare }}{% else %}0{% endif %}"
+  data-discount="{{ discount_pct }}"
+  {% if p_rating != blank %}data-rating="{{ p_rating }}"{% endif %}
+  {% if p_reviews != blank %}data-reviews="{{ p_reviews }}"{% endif %}
+  data-availability="{% if is_sold_out %}out-of-stock{% else %}in-stock{% endif %}"
+  data-stock="{{ p_stock }}"
+  data-badge-promo="{{ p_promo | downcase | escape }}"
+  data-image="{{ p_img }}"
+  data-url="{{ p_url }}"
+  data-desc="{{ p_desc | escape }}"
+  role="region"
+  aria-label="{{ p_title | escape }}"
 >
-  {%- comment -%} 1. Square (1:1) Image Container with Badges & Quick Action Icons {%- endcomment -%}
-  <div class="wm-plp-card__media">
-    {%- comment -%} Top-Left Stacked Badges {%- endcomment -%}
-    <div class="wm-plp-card__badges">
-      {%- if is_sold_out -%}
-        <span class="wm-plp-badge wm-plp-badge--soldout">Sold Out</span>
-      {%- else -%}
-        {%- if discount_pct > 0 -%}
-          <span class="wm-plp-badge wm-plp-badge--discount">{{ discount_pct }}% off</span>
-        {%- endif -%}
-        {%- if p_promo contains 'bestseller' -%}
-          <span class="wm-plp-badge wm-plp-badge--bestseller">Best Seller</span>
-        {%- elsif p_promo contains 'new' -%}
-          <span class="wm-plp-badge wm-plp-badge--new">New</span>
-        {%- endif -%}
-      {%- endif -%}
-    </div>
-
-    {%- comment -%} Top-Right 36px Round Action Buttons (Wishlist Heart + Quick View Eye) {%- endcomment -%}
-    <div class="wm-plp-card__quick-icons">
-      <button
-        type="button"
-        class="wm-plp-icon-btn"
-        data-wishlist-btn
-        aria-label="Add {{ p_title | escape }} to wishlist"
-        title="Add to Wishlist"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      </button>
-      <button
-        type="button"
-        class="wm-plp-icon-btn"
-        data-plp-quickview-btn
-        aria-label="Quick view {{ p_title | escape }}"
-        title="Quick View"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-    </div>
-
-    <a href="{{ p_url }}" class="wm-plp-card__img-link" aria-label="{{ p_title | escape }}">
-      <img
-        src="{{ p_img }}"
-        alt="{{ p_title | escape }}"
-        class="wm-plp-card__img wm-plp-card__img--primary"
-        width="320"
-        height="320"
-        loading="lazy"
-        decoding="async"
-        onerror="this.onerror=null;this.src='{{ fallback_img }}';"
-      >
-      {%- if p_hover_img != blank -%}
+  <div class="wm-plp-card__top wm-unified-card__top">
+    {%- comment -%} 1. HERO IMAGE STAGE (Identical to Homepage snippets/product-card.liquid) {%- endcomment -%}
+    <div class="wm-plp-card__media wm-unified-card__media relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-white/80 shrink-0 select-none flex items-center justify-center p-2.5">
+      <a href="{{ p_url }}" class="wm-plp-card__media-link w-full h-full flex items-center justify-center" aria-label="{{ p_title | escape }}">
         <img
-          src="{{ p_hover_img }}"
-          alt="{{ p_title | escape }} alternate view"
-          class="wm-plp-card__img wm-plp-card__img--secondary"
-          width="320"
-          height="320"
-          loading="lazy"
+          src="{{ p_img }}"
+          alt="{{ p_title | escape }}"
+          class="wm-plp-card__img w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+          width="300"
+          height="210"
+          loading="eager"
           decoding="async"
-          onerror="this.style.display='none';"
+          onerror="this.onerror=null;this.src='{{ fallback_img }}';"
         >
-      {%- endif -%}
-    </a>
-  </div>
+      </a>
 
-  {%- comment -%} 2. Card Body (Category + Rating Row, Title Link, List Description, Stock Hint) {%- endcomment -%}
-  <div class="wm-plp-card__body">
-    <div class="wm-plp-card__meta-row">
-      <span class="wm-plp-card__category">{{ p_cat }}</span>
-      <div class="wm-plp-card__rating" aria-label="Rated {{ p_rating }} out of 5 stars based on {{ p_reviews }} reviews">
-        <svg class="wm-plp-card__star-icon" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span class="wm-plp-card__rating-val">{{ p_rating }}</span>
-        <span class="wm-plp-card__rating-count">({{ p_reviews }} reviews)</span>
+      {%- comment -%} Top-Left Category Badge {%- endcomment -%}
+      <div class="wm-plp-card__badges absolute top-[12px] left-[12px] z-10 pointer-events-none">
+        <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          {{ badge_text }}
+        </span>
       </div>
-    </div>
 
-    <h3 class="wm-plp-card__title">
-      <a href="{{ p_url }}">{{ p_title }}</a>
-    </h3>
-
-    {%- comment -%} List-View 5-Star Visual Row & 2-Line Description {%- endcomment -%}
-    <div class="wm-plp-card__list-rating" aria-hidden="true">
-      <span class="wm-plp-card__list-stars">★★★★★</span>
-      <span class="wm-plp-card__list-score">{{ p_rating }} ({{ p_reviews }} reviews)</span>
-    </div>
-
-    <p class="wm-plp-card__desc">{{ p_desc }}</p>
-
-    {%- if is_low_stock -%}
-      <div class="wm-plp-card__stock-low">
-        <span class="wm-plp-card__stock-dot" aria-hidden="true"></span>
-        <span>Only {{ p_stock }} left in stock</span>
-      </div>
-    {%- endif -%}
-  </div>
-
-  {%- comment -%} 3. Price & Action Column (Bottom in Grid View, Right Column in List View) {%- endcomment -%}
-  <div class="wm-plp-card__footer">
-    <div class="wm-plp-card__price-wrap">
-      <span class="wm-plp-card__price">&#8377;{{ p_price }}</span>
-      {%- if p_compare > p_price -%}
-        <span class="wm-plp-card__compare">&#8377;{{ p_compare }}</span>
-      {%- endif -%}
-      {%- if discount_pct > 0 -%}
-        <span class="wm-plp-card__save-pill">{{ discount_pct }}% OFF</span>
-      {%- endif -%}
-      {%- if p_unit != blank -%}
-        <span class="wm-plp-card__unit">{{ p_unit }}</span>
-      {%- endif -%}
-    </div>
-
-    <div class="wm-plp-card__actions">
-      {%- if is_sold_out -%}
-        <button type="button" class="wm-plp-card__btn is-disabled" disabled>
-          <span>Sold Out</span>
-        </button>
-      {%- elsif p_has_variants -%}
+      {%- comment -%} Top-Right Wishlist Heart + Quick View Eye Buttons {%- endcomment -%}
+      <div class="absolute top-[12px] right-[12px] z-10 flex flex-col gap-1.5">
         <button
           type="button"
-          class="wm-plp-card__btn wm-plp-card__btn--options"
-          data-plp-quickview-btn
-          aria-label="Select options for {{ p_title | escape }}"
+          class="wm-plp-card__icon-btn w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+          data-wishlist-btn
+          data-wishlist-toggle
+          data-product-id="{{ p_id }}"
+          aria-label="Wishlist {{ p_title | escape }}"
+          aria-pressed="false"
         >
-          <span>Select Options</span>
+          <svg class="w-4.5 h-4.5 transition-transform duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="wm-plp-card__icon-btn w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+          data-plp-qv-trigger
+          data-quick-view-trigger
+          aria-label="Quick view {{ p_title | escape }}"
+        >
+          <svg class="w-4 h-4 text-neutral-700 hover:text-[#1B3A2A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {%- comment -%} 2. PRODUCT TITLE, SUBTITLE & LIST-VIEW CONTEXT {%- endcomment -%}
+    <div class="wm-plp-card__info wm-unified-card__info px-1.5 pt-3.5">
+      {%- comment -%} Shown only in List View (data-layout="list") {%- endcomment -%}
+      <div class="wm-plp-card__list-meta">
+        <span class="wm-plp-card__list-cat">{{ p_cat }}</span>
+        <span class="wm-plp-card__list-rating">
+          <span class="wm-plp-card__list-stars" aria-hidden="true">★★★★★</span>
+          <strong>{{ p_rating | default: '4.8' }}</strong>
+          <span>({{ p_reviews | default: 126 }} reviews)</span>
+        </span>
+        <span class="wm-plp-card__list-stock">
+          <span class="wm-plp-card__list-dot"></span>
+          {% if is_sold_out %}Out of Stock{% else %}In Stock{% endif %}
+        </span>
+      </div>
+
+      <h3 class="wm-plp-card__title font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#7a46e5] transition-colors duration-200">
+        <a href="{{ p_url }}" class="wm-plp-card__title-link hover:underline">{{ p_title }}</a>
+      </h3>
+
+      <p class="wm-plp-card__desc mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 font-normal">
+        {{ p_desc }}
+      </p>
+
+      {%- comment -%} Shown only in List View (data-layout="list") {%- endcomment -%}
+      <div class="wm-plp-card__list-perks">
+        <span class="wm-plp-card__list-perk">✓ Vet-Tested &amp; Safe</span>
+        <span class="wm-plp-card__list-perk">✓ Free Shipping ₹499+</span>
+        <span class="wm-plp-card__list-perk">✓ Easy 7-Day Returns</span>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} 3. BOTTOM ROW: PRICE LOCKUP & ADD TO CART / - 1 + STEPPER (Identical to Homepage snippets/product-card.liquid) {%- endcomment -%}
+  <div class="wm-plp-card__bottom wm-unified-card__bottom px-1 mt-auto pt-3 sm:pt-4 flex items-center justify-between gap-2">
+    {%- comment -%} Price Lockup {%- endcomment -%}
+    <div data-price-wrap class="wm-plp-card__price-wrap flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 min-w-0 pr-1">
+      <span data-price-val class="wm-plp-card__price font-extrabold text-[19px] sm:text-[22px] text-[#111827] tracking-tight leading-none whitespace-nowrap">
+        ₹{{ p_price }}
+      </span>
+      {%- if p_compare > p_price -%}
+        <span data-compare-val class="wm-plp-card__compare text-[11.5px] sm:text-[13px] text-neutral-400 line-through font-normal whitespace-nowrap">
+          ₹{{ p_compare }}
+        </span>
+        {%- if discount_pct > 0 -%}
+          <span class="wm-plp-card__list-save">{{ discount_pct }}% OFF</span>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Right CTA Button / Quantity Stepper Transformation {%- endcomment -%}
+    <div class="wm-plp-card__actions relative shrink-0 flex items-center justify-end">
+      {%- if is_sold_out -%}
+        <button
+          type="button"
+          class="h-[38px] sm:h-[42px] bg-neutral-200 text-neutral-500 px-4 py-1 rounded-full font-bold text-[12px] sm:text-[13px] cursor-not-allowed shrink-0"
+          disabled
+        >
+          Out of Stock
         </button>
       {%- else -%}
+        {%- comment -%} Default Add to Cart Button {%- endcomment -%}
         <button
           type="button"
-          class="wm-plp-card__btn"
-          data-plp-add-btn
-          aria-label="Add {{ p_title | escape }} to cart"
+          class="wm-plp-card__atc-btn h-[38px] sm:h-[42px] bg-black hover:bg-neutral-900 active:scale-95 text-white pl-1.5 pr-3.5 sm:pr-4 py-1 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-sm transition-all duration-200 cursor-pointer group/btn shrink-0"
+          data-add-to-cart
+          aria-label="Add {{ p_title | escape }} to Cart"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <span>Add to Cart</span>
+          <span class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white text-black flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform duration-200 shadow-xs">
+            {% render 'icon-bag', class: 'w-3.5 h-3.5 stroke-[2.2]' %}
+          </span>
+          <span class="font-bold text-[12px] sm:text-[13px] tracking-tight whitespace-nowrap">
+            Add to Cart
+          </span>
         </button>
-      {%- endif -%}
 
-      <button
-        type="button"
-        class="wm-plp-card__list-wish"
-        data-wishlist-btn
-        aria-label="Save {{ p_title | escape }} to wishlist"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      </button>
+        {%- comment -%} Active Quantity Stepper (- 1 +) shown immediately when product is in cart {%- endcomment -%}
+        <div
+          class="wm-plp-card__stepper hidden h-[38px] sm:h-[42px] bg-black text-white px-1.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
+          data-card-stepper
+        >
+          <button
+            type="button"
+            class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
+            data-card-stepper-btn
+            data-delta="-1"
+            aria-label="Decrease quantity"
+          >
+            <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+
+          <span class="text-white font-extrabold text-[12.5px] sm:text-[13px] px-1 sm:px-1.5 min-w-[18px] text-center select-none shrink-0" data-card-qty>
+            1
+          </span>
+
+          <button
+            type="button"
+            class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
+            data-card-stepper-btn
+            data-delta="1"
+            aria-label="Increase quantity"
+          >
+            <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      {%- endif -%}
     </div>
   </div>
-</article>
+</div>

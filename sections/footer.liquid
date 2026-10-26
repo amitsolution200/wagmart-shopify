@@ -659,30 +659,7 @@ Surat, Gujarat, 395004
                 </a>
               {%- endif -%}
             </div>
-
-            <div class="wm-site-cta__trust-row">
-              <div class="wm-site-cta__trust-item">
-                <svg class="wm-site-cta__trust-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-                <span>100% Pet-Safe</span>
-              </div>
-              <div class="wm-site-cta__trust-item">
-                <svg class="wm-site-cta__trust-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-                <span>Free Shipping &gt; ₹499</span>
-              </div>
-              <div class="wm-site-cta__trust-item">
-                <svg class="wm-site-cta__trust-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-                <span>Quality Guaranteed</span>
-              </div>
-            </div>
-
           </div>
-
         </div>
       </div>
     </section>
@@ -693,9 +670,7 @@ Surat, Gujarat, 395004
      ========================================================= {% endcomment %}
   <div class="wm-site-footer">
     <div class="wm-site-footer__wrap">
-      
       <div class="wm-site-footer__grid">
-        
         {% comment %} COLUMN 1: Brand & Community {% endcomment %}
         <div>
           <a href="{{ routes.root_url }}" class="wm-footer-logo-wrap" aria-label="Wagmart Home">
@@ -749,7 +724,7 @@ Surat, Gujarat, 395004
         <div>
           <h3 class="wm-footer-title">SHOP ESSENTIALS</h3>
           <ul class="wm-footer-links">
-            <li><a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-footer-link">All Products</a></li>
+            <li><a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-footer-link">Collection</a></li>
             {%- liquid
               assign footer_about_url = '/pages/about-us'
               if pages['about'].id != blank
@@ -758,10 +733,10 @@ Surat, Gujarat, 395004
                 assign footer_about_url = pages['about-us'].url
               endif
             -%}
-            <li><a href="{{ footer_about_url }}" class="wm-footer-link">About Us</a></li>
-            <li><a href="/collections/dry-food" class="wm-footer-link">Dry Food &amp; Kibble</a></li>
-            <li><a href="/collections/all#grooming" class="wm-footer-link">Grooming &amp; Bath</a></li>
-            <li><a href="/collections/all#toys" class="wm-footer-link">Interactive Toys</a></li>
+            <li hidden><a href="{{ footer_about_url }}" class="wm-footer-link">About Us</a></li>
+            <li><a href="{{ routes.collections_url }}/dry-food" class="wm-footer-link">Dry Food &amp; Kibble</a></li>
+            <li><a href="{{ routes.all_products_collection_url }}#grooming" class="wm-footer-link">Grooming &amp; Bath</a></li>
+            <li><a href="{{ routes.all_products_collection_url }}#toys" class="wm-footer-link">Interactive Toys</a></li>
           </ul>
         </div>
 

@@ -1,9 +1,10 @@
 {%- comment -%}
   Wagmart Collection / Product Listing Page (sections/main-collection.liquid)
-  - Supports Layout A (260px Filter Sidebar + 3-Col Grid), Layout B (Collapsed Sidebar + 4-Col Grid), and Layout C (List View)
-  - Fixes broken product image pipeline (separates image_url from asset_url fallback)
+  - Renders ONLY the real products added in Shopify Admin (collection.products)
+  - Supports Grid View (with open or collapsed 260px Filter Sidebar) and Horizontal List View
+  - Uses the exact site-wide Wagmart Product Card design with - 1 + quantity stepper on Add to Cart (no toast)
   - Pure INR (₹) pricing, dynamic collection title & description, pluralised result counts
-  - AJAX filtering, dual-handle price slider, active filter chips, numbered pagination & Quick View modal
+  - Top announcement bar and bottom pagination numbers removed per user request
 {%- endcomment -%}
 
 {{ 'collection.css' | asset_url | stylesheet_tag }}
@@ -28,16 +29,13 @@
   assign img_kibble_1 = 'kibble-bulldog-adult.jpg' | asset_url
   assign img_kibble_2 = 'kibble-bulldog-puppy.jpg' | asset_url
   assign img_kibble_3 = 'kibble-queen-adult.jpg' | asset_url
-  assign img_kibble_4 = 'kibble-queen-kitten.jpg' | asset_url
   assign img_brush = 'catalog-bath-massage-brush.webp' | asset_url
-  assign img_slicker = 'catalog-slicker-brush.webp' | asset_url
   assign img_bowl = 'catalog-slow-feeder-bowl.webp' | asset_url
   assign img_rope = 'catalog-rope-leash.webp' | asset_url
   assign img_paw = 'paw-cleaner-kit.webp' | asset_url
-  assign img_chews = 'Premium WAGMART Dog Chews Ad.png' | asset_url
-  assign img_leash = 'catalog-retractable-leash.webp' | asset_url
-  assign img_ball = 'catalog-rolling-cat-ball.webp' | asset_url
   assign img_bed = 'catalog-orthopedic-bed.webp' | asset_url
+
+  assign total_count = collection.products.size | default: 0
 -%}
 
 {%- comment -%} JSON-LD CollectionPage & ItemList Schema for SEO {%- endcomment -%}
@@ -51,7 +49,7 @@
   "mainEntity": {
     "@type": "ItemList",
     "name": {{ display_title | json }},
-    "numberOfItems": {{ collection.products_count | default: 12 }}
+    "numberOfItems": {{ total_count }}
   }
 }
 </script>
@@ -59,425 +57,310 @@
 <div
   class="wm-plp"
   data-collection-page
-  data-layout="grid-3"
-  data-sidebar="open"
+  data-collection-handle="{{ collection.handle | default: 'all' }}"
+  data-all-collection-url="{{ routes.all_products_collection_url | default: '/collections/all' }}"
   data-fallback-img="{{ fallback_img }}"
 >
-  {%- comment -%} a) Slim Top Announcement Bar {%- endcomment -%}
-  <div class="wm-plp-announce">
-    <div class="wm-plp-container wm-plp-announce__inner">
-      <div class="wm-plp-announce__msg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <span>Free express shipping on orders over <strong>&#8377;499</strong></span>
-      </div>
-      <div class="wm-plp-announce__links">
-        <a href="/pages/contact">Track Order</a>
-        <span aria-hidden="true">|</span>
-        <a href="/pages/faq">Help</a>
-        <span aria-hidden="true">|</span>
-        <span class="wm-plp-announce__currency">India (INR &#8377;)</span>
-      </div>
-    </div>
-  </div>
-
   <div class="wm-plp-container">
-    {%- comment -%} b) Breadcrumb (13px, muted, current page in dark text) {%- endcomment -%}
+    {%- comment -%} 2b. Breadcrumb (13px, muted, current page in dark text) {%- endcomment -%}
     <nav class="wm-plp-breadcrumb" aria-label="Breadcrumb">
       <ol class="wm-plp-breadcrumb__list">
-        <li><a href="{{ routes.root_url | default: '/' }}">Home</a></li>
-        <li class="wm-plp-breadcrumb__sep" aria-hidden="true">&rsaquo;</li>
-        <li><a href="{{ routes.all_products_collection_url | default: '/collections/all' }}">Shop</a></li>
-        <li class="wm-plp-breadcrumb__sep" aria-hidden="true">&rsaquo;</li>
-        <li class="wm-plp-breadcrumb__current" aria-current="page" data-collection-crumb>{{ display_title }}</li>
+        <li class="wm-plp-breadcrumb__item">
+          <a href="{{ routes.root_url | default: '/' }}" class="wm-plp-breadcrumb__link">Home</a>
+        </li>
+        <li class="wm-plp-breadcrumb__sep" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </li>
+        <li class="wm-plp-breadcrumb__item">
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-breadcrumb__link">Shop</a>
+        </li>
+        <li class="wm-plp-breadcrumb__sep" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </li>
+        <li class="wm-plp-breadcrumb__item wm-plp-breadcrumb__item--current" aria-current="page" data-plp-breadcrumb-current>
+          {{ display_title }}
+        </li>
       </ol>
     </nav>
 
-    {%- comment -%} c) Compact Collection Hero + d) Subcollection Category Circles Row {%- endcomment -%}
+    {%- comment -%} 2c. Compact Collection Hero Banner {%- endcomment -%}
     <header class="wm-plp-hero">
-      <div class="wm-plp-hero__text">
-        <h1 class="wm-plp-hero__title" data-collection-heading>{{ display_title }}</h1>
-        <p class="wm-plp-hero__desc" data-collection-desc>{{ display_desc }}</p>
+      <div class="wm-plp-hero__decor wm-plp-hero__decor--left" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="96" height="96" fill="currentColor" opacity="0.06"><circle cx="35" cy="35" r="14"/><circle cx="65" cy="25" r="12"/><circle cx="90" cy="40" r="13"/><circle cx="25" cy="65" r="12"/><path d="M40 85c-10 0-18-8-15-18 3-9 14-14 25-14s22 5 25 14c3 10-5 18-15 18-6 0-10-3-10-3s-4 3-10 3z"/></svg>
       </div>
-
-      {%- comment -%} Subcollection / Category Circles Row (88-96px round images, active gets 2px green ring) {%- endcomment -%}
-      <div class="wm-plp-subcats" role="navigation" aria-label="Shop by category">
-        <a href="?category=all" class="wm-plp-subcat is-active" data-subcat-pill="all" data-subcat-title="Shop by Collection">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'kibble-bulldog-puppy.jpg' | asset_url }}" alt="Dog Food" width="92" height="92" loading="eager">
-          </div>
-          <span class="wm-plp-subcat__name">Dog Food</span>
-          <span class="wm-plp-subcat__count">48 items</span>
-        </a>
-
-        <a href="?category=cat+food" class="wm-plp-subcat" data-subcat-pill="cat food" data-subcat-title="Cat Food & Nutrition">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'cat-relaxing.webp' | asset_url }}" alt="Cat Food" width="92" height="92" loading="eager">
-          </div>
-          <span class="wm-plp-subcat__name">Cat Food</span>
-          <span class="wm-plp-subcat__count">32 items</span>
-        </a>
-
-        <a href="?category=treats" class="wm-plp-subcat" data-subcat-pill="treats" data-subcat-title="Dental Chews & Treats">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'Premium WAGMART Dog Chews Ad.png' | asset_url }}" alt="Treats" width="92" height="92" loading="eager">
-          </div>
-          <span class="wm-plp-subcat__name">Treats</span>
-          <span class="wm-plp-subcat__count">24 items</span>
-        </a>
-
-        <a href="?category=toys" class="wm-plp-subcat" data-subcat-pill="toys" data-subcat-title="Interactive Pet Toys">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'catalog-rolling-cat-ball.webp' | asset_url }}" alt="Toys" width="92" height="92" loading="eager">
-          </div>
-          <span class="wm-plp-subcat__name">Toys</span>
-          <span class="wm-plp-subcat__count">36 items</span>
-        </a>
-
-        <a href="?category=grooming" class="wm-plp-subcat" data-subcat-pill="grooming" data-subcat-title="Grooming & Bath Care">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'catalog-bath-massage-brush.webp' | asset_url }}" alt="Grooming" width="92" height="92" loading="eager">
-          </div>
-          <span class="wm-plp-subcat__name">Grooming</span>
-          <span class="wm-plp-subcat__count">28 items</span>
-        </a>
-
-        <a href="?category=accessories" class="wm-plp-subcat" data-subcat-pill="accessories" data-subcat-title="Walk Gear & Accessories">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'catalog-rope-leash.webp' | asset_url }}" alt="Accessories" width="92" height="92" loading="lazy">
-          </div>
-          <span class="wm-plp-subcat__name">Accessories</span>
-          <span class="wm-plp-subcat__count">40 items</span>
-        </a>
-
-        <a href="?category=beds" class="wm-plp-subcat" data-subcat-pill="beds" data-subcat-title="Orthopedic Pet Beds">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'catalog-orthopedic-bed.webp' | asset_url }}" alt="Beds" width="92" height="92" loading="lazy">
-          </div>
-          <span class="wm-plp-subcat__name">Beds</span>
-          <span class="wm-plp-subcat__count">18 items</span>
-        </a>
-
-        <a href="?category=health+care" class="wm-plp-subcat" data-subcat-pill="health care" data-subcat-title="Pet Health & Hygiene">
-          <div class="wm-plp-subcat__circle">
-            <img src="{{ 'paw-cleaner-kit.webp' | asset_url }}" alt="Health Care" width="92" height="92" loading="lazy">
-          </div>
-          <span class="wm-plp-subcat__name">Health Care</span>
-          <span class="wm-plp-subcat__count">22 items</span>
-        </a>
+      <div class="wm-plp-hero__content">
+        <span class="wm-plp-hero__eyebrow">WAGMART PET SUPPLIES &bull; <span data-plp-total-count>{{ total_count }} {% if total_count == 1 %}product{% else %}products{% endif %}</span></span>
+        <h1 class="wm-plp-hero__title" data-plp-hero-title>{{ display_title }}</h1>
+        <p class="wm-plp-hero__desc" data-plp-hero-desc>{{ display_desc }}</p>
+      </div>
+      <div class="wm-plp-hero__decor wm-plp-hero__decor--right" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="96" height="96" fill="currentColor" opacity="0.06"><circle cx="35" cy="35" r="14"/><circle cx="65" cy="25" r="12"/><circle cx="90" cy="40" r="13"/><circle cx="25" cy="65" r="12"/><path d="M40 85c-10 0-18-8-15-18 3-9 14-14 25-14s22 5 25 14c3 10-5 18-15 18-6 0-10-3-10-3s-4 3-10 3z"/></svg>
       </div>
     </header>
 
-    {%- comment -%} e) Sticky Toolbar & f) Active Filter Chips Row {%- endcomment -%}
+    {%- comment -%} 2d. Category / Collection Sub-Navigation Circles {%- endcomment -%}
+    <section class="wm-plp-subnav" aria-label="Shop by category">
+      <div class="wm-plp-subnav__track" role="tablist">
+        <button type="button" class="wm-plp-subnav__item is-active" data-subnav-cat="all" role="tab" aria-selected="true">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_kibble_1 }}" alt="All Pet Supplies" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">All Products</span>
+        </button>
+
+        {%- for col in collections -%}
+          {%- unless col.handle == 'all' or col.handle == 'frontpage' -%}
+            {%- liquid
+              assign col_img = col.image | default: col.products.first.featured_image
+              if col_img != blank
+                assign col_img_url = col_img | image_url: width: 176
+              else
+                assign col_img_url = img_kibble_2
+              endif
+            -%}
+            <a href="{{ col.url }}" class="wm-plp-subnav__item{% if collection.handle == col.handle %} is-active{% endif %}" role="tab" aria-selected="{% if collection.handle == col.handle %}true{% else %}false{% endif %}">
+              <span class="wm-plp-subnav__ring">
+                <img src="{{ col_img_url }}" alt="{{ col.title | escape }}" width="88" height="88" loading="eager">
+              </span>
+              <span class="wm-plp-subnav__label">{{ col.title }}</span>
+            </a>
+          {%- endunless -%}
+        {%- endfor -%}
+
+        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Dog Food" role="tab" aria-selected="false">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_kibble_2 }}" alt="Dog Food" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">Dog Food</span>
+        </button>
+
+        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Cat Food" role="tab" aria-selected="false">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_kibble_3 }}" alt="Cat Food" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">Cat Food</span>
+        </button>
+
+        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Grooming" role="tab" aria-selected="false">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_brush }}" alt="Grooming" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">Grooming</span>
+        </button>
+
+        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Toys" role="tab" aria-selected="false">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_rope }}" alt="Toys" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">Toys</span>
+        </button>
+
+        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Beds" role="tab" aria-selected="false">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_bed }}" alt="Beds" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">Beds</span>
+        </button>
+
+        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Accessories" role="tab" aria-selected="false">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_bowl }}" alt="Accessories" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">Accessories</span>
+        </button>
+
+        <button type="button" class="wm-plp-subnav__item" data-subnav-cat="Health Care" role="tab" aria-selected="false">
+          <span class="wm-plp-subnav__ring">
+            <img src="{{ img_paw }}" alt="Health Care" width="88" height="88" loading="eager">
+          </span>
+          <span class="wm-plp-subnav__label">Health Care</span>
+        </button>
+      </div>
+    </section>
+
+    {%- comment -%} 2e. Sticky Filter & Sort Toolbar + 2f. Active Filter Chips Row {%- endcomment -%}
     {% render 'collection-toolbar' %}
 
-    {%- comment -%} g) Main Workspace: Filter Sidebar + Products Grid / List {%- endcomment -%}
-    <div class="wm-plp-workspace" data-plp-workspace>
+    {%- comment -%} 2g. Main Workspace: 260px Collapsible Filter Sidebar + Product Grid / List {%- endcomment -%}
+    <div class="wm-plp-workspace" data-plp-workspace data-sidebar="open" data-layout="grid">
+      <div class="wm-plp-sidebar-backdrop" data-plp-sidebar-backdrop hidden></div>
+
       {% render 'collection-filter-sidebar' %}
 
-      <div class="wm-plp-main-col">
+      <div class="wm-plp-results-col">
         {%- comment -%} Loading Shimmer Skeletons {%- endcomment -%}
         {% render 'collection-empty-state', state_type: 'skeleton' %}
 
-        {%- comment -%} Products Grid / List Container {%- endcomment -%}
+        {%- comment -%} Live Product Grid / List Container (Renders ONLY real Shopify Admin products) {%- endcomment -%}
         <div
           id="wm-plp-products"
-          class="wm-plp-products"
+          class="wm-plp-grid"
           data-plp-grid
           role="region"
           aria-label="Products"
         >
-          {%- if collection.products.size > 0 -%}
-            {%- for product in collection.products -%}
-              {%- liquid
-                assign real_price_inr = product.price | divided_by: 100.0 | round
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign real_price_inr = product.price | divided_by: 100.0 | round
+              assign real_compare_inr = 0
+              if product.compare_at_price > product.price
                 assign real_compare_inr = product.compare_at_price | divided_by: 100.0 | round
-                if real_compare_inr <= real_price_inr
-                  assign real_compare_inr = real_price_inr | times: 1.25 | round
-                endif
+              endif
 
-                if product.featured_image != blank
-                  assign real_img = product.featured_image | image_url: width: 640
+              if product.featured_image != blank
+                assign real_img = product.featured_image | image_url: width: 640
+              else
+                assign real_img = img_brush
+              endif
+
+              assign second_img = ''
+              if product.images.size > 1
+                assign second_img = product.images[1] | image_url: width: 640
+              endif
+
+              assign gallery_imgs_str = ''
+              if product.images.size > 0
+                for g_img in product.images limit: 8
+                  assign g_img_url = g_img | image_url: width: 800
+                  if gallery_imgs_str == blank
+                    assign gallery_imgs_str = g_img_url
+                  else
+                    assign gallery_imgs_str = gallery_imgs_str | append: '|' | append: g_img_url
+                  endif
+                endfor
+              else
+                assign gallery_imgs_str = real_img
+              endif
+
+              assign p_cols = ''
+              for col in product.collections
+                assign p_cols = p_cols | append: ',' | append: col.title | append: ',' | append: col.handle
+              endfor
+              assign p_tags = product.tags | join: ','
+              assign raw_meta = product.title | append: ' ' | append: product.type | append: ' ' | append: p_tags | append: ' ' | append: p_cols | downcase
+
+              assign matched_cats = ''
+              assign primary_cat = ''
+
+              if raw_meta contains 'toy' or raw_meta contains 'ball' or raw_meta contains 'rope' or raw_meta contains 'chew' or raw_meta contains 'plush' or raw_meta contains 'squeak' or raw_meta contains 'play' or raw_meta contains 'teaser'
+                assign matched_cats = matched_cats | append: 'toys,'
+                if primary_cat == blank
+                  assign primary_cat = 'Toys'
+                endif
+              endif
+
+              if raw_meta contains 'bed' or raw_meta contains 'mattress' or raw_meta contains 'cushion' or raw_meta contains 'blanket' or raw_meta contains 'orthopedic' or raw_meta contains 'lounger' or raw_meta contains 'crate' or raw_meta contains 'sleep'
+                assign matched_cats = matched_cats | append: 'beds,'
+                if primary_cat == blank
+                  assign primary_cat = 'Beds'
+                endif
+              endif
+
+              if raw_meta contains 'treat' or raw_meta contains 'biscuit' or raw_meta contains 'snack' or raw_meta contains 'jerky' or raw_meta contains 'bone'
+                assign matched_cats = matched_cats | append: 'treats,'
+                if primary_cat == blank
+                  assign primary_cat = 'Treats'
+                endif
+              endif
+
+              if raw_meta contains 'cat food' or raw_meta contains 'kitten food' or raw_meta contains 'feline food' or raw_meta contains 'wet cat'
+                assign matched_cats = matched_cats | append: 'cat food,'
+                if primary_cat == blank
+                  assign primary_cat = 'Cat Food'
+                endif
+              endif
+
+              if raw_meta contains 'dog food' or raw_meta contains 'puppy food' or raw_meta contains 'kibble' or raw_meta contains 'dry food' or raw_meta contains 'bowl' or raw_meta contains 'feeder' or raw_meta contains 'water' or raw_meta contains 'dispenser' or raw_meta contains 'feeding' or raw_meta contains 'food'
+                assign matched_cats = matched_cats | append: 'dog food,feeding,'
+                if primary_cat == blank
+                  assign primary_cat = 'Dog Food'
+                endif
+              endif
+
+              if raw_meta contains 'health' or raw_meta contains 'supplement' or raw_meta contains 'vitamin' or raw_meta contains 'dental' or raw_meta contains 'tooth' or raw_meta contains 'oral' or raw_meta contains 'paw' or raw_meta contains 'balm' or raw_meta contains 'cleaner' or raw_meta contains 'flea' or raw_meta contains 'tick' or raw_meta contains 'hygiene' or raw_meta contains 'care'
+                assign matched_cats = matched_cats | append: 'health care,supplements,hygiene,'
+                if primary_cat == blank
+                  assign primary_cat = 'Health Care'
+                endif
+              endif
+
+              if raw_meta contains 'collar' or raw_meta contains 'leash' or raw_meta contains 'harness' or raw_meta contains 'fashion' or raw_meta contains 'apparel' or raw_meta contains 'shirt' or raw_meta contains 'coat' or raw_meta contains 'hoodie' or raw_meta contains 'bandana' or raw_meta contains 'walk' or raw_meta contains 'carrier' or raw_meta contains 'travel' or raw_meta contains 'seat' or raw_meta contains 'hammock' or raw_meta contains 'bag' or raw_meta contains 'accessor' or raw_meta contains 'gear' or raw_meta contains 'bowl' or raw_meta contains 'feeder'
+                assign matched_cats = matched_cats | append: 'accessories,fashion,travel,collars,'
+                if primary_cat == blank
+                  assign primary_cat = 'Accessories'
+                endif
+              endif
+
+              if raw_meta contains 'groom' or raw_meta contains 'brush' or raw_meta contains 'glove' or raw_meta contains 'shampoo' or raw_meta contains 'bath' or raw_meta contains 'massage' or raw_meta contains 'slicker' or raw_meta contains 'comb' or raw_meta contains 'rake' or raw_meta contains 'deshed' or raw_meta contains 'trimmer' or raw_meta contains 'clipper' or raw_meta contains 'nail' or raw_meta contains 'grinder' or raw_meta contains 'roller' or raw_meta contains 'hair' or raw_meta contains 'fur' or raw_meta contains 'wipe'
+                assign matched_cats = matched_cats | append: 'grooming,'
+                if primary_cat == blank
+                  assign primary_cat = 'Grooming'
+                endif
+              endif
+
+              if primary_cat == blank
+                if product.type != blank and product.type != 'My Store 2' and product.type != 'My Store'
+                  assign primary_cat = product.type
                 else
-                  assign real_img = 'catalog-bath-massage-brush.webp' | asset_url
+                  assign primary_cat = 'Grooming'
                 endif
+              endif
 
-                assign second_img = ''
-                if product.images.size > 1
-                  assign second_img = product.images[1] | image_url: width: 640
-                endif
+              assign all_cats_combined = matched_cats | append: primary_cat | append: ',' | append: product.type | append: p_cols | append: ',' | append: p_tags
 
-                assign clean_cat = product.type
-                if clean_cat == blank or clean_cat == 'My Store 2' or clean_cat == 'My Store'
-                  assign clean_cat = 'Grooming'
-                endif
+              assign detected_pets = 'dog,cat,puppy,senior'
+              if raw_meta contains 'cat' or raw_meta contains 'kitten'
+                unless raw_meta contains 'dog' or raw_meta contains 'puppy'
+                  assign detected_pets = 'cat,puppy,senior'
+                endunless
+              elsif raw_meta contains 'dog' or raw_meta contains 'puppy'
+                assign detected_pets = 'dog,puppy,senior'
+              endif
 
-                assign has_vars = false
-                if product.variants.size > 1
-                  assign has_vars = true
-                endif
-              -%}
-              {% render 'collection-product-card',
-                card_id: product.variants.first.id,
-                card_title: product.title,
-                card_url: product.url,
-                card_category: clean_cat,
-                card_pet: 'dog,cat',
-                card_price_inr: real_price_inr,
-                card_compare_inr: real_compare_inr,
-                card_rating: '4.8',
-                card_reviews: 126,
-                card_image: real_img,
-                card_hover_image: second_img,
-                card_badge_promo: 'bestseller,sale',
-                card_stock: 18,
-                card_has_variants: has_vars,
-                card_desc: product.description | strip_html | truncate: 140
-              %}
-            {%- endfor -%}
-          {%- else -%}
-            {%- comment -%} 12 Rich Wagmart Products in INR (₹) matching Reference Layouts A, B & C {%- endcomment -%}
+              assign has_vars = false
+              if product.variants.size > 1
+                assign has_vars = true
+              endif
+
+              assign card_desc_text = product.description | strip_html | strip
+              if card_desc_text == blank
+                assign card_desc_text = 'Crafted with pet-safe, vet-approved materials for daily comfort and care.'
+              endif
+
+              assign unique_prod_id = product.selected_or_first_available_variant.id | default: product.variants.first.id | default: product.id
+              assign prod_sku_val = product.selected_or_first_available_variant.sku | default: ''
+              assign prod_stock_val = 18
+            -%}
             {% render 'collection-product-card',
-              card_id: 'wm-dog-food-1',
-              card_title: 'Bulldog Natural Choice Adult Dog Food (3kg)',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Dog Food',
-              card_pet: 'dog',
-              card_price_inr: 1299,
-              card_compare_inr: 1599,
-              card_rating: '4.8',
-              card_reviews: 126,
-              card_image: img_kibble_1,
-              card_hover_image: img_kibble_2,
-              card_badge_promo: 'bestseller,sale',
-              card_stock: 18,
-              card_desc: 'Complete and balanced nutrition for adult dogs. Made with high-quality chicken, brown rice, and essential Omega fatty acids.'
+              card_id: unique_prod_id,
+              card_handle: product.handle,
+              card_sku: prod_sku_val,
+              card_title: product.title,
+              card_url: product.url,
+              card_category: primary_cat,
+              card_categories: all_cats_combined,
+              card_pet: detected_pets,
+              card_price_inr: real_price_inr,
+              card_compare_inr: real_compare_inr,
+              card_image: real_img,
+              card_images: gallery_imgs_str,
+              card_hover_image: second_img,
+              card_badge_promo: 'bestseller,sale,new',
+              card_stock: prod_stock_val,
+              card_has_variants: has_vars,
+              card_desc: card_desc_text
             %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-dog-food-2',
-              card_title: 'Royal Canin Maxi Adult Dry Dog Food (4kg)',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Dog Food',
-              card_pet: 'dog,senior',
-              card_price_inr: 1499,
-              card_compare_inr: 1799,
-              card_rating: '4.7',
-              card_reviews: 96,
-              card_image: img_kibble_2,
-              card_hover_image: img_kibble_1,
-              card_badge_promo: 'bestseller,sale',
-              card_stock: 14,
-              card_desc: 'Supports strong muscles, joint health, and optimal digestion for large breed adult dogs.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-dog-food-3',
-              card_title: 'Pedigree Chicken & Vegetables Adult Dry Dog Food',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Dog Food',
-              card_pet: 'dog,puppy',
-              card_price_inr: 899,
-              card_compare_inr: 1099,
-              card_rating: '4.8',
-              card_reviews: 88,
-              card_image: img_kibble_3,
-              card_hover_image: img_kibble_4,
-              card_badge_promo: 'sale',
-              card_stock: 22,
-              card_desc: 'Complete daily nutrition packed with essential vitamins, minerals, and 20% protein for shiny coats.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-dog-food-4',
-              card_title: 'Drools Focus Super Premium Adult Dog Food',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Dog Food',
-              card_pet: 'dog',
-              card_price_inr: 949,
-              card_compare_inr: 1199,
-              card_rating: '4.5',
-              card_reviews: 72,
-              card_image: img_kibble_4,
-              card_hover_image: img_kibble_3,
-              card_badge_promo: 'new,sale',
-              card_stock: 9,
-              card_desc: 'High quality real chicken protein for strong lean muscles and an active everyday lifestyle.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-grooming-5',
-              card_title: 'Gentle Silicone Pet Grooming & De-Shedding Brush',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Grooming',
-              card_pet: 'dog,cat,puppy,kitten',
-              card_price_inr: 299,
-              card_compare_inr: 399,
-              card_rating: '4.7',
-              card_reviews: 54,
-              card_image: img_brush,
-              card_hover_image: img_slicker,
-              card_badge_promo: 'bestseller,sale',
-              card_stock: 3,
-              card_desc: 'Helps remove loose hair and dander effortlessly while giving your pet a soothing bath massage.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-accessories-6',
-              card_title: 'Anti-Gulp Non-Slip Stainless Steel Pet Food Bowl',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Accessories',
-              card_pet: 'dog,cat',
-              card_price_inr: 499,
-              card_compare_inr: 699,
-              card_rating: '4.6',
-              card_reviews: 80,
-              card_image: img_bowl,
-              card_hover_image: img_brush,
-              card_badge_promo: 'sale',
-              card_stock: 15,
-              card_has_variants: true,
-              card_desc: 'Durable, rust-resistant, and non-slip bowl for food and water with removable silicone ring.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-toys-7',
-              card_title: 'Heavy-Duty Braided Cotton Dental Dog Rope Toy',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Toys',
-              card_pet: 'dog,puppy',
-              card_price_inr: 199,
-              card_compare_inr: 249,
-              card_rating: '4.6',
-              card_reviews: 64,
-              card_image: img_rope,
-              card_hover_image: img_ball,
-              card_badge_promo: 'bestseller,sale',
-              card_stock: 25,
-              card_desc: '100% natural tightly woven cotton fibers floss teeth and massage gums during interactive tug play.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-health-8',
-              card_title: '360° Soft Silicone Muddy Paw Cleaner & Shampoo Kit',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Health Care',
-              card_pet: 'dog,cat',
-              card_price_inr: 399,
-              card_compare_inr: 799,
-              card_rating: '4.5',
-              card_reviews: 49,
-              card_image: img_paw,
-              card_hover_image: img_brush,
-              card_badge_promo: 'new,sale',
-              card_stock: 2,
-              card_desc: 'Gentle silicone bristles rinse away mud, sand, and bacteria after outdoor walks in seconds.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-treats-9',
-              card_title: 'Natural Calcium & Chicken Dental Chew Sticks (250g)',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Treats',
-              card_pet: 'dog,puppy,senior',
-              card_price_inr: 349,
-              card_compare_inr: 449,
-              card_rating: '4.7',
-              card_reviews: 91,
-              card_image: img_chews,
-              card_hover_image: img_kibble_1,
-              card_badge_promo: 'bestseller,sale',
-              card_stock: 19,
-              card_desc: 'Vet-formulated triple-enzyme dental chews reduce tartar buildup and freshen breath naturally.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-accessories-10',
-              card_title: 'Ergonomic Heavy-Duty Retractable Walk Leash (5m)',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Accessories',
-              card_pet: 'dog,cat',
-              card_price_inr: 599,
-              card_compare_inr: 999,
-              card_rating: '4.8',
-              card_reviews: 112,
-              card_image: img_leash,
-              card_hover_image: img_rope,
-              card_badge_promo: 'new,sale',
-              card_stock: 11,
-              card_desc: 'One-hand brake and lock button gives your pet freedom to explore safely on walks and road trips.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-cat-food-11',
-              card_title: 'Interactive Smart Rolling LED Cat Chaser Ball',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Toys',
-              card_pet: 'cat,kitten',
-              card_price_inr: 799,
-              card_compare_inr: 999,
-              card_rating: '4.7',
-              card_reviews: 78,
-              card_image: img_ball,
-              card_hover_image: img_slicker,
-              card_badge_promo: 'bestseller,sale',
-              card_stock: 16,
-              card_desc: 'Self-rotating obstacle-avoidance USB rechargeable teaser ball keeps indoor cats active for hours.'
-            %}
-
-            {% render 'collection-product-card',
-              card_id: 'wm-beds-12',
-              card_title: 'Calming Orthopedic Memory Foam Bolster Pet Bed',
-              card_url: '/products/pet-grooming-glove',
-              card_category: 'Beds',
-              card_pet: 'dog,cat,senior',
-              card_price_inr: 1499,
-              card_compare_inr: 1999,
-              card_rating: '4.9',
-              card_reviews: 158,
-              card_image: img_bed,
-              card_hover_image: img_bowl,
-              card_badge_promo: 'bestseller,sale',
-              card_stock: 7,
-              card_has_variants: true,
-              card_desc: 'Ultra-plush washable cover with supportive orthopedic foam base to cushion joints and hips.'
-            %}
-          {%- endif -%}
+          {%- endfor -%}
         </div>
 
         {%- comment -%} Empty Filter State ("No products match your filters") {%- endcomment -%}
         {% render 'collection-empty-state', state_type: 'empty' %}
-
-        {%- comment -%} Edge State: "You May Also Like" Row when collection has 1 to 3 products {%- endcomment -%}
-        <section class="wm-plp-few-recommendations" data-plp-few-recommendations hidden aria-labelledby="wm-plp-few-title">
-          <div class="wm-plp-few-recommendations__head">
-            <div>
-              <span class="wm-plp-few-recommendations__eyebrow">POPULAR WITH PET PARENTS</span>
-              <h2 id="wm-plp-few-title" class="wm-plp-few-recommendations__title">You May Also Like</h2>
-            </div>
-          </div>
-          <div class="wm-plp-few-recommendations__grid" data-plp-few-grid></div>
-        </section>
-
-        {%- comment -%} 7. Centered Numbered Pagination {%- endcomment -%}
-        {% render 'collection-pagination' %}
       </div>
     </div>
 
-    {%- comment -%} Slim 4-Item Trust Strip before the Footer {%- endcomment -%}
-    {% render 'collection-empty-state', state_type: 'trust-strip' %}
   </div>
 
-  {%- comment -%} 6. Quick View Modal {%- endcomment -%}
-  {% render 'collection-quick-view' %}
-
-  {%- comment -%} Added to Cart Toast with "View cart" Link {%- endcomment -%}
-  <div class="wm-plp-toast" data-plp-toast role="status" aria-live="polite">
-    <span class="wm-plp-toast__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </span>
-    <span class="wm-plp-toast__text" data-plp-toast-text>Added to cart</span>
-    <a href="{{ routes.cart_url | default: '/cart' }}" class="wm-plp-toast__link" data-plp-toast-link>View cart &rarr;</a>
-  </div>
+  {%- comment -%} 6. Quick View Modal is rendered globally in layout/theme.liquid {%- endcomment -%}
 </div>
 
 <script src="{{ 'collection.js' | asset_url }}" defer></script>

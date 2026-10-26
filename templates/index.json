@@ -13,17 +13,6 @@
       "type": "hero-banner",
       "settings": {},
       "blocks": {
-        "slide_1": {
-          "type": "slide",
-          "settings": {
-            "layout": "center",
-            "title": "Premium Pet Products",
-            "title_accent": "for Happier Paws",
-            "subtitle": "Explore our wide range of pet toys, grooming, accessories and care products for a healthier and happier life.",
-            "button_text": "Shop Now",
-            "button_link": "#shop"
-          }
-        },
         "slide_2": {
           "type": "slide",
           "settings": {
@@ -70,7 +59,6 @@
         }
       },
       "block_order": [
-        "slide_1",
         "slide_2",
         "slide_3",
         "slide_4",
@@ -127,9 +115,7 @@
         "reel_1": {
           "type": "reel",
           "settings": {
-            "product_title": "Portable Muddy Paw Cleaner",
-            "product_price": "€24,95",
-            "product_compare_price": "€34,95",
+            "product": "pet-grooming-glove",
             "youtube_id": "AOr9WB0XIUY",
             "story": "Gentle silicone bristles quickly wash away mud and grit before paws step inside."
           }
@@ -137,9 +123,7 @@
         "reel_2": {
           "type": "reel",
           "settings": {
-            "product_title": "Anti-Gulp Slow Feeder Bowl",
-            "product_price": "€29,95",
-            "product_compare_price": "€38,00",
+            "product": "pet-grooming-glove",
             "youtube_id": "5H4sZNYtBFc",
             "story": "Promotes healthy digestion and turns mealtime into a fun, mindful maze."
           }
@@ -147,9 +131,7 @@
         "reel_3": {
           "type": "reel",
           "settings": {
-            "product_title": "Self-Cleaning Slicker Brush",
-            "product_price": "€19,95",
-            "product_compare_price": "€26,95",
+            "product": "pet-grooming-glove",
             "youtube_id": "LB8Qfa9tTsU",
             "story": "One-click hair release effortlessly detangles mats without scratching sensitive skin."
           }
@@ -157,9 +139,7 @@
         "reel_4": {
           "type": "reel",
           "settings": {
-            "product_title": "Interactive Wobble Giggle Ball",
-            "product_price": "€22,95",
-            "product_compare_price": "€29,95",
+            "product": "pet-grooming-glove",
             "youtube_id": "vwz9XsIcRik",
             "story": "No batteries required giggle sounds that keep energetic dogs happily engaged for hours."
           }
@@ -167,9 +147,7 @@
         "reel_5": {
           "type": "reel",
           "settings": {
-            "product_title": "Waterproof Pet Car Seat Hammock",
-            "product_price": "€49,95",
-            "product_compare_price": "€64,95",
+            "product": "pet-grooming-glove",
             "youtube_id": "GalPqZH1glY",
             "story": "Heavy-duty waterproof hammock shielding your back seat from mud, fur, and scratches."
           }

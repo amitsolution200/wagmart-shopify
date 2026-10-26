@@ -136,6 +136,15 @@
   .wm-pdp__main-grid {
     grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
     gap: 48px;
+    align-items: start;
+  }
+
+  .wm-pdp__gallery-col {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 96px;
+    align-self: start;
+    z-index: 10;
   }
 }
 
@@ -154,8 +163,6 @@
     flex-direction: row;
     align-items: flex-start;
     gap: 16px;
-    position: sticky;
-    top: 100px;
   }
 }
 
@@ -711,8 +718,149 @@
 
 .wm-purchase-row {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 12px;
+}
+
+/* Product Details Page - Unified Add to Cart Pill Button */
+.wm-pdp-card-atc {
+  height: 48px !important;
+  min-height: 48px !important;
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 24px 0 6px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease !important;
+  font-family: inherit !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+
+.wm-pdp-card-atc.hidden {
+  display: none !important;
+}
+
+.wm-pdp-card-atc:hover {
+  background-color: #1a1a1a !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22) !important;
+}
+
+.wm-pdp-card-atc:active {
+  transform: scale(0.97);
+}
+
+.wm-pdp-card-atc-icon,
+.wm-pdp-card-atc span:first-child {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.wm-pdp-card-atc:hover .wm-pdp-card-atc-icon,
+.wm-pdp-card-atc:hover span:first-child {
+  transform: scale(1.05);
+}
+
+.wm-pdp-card-atc-label,
+.wm-pdp-card-atc span:last-child {
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: #FFFFFF !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
+
+/* Product Details Page - Active Stepper */
+.wm-pdp-card-stepper {
+  height: 48px !important;
+  min-height: 48px !important;
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 6px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+
+.wm-pdp-card-stepper.hidden {
+  display: none !important;
+}
+
+.wm-pdp-card-stepper [data-card-stepper-btn],
+.wm-pdp-card-stepper .wm-pdp-stepper-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.15s ease !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+}
+
+.wm-pdp-card-stepper [data-card-stepper-btn]:hover,
+.wm-pdp-card-stepper .wm-pdp-stepper-btn:hover {
+  background-color: #F3F4F6 !important;
+  transform: scale(1.06);
+}
+
+.wm-pdp-card-stepper [data-card-stepper-btn]:active,
+.wm-pdp-card-stepper .wm-pdp-stepper-btn:active {
+  transform: scale(0.92);
+}
+
+.wm-pdp-card-stepper [data-card-qty],
+.wm-pdp-card-stepper .wm-pdp-stepper-qty {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+  min-width: 26px !important;
+  text-align: center !important;
+  user-select: none !important;
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+}
+
+@media (max-width: 480px) {
+  .wm-purchase-row {
+    gap: 10px !important;
+  }
+  .wm-pdp-card-atc {
+    flex: 1 !important;
+    padding: 0 18px 0 6px !important;
+  }
+  .wm-pdp-card-stepper {
+    flex: 1 !important;
+    justify-content: space-between !important;
+    padding: 0 6px !important;
+  }
 }
 
 /* Quantity Stepper (52px tall on desktop to match ATC button, min 48px on mobile) */
@@ -835,9 +983,9 @@
 
 /* Wishlist Heart Icon Button */
 .wm-btn-wishlist {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--pdp-btn-radius);
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
   border: 1.5px solid var(--pdp-border);
   background: #FFFFFF;
   color: var(--pdp-heading);
@@ -1959,11 +2107,83 @@
   }
 }
 
-/* Normalize product-card snippet inside 4-column related grid */
+/* Normalize product-card snippet inside 4-column related grid (Exact Match to Homepage #shop [data-product-card]) */
 .wm-related-grid [data-product-card] {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
+  padding: 0.75rem 0.75rem 1rem !important;
+  border: 1px solid #EAE5D9 !important;
+  box-shadow: none !important;
+}
+
+.wm-related-grid [data-product-card] > div:first-child > div:first-child {
+  height: 170px !important;
+}
+
+.wm-related-grid [data-product-card] h3 {
+  font-size: 0.95rem !important;
+  line-height: 1.3 !important;
+}
+
+.wm-related-grid [data-product-card] p {
+  font-size: 0.75rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-related-grid [data-product-card] [data-price-wrap] {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+}
+
+.wm-related-grid [data-product-card] [data-price-val] {
+  font-size: 1.15rem !important;
+  line-height: 1 !important;
+}
+
+.wm-related-grid [data-product-card] [data-compare-val] {
+  font-size: 0.75rem !important;
+  line-height: 1 !important;
+}
+
+.wm-related-grid [data-product-card] [data-add-to-cart] {
+  height: 38px !important;
+  padding-left: 0.35rem !important;
+  padding-right: 1.15rem !important;
+  gap: 0.4rem !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.wm-related-grid [data-product-card] [data-add-to-cart] span:first-child {
+  width: 28px !important;
+  height: 28px !important;
+  flex-shrink: 0 !important;
+}
+
+.wm-related-grid [data-product-card] [data-add-to-cart] span:last-child {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
+
+.wm-related-grid [data-product-card] [data-card-stepper] {
+  height: 38px !important;
+  padding: 0.25rem 0.4rem !important;
+  gap: 0.25rem !important;
+}
+
+.wm-related-grid [data-product-card] [data-card-stepper-btn] {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.wm-related-grid [data-product-card] [data-card-qty] {
+  font-size: 13px !important;
+  min-width: 22px !important;
 }
 
 /* Recently Viewed Strip */
@@ -2199,4 +2419,569 @@
 
 .wm-cart-bump {
   animation: wmCartBump 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   WAGMART PREMIUM PRODUCT DETAILS PAGE (PDP) - REFERENCE DESIGN SPEC
+   Matches exact layout, colors (#064E3B, #E5F3E9, #FBF9F5), typography & spacing
+   ========================================================================== */
+
+/* 1. Category Pill & Header Meta */
+.wm-info__category {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #064E3B;
+  margin-bottom: 4px;
+}
+
+/* 2. Rating Row & Verified Vet Recommended Badge */
+.wm-info__rating-row {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.wm-info__vet-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #E5F3E9;
+  color: #064E3B;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: -0.01em;
+}
+
+/* 3. Dynamic Price Block */
+.wm-price-block {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.wm-price-block__row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.wm-price-block__current {
+  font-size: 32px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.wm-price-block__compare {
+  font-size: 18px;
+  font-weight: 500;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.wm-price-block__save-pill {
+  display: inline-flex;
+  align-items: center;
+  background-color: #E5F3E9;
+  color: #064E3B;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.wm-price-block__tax-note {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 8px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wm-price-block__tax-note span {
+  white-space: nowrap;
+}
+
+.wm-price-block__shipping-tag {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* 4. Product Description Excerpt */
+.wm-info__short-desc {
+  font-size: 14.5px;
+  color: #4B5563;
+  line-height: 1.6;
+  margin: 14px 0 16px;
+}
+
+/* 5. 2x2 Feature Checklist with Green Circles */
+.wm-info__checklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
+  margin: 16px 0 20px;
+}
+
+.wm-info__check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.wm-info__check-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #E5F3E9;
+  color: #064E3B;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wm-info__check-icon svg {
+  width: 11px;
+  height: 11px;
+  stroke: #064E3B;
+  stroke-width: 3;
+}
+
+/* 6. Purchase Action Rows */
+.wm-pdp-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* Compact Quantity Stepper [- 1 +] */
+.wm-qty-selector {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  height: 48px;
+  background: #FFFFFF;
+  flex-shrink: 0;
+  padding: 0 2px;
+}
+
+.wm-qty-btn {
+  width: 36px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #1F2937;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  border-radius: 6px;
+}
+
+.wm-qty-btn:hover {
+  background-color: #F3F4F6;
+  color: #064E3B;
+}
+
+.wm-qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.wm-qty-input {
+  width: 36px;
+  height: 100%;
+  border: none;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  -moz-appearance: textfield;
+  background: transparent;
+  padding: 0;
+}
+
+.wm-qty-input::-webkit-inner-spin-button,
+.wm-qty-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Add to Cart Button (Dark Forest Green #064E3B) */
+.wm-pdp-atc-btn {
+  flex: 1;
+  height: 48px;
+  background-color: #064E3B;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.12s ease;
+  box-shadow: 0 2px 6px rgba(6, 78, 59, 0.18);
+  white-space: nowrap;
+}
+
+.wm-pdp-atc-btn:hover {
+  background-color: #04382A;
+  transform: translateY(-1px);
+}
+
+.wm-pdp-atc-btn:active {
+  transform: scale(0.98);
+}
+
+.wm-pdp-atc-btn:disabled {
+  background-color: #9CA3AF;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.wm-pdp-atc-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
+
+/* Wishlist Button (Bordered Rounded Box) */
+.wm-pdp-wishlist-btn {
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1F2937;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.wm-pdp-wishlist-btn:hover {
+  border-color: #E11D48;
+  color: #E11D48;
+  background-color: #FFF1F2;
+}
+
+.wm-pdp-wishlist-btn.is-active {
+  border-color: #E11D48;
+  color: #E11D48;
+  background-color: #FFF1F2;
+}
+
+.wm-pdp-wishlist-btn.is-active svg {
+  fill: #E11D48;
+}
+
+/* Buy It Now Button (Full Width Soft Light Green #E5F3E9) */
+.wm-pdp-buynow-btn {
+  width: 100%;
+  height: 46px;
+  margin-top: 10px;
+  background-color: #E5F3E9;
+  color: #064E3B;
+  border: none;
+  border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.wm-pdp-buynow-btn:hover {
+  background-color: #D6ECD9;
+}
+
+/* 7. Store Trust Guarantees Row */
+.wm-pdp-trust-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.wm-pdp-trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-pdp-trust-copy {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #4B5563;
+}
+
+.wm-pdp-trust-copy strong {
+  color: #111827;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+/* 8. Navigation Pills Bar: [ Description ] [ Specifications ] [ Benefits ] */
+.wm-pdp-nav-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 44px 0 24px;
+  flex-wrap: wrap;
+}
+
+.wm-pdp-pill {
+  padding: 10px 32px;
+  border-radius: 9999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none;
+  background-color: #F3F4F6;
+  color: #374151;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.wm-pdp-pill:hover {
+  background-color: #E5E7EB;
+  color: #111827;
+}
+
+.wm-pdp-pill.is-active {
+  background-color: #064E3B;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.22);
+}
+
+/* 9. Card Sections Below The Fold (Description, Specifications, Benefits) */
+.wm-pdp-card-section {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  padding: 36px 40px;
+  margin-top: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.wm-pdp-section-heading {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 20px;
+  letter-spacing: -0.01em;
+}
+
+/* Product Description Content (Clean readable text, STRICTLY NO IMAGES) */
+.wm-pdp-desc-content {
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: #4B5563;
+}
+
+.wm-pdp-desc-content p {
+  margin: 0 0 16px;
+}
+
+.wm-pdp-desc-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Enforce absolute suppression of any images inside Product Description */
+.wm-pdp-desc-content img,
+.wm-pdp-desc-content picture,
+.wm-pdp-desc-content figure,
+.wm-pdp-desc-content svg:not(.wm-icon) {
+  display: none !important;
+}
+
+/* 10. Specifications Table */
+.wm-pdp-specs-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.wm-pdp-specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #F3F4F6;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.wm-pdp-specs-table th {
+  width: 35%;
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #111827;
+  border-bottom: 1px solid #F3F4F6;
+  background-color: #FFFFFF;
+}
+
+.wm-pdp-specs-table td {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 14.5px;
+  color: #4B5563;
+  border-bottom: 1px solid #F3F4F6;
+  background-color: #FFFFFF;
+}
+
+.wm-pdp-specs-table tr:nth-child(even) th,
+.wm-pdp-specs-table tr:nth-child(even) td {
+  background-color: #FAFAFA;
+}
+
+.wm-pdp-specs-table tr:last-child th,
+.wm-pdp-specs-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* 11. Benefits Grid (4 Equal Cards in 1 Row) */
+.wm-pdp-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 12px;
+}
+
+.wm-benefit-card {
+  padding: 20px 24px;
+  text-align: center;
+  border-right: 1px solid #F3F4F6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wm-benefit-card:last-child {
+  border-right: none;
+}
+
+.wm-benefit-card__icon-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background-color: #E5F3E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: #064E3B;
+  flex-shrink: 0;
+}
+
+.wm-benefit-card__title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.wm-benefit-card__desc {
+  font-size: 13.5px;
+  color: #6B7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE ADAPTATIONS (Desktop -> Tablet -> Mobile)
+   ========================================================================== */
+@media (max-width: 1023px) {
+  .wm-pdp-benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .wm-benefit-card {
+    border-right: none;
+    border-bottom: 1px solid #F3F4F6;
+    padding-bottom: 24px;
+  }
+  .wm-benefit-card:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .wm-pdp-card-section {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+  .wm-pdp-section-heading {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+  .wm-pdp-trust-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .wm-pdp-pill {
+    padding: 8px 20px;
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wm-info__checklist {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .wm-pdp-benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .wm-benefit-card {
+    border-bottom: 1px solid #F3F4F6;
+    padding: 16px 12px;
+  }
+  .wm-benefit-card:last-child {
+    border-bottom: none;
+  }
+  .wm-pdp-specs-table th {
+    width: 42%;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .wm-pdp-specs-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
 }

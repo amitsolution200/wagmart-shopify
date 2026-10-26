@@ -2,6 +2,24 @@
   Wagmart "Shop by Pet" FOR DOG & FOR CAT Banner Section
 {% endcomment %}
 
+{%- liquid
+  assign base_all_url = routes.all_products_collection_url | default: '/collections/all'
+  assign dog_col_url = base_all_url | append: '?pet=dog&title=Shop+For+Dogs'
+  assign cat_col_url = base_all_url | append: '?pet=cat&title=Shop+For+Cats'
+
+  for col in collections
+    if col.products.size > 0 and col.handle != 'all' and col.handle != 'frontpage'
+      assign ch = col.handle | downcase
+      assign ct = col.title | downcase
+      if ch == 'dogs' or ch == 'dog' or ch == 'for-dog' or ch == 'for-dogs' or ct == 'dogs' or ct == 'for dog'
+        assign dog_col_url = col.url
+      elsif ch == 'cats' or ch == 'cat' or ch == 'for-cat' or ch == 'for-cats' or ct == 'cats' or ct == 'for cat'
+        assign cat_col_url = col.url
+      endif
+    endif
+  endfor
+-%}
+
 <section
   id="pet-category-banner"
   aria-label="Shop For Dog and For Cat"
@@ -27,8 +45,8 @@
       {% comment %} CARD 1: FOR DOG {% endcomment %}
       <div
         class="group relative overflow-hidden rounded-[26px] sm:rounded-[30px] lg:rounded-[34px] bg-white border border-[#E7E5E4] p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_45px_-12px_rgba(122,70,229,0.22)] hover:border-[#7a46e5]/50 transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer min-h-[350px] sm:min-h-[410px] lg:min-h-[440px] flex items-center justify-between"
-        data-scroll-to-shop
-        role="button"
+        data-collection-url="{{ dog_col_url }}"
+        role="link"
         tabindex="0"
         aria-label="Shop for Dogs"
       >
@@ -72,7 +90,7 @@
           </div>
 
           <div>
-            {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            {% render 'theme-button', text: 'Shop Now', href: dog_col_url %}
           </div>
         </div>
 
@@ -91,8 +109,8 @@
       {% comment %} CARD 2: FOR CAT {% endcomment %}
       <div
         class="group relative overflow-hidden rounded-[26px] sm:rounded-[30px] lg:rounded-[34px] bg-white border border-[#E7E5E4] p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_45px_-12px_rgba(255,83,118,0.22)] hover:border-[#FF5376]/50 transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer min-h-[350px] sm:min-h-[410px] lg:min-h-[440px] flex items-center justify-between"
-        data-scroll-to-shop
-        role="button"
+        data-collection-url="{{ cat_col_url }}"
+        role="link"
         tabindex="0"
         aria-label="Shop for Cats"
       >
@@ -137,7 +155,7 @@
 
           <div>
             <a
-              href="#shop"
+              href="{{ cat_col_url }}"
               class="group relative inline-flex items-center justify-center rounded-full bg-[#FF5376] hover:bg-[#F43F5E] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer overflow-hidden shadow-[0_4px_16px_rgba(255,83,118,0.35)] hover:shadow-[0_6px_22px_rgba(255,83,118,0.48)] px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm gap-2"
             >
               <span class="relative z-10 tracking-wide">Shop Now</span>

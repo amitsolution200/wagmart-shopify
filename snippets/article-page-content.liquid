@@ -281,20 +281,6 @@
     color: #111111;
     font-weight: 700;
   }
-  .wm-article-body blockquote {
-    margin: 28px 0;
-    padding: 16px 22px;
-    border-left: 3px solid #7a46e5;
-    background: #fafafc;
-    border-radius: 0 10px 10px 0;
-    font-style: italic;
-    color: #334155;
-    font-size: 16.5px;
-    line-height: 1.65;
-  }
-  .wm-article-body blockquote p {
-    margin: 0;
-  }
 
   /* Back to Blog Action */
   .wm-article-nav-row {
@@ -472,27 +458,31 @@
 </style>
 
 {%- liquid
-  # Default Editorial Articles matching the blog page exactly
-  assign default_images = 'dog-groomed.webp,slow-feeder-nutrition.webp,cat-relaxing.webp,dog-owner-happy.webp' | split: ','
-  assign default_titles = 'Flea and Tick Prevention: What Actually Works|Do Dogs Really Need Grain-Free Food?|Signs Your Cat Might Be Overdue for a Vet Visit|How to Stop a Puppy From Chewing Everything' | split: '|'
-  assign default_urls = '/blogs/news/flea-and-tick-prevention-what-actually-works|/blogs/news/do-dogs-really-need-grain-free-food|/blogs/news/signs-your-cat-might-be-overdue-for-a-vet-visit|/blogs/news/how-to-stop-a-puppy-from-chewing-everything' | split: '|'
-  assign default_categories = 'Health & Care|Nutrition|Feline Care|Training & Behavior' | split: '|'
-  assign default_authors = 'Dr. Sarah Mitchell, DVM|Marcus Chen, Canine Nutritionist|Emily Watson, Feline Specialist|David Miller, Dog Trainer' | split: '|'
-  assign default_dates = 'Jul 23, 2026|Jul 23, 2026|Jul 23, 2026|Jul 23, 2026' | split: '|'
-  assign default_readtimes = '5 min read|6 min read|4 min read|5 min read' | split: '|'
-  assign default_excerpts = 'There’s a lot of noise out there about home remedies, but a few methods have real evidence to protect your pet all season long.|Grain-free became a trend a few years ago, but the science behind it is shakier than the marketing for long-term health.|Cats are famous for hiding illness, so it helps to know the subtle signs instead of waiting for obvious changes in behavior.|Chewing is normal puppy behavior, not bad behavior, so the goal is redirecting it with positive reinforcement techniques.' | split: '|'
+  assign current_article = article
+  assign current_blog = blog
 
-  # Check if Shopify store is rendering a live article
-  assign has_live_article = false
-  if article != blank and article.title != blank
-    assign has_live_article = true
-    assign live_title = article.title
-    assign live_date = article.published_at | date: '%b %d, %Y'
-    assign live_author = article.author | default: 'Wagmart Editorial'
-    assign live_category = article.tags.first | default: 'Pet Care'
-    assign live_image = article.image
-    assign live_content = article.content
+  # Title
+  assign art_title = current_article.title | default: 'Pet Care Guide'
+
+  # Category Tag
+  assign art_category = current_article.tags.first | default: 'Pet Journal'
+
+  # Publish Date
+  assign art_date = current_article.published_at | date: '%b %d, %Y' | default: 'Recent'
+
+  # Estimated reading time
+  assign words = current_article.content | strip_html | split: ' ' | size
+  assign read_minutes = words | divided_by: 200
+  if read_minutes < 1
+    assign read_minutes = 1
   endif
+  assign art_readtime = read_minutes | append: ' min read'
+
+  # Featured Image
+  assign art_image = current_article.image
+
+  # Content
+  assign art_content = current_article.content
 -%}
 
 <div id="wm-article-container" class="wm-article-page" aria-label="Wagmart Pet Journal Article">
@@ -513,526 +503,130 @@
         <span class="wm-article-crumbs__sep">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </span>
-        <a href="/blogs/news">Pet Journal</a>
+        <a href="{{ current_blog.url | default: '/blogs/news' }}">{{ current_blog.title | default: 'Pet Journal' }}</a>
         <span class="wm-article-crumbs__sep">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </span>
-        <span id="wm-art-crumb-cat" style="color: #64748b; font-weight: 500;">
-          {%- if has_live_article -%}{{ live_category }}{%- else -%}{{ default_categories[0] }}{%- endif -%}
+        <span style="color: #64748b; font-weight: 500;">
+          {{ art_category }}
         </span>
         <span class="wm-article-crumbs__sep">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </span>
-        <span id="wm-art-crumb-title" class="wm-article-crumbs__current">
-          {%- if has_live_article -%}{{ live_title }}{%- else -%}{{ default_titles[0] }}{%- endif -%}
+        <span class="wm-article-crumbs__current">
+          {{ art_title }}
         </span>
       </nav>
 
       <!-- 2. Article Header -->
       <header class="wm-article-head">
         <div class="wm-article-meta-row">
-          <span id="wm-art-category" class="wm-article-category">
-            {%- if has_live_article -%}{{ live_category }}{%- else -%}{{ default_categories[0] }}{%- endif -%}
+          <span class="wm-article-category">
+            {{ art_category }}
           </span>
 
           <span class="wm-article-meta-item">
-            <span id="wm-art-date">{%- if has_live_article -%}{{ live_date }}{%- else -%}{{ default_dates[0] }}{%- endif -%}</span>
+            <span>{{ art_date }}</span>
           </span>
 
           <span class="wm-article-meta-sep">•</span>
 
           <span class="wm-article-meta-item">
-            <span id="wm-art-readtime">5 min read</span>
+            <span>{{ art_readtime }}</span>
           </span>
         </div>
 
-        <h1 id="wm-art-title" class="wm-article-title">
-          {%- if has_live_article -%}{{ live_title }}{%- else -%}{{ default_titles[0] }}{%- endif -%}
+        <h1 class="wm-article-title">
+          {{ art_title }}
         </h1>
-
-        <!-- Author & Social Share Row -->
-        <div class="wm-article-author-bar">
-          <div class="wm-article-author-info">
-            <span>By</span>
-            <span id="wm-art-author" class="wm-article-author-name">
-              {%- if has_live_article -%}{{ live_author }}{%- else -%}{{ default_authors[0] }}{%- endif -%}
-            </span>
-          </div>
-
-          <!-- Share Actions -->
-          <div class="wm-article-share-group">
-            <span class="wm-article-share-label">Share:</span>
-
-            <!-- Copy Link Button with instant feedback -->
-            <button
-              type="button"
-              id="wm-share-copy-btn"
-              class="wm-article-share-btn"
-              onclick="copyArticleLink()"
-              aria-label="Copy article link to clipboard"
-            >
-              <svg id="wm-share-copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-              </svg>
-              <span id="wm-share-copy-text">Copy Link</span>
-            </button>
-
-            <!-- Share to X / Twitter -->
-            <a
-              id="wm-share-x"
-              href="https://twitter.com/intent/tweet?text={{ default_titles[0] | url_encode }}&url={{ shop.url | append: default_urls[0] | url_encode }}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="wm-article-share-btn wm-article-share-btn--icon-only"
-              aria-label="Share story on X (Twitter)"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-            </a>
-
-            <!-- Share to Facebook -->
-            <a
-              id="wm-share-fb"
-              href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url | append: default_urls[0] | url_encode }}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="wm-article-share-btn wm-article-share-btn--icon-only"
-              aria-label="Share story on Facebook"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-              </svg>
-            </a>
-          </div>
-        </div>
       </header>
 
-      <!-- 3. Hero Featured Image (Exact blog page images) -->
-      <div class="wm-article-hero-wrap">
-        <div class="wm-article-hero-media">
-          {%- if has_live_article and live_image != blank -%}
+      <!-- 3. Hero Featured Image -->
+      {%- if art_image != blank -%}
+        <div class="wm-article-hero-wrap">
+          <div class="wm-article-hero-media">
             <img
-              id="wm-art-img"
-              src="{{ live_image | image_url: width: 1200 }}"
-              alt="{{ live_title | escape }}"
+              src="{{ art_image | image_url: width: 1200 }}"
+              alt="{{ art_title | escape }}"
               loading="eager"
               width="1000"
               height="562"
             >
-          {%- else -%}
-            <img
-              id="wm-art-img"
-              src="{{ default_images[0] | asset_url }}"
-              alt="{{ default_titles[0] | escape }}"
-              loading="eager"
-              width="1000"
-              height="562"
-            >
-          {%- endif -%}
-        </div>
-      </div>
-
-      <!-- 4. Clean Editorial Content Bodies (NO AI Slop) -->
-      {%- if has_live_article and live_content != blank -%}
-        <div id="wm-art-body-live" class="wm-article-body wm-art-body-block">
-          {{ live_content }}
+          </div>
         </div>
       {%- endif -%}
 
-      <!-- Editorial Article 0: Flea & Tick Prevention -->
-      <div id="wm-art-body-0" class="wm-article-body wm-art-body-block" {% if has_live_article %}style="display: none;"{% endif %}>
-        <p>
-          Warm weather brings adventures in dog parks, morning hikes through wooded trails, and sunny afternoons in the backyard with our furry companions. Unfortunately, it also marks peak season for fleas, ticks, and other persistent parasites. With warmer seasons expanding and temperature shifts occurring nationwide, veterinary dermatologists are seeing parasite transmission well into autumn and winter months, making comprehensive year-round protection essential.
-        </p>
-
-        <h2>Oral Chewables vs. Topical Treatments: What Works Best?</h2>
-        <p>
-          Pet parents often find themselves overwhelmed by the options available on clinic and pharmacy shelves. The two primary categories remain oral chewables and topical spot-on treatments, each offering distinct advantages depending on your pet's lifestyle, breed, and coat type:
-        </p>
-        <ul>
-          <li><strong>Oral Chewables (Isoxazolines):</strong> Modern monthly chewables provide rapid systemic protection. Within 8 to 12 hours of ingestion, adult fleas and ticks are neutralized before they have the opportunity to transmit dangerous pathogens like Lyme disease, Anaplasmosis, or tapeworms. Because they work from the inside out, they are completely waterproof and unaffected by frequent bathing or lake swimming.</li>
-          <li><strong>Topical Spot-on Treatments:</strong> Applied directly to the skin along the shoulder blades and dorsal line, topicals spread naturally across your pet's lipid layer. Many modern veterinary formulas feature contact repellent properties that deter parasites before they even make contact with the skin.</li>
-        </ul>
-
-        <blockquote>
-          <p>
-            "Always consult your primary veterinarian before switching preventative regimens. Dosages are strictly calibrated to body weight, and canine topicals containing permethrins can be lethal if accidentally ingested or groomed by household cats."
-          </p>
-        </blockquote>
-
-        <h2>The Reality About Natural Home Remedies</h2>
-        <p>
-          From apple cider vinegar sprays to garlic supplements, the internet is flooded with DIY pest repellents. While holistic pet wellness is wonderful, external parasites carry genuine health hazards that home concoctions simply cannot reliably mitigate:
-        </p>
-        <ul>
-          <li><strong>Garlic & Onions:</strong> Garlic is frequently suggested as a natural flea deterrent, but all members of the <em>Allium</em> botanical family contain thiosulfates that oxidize hemoglobin and damage red blood cells in both dogs and cats, leading to life-threatening hemolytic anemia.</li>
-          <li><strong>Essential Oils:</strong> Highly concentrated oils such as tea tree, eucalyptus, and pennyroyal are absorbed rapidly through pet skin and can cause neurological tremors or acute liver failure, particularly in felines who lack key liver glucuronidation enzymes.</li>
-        </ul>
-
-        <h2>The 95% Environmental Rule</h2>
-        <p>
-          Adult fleas visible on your pet represent only 5% of the total flea infestation. The remaining 95% exist in your carpets, furniture, and pet bedding as microscopic eggs, larvae, and pupae. Maintain regular weekly washing of pet beds in hot water and vacuum floorboards thoroughly to break the reproductive cycle.
-        </p>
-
-        <h2>Safe Removal If You Spot a Tick</h2>
-        <p>
-          If you discover an attached tick after an outdoor hike, avoid using heat, petroleum jelly, or twisting motions. Use fine-tipped tweezers or an authorized tick-removal hook, grasp the tick as close to the skin surface as possible, and pull upward with steady, even pressure. Clean the bite area with pet-safe antiseptic and monitor for lethargy or joint stiffness over the next two weeks.
-        </p>
+      <!-- 4. Real Article Content from Shopify Admin -->
+      <div class="wm-article-body">
+        {%- if art_content != blank -%}
+          {{ art_content }}
+        {%- else -%}
+          <p>This article has no content yet. You can add content in Shopify Admin under <strong>Online Store &rarr; Blog posts</strong>.</p>
+        {%- endif -%}
       </div>
 
-      <!-- Editorial Article 1: Grain-Free Food -->
-      <div id="wm-art-body-1" class="wm-article-body wm-art-body-block" style="display: none;">
-        <p>
-          Walking down the pet food aisle over the last decade, you could hardly miss the explosion of grain-free packaging boasting ancestral wolf diets and pristine raw ingredients. But in recent years, canine nutritionists and veterinary researchers have called for a more evidence-based perspective on what our dogs actually require for long-term health.
-        </p>
-
-        <h2>Canine Evolution: Dogs Are Not Wolves</h2>
-        <p>
-          While dogs share ancient ancestry with wolves, their tens of thousands of years co-evolving alongside human societies fundamentally adapted their digestive anatomy. Landmark genetic research published in <em>Nature</em> revealed that domestic dogs possess between 4 to 30 copies of the <strong>AMY2B gene</strong>, enabling them to produce abundant amylase enzymes and digest wholesome carbohydrates, whole grains, and starches with ease.
-        </p>
-
-        <blockquote>
-          <p>
-            "Wholesome grains like brown rice, oats, sorghum, and barley provide rich sources of soluble fiber, iron, magnesium, and essential B vitamins that support healthy cardiac tissue and smooth gastrointestinal transit."
-          </p>
-        </blockquote>
-
-        <h2>The FDA Investigation into Dilated Cardiomyopathy (DCM)</h2>
-        <p>
-          The U.S. FDA launched an investigation into potential correlations between certain boutique, exotic, and grain-free formulations and canine Dilated Cardiomyopathy (DCM), a serious condition that thins and weakens the cardiac heart muscle. Researchers identified that many grain-free foods heavily substituted grains with high concentrations of peas, lentils, chickpeas, and potatoes, which may interfere with amino acid absorption and taurine metabolism.
-        </p>
-
-        <h2>When Is Grain-Free Actually Necessary?</h2>
-        <p>
-          True grain allergies in canines are exceptionally rare, accounting for less than 1% of veterinary dermatology allergy cases. In reality, animal proteins such as chicken, beef, or dairy are significantly more likely culprits when an adverse food reaction or itchy skin occurs. Unless your veterinarian has diagnosed a specific gluten enteropathy through an elimination food trial, high-quality pet foods featuring balanced whole grains remain a fantastic, time-tested foundation for canine longevity.
-        </p>
-      </div>
-
-      <!-- Editorial Article 2: Cat Vet Visit -->
-      <div id="wm-art-body-2" class="wm-article-body wm-art-body-block" style="display: none;">
-        <p>
-          Cats are evolutionary masters at concealing vulnerability. In the wild, displaying weakness or discomfort invites rival predators and threats. Even in the secure comfort of our living rooms, domestic cats instinctively mask medical problems until symptoms become significantly advanced. Learning to spot subtle behavioral shifts is the key to early veterinary intervention.
-        </p>
-
-        <h2>1. Subtle Shifts in Litter Box Habits</h2>
-        <p>
-          Any modification in urinary frequency, volume, or posture warrants prompt attention. Straining inside the litter box, crying out while urinating, or voiding outside the tray frequently signals painful conditions such as Feline Lower Urinary Tract Disease (FLUTD), sterile cystitis, or urethral blockages—a life-threatening medical emergency in male cats.
-        </p>
-
-        <h2>2. Grooming Changes: Over-Grooming vs. Neglect</h2>
-        <p>
-          A healthy feline spends up to 30% of their waking hours meticulously grooming. If you notice localized bald patches (especially along the caudal abdomen or inner thighs), this often points to stress-induced psychogenic alopecia or neuropathic bladder pain. Conversely, a dull, matted coat or flaky dandruff along the lower back suggests feline osteoarthritis, where twisting to groom has become too painful.
-        </p>
-
-        <blockquote>
-          <p>
-            "Cats aged seven and older should receive bi-annual veterinary wellness exams with routine blood chemistry and urinalysis panels to screen for kidney health, hypertension, and hyperthyroidism well before external symptoms emerge."
-          </p>
-        </blockquote>
-
-        <h2>3. Thirst & Appetite Anomalies</h2>
-        <p>
-          Hanging out over the water bowl, drinking from bathroom taps, or visiting the bowl frequently is often the earliest indicator of chronic renal insufficiency, hyperthyroidism, or feline diabetes. Similarly, chewing with head tilted or dropping kibble indicates dental resorption lesions or painful stomatitis that requires professional cleaning.
-        </p>
-      </div>
-
-      <!-- Editorial Article 3: Puppy Chewing -->
-      <div id="wm-art-body-3" class="wm-article-body wm-art-body-block" style="display: none;">
-        <p>
-          Bringing a new puppy home is one of life’s purest joys—until your favorite pair of sneakers, the living room baseboards, and the TV remote fall victim to razor-sharp puppy teeth. The good news? Chewing is completely normal, instinctual developmental behavior. With thoughtful redirection and environmental management, you can protect your belongings while satisfying your puppy’s natural teething instincts.
-        </p>
-
-        <h2>Why Do Puppies Chew So Much?</h2>
-        <p>
-          Puppies explore the physical world through their mouth and senses. Between 12 weeks and 6 months of age, their 28 deciduous baby teeth fall out to make way for 42 permanent adult teeth. Chewing applies counter-pressure against the gums, providing immense soothing relief from the soreness of erupting adult molars.
-        </p>
-
-        <h2>The Golden Rule: Redirect, Never Punish</h2>
-        <p>
-          Scolding or punishing a puppy after they have chewed something only generates anxiety and confusion. Puppies live in the present moment. Instead, keep a rotating supply of sanctioned chew toys within arm’s reach throughout your house. Whenever you catch your pup gnawing on an unauthorized item, calmly interrupt them, swap it for a textured chew toy, and praise them enthusiastically the moment their teeth engage with the toy.
-        </p>
-
-        <blockquote>
-          <p>
-            "Freeze a whole peeled carrot or an interactive rubber toy packed with wet food and pumpkin. The chilled texture naturally numbs irritated puppy gums while providing 25-30 minutes of positive mental stimulation."
-          </p>
-        </blockquote>
-
-        <h2>Manage Your Environment</h2>
-        <p>
-          Proactive prevention is the cornerstone of puppy training. Store shoes inside closed closets, wrap electrical cords in plastic split tubing, and utilize puppy exercise pens to restrict unsupervised roaming until trustworthy house habits are firmly established.
-        </p>
+      <!-- Back to Blog Action -->
+      <div class="wm-article-nav-row" style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+        <a href="{{ current_blog.url | default: '/blogs/news' }}" class="wm-article-nav-btn" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #7a46e5; text-decoration: none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to all articles
+        </a>
       </div>
 
     </div><!-- /.wm-article-col -->
 
-    <!-- =========================================================
-         6. EXPLORE RELATED STORIES: EXACTLY 3 CARDS IN GRID
-         - Scoped 3-column layout matching blog page card design
-         - Uses exact images: dog-groomed.webp, slow-feeder-nutrition.webp, cat-relaxing.webp, dog-owner-happy.webp
-         ========================================================= -->
-    <section id="wm-related-section" class="wm-related-section" aria-label="Related Pet Journal Stories">
-      <div class="wm-related-head">
-        <h2 class="wm-related-title">Explore Related Stories</h2>
-        <p class="wm-related-subtitle">Continue reading expert veterinary advice, nutrition tips, and pet care guides.</p>
-      </div>
+    <!-- 5. Related Articles from the same Blog -->
+    {%- if current_blog.articles.size > 1 -%}
+      <section class="wm-related-section" aria-label="Related Pet Journal Stories" style="margin-top: 64px;">
+        <div class="wm-related-head">
+          <h2 class="wm-related-title">Explore Related Stories</h2>
+          <p class="wm-related-subtitle">Continue reading expert veterinary advice, nutrition tips, and pet care guides.</p>
+        </div>
 
-      <!-- EXACTLY 3 CARDS IN THE GRID -->
-      <div id="wm-related-grid-wrap" class="wm-related-grid">
-        {%- for i in (0..3) -%}
-          {%- liquid
-            assign rel_title = default_titles[i]
-            assign rel_url = default_urls[i]
-            assign rel_date = default_dates[i]
-            assign rel_excerpt = default_excerpts[i]
-            assign rel_img = default_images[i]
-          -%}
-          <article
-            class="wm-blog-card"
-            data-article-idx="{{ i }}"
-            onclick="return window.openArticleCard({{ i }}, '{{ rel_url }}', event)"
-            style="cursor: pointer;"
-          >
-            <a href="{{ rel_url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true" onclick="return window.openArticleCard({{ i }}, '{{ rel_url }}', event)">
-              <img
-                src="{{ rel_img | asset_url }}"
-                alt="{{ rel_title | escape }}"
-                loading="lazy"
-                width="600"
-                height="450"
-              >
-            </a>
+        <div class="wm-related-grid">
+          {%- assign rel_shown = 0 -%}
+          {%- for rel_article in current_blog.articles -%}
+            {%- if rel_article.id != current_article.id and rel_shown < 3 -%}
+              {%- assign rel_shown = rel_shown | plus: 1 -%}
+              <article class="wm-blog-card">
+                <a href="{{ rel_article.url }}" class="wm-blog-card__media" tabindex="-1" aria-hidden="true">
+                  {%- if rel_article.image != blank -%}
+                    <img
+                      src="{{ rel_article.image | image_url: width: 600 }}"
+                      alt="{{ rel_article.title | escape }}"
+                      loading="lazy"
+                      width="600"
+                      height="450"
+                    >
+                  {%- else -%}
+                    <div style="width: 100%; height: 220px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: 600;">
+                      Wagmart Journal
+                    </div>
+                  {%- endif -%}
+                </a>
 
-            <h3 class="wm-blog-card__title">
-              <a href="{{ rel_url }}" onclick="return window.openArticleCard({{ i }}, '{{ rel_url }}', event)">{{ rel_title }}</a>
-            </h3>
+                <h3 class="wm-blog-card__title">
+                  <a href="{{ rel_article.url }}">{{ rel_article.title }}</a>
+                </h3>
 
-            <p class="wm-blog-card__date">{{ rel_date }}</p>
+                <p class="wm-blog-card__date">{{ rel_article.published_at | date: '%b %d, %Y' }}</p>
 
-            <p class="wm-blog-card__excerpt">{{ rel_excerpt }}</p>
+                <p class="wm-blog-card__excerpt">
+                  {{ rel_article.excerpt_or_content | strip_html | truncate: 140 }}
+                </p>
 
-            <div class="wm-blog-card__foot">
-              <a href="{{ rel_url }}" class="wm-blog-card__more" onclick="return window.openArticleCard({{ i }}, '{{ rel_url }}', event)">Read more</a>
-            </div>
-          </article>
-        {%- endfor -%}
-      </div>
-    </section>
+                <div class="wm-blog-card__foot">
+                  <a href="{{ rel_article.url }}" class="wm-blog-card__more">Read more</a>
+                </div>
+              </article>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </section>
+    {%- endif -%}
 
   </div><!-- /.wm-article-page__wrap -->
 </div><!-- /#wm-article-container -->
-
-<script>
-  // Copy Article Link to Clipboard with visual confirmation
-  function copyArticleLink() {
-    var shareUrl = window.location.href;
-    var copyBtn = document.getElementById('wm-share-copy-btn');
-    var copyText = document.getElementById('wm-share-copy-text');
-
-    function showSuccess() {
-      if (copyText) copyText.textContent = 'Copied!';
-      if (copyBtn) {
-        copyBtn.style.background = '#059669';
-        copyBtn.style.borderColor = '#059669';
-        copyBtn.style.color = '#ffffff';
-      }
-      setTimeout(function() {
-        if (copyText) copyText.textContent = 'Copy Link';
-        if (copyBtn) {
-          copyBtn.style.background = '';
-          copyBtn.style.borderColor = '';
-          copyBtn.style.color = '';
-        }
-      }, 2500);
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(shareUrl).then(showSuccess).catch(function() {
-        prompt('Copy this link:', shareUrl);
-      });
-    } else {
-      var tempInput = document.createElement('input');
-      tempInput.value = shareUrl;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      document.execCommand('copy');
-      document.body.removeChild(tempInput);
-      showSuccess();
-    }
-  }
-
-  // Pre-resolved CDN asset URLs for exact blog images
-  var wmAssetUrls = [
-    {{ default_images[0] | asset_url | json }},
-    {{ default_images[1] | asset_url | json }},
-    {{ default_images[2] | asset_url | json }},
-    {{ default_images[3] | asset_url | json }}
-  ];
-
-  var wmArticleSlugs = [
-    'flea-and-tick-prevention-what-actually-works',
-    'do-dogs-really-need-grain-free-food',
-    'signs-your-cat-might-be-overdue-for-a-vet-visit',
-    'how-to-stop-a-puppy-from-chewing-everything'
-  ];
-
-  // Helper to determine active article index (Hash has HIGHEST priority)
-  function wmResolveArticleIndex() {
-    var hash = (window.location.hash || '').toLowerCase();
-    if (hash) {
-      if (hash.indexOf('chewing') !== -1 || hash.indexOf('puppy') !== -1 || hash.indexOf('article=3') !== -1 || hash.indexOf('article-3') !== -1) {
-        return 3;
-      }
-      if (hash.indexOf('cat') !== -1 || hash.indexOf('vet') !== -1 || hash.indexOf('article=2') !== -1 || hash.indexOf('article-2') !== -1) {
-        return 2;
-      }
-      if (hash.indexOf('grain') !== -1 || hash.indexOf('article=1') !== -1 || hash.indexOf('article-1') !== -1) {
-        return 1;
-      }
-      if (hash.indexOf('flea') !== -1 || hash.indexOf('tick') !== -1 || hash.indexOf('article=0') !== -1 || hash.indexOf('article-0') !== -1) {
-        return 0;
-      }
-    }
-
-    // If no hash, inspect pathname and search query
-    var path = (window.location.pathname + ' ' + window.location.search).toLowerCase();
-    if (path.indexOf('chewing') !== -1 || path.indexOf('puppy') !== -1) {
-      return 3;
-    }
-    if (path.indexOf('cat') !== -1 || path.indexOf('vet') !== -1) {
-      return 2;
-    }
-    if (path.indexOf('grain') !== -1) {
-      return 1;
-    }
-    if (path.indexOf('flea') !== -1 || path.indexOf('tick') !== -1) {
-      return 0;
-    }
-
-    return 0;
-  }
-
-  // Open article when clicking on any related card
-  window.openArticleCard = function(targetIdx, targetUrl, event) {
-    if (event) {
-      if (typeof event.preventDefault === 'function') event.preventDefault();
-      if (typeof event.stopPropagation === 'function') event.stopPropagation();
-    }
-
-    var targetSlug = wmArticleSlugs[targetIdx];
-    if (targetSlug) {
-      if (window.history && window.history.pushState) {
-        window.history.pushState({ articleIdx: targetIdx }, '', '#' + targetSlug);
-      } else {
-        window.location.hash = targetSlug;
-      }
-    }
-
-    window.WagmartInitArticle();
-
-    // Scroll smoothly to top of the article container
-    var container = document.getElementById('wm-article-container');
-    if (container) {
-      var topPos = container.getBoundingClientRect().top + window.pageYOffset - 10;
-      window.scrollTo({ top: Math.max(0, topPos), behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    return false;
-  };
-
-  // Article Dynamic Router & Content Switcher
-  window.WagmartInitArticle = function() {
-    var titles = {{ default_titles | json }};
-    var urls = {{ default_urls | json }};
-    var categories = {{ default_categories | json }};
-    var authors = {{ default_authors | json }};
-    var dates = {{ default_dates | json }};
-    var readtimes = {{ default_readtimes | json }};
-
-    var idx = wmResolveArticleIndex();
-
-    // Update document title
-    document.title = titles[idx] + ' – Wagmart Pet Journal';
-
-    // Breadcrumbs
-    var crumbCat = document.getElementById('wm-art-crumb-cat');
-    if (crumbCat) crumbCat.textContent = categories[idx];
-    var crumbTitle = document.getElementById('wm-art-crumb-title');
-    if (crumbTitle) crumbTitle.textContent = titles[idx];
-
-    // Header Meta
-    var titleEl = document.getElementById('wm-art-title');
-    if (titleEl) titleEl.textContent = titles[idx];
-    var catEl = document.getElementById('wm-art-category');
-    if (catEl) catEl.textContent = categories[idx];
-    var dateEl = document.getElementById('wm-art-date');
-    if (dateEl) dateEl.textContent = dates[idx];
-    var readEl = document.getElementById('wm-art-readtime');
-    if (readEl) readEl.textContent = readtimes[idx];
-
-    // Author
-    var authorEl = document.getElementById('wm-art-author');
-    if (authorEl) authorEl.textContent = authors[idx];
-
-    // Hero Image (Exact blog page images)
-    var imgEl = document.getElementById('wm-art-img');
-    if (imgEl && wmAssetUrls[idx]) {
-      imgEl.removeAttribute('srcset');
-      imgEl.src = wmAssetUrls[idx];
-      imgEl.alt = titles[idx];
-    }
-
-    // Social Share Links
-    var shareUrl = window.location.origin + urls[idx];
-    var shareTitle = encodeURIComponent(titles[idx]);
-    var xBtn = document.getElementById('wm-share-x');
-    if (xBtn) xBtn.href = 'https://twitter.com/intent/tweet?text=' + shareTitle + '&url=' + encodeURIComponent(shareUrl);
-    var fbBtn = document.getElementById('wm-share-fb');
-    if (fbBtn) fbBtn.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
-
-    // Editorial Content Blocks
-    var liveBody = document.getElementById('wm-art-body-live');
-    if (liveBody) {
-      liveBody.style.display = 'none';
-    }
-    for (var b = 0; b < 4; b++) {
-      var bodyBlock = document.getElementById('wm-art-body-' + b);
-      if (bodyBlock) {
-        bodyBlock.style.display = (b === idx) ? 'block' : 'none';
-      }
-    }
-
-    // =========================================================
-    // RELATED STORIES: ENSURE EXACTLY 3 CARDS ARE DISPLAYED
-    // Exclude the currently active article (idx) from related cards
-    // =========================================================
-    var relCards = document.querySelectorAll('#wm-related-grid-wrap [data-article-idx]');
-    var count = 0;
-    relCards.forEach(function(card) {
-      var cIdx = parseInt(card.getAttribute('data-article-idx'), 10);
-      if (cIdx === idx || count >= 3) {
-        card.style.display = 'none';
-      } else {
-        card.style.display = 'flex';
-        count++;
-      }
-    });
-  };
-
-  // Run on load and on URL hash/history changes
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.WagmartInitArticle);
-  } else {
-    window.WagmartInitArticle();
-  }
-  window.addEventListener('hashchange', function() {
-    window.WagmartInitArticle();
-  });
-  window.addEventListener('popstate', function() {
-    window.WagmartInitArticle();
-  });
-</script>

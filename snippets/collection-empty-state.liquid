@@ -1,19 +1,21 @@
 {%- comment -%}
-  Wagmart Collection Empty & Loading Skeleton States Snippet
-  1. Loading Shimmer Skeleton Grid (6 cards)
-  2. No-Results Empty State ("No products match your filters" + "Clear all filters" button + Bestsellers)
-  3. Slim 4-Item Trust Strip before the footer
+  Wagmart Collection Empty, Skeleton & Trust Strip Snippet (snippets/collection-empty-state.liquid)
+  1. state_type == 'skeleton': Loading Shimmer Skeleton Grid (6 cards)
+  2. state_type == 'trust-strip': Slim 4-Item Trust Strip before the footer
+  3. state_type == 'empty' (default): No-Results Empty State ("No products match your filters" + "Clear All Filters" button)
 {%- endcomment -%}
 
 {%- if state_type == 'skeleton' -%}
   <div class="wm-plp-skeleton-grid" data-plp-skeleton hidden aria-hidden="true">
     {%- for i in (1..6) -%}
       <div class="wm-plp-skeleton-card">
-        <div class="wm-plp-skeleton__media wm-shimmer"></div>
-        <div class="wm-plp-skeleton__line wm-plp-skeleton__line--sm wm-shimmer"></div>
-        <div class="wm-plp-skeleton__line wm-plp-skeleton__line--lg wm-shimmer"></div>
-        <div class="wm-plp-skeleton__line wm-plp-skeleton__line--md wm-shimmer"></div>
-        <div class="wm-plp-skeleton__btn wm-shimmer"></div>
+        <div class="wm-plp-skeleton-card__media"></div>
+        <div class="wm-plp-skeleton-card__body">
+          <div class="wm-plp-skeleton-line wm-plp-skeleton-line--sm"></div>
+          <div class="wm-plp-skeleton-line wm-plp-skeleton-line--lg"></div>
+          <div class="wm-plp-skeleton-line wm-plp-skeleton-line--md"></div>
+          <div class="wm-plp-skeleton-line wm-plp-skeleton-line--btn"></div>
+        </div>
       </div>
     {%- endfor -%}
   </div>
@@ -23,68 +25,66 @@
     <div class="wm-plp-trust-strip__grid">
       <div class="wm-plp-trust-strip__item">
         <span class="wm-plp-trust-strip__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         </span>
-        <div>
-          <h3 class="wm-plp-trust-strip__title">Free Express Delivery</h3>
-          <p class="wm-plp-trust-strip__sub">On all orders above &#8377;499 across India</p>
+        <div class="wm-plp-trust-strip__text">
+          <strong class="wm-plp-trust-strip__title">Free Shipping Above ₹499</strong>
+          <span class="wm-plp-trust-strip__sub">Fast express dispatch from Surat</span>
         </div>
       </div>
 
       <div class="wm-plp-trust-strip__item">
         <span class="wm-plp-trust-strip__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
         </span>
-        <div>
-          <h3 class="wm-plp-trust-strip__title">100% Vet-Tested &amp; Safe</h3>
-          <p class="wm-plp-trust-strip__sub">Authentic, certified pet nutrition &amp; gear</p>
+        <div class="wm-plp-trust-strip__text">
+          <strong class="wm-plp-trust-strip__title">100% Vet-Approved &amp; Safe</strong>
+          <span class="wm-plp-trust-strip__sub">Non-toxic, pet-friendly materials</span>
         </div>
       </div>
 
       <div class="wm-plp-trust-strip__item">
         <span class="wm-plp-trust-strip__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         </span>
-        <div>
-          <h3 class="wm-plp-trust-strip__title">Easy 7-Day Returns</h3>
-          <p class="wm-plp-trust-strip__sub">Hassle-free replacements &amp; refunds</p>
+        <div class="wm-plp-trust-strip__text">
+          <strong class="wm-plp-trust-strip__title">7-Day Easy Returns</strong>
+          <span class="wm-plp-trust-strip__sub">Hassle-free replacement or refund</span>
         </div>
       </div>
 
       <div class="wm-plp-trust-strip__item">
         <span class="wm-plp-trust-strip__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </span>
-        <div>
-          <h3 class="wm-plp-trust-strip__title">100% Secure Checkout</h3>
-          <p class="wm-plp-trust-strip__sub">UPI, Cards, NetBanking &amp; COD supported</p>
+        <div class="wm-plp-trust-strip__text">
+          <strong class="wm-plp-trust-strip__title">UPI, Cards &amp; COD Available</strong>
+          <span class="wm-plp-trust-strip__sub">100% secure encrypted checkout</span>
         </div>
       </div>
     </div>
   </section>
 
 {%- else -%}
-  <div class="wm-plp-empty" data-plp-empty-state hidden>
-    <div class="wm-plp-empty__circle" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="28" cy="28" r="16" fill="#FFFFFF" stroke="#1B3A2A" stroke-width="3.2"/>
-        <path d="M40 40L54 54" stroke="#1B3A2A" stroke-width="3.6" stroke-linecap="round"/>
-        <ellipse cx="28" cy="31" rx="5" ry="4.2" fill="#1B3A2A"/>
-        <circle cx="21" cy="24.5" r="2.2" fill="#1B3A2A"/>
-        <circle cx="25.5" cy="22" r="2.2" fill="#1B3A2A"/>
-        <circle cx="30.5" cy="22" r="2.2" fill="#1B3A2A"/>
-        <circle cx="35" cy="24.5" r="2.2" fill="#1B3A2A"/>
+  <div class="wm-plp-empty-state" data-plp-empty-state hidden role="status" aria-live="polite">
+    <div class="wm-plp-empty-state__icon" aria-hidden="true">
+      <svg viewBox="0 0 80 80" width="68" height="68" fill="none">
+        <circle cx="40" cy="40" r="36" fill="#E8F3EC"/>
+        <circle cx="28" cy="29" r="5" fill="#1B3A2A"/>
+        <circle cx="40" cy="24" r="5" fill="#1B3A2A"/>
+        <circle cx="52" cy="29" r="5" fill="#1B3A2A"/>
+        <path d="M30 46c0-5.5 4.5-10 10-10s10 4.5 10 10c0 4-3 7-6 7h-8c-3 0-6-3-6-7z" fill="#1B3A2A"/>
+        <path d="M52 52l10 10" stroke="#7A46E5" stroke-width="3.5" stroke-linecap="round"/>
       </svg>
     </div>
 
-    <h3 class="wm-plp-empty__title">No products match your filters</h3>
-    <p class="wm-plp-empty__sub">
-      We couldn't find any pet supplies matching your current filter selection. Try adjusting your price range or clearing filters.
+    <h2 class="wm-plp-empty-state__title">No products match your filters</h2>
+    <p class="wm-plp-empty-state__desc">
+      We couldn&rsquo;t find any pet supplies matching your current selection. Try adjusting your price range or clearing some filters.
     </p>
 
-    <button type="button" class="wm-plp-empty__btn" data-filter-clear-all>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-      <span>Clear All Filters</span>
+    <button type="button" class="wm-plp-empty-state__btn" data-plp-clear-all>
+      Clear All Filters
     </button>
   </div>
 {%- endif -%}

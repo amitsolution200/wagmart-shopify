@@ -40,7 +40,7 @@
     const pageRoot = document.querySelector('[data-cart-page]');
     if (!pageRoot) return;
 
-    const defaultImg = pageRoot.getAttribute('data-default-img') || 'assets/grooming.png';
+    const defaultImg = pageRoot.getAttribute('data-default-img') || '';
     const filledView = pageRoot.querySelector('[data-cart-filled-view]');
     const emptyContainer = pageRoot.querySelector('[data-cart-empty-container]');
     const itemsListEl = pageRoot.querySelector('[data-cart-page-items]');
@@ -136,7 +136,7 @@
               <div class="wm-cart-item" data-cart-row="${key}" data-item-id="${escapeHtml(item.id)}" data-item-title="${title}" data-max-stock="${maxStock}">
                 <div class="wm-cart-item__product">
                   <a href="${url}" class="wm-cart-item__media" aria-label="${title}">
-                    <img src="${imgSrc}" alt="${title}" width="104" height="104" loading="lazy">
+                    <img src="${imgSrc}" alt="${title}" width="104" height="104" loading="lazy" onerror="this.onerror=null;if('${defaultImg}')this.src='${defaultImg}';">
                   </a>
                   <div class="wm-cart-item__details">
                     <span class="wm-cart-item__vendor">${vendor}</span>

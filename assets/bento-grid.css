@@ -1,0 +1,700 @@
+/* ==========================================================================
+   WAGMART PREMIUM BENTO GRID SECTION
+   - Typography: Wagmart brand font 'Plus Jakarta Sans', 'Inter', sans-serif
+   - Layout: Asymmetrical 6-card bento grid (Desktop: Row 1 = 6/3/3, Row 2 = 3/3/6)
+   - Colors & Gradients: Soft harmonious gradients for pristine text legibility & context
+   ========================================================================== */
+
+.wm-bento-section {
+  width: 100%;
+  padding: 36px 0 48px;
+  background-color: #ffffff;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.wm-bento-container {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+  .wm-bento-container {
+    padding: 0 24px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .wm-bento-container {
+    padding: 0 32px;
+  }
+}
+
+/* ==========================================================================
+   Grid Layout
+   ========================================================================== */
+.wm-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+@media (min-width: 1280px) {
+  .wm-bento-grid {
+    gap: 14px;
+  }
+}
+
+/* ==========================================================================
+   Bento Cards Base Styles
+   ========================================================================== */
+.wm-bento-card {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border-radius: 18px;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: #faf5ee;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.wm-bento-card:focus-visible {
+  outline: 3px solid #064E3B;
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .wm-bento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.1);
+  }
+
+  .wm-bento-card:hover .wm-bento-card__bg-img {
+    transform: scale(1.035);
+  }
+
+  .wm-bento-card:hover .wm-bento-card__cta {
+    border-bottom-width: 2px;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* Background image */
+.wm-bento-card__bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Legibility Gradients (Ensuring 100% Crisp Context on Any Device)
+   ========================================================================== */
+.wm-bento-card__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+/* Card 1: Warm cream gradient across left side */
+.wm-bento-card__overlay--card1 {
+  background: linear-gradient(
+    90deg,
+    rgba(250, 245, 238, 0.85) 0%,
+    rgba(250, 245, 238, 0.72) 42%,
+    rgba(250, 245, 238, 0.35) 60%,
+    rgba(250, 245, 238, 0) 78%
+  );
+}
+
+/* Card 2: Deep rich gradient for white text contrast */
+.wm-bento-card__overlay--card2 {
+  background: linear-gradient(
+    to top,
+    rgba(17, 24, 39, 0.82) 0%,
+    rgba(17, 24, 39, 0.52) 38%,
+    rgba(17, 24, 39, 0.15) 65%,
+    transparent 100%
+  );
+}
+
+/* Card 3: Soft sky blue gradient */
+.wm-bento-card__overlay--card3 {
+  background: linear-gradient(
+    135deg,
+    rgba(226, 237, 244, 0.82) 0%,
+    rgba(226, 237, 244, 0.65) 40%,
+    rgba(226, 237, 244, 0.25) 60%,
+    rgba(226, 237, 244, 0) 78%
+  );
+}
+
+/* Card 4: Soft cream gradient from bottom up */
+.wm-bento-card__overlay--card4 {
+  background: linear-gradient(
+    to top,
+    rgba(250, 245, 238, 0.86) 0%,
+    rgba(250, 245, 238, 0.70) 45%,
+    rgba(250, 245, 238, 0.28) 68%,
+    rgba(250, 245, 238, 0) 84%
+  );
+}
+
+/* Card 5: Soft blue gradient */
+.wm-bento-card__overlay--card5 {
+  background: linear-gradient(
+    135deg,
+    rgba(226, 237, 244, 0.82) 0%,
+    rgba(226, 237, 244, 0.65) 38%,
+    rgba(226, 237, 244, 0.22) 58%,
+    rgba(226, 237, 244, 0) 76%
+  );
+}
+
+/* Card 6: Soft blue gradient across left side */
+.wm-bento-card__overlay--card6 {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 237, 244, 0.85) 0%,
+    rgba(226, 237, 244, 0.72) 42%,
+    rgba(226, 237, 244, 0.32) 60%,
+    rgba(226, 237, 244, 0) 78%
+  );
+}
+
+/* ==========================================================================
+   Badges (Circular Terracotta / Sage Green)
+   ========================================================================== */
+.wm-bento-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  z-index: 4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  user-select: none;
+}
+
+.wm-bento-badge--red {
+  background-color: #bd3a2b;
+}
+
+.wm-bento-badge--green {
+  background-color: #5ea674;
+}
+
+.wm-bento-badge__label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: capitalize;
+  margin-bottom: 2px;
+}
+
+.wm-bento-badge__percent {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   Content Containers & Brand Typography ('Plus Jakarta Sans')
+   ========================================================================== */
+.wm-bento-card__content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.wm-bento-card__category {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4a5568;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.wm-bento-card__title {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #111827;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.025em;
+}
+
+.wm-bento-card__desc {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #4b5563;
+  margin: 0 0 16px 0;
+}
+
+.wm-bento-card__cta {
+  display: inline-block;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+  text-decoration: none;
+  border-bottom: 1.5px solid #111827;
+  padding-bottom: 2px;
+  transition: all 0.2s ease;
+  width: fit-content;
+}
+
+/* ==========================================================================
+   Desktop Card Layouts & Dimensions
+   ========================================================================== */
+
+/* --- Card 1: Dog Nutrition --- */
+.wm-bento-card--1 {
+  background-color: #faf5ee;
+  grid-column: span 6;
+  min-height: 360px;
+}
+
+.wm-bento-card--1 .wm-bento-card__bg-img {
+  object-position: 85% center;
+}
+
+.wm-bento-card--1 .wm-bento-card__content {
+  padding: 38px 32px;
+  width: 58%;
+  max-width: 380px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.wm-bento-card--1 .wm-bento-card__title {
+  font-size: 30px;
+}
+
+.wm-bento-card--1 .wm-bento-card__desc {
+  max-width: 250px;
+}
+
+/* --- Card 2: New Pet Parents --- */
+.wm-bento-card--2 {
+  background-color: #bfa997;
+  grid-column: span 3;
+  min-height: 360px;
+}
+
+.wm-bento-card--2 .wm-bento-card__bg-img {
+  object-position: center top;
+}
+
+.wm-bento-card--2 .wm-bento-card__content {
+  padding: 24px 20px 28px;
+  margin-top: auto;
+  width: 100%;
+  align-items: center;
+  text-align: center;
+}
+
+.wm-bento-card--2 .wm-bento-card__category {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 10.5px;
+  margin-bottom: 6px;
+}
+
+.wm-bento-card--2 .wm-bento-card__title {
+  color: #ffffff;
+  font-size: 21px;
+  margin-bottom: 8px;
+}
+
+.wm-bento-card--2 .wm-bento-card__desc {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12.5px;
+  max-width: 220px;
+  margin-bottom: 14px;
+}
+
+.wm-bento-card--2 .wm-bento-card__cta {
+  color: #ffffff;
+  border-bottom-color: #ffffff;
+  font-size: 13px;
+}
+
+/* --- Card 3: Toys & Treats --- */
+.wm-bento-card--3 {
+  background-color: #e2edf4;
+  grid-column: span 3;
+  min-height: 360px;
+}
+
+.wm-bento-card--3 .wm-bento-card__bg-img {
+  object-position: 80% bottom;
+}
+
+.wm-bento-card--3 .wm-bento-card__content {
+  padding: 30px 24px;
+  width: 90%;
+  max-width: 260px;
+  align-items: flex-start;
+}
+
+.wm-bento-card--3 .wm-bento-card__title {
+  font-size: 24px;
+}
+
+.wm-bento-card--3 .wm-bento-card__desc {
+  font-size: 13px;
+  max-width: 190px;
+}
+
+/* --- Card 4: Dog Essentials --- */
+.wm-bento-card--4 {
+  background-color: #faf5ee;
+  grid-column: span 3;
+  min-height: 360px;
+}
+
+.wm-bento-card--4 .wm-bento-card__bg-img {
+  object-position: 75% 20%;
+}
+
+.wm-bento-card--4 .wm-bento-card__content {
+  padding: 24px 24px 28px;
+  margin-top: auto;
+  width: 95%;
+  max-width: 270px;
+  align-items: flex-start;
+}
+
+.wm-bento-card--4 .wm-bento-card__title {
+  font-size: 24px;
+}
+
+.wm-bento-card--4 .wm-bento-card__desc {
+  font-size: 13px;
+  max-width: 200px;
+}
+
+/* --- Card 5: Cat Care --- */
+.wm-bento-card--5 {
+  background-color: #e2edf4;
+  grid-column: span 3;
+  min-height: 360px;
+}
+
+.wm-bento-card--5 .wm-bento-card__bg-img {
+  object-position: center bottom;
+}
+
+.wm-bento-card--5 .wm-bento-card__content {
+  padding: 30px 24px;
+  width: 90%;
+  max-width: 260px;
+  align-items: flex-start;
+}
+
+.wm-bento-card--5 .wm-bento-card__title {
+  font-size: 24px;
+}
+
+.wm-bento-card--5 .wm-bento-card__desc {
+  font-size: 13px;
+  max-width: 200px;
+}
+
+/* --- Card 6: Food & Treats --- */
+.wm-bento-card--6 {
+  background-color: #e2edf4;
+  grid-column: span 6;
+  min-height: 360px;
+}
+
+.wm-bento-card--6 .wm-bento-card__bg-img {
+  object-position: right center;
+}
+
+.wm-bento-card--6 .wm-bento-card__content {
+  padding: 38px 32px;
+  width: 58%;
+  max-width: 380px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.wm-bento-card--6 .wm-bento-card__title {
+  font-size: 30px;
+}
+
+.wm-bento-card--6 .wm-bento-card__desc {
+  max-width: 240px;
+}
+
+/* ==========================================================================
+   Tablet Breakpoint (768px – 1024px)
+   ========================================================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .wm-bento-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+  }
+
+  .wm-bento-card--1 {
+    grid-column: span 6;
+    min-height: 320px;
+  }
+
+  .wm-bento-card--2 {
+    grid-column: span 3;
+    min-height: 340px;
+  }
+
+  .wm-bento-card--3 {
+    grid-column: span 3;
+    min-height: 340px;
+  }
+
+  .wm-bento-card--4 {
+    grid-column: span 3;
+    min-height: 340px;
+  }
+
+  .wm-bento-card--5 {
+    grid-column: span 3;
+    min-height: 340px;
+  }
+
+  .wm-bento-card--6 {
+    grid-column: span 6;
+    min-height: 320px;
+  }
+
+  .wm-bento-card--1 .wm-bento-card__content,
+  .wm-bento-card--6 .wm-bento-card__content {
+    width: 62%;
+    padding: 30px 24px;
+  }
+
+  .wm-bento-card--1 .wm-bento-card__title,
+  .wm-bento-card--6 .wm-bento-card__title {
+    font-size: 26px;
+  }
+}
+
+/* ==========================================================================
+   Mobile & Narrow Screens (< 768px)
+   - Tailored specifically for viewports like 502px, 390px, 360px
+   - Linear gradients ensure full text contrast and visibility
+   ========================================================================== */
+@media (max-width: 767px) {
+  .wm-bento-section {
+    padding: 24px 0 32px;
+  }
+
+  .wm-bento-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wm-bento-card {
+    min-height: 290px;
+    width: 100%;
+    border-radius: 16px;
+  }
+
+  /* Card 1 on mobile: gradient from top-left for absolute clarity */
+  .wm-bento-card--1 {
+    min-height: 310px;
+  }
+
+  .wm-bento-card__overlay--card1 {
+    background: linear-gradient(
+      90deg,
+      rgba(250, 245, 238, 0.88) 0%,
+      rgba(250, 245, 238, 0.75) 48%,
+      rgba(250, 245, 238, 0.35) 70%,
+      rgba(250, 245, 238, 0) 90%
+    );
+  }
+
+  .wm-bento-card--1 .wm-bento-card__content {
+    width: 76%;
+    padding: 26px 20px;
+  }
+
+  .wm-bento-card--1 .wm-bento-card__title {
+    font-size: 24px;
+  }
+
+  /* Card 2 on mobile */
+  .wm-bento-card--2 {
+    min-height: 340px;
+  }
+
+  .wm-bento-card--2 .wm-bento-card__content {
+    padding: 22px 18px 26px;
+  }
+
+  .wm-bento-card--2 .wm-bento-card__title {
+    font-size: 20px;
+  }
+
+  /* Card 3 on mobile */
+  .wm-bento-card--3 {
+    min-height: 280px;
+  }
+
+  .wm-bento-card__overlay--card3 {
+    background: linear-gradient(
+      135deg,
+      rgba(226, 237, 244, 0.85) 0%,
+      rgba(226, 237, 244, 0.70) 45%,
+      rgba(226, 237, 244, 0.25) 68%,
+      transparent 100%
+    );
+  }
+
+  .wm-bento-card--3 .wm-bento-card__content {
+    width: 82%;
+    padding: 24px 20px;
+  }
+
+  .wm-bento-card--3 .wm-bento-card__title {
+    font-size: 22px;
+  }
+
+  /* Card 4 on mobile */
+  .wm-bento-card--4 {
+    min-height: 310px;
+  }
+
+  .wm-bento-card__overlay--card4 {
+    background: linear-gradient(
+      to top,
+      rgba(250, 245, 238, 0.88) 0%,
+      rgba(250, 245, 238, 0.75) 48%,
+      rgba(250, 245, 238, 0.30) 70%,
+      transparent 100%
+    );
+  }
+
+  .wm-bento-card--4 .wm-bento-card__content {
+    width: 88%;
+    padding: 22px 20px 24px;
+  }
+
+  .wm-bento-card--4 .wm-bento-card__title {
+    font-size: 22px;
+  }
+
+  /* Card 5 on mobile */
+  .wm-bento-card--5 {
+    min-height: 280px;
+  }
+
+  .wm-bento-card__overlay--card5 {
+    background: linear-gradient(
+      135deg,
+      rgba(226, 237, 244, 0.85) 0%,
+      rgba(226, 237, 244, 0.70) 45%,
+      rgba(226, 237, 244, 0.25) 68%,
+      transparent 100%
+    );
+  }
+
+  .wm-bento-card--5 .wm-bento-card__content {
+    width: 82%;
+    padding: 24px 20px;
+  }
+
+  .wm-bento-card--5 .wm-bento-card__title {
+    font-size: 22px;
+  }
+
+  /* Card 6 on mobile */
+  .wm-bento-card--6 {
+    min-height: 310px;
+  }
+
+  .wm-bento-card__overlay--card6 {
+    background: linear-gradient(
+      90deg,
+      rgba(226, 237, 244, 0.88) 0%,
+      rgba(226, 237, 244, 0.75) 48%,
+      rgba(226, 237, 244, 0.35) 70%,
+      transparent 100%
+    );
+  }
+
+  .wm-bento-card--6 .wm-bento-card__content {
+    width: 76%;
+    padding: 26px 20px;
+  }
+
+  .wm-bento-card--6 .wm-bento-card__title {
+    font-size: 24px;
+  }
+
+  .wm-bento-badge {
+    width: 52px;
+    height: 52px;
+    top: 14px;
+    left: 14px;
+  }
+
+  .wm-bento-badge__label {
+    font-size: 10px;
+  }
+
+  .wm-bento-badge__percent {
+    font-size: 14.5px;
+  }
+}
+
+/* Extra small mobile screens (< 420px) */
+@media (max-width: 420px) {
+  .wm-bento-card--1 .wm-bento-card__content,
+  .wm-bento-card--6 .wm-bento-card__content {
+    width: 82%;
+    padding: 20px 16px;
+  }
+
+  .wm-bento-card--1 .wm-bento-card__title,
+  .wm-bento-card--6 .wm-bento-card__title {
+    font-size: 22px;
+  }
+
+  .wm-bento-card__desc {
+    font-size: 12.5px;
+    margin-bottom: 12px;
+  }
+}

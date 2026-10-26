@@ -47,9 +47,14 @@
         class="reels-carousel"
       >
         {%- if section.blocks.size > 0 -%}
+          {%- assign store_all_products = collections['all'].products -%}
           {%- for block in section.blocks -%}
             {%- liquid
               assign prod = block.settings.product
+              if prod == blank and store_all_products.size > 0
+                assign prod = store_all_products.first
+              endif
+
               if prod != blank
                 assign prod_id = prod.selected_or_first_available_variant.id | default: prod.id
                 assign prod_title = prod.title
@@ -63,82 +68,43 @@
                 if prod.featured_image
                   assign prod_thumb = prod.featured_image | image_url: width: 200
                 else
-                  assign prod_thumb = 'paw-cleaner-kit.webp' | asset_url
+                  assign prod_thumb = 'catalog-bath-massage-brush.webp' | asset_url
                 endif
               else
                 assign prod_id = block.id
-                assign prod_title = block.settings.product_title
-                assign prod_price = block.settings.product_price
-                assign prod_compare = block.settings.product_compare_price
-                assign prod_url = block.settings.product_url | default: '#shop'
-
-                case forloop.index
-                  when 1
-                    assign fallback_title = 'Portable Muddy Paw Cleaner'
-                    assign fallback_price = '&euro;24,95'
-                    assign fallback_compare = '&euro;34,95'
-                    assign fallback_thumb = 'paw-cleaner-kit.webp' | asset_url
-                    assign fallback_bg = 'reel-pawcleaner.webp' | asset_url
-                    assign fallback_yt = 'AOr9WB0XIUY'
-                    assign fallback_story = 'Gentle silicone bristles quickly wash away mud and grit before paws step inside.'
-                  when 2
-                    assign fallback_title = 'Anti-Gulp Slow Feeder Bowl'
-                    assign fallback_price = '&euro;29,95'
-                    assign fallback_compare = '&euro;38,00'
-                    assign fallback_thumb = 'slow-feeder-nutrition.webp' | asset_url
-                    assign fallback_bg = 'reel-food.webp' | asset_url
-                    assign fallback_yt = '5H4sZNYtBFc'
-                    assign fallback_story = 'Promotes healthy digestion and turns mealtime into a fun, mindful maze.'
-                  when 3
-                    assign fallback_title = 'Self-Cleaning Slicker Brush'
-                    assign fallback_price = '&euro;19,95'
-                    assign fallback_compare = '&euro;26,95'
-                    assign fallback_thumb = 'catalog-slicker-brush.webp' | asset_url
-                    assign fallback_bg = 'reel-grooming.webp' | asset_url
-                    assign fallback_yt = 'LB8Qfa9tTsU'
-                    assign fallback_story = 'One-click hair release effortlessly detangles mats without scratching sensitive skin.'
-                  when 4
-                    assign fallback_title = 'Interactive Wobble Giggle Ball'
-                    assign fallback_price = '&euro;22,95'
-                    assign fallback_compare = '&euro;29,95'
-                    assign fallback_thumb = 'catalog-rolling-cat-ball.webp' | asset_url
-                    assign fallback_bg = 'reel-toys.webp' | asset_url
-                    assign fallback_yt = 'vwz9XsIcRik'
-                    assign fallback_story = 'No batteries required giggle sounds that keep energetic dogs happily engaged for hours.'
-                  when 5
-                    assign fallback_title = 'Waterproof Pet Car Seat Hammock'
-                    assign fallback_price = '&euro;49,95'
-                    assign fallback_compare = '&euro;64,95'
-                    assign fallback_thumb = 'catalog-car-seat-hammock.webp' | asset_url
-                    assign fallback_bg = 'reel-travel.webp' | asset_url
-                    assign fallback_yt = 'GalPqZH1glY'
-                    assign fallback_story = 'Heavy-duty waterproof hammock shielding your back seat from mud, fur, and scratches.'
-                  else
-                    assign fallback_title = 'Portable Muddy Paw Cleaner'
-                    assign fallback_price = '&euro;24,95'
-                    assign fallback_compare = '&euro;34,95'
-                    assign fallback_thumb = 'paw-cleaner-kit.webp' | asset_url
-                    assign fallback_bg = 'reel-pawcleaner.webp' | asset_url
-                    assign fallback_yt = 'AOr9WB0XIUY'
-                    assign fallback_story = 'Everyday luxury and mindful care for happy dogs.'
-                endcase
-
-                if prod_title == blank
-                  assign prod_title = fallback_title
-                endif
-                if prod_price == blank
-                  assign prod_price = fallback_price
-                endif
-                if prod_compare == blank and fallback_compare != blank
-                  assign prod_compare = fallback_compare
-                endif
-
-                if block.settings.product_thumbnail != blank
-                  assign prod_thumb = block.settings.product_thumbnail | image_url: width: 200
-                else
-                  assign prod_thumb = fallback_thumb
-                endif
+                assign prod_title = block.settings.product_title | default: 'Wagmart Pet Essential'
+                assign prod_price = block.settings.product_price | default: '₹330'
+                assign prod_compare = block.settings.product_compare_price | default: ''
+                assign prod_url = block.settings.product_url | default: routes.all_products_collection_url
+                assign prod_thumb = 'catalog-bath-massage-brush.webp' | asset_url
               endif
+
+              case forloop.index
+                when 1
+                  assign fallback_bg = 'reel-pawcleaner.webp' | asset_url
+                  assign fallback_yt = 'AOr9WB0XIUY'
+                  assign fallback_story = 'Gentle care for healthy, happy pets every single day.'
+                when 2
+                  assign fallback_bg = 'reel-food.webp' | asset_url
+                  assign fallback_yt = '5H4sZNYtBFc'
+                  assign fallback_story = 'Promotes healthy routine and mindful everyday care.'
+                when 3
+                  assign fallback_bg = 'reel-grooming.webp' | asset_url
+                  assign fallback_yt = 'LB8Qfa9tTsU'
+                  assign fallback_story = 'Effortless grooming for clean coats and happy smiles.'
+                when 4
+                  assign fallback_bg = 'reel-toys.webp' | asset_url
+                  assign fallback_yt = 'vwz9XsIcRik'
+                  assign fallback_story = 'Interactive play and enrichment for your energetic pet.'
+                when 5
+                  assign fallback_bg = 'reel-travel.webp' | asset_url
+                  assign fallback_yt = 'GalPqZH1glY'
+                  assign fallback_story = 'Comfortable travel gear designed for everyday pet adventures.'
+                else
+                  assign fallback_bg = 'reel-pawcleaner.webp' | asset_url
+                  assign fallback_yt = 'AOr9WB0XIUY'
+                  assign fallback_story = 'Everyday mindful care for happy pets.'
+              endcase
 
               if block.settings.reel_image != blank
                 assign reel_img_src = block.settings.reel_image | image_url: width: 800

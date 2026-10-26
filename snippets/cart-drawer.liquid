@@ -4,7 +4,7 @@
   Shopify's native checkout.
 {%- endcomment -%}
 
-<div class="wm-cart" id="cart-drawer" aria-hidden="true" data-cart-drawer>
+<div class="wm-cart" id="cart-drawer" aria-hidden="true" data-cart-drawer data-fallback-image="{{ 'catalog-grooming-glove.webp' | asset_url }}">
   <div class="wm-backdrop" data-close-cart></div>
 
   <div class="wm-cart__panel" role="dialog" aria-modal="true" aria-labelledby="WmCartTitle" tabindex="-1">
@@ -37,7 +37,9 @@
           <li class="wm-line" data-cart-item-id="{{ item.key }}">
             <a class="wm-line__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
               {%- if item.image -%}
-                <img src="{{ item.image | image_url: width: 200 }}" alt="" width="84" height="84" loading="lazy">
+                <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.product.title | escape }}" width="84" height="84" loading="lazy" onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';">
+              {%- else -%}
+                <img src="{{ 'catalog-grooming-glove.webp' | asset_url }}" alt="{{ item.product.title | escape }}" width="84" height="84" loading="lazy">
               {%- endif -%}
             </a>
             <div>
@@ -82,9 +84,9 @@
       </div>
       <p class="wm-cart__fine">Taxes, discounts and shipping are calculated at checkout.</p>
       <form action="{{ routes.cart_url }}" method="post" id="cart-drawer-form" class="wm-cart__actions">
-        <button type="button" class="wm-btn wm-btn--outline" data-close-cart>
-          <span class="wm-btn__label">Continue shopping</span>
-        </button>
+        <a href="{{ routes.cart_url }}" class="wm-btn wm-btn--outline">
+          <span class="wm-btn__label">View Cart</span>
+        </a>
         <button type="submit" name="checkout" class="wm-btn wm-btn--primary">
           <span class="wm-btn__label">Checkout</span>
         </button>

@@ -1,342 +1,170 @@
 {%- comment -%}
-  Wagmart Collection Filter Sidebar Snippet
-  - Desktop: 260px collapsible sidebar (Layout A) or collapsed (Layout B)
-  - Mobile (<=768px): Bottom-sheet / slide-out drawer with sticky "Apply (N results)" and "Clear" buttons
-  - 6 Collapsible sections (first 3 open by default):
-    1. By Categories
-    2. By Pet Type
-    3. Price (dual-handle slider + ₹ min/max inputs)
-    4. Review (5 star down to 1 star)
-    5. By Promotions (New Arrivals, Best Sellers, On Sale)
-    6. Availability (In Stock, Out of Stock)
+  Wagmart Collection Filter Sidebar (snippets/collection-filter-sidebar.liquid)
+  - Uses REAL dynamic Shopify Storefront Filters (collection.filters) configured in Shopify Admin
+  - No mock/fake data or hardcoded counts
+  - Desktop: 260px collapsible sidebar
+  - Mobile (<768px): Bottom-sheet modal (85vh) with sticky "Show N Products" + "Reset" bottom bar
 {%- endcomment -%}
-
-<div class="wm-plp-filter-backdrop" data-filter-backdrop aria-hidden="true"></div>
 
 <aside
   id="wm-plp-sidebar"
   class="wm-plp-sidebar"
   aria-label="Product Filters"
-  data-filter-sidebar
+  data-plp-sidebar
 >
-  <div class="wm-plp-sidebar__card">
-    {%- comment -%} Sidebar Header {%- endcomment -%}
-    <div class="wm-plp-sidebar__head">
-      <h2 class="wm-plp-sidebar__title">Filter Options</h2>
-      <div class="wm-plp-sidebar__head-actions">
-        <button type="button" class="wm-plp-sidebar__reset" data-filter-clear-all>Reset</button>
-        <button type="button" class="wm-plp-sidebar__close-mobile" data-filter-close-mobile aria-label="Close filters">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+  <div class="wm-plp-sidebar__head">
+    <span class="wm-plp-sidebar__head-title">
+      <svg class="lucide lucide-list-collapse" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 5h11"/><path d="M10 12h11"/><path d="M10 19h11"/><path d="m3 10 3-3-3-3"/><path d="m3 20 3-3-3-3"/>
+      </svg>
+      Filter Options
+    </span>
+    <button type="button" class="wm-plp-sidebar__close" data-plp-sidebar-close aria-label="Close filters">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <form id="wm-plp-filter-form" class="wm-plp-filter-form" data-plp-filter-form action="{{ collection.url }}" method="get">
+    {%- if collection.sort_by != blank -%}
+      <input type="hidden" name="sort_by" value="{{ collection.sort_by }}">
+    {%- endif -%}
+
+    {%- if collection.filters.size > 0 -%}
+      {%- for filter in collection.filters -%}
+        {%- assign total_active = filter.active_values.size -%}
+        <details class="wm-plp-filter-group" open data-filter-group>
+          <summary class="wm-plp-filter-group__summary">
+            <span>
+              {{ filter.label | escape }}
+              {%- if total_active > 0 -%}
+                <span class="wm-plp-filter-group__active-count" style="font-size:12px;font-weight:700;color:#1B3A2A;margin-left:4px;">({{ total_active }})</span>
+              {%- endif -%}
+            </span>
+            <svg class="wm-plp-filter-group__chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="wm-plp-filter-group__content">
+            {%- case filter.type -%}
+              {%- when 'list', 'boolean' -%}
+                <div class="wm-plp-filter-list">
+                  {%- for value in filter.values -%}
+                    <label class="wm-plp-check{% if value.count == 0 and value.active == false %} is-disabled opacity-45 cursor-not-allowed{% endif %}">
+                      <input
+                        type="checkbox"
+                        name="{{ value.param_name }}"
+                        value="{{ value.value }}"
+                        id="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}"
+                        {% if value.active %}checked{% endif %}
+                        {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                        data-filter-input
+                        data-filter-param="{{ value.param_name | escape }}"
+                        data-filter-value="{{ value.value | escape }}"
+                        data-filter-label="{{ value.label | escape }}"
+                      >
+                      <span class="wm-plp-check__box" aria-hidden="true"></span>
+                      <span class="wm-plp-check__label">{{ value.label }}</span>
+                      <span class="wm-plp-check__count">({{ value.count }})</span>
+                    </label>
+                  {%- endfor -%}
+                </div>
+
+              {%- when 'price_range' -%}
+                {%- liquid
+                  assign max_price = filter.range_max | divided_by: 100.0 | ceil
+                  if max_price == 0 or max_price == blank
+                    assign max_price = 1000
+                  endif
+
+                  assign current_min = 0
+                  if filter.min_value.value
+                    assign current_min = filter.min_value.value | divided_by: 100.0 | floor
+                  endif
+
+                  assign current_max = max_price
+                  if filter.max_value.value
+                    assign current_max = filter.max_value.value | divided_by: 100.0 | ceil
+                  endif
+                -%}
+                <div class="wm-plp-price-filter" data-price-filter data-range-max="{{ max_price }}">
+                  <div class="wm-plp-price-filter__display" data-price-display>
+                    Price: {{ cart.currency.symbol }}{{ current_min }} &ndash; {{ cart.currency.symbol }}{{ current_max }}
+                  </div>
+
+                  <div class="wm-plp-range-slider">
+                    <div class="wm-plp-range-slider__track"></div>
+                    <div class="wm-plp-range-slider__fill" data-price-range-fill></div>
+                    <input
+                      type="range"
+                      class="wm-plp-range-slider__input"
+                      min="0"
+                      max="{{ max_price }}"
+                      step="1"
+                      value="{{ current_min }}"
+                      data-price-range-min
+                      aria-label="Minimum price in {{ cart.currency.iso_code }}"
+                    >
+                    <input
+                      type="range"
+                      class="wm-plp-range-slider__input"
+                      min="0"
+                      max="{{ max_price }}"
+                      step="1"
+                      value="{{ current_max }}"
+                      data-price-range-max
+                      aria-label="Maximum price in {{ cart.currency.iso_code }}"
+                    >
+                  </div>
+
+                  <div class="wm-plp-price-inputs">
+                    <div class="wm-plp-price-input-box">
+                      <span class="wm-plp-price-input-box__prefix">{{ cart.currency.symbol }}</span>
+                      <input
+                        type="number"
+                        name="{{ filter.min_value.param_name }}"
+                        id="Filter-{{ filter.min_value.param_name | escape }}"
+                        class="wm-plp-price-input-box__field"
+                        min="0"
+                        max="{{ max_price }}"
+                        {% if filter.min_value.value %}value="{{ current_min }}"{% else %}value="0"{% endif %}
+                        data-price-input-min
+                        data-filter-param="{{ filter.min_value.param_name | escape }}"
+                        aria-label="Minimum price input"
+                      >
+                    </div>
+                    <span class="wm-plp-price-inputs__sep">&ndash;</span>
+                    <div class="wm-plp-price-input-box">
+                      <span class="wm-plp-price-input-box__prefix">{{ cart.currency.symbol }}</span>
+                      <input
+                        type="number"
+                        name="{{ filter.max_value.param_name }}"
+                        id="Filter-{{ filter.max_value.param_name | escape }}"
+                        class="wm-plp-price-input-box__field"
+                        min="0"
+                        max="{{ max_price }}"
+                        {% if filter.max_value.value %}value="{{ current_max }}"{% else %}value="{{ max_price }}"{% endif %}
+                        data-price-input-max
+                        data-filter-param="{{ filter.max_value.param_name | escape }}"
+                        aria-label="Maximum price input"
+                      >
+                    </div>
+                  </div>
+                </div>
+            {%- endcase -%}
+          </div>
+        </details>
+      {%- endfor -%}
+    {%- else -%}
+      <div class="p-5 text-center text-sm text-neutral-500">
+        <p class="font-medium text-neutral-700">No active filters configured.</p>
+        <p class="text-xs text-neutral-400 mt-1">Configure filters in Shopify Admin &gt; Navigation &gt; Collection Filters.</p>
       </div>
-    </div>
+    {%- endif -%}
+  </form>
 
-    {%- comment -%} Scrollable Filter Sections {%- endcomment -%}
-    <div class="wm-plp-sidebar__body">
-      <form id="wm-plp-filter-form" onsubmit="return false;">
-
-        {%- comment -%} 1. By Categories (Open by default) {%- endcomment -%}
-        <div class="wm-filter-group is-open" data-filter-section>
-          <button
-            type="button"
-            class="wm-filter-group__trigger"
-            aria-expanded="true"
-            data-filter-Section-toggle
-          >
-            <span>By Categories</span>
-            <svg class="wm-filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          <div class="wm-filter-group__content">
-            <div class="wm-filter-list">
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="dog food" data-filter-type="category" data-label="Dog Food">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Dog Food</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:dog food">48</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="cat food" data-filter-type="category" data-label="Cat Food">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Cat Food</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:cat food">32</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="treats" data-filter-type="category" data-label="Treats">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Treats</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:treats">24</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="toys" data-filter-type="category" data-label="Toys">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Toys</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:toys">36</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="grooming" data-filter-type="category" data-label="Grooming">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Grooming</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:grooming">28</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="accessories" data-filter-type="category" data-label="Accessories">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Accessories</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:accessories">40</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="beds" data-filter-type="category" data-label="Beds">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Beds</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:beds">18</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="category" value="health care" data-filter-type="category" data-label="Health Care">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Health Care</span>
-                <span class="wm-filter-check__count" data-facet-count="cat:health care">22</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} 2. By Pet Type (Open by default) {%- endcomment -%}
-        <div class="wm-filter-group is-open" data-filter-section>
-          <button
-            type="button"
-            class="wm-filter-group__trigger"
-            aria-expanded="true"
-            data-filter-section-toggle
-          >
-            <span>By Pet Type</span>
-            <svg class="wm-filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          <div class="wm-filter-group__content">
-            <div class="wm-filter-list">
-              <label class="wm-filter-check">
-                <input type="checkbox" name="pet" value="dog" data-filter-type="pet" data-label="Dog">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Dog</span>
-                <span class="wm-filter-check__count">142</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="pet" value="cat" data-filter-type="pet" data-label="Cat">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Cat</span>
-                <span class="wm-filter-check__count">68</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="pet" value="puppy" data-filter-type="pet" data-label="Puppy">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Puppy</span>
-                <span class="wm-filter-check__count">34</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="pet" value="kitten" data-filter-type="pet" data-label="Kitten">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Kitten</span>
-                <span class="wm-filter-check__count">19</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="pet" value="senior" data-filter-type="pet" data-label="Senior">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Senior</span>
-                <span class="wm-filter-check__count">15</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} 3. Price Range Slider + Min/Max Inputs (Open by default) {%- endcomment -%}
-        <div class="wm-filter-group is-open" data-filter-section>
-          <button
-            type="button"
-            class="wm-filter-group__trigger"
-            aria-expanded="true"
-            data-filter-section-toggle
-          >
-            <span>Price</span>
-            <svg class="wm-filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          <div class="wm-filter-group__content">
-            <div class="wm-price-filter">
-              <div class="wm-price-filter__display" data-price-range-label>
-                &#8377;0 &ndash; &#8377;2,500
-              </div>
-
-              <div class="wm-price-slider" data-price-slider>
-                <div class="wm-price-slider__track"></div>
-                <div class="wm-price-slider__range" data-price-slider-fill style="left: 0%; right: 0%;"></div>
-                <input
-                  type="range"
-                  min="0"
-                  max="2500"
-                  step="50"
-                  value="0"
-                  class="wm-price-slider__thumb wm-price-slider__thumb--min"
-                  aria-label="Minimum price in Rupees"
-                  data-price-range-min
-                >
-                <input
-                  type="range"
-                  min="0"
-                  max="2500"
-                  step="50"
-                  value="2500"
-                  class="wm-price-slider__thumb wm-price-slider__thumb--max"
-                  aria-label="Maximum price in Rupees"
-                  data-price-range-max
-                >
-              </div>
-
-              <div class="wm-price-inputs">
-                <div class="wm-price-inputs__field">
-                  <span class="wm-price-inputs__symbol">&#8377;</span>
-                  <input
-                    type="number"
-                    min="0"
-                    max="2500"
-                    step="50"
-                    value="0"
-                    aria-label="Minimum price"
-                    data-price-input-min
-                  >
-                </div>
-                <span class="wm-price-inputs__sep">&ndash;</span>
-                <div class="wm-price-inputs__field">
-                  <span class="wm-price-inputs__symbol">&#8377;</span>
-                  <input
-                    type="number"
-                    min="0"
-                    max="2500"
-                    step="50"
-                    value="2500"
-                    aria-label="Maximum price"
-                    data-price-input-max
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} 4. Review Star Rating {%- endcomment -%}
-        <div class="wm-filter-group is-open" data-filter-section>
-          <button
-            type="button"
-            class="wm-filter-group__trigger"
-            aria-expanded="true"
-            data-filter-section-toggle
-          >
-            <span>Review</span>
-            <svg class="wm-filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          <div class="wm-filter-group__content">
-            <div class="wm-filter-list">
-              <label class="wm-filter-check">
-                <input type="checkbox" name="rating" value="4.8" data-filter-type="rating" data-label="5 Star (4.8+)">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-stars" aria-hidden="true">★★★★★</span>
-                <span class="wm-filter-check__label">5 Star</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="rating" value="4.5" data-filter-type="rating" data-label="4 Star & Up">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-stars" aria-hidden="true">★★★★<span class="is-empty">★</span></span>
-                <span class="wm-filter-check__label">4 Star &amp; Up</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="rating" value="4.0" data-filter-type="rating" data-label="3 Star & Up">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-stars" aria-hidden="true">★★★<span class="is-empty">★★</span></span>
-                <span class="wm-filter-check__label">3 Star &amp; Up</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="rating" value="3.0" data-filter-type="rating" data-label="2 Star & Up">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-stars" aria-hidden="true">★★<span class="is-empty">★★★</span></span>
-                <span class="wm-filter-check__label">2 Star &amp; Up</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="rating" value="2.0" data-filter-type="rating" data-label="1 Star & Up">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-stars" aria-hidden="true">★<span class="is-empty">★★★★</span></span>
-                <span class="wm-filter-check__label">1 Star &amp; Up</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} 5. By Promotions {%- endcomment -%}
-        <div class="wm-filter-group is-open" data-filter-section>
-          <button
-            type="button"
-            class="wm-filter-group__trigger"
-            aria-expanded="true"
-            data-filter-section-toggle
-          >
-            <span>By Promotions</span>
-            <svg class="wm-filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          <div class="wm-filter-group__content">
-            <div class="wm-filter-list">
-              <label class="wm-filter-check">
-                <input type="checkbox" name="promo" value="new" data-filter-type="promo" data-label="New Arrivals">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">New Arrivals</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="promo" value="bestseller" data-filter-type="promo" data-label="Best Seller">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Best Sellers</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="promo" value="sale" data-filter-type="promo" data-label="On Sale">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">On Sale</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} 6. Availability {%- endcomment -%}
-        <div class="wm-filter-group is-open" data-filter-section>
-          <button
-            type="button"
-            class="wm-filter-group__trigger"
-            aria-expanded="true"
-            data-filter-section-toggle
-          >
-            <span>Availability</span>
-            <svg class="wm-filter-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          <div class="wm-filter-group__content">
-            <div class="wm-filter-list">
-              <label class="wm-filter-check">
-                <input type="checkbox" name="availability" value="instock" data-filter-type="availability" data-label="In Stock">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">In Stock</span>
-              </label>
-              <label class="wm-filter-check">
-                <input type="checkbox" name="availability" value="outofstock" data-filter-type="availability" data-label="Out of Stock">
-                <span class="wm-filter-check__box" aria-hidden="true"></span>
-                <span class="wm-filter-check__label">Out of Stock</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-      </form>
-    </div>
-
-    {%- comment -%} Mobile Sticky Drawer Footer {%- endcomment -%}
-    <div class="wm-plp-sidebar__mobile-foot">
-      <button type="button" class="wm-plp-sidebar__clear-btn" data-filter-clear-all>
-        Clear
-      </button>
-      <button type="button" class="wm-plp-sidebar__apply-btn" data-filter-apply-mobile>
-        Apply (<span data-mobile-apply-count>12</span> results)
-      </button>
-    </div>
+  {%- comment -%} Sticky Mobile/Tablet Bottom Bar {%- endcomment -%}
+  <div class="wm-plp-sidebar__footer">
+    <button type="button" class="wm-plp-sidebar__reset-btn" data-plp-clear-all>Reset</button>
+    <button type="button" class="wm-plp-sidebar__apply-btn" data-plp-sidebar-apply>
+      Show <span data-plp-apply-count>{{ collection.products_count | default: collection.products.size }}</span> Products
+    </button>
   </div>
 </aside>

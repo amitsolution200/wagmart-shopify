@@ -1,210 +1,234 @@
 {% comment %}
+  ============================================================================
   Wagmart "Shop by Need / Bundles" Bento Grid Section
+  - Exact reference layout reproduction with 6 asymmetrical cards
+  - Top row: Card 1 (6 cols), Card 2 (3 cols), Card 3 (3 cols)
+  - Bottom row: Card 4 (3 cols), Card 5 (3 cols), Card 6 (6 cols)
+  ============================================================================
 {% endcomment %}
+
+{{ 'bento-grid.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign base_all_url = routes.all_products_collection_url | default: '/collections/all'
+
+  assign url_1 = section.settings.link_1 | default: ''
+  if url_1 == blank
+    assign url_1 = base_all_url | append: '?category=Dog+Food&title=Dog+Nutrition'
+  endif
+
+  assign url_2 = section.settings.link_2 | default: ''
+  if url_2 == blank
+    assign url_2 = base_all_url | append: '?category=Accessories&title=New+Pet+Parents'
+  endif
+
+  assign url_3 = section.settings.link_3 | default: ''
+  if url_3 == blank
+    assign url_3 = base_all_url | append: '?category=Toys&title=Toys+%26+Treats'
+  endif
+
+  assign url_4 = section.settings.link_4 | default: ''
+  if url_4 == blank
+    assign url_4 = base_all_url | append: '?category=Accessories&title=Dog+Essentials'
+  endif
+
+  assign url_5 = section.settings.link_5 | default: ''
+  if url_5 == blank
+    assign url_5 = base_all_url | append: '?pet=cat&title=Cat+Care'
+  endif
+
+  assign url_6 = section.settings.link_6 | default: ''
+  if url_6 == blank
+    assign url_6 = base_all_url | append: '?category=Dog+Food&title=Food+%26+Treats'
+  endif
+
+  for col in collections
+    if col.products.size > 0 and col.handle != 'all' and col.handle != 'frontpage'
+      assign ch = col.handle | downcase
+      assign ct = col.title | downcase
+      if ch contains 'dog-food' or ct contains 'dog food'
+        assign url_1 = col.url
+        assign url_6 = col.url
+      elsif ch contains 'toy' or ct contains 'toy'
+        assign url_3 = col.url
+      elsif ch contains 'cat' or ct contains 'cat'
+        assign url_5 = col.url
+      elsif ch contains 'access' or ch contains 'essential'
+        assign url_4 = col.url
+      endif
+    endif
+  endfor
+-%}
 
 <section
   id="bundles"
-  class="w-full py-1.5 sm:py-2 md:py-2.5 bg-white font-sans md:h-[calc(100vh-74px)] md:max-h-[calc(100vh-74px)] flex flex-col justify-center overflow-hidden scroll-mt-18 sm:scroll-mt-20"
+  class="wm-bento-section scroll-mt-20"
+  aria-label="Pet Products Bento Grid"
 >
-  <div class="w-full max-w-[1580px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 h-full flex flex-col justify-between">
-    
-    {% comment %} Bento Grid 5-Card Layout {% endcomment %}
-    <div class="h-full flex flex-col justify-between gap-2.5 sm:gap-3 lg:gap-3.5">
+  <div class="wm-bento-container">
+    <div class="wm-bento-grid">
       
-      {% comment %} ==================== TOP ROW: 2 Large Cards ==================== {% endcomment %}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 lg:gap-3.5 items-stretch flex-[1.16] min-h-0">
-        
-        {% comment %} Card 1 — Grooming Essentials {% endcomment %}
-        <div
-          class="group relative overflow-hidden rounded-[20px] bg-white border border-[#E7E5E4] h-full min-h-[220px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
-          data-scroll-to-shop
-          role="button"
-          tabindex="0"
+      {% comment %} ==================== ROW 1: CARD 1 (Top-Left Large) ==================== {% endcomment %}
+      <a
+        href="{{ url_1 }}"
+        class="wm-bento-card wm-bento-card--1"
+        aria-label="Dog Nutrition — Subscribe to dog food"
+      >
+        <img
+          src="{{ 'bento-grid-1.webp' | asset_url }}"
+          alt="Golden retriever with dog treats"
+          class="wm-bento-card__bg-img"
+          loading="eager"
+          width="1539"
+          height="1022"
         >
-          <img
-            src="{{ 'bento-grid-2.webp' | asset_url }}"
-            alt="Dog enjoying gentle coat grooming"
-            class="absolute inset-0 w-full h-full object-cover object-[75%_center] transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
-            loading="lazy"
-            width="800"
-            height="500"
-          >
-          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-48% to-transparent w-[78%] sm:w-[66%] lg:w-[58%] pointer-events-none z-[1]"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
-
-          <div class="relative z-10 w-full sm:w-[62%] lg:w-[56%] p-4 sm:p-5 lg:p-6 flex flex-col justify-between h-full">
-            <div class="space-y-1 sm:space-y-1.5">
-              <div>
-                {% render 'section-badge', label: 'Grooming Essentials', class: 'scale-85 sm:scale-90 origin-left' %}
-              </div>
-              <h3 class="text-lg sm:text-xl md:text-2xl lg:text-[25px] xl:text-[27px] font-black text-[#1E2228] leading-[1.12] tracking-tight">
-                Effortless Grooming,<br>
-                <span class="text-[#7a46e5]">Happier Pets</span>
-              </h3>
-              <p class="text-xs sm:text-[13px] text-neutral-600 font-medium leading-relaxed max-w-[250px] pt-0.5 line-clamp-2">
-                Make grooming a gentle bonding moment with everyday pet-care essentials.
-              </p>
-            </div>
-            <div class="pt-2">
-              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
-            </div>
-          </div>
+        <div class="wm-bento-card__overlay wm-bento-card__overlay--card1"></div>
+        <div class="wm-bento-card__content">
+          <span class="wm-bento-card__category">Dog Nutrition</span>
+          <h2 class="wm-bento-card__title">
+            Subscribe to<br>dog food.
+          </h2>
+          <p class="wm-bento-card__desc">
+            Healthy meals, on schedule, for a happier, brighter dog.
+          </p>
+          <span class="wm-bento-card__cta">Shop food</span>
         </div>
+      </a>
 
-        {% comment %} Card 2 — Walking & Travel {% endcomment %}
-        <div
-          class="group relative overflow-hidden rounded-[20px] bg-white border border-[#E7E5E4] h-full min-h-[220px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
-          data-scroll-to-shop
-          role="button"
-          tabindex="0"
+      {% comment %} ==================== ROW 1: CARD 2 (Top-Center Portrait) ==================== {% endcomment %}
+      <a
+        href="{{ url_2 }}"
+        class="wm-bento-card wm-bento-card--2"
+        aria-label="New Pet Parents — Everything for week one"
+      >
+        <img
+          src="{{ 'bento-grid-2.webp' | asset_url }}"
+          alt="Puppy resting cozily in knit blanket"
+          class="wm-bento-card__bg-img"
+          loading="lazy"
+          width="1156"
+          height="1360"
         >
-          <img
-            src="{{ 'bento-grid-3.webp' | asset_url }}"
-            alt="Dog drinking from travel bottle outdoors"
-            class="absolute inset-0 w-full h-full object-cover object-[80%_center] transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
-            loading="lazy"
-            width="800"
-            height="500"
-          >
-          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-48% to-transparent w-[78%] sm:w-[66%] lg:w-[58%] pointer-events-none z-[1]"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
-
-          <div class="relative z-10 w-full sm:w-[62%] lg:w-[56%] p-4 sm:p-5 lg:p-6 flex flex-col justify-between h-full">
-            <div class="space-y-1 sm:space-y-1.5">
-              <div>
-                {% render 'section-badge', label: 'Walking & Travel', class: 'scale-85 sm:scale-90 origin-left' %}
-              </div>
-              <h3 class="text-lg sm:text-xl md:text-2xl lg:text-[25px] xl:text-[27px] font-black text-[#1E2228] leading-[1.12] tracking-tight">
-                Every Walk Becomes<br>
-                an <span class="text-[#7a46e5]">Adventure</span>
-              </h3>
-              <p class="text-xs sm:text-[13px] text-neutral-600 font-medium leading-relaxed max-w-[280px] pt-0.5 line-clamp-2">
-                Enjoy more happy outdoor moments with practical walking and travel essentials.
-              </p>
-            </div>
-            <div class="pt-2">
-              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
-            </div>
-          </div>
+        <div class="wm-bento-card__overlay wm-bento-card__overlay--card2"></div>
+        <div class="wm-bento-card__content">
+          <span class="wm-bento-card__category">New Pet Parents</span>
+          <h3 class="wm-bento-card__title">
+            Everything for week one.
+          </h3>
+          <p class="wm-bento-card__desc">
+            Food, bowls, beds and toys &mdash; all in one place.
+          </p>
+          <span class="wm-bento-card__cta">Shop the set</span>
         </div>
+      </a>
 
-      </div>
-
-      {% comment %} ==================== BOTTOM ROW: 3 Smaller Cards ==================== {% endcomment %}
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3 lg:gap-3.5 items-stretch flex-1 min-h-0">
-        
-        {% comment %} Card 3 — Cat Care {% endcomment %}
-        <div
-          class="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
-          data-scroll-to-shop
-          role="button"
-          tabindex="0"
+      {% comment %} ==================== ROW 1: CARD 3 (Top-Right Portrait) ==================== {% endcomment %}
+      <a
+        href="{{ url_3 }}"
+        class="wm-bento-card wm-bento-card--3"
+        aria-label="Toys & Treats — Playtime made better"
+      >
+        <img
+          src="{{ 'bento-grid-3.webp' | asset_url }}"
+          alt="Puppy with playful rope toy"
+          class="wm-bento-card__bg-img"
+          loading="lazy"
+          width="1156"
+          height="1360"
         >
-          <img
-            src="{{ 'bento-grid-1.webp' | asset_url }}"
-            alt="Fluffy cat enjoying grooming"
-            class="absolute inset-0 w-full h-full object-cover object-[78%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
-            loading="lazy"
-            width="500"
-            height="350"
-          >
-          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
-
-          <div class="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
-            <div class="space-y-0.5 sm:space-y-1">
-              <div>
-                {% render 'section-badge', label: 'Cat Care', class: 'scale-80 sm:scale-85 origin-left' %}
-              </div>
-              <h3 class="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
-                Gentle Care For<br>
-                Their <span class="text-[#7a46e5]">Softest Days</span>
-              </h3>
-              <p class="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
-                Keep your cat comfortable with everyday grooming essentials.
-              </p>
-            </div>
-            <div class="pt-1.5">
-              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
-            </div>
-          </div>
+        <div class="wm-bento-card__overlay wm-bento-card__overlay--card3"></div>
+        <div class="wm-bento-card__content">
+          <span class="wm-bento-card__category">Toys &amp; Treats</span>
+          <h3 class="wm-bento-card__title">
+            Playtime<br>made better.
+          </h3>
+          <p class="wm-bento-card__desc">
+            Toys, treats and more for everyday joy.
+          </p>
+          <span class="wm-bento-card__cta">Shop now</span>
         </div>
+      </a>
 
-        {% comment %} Card 4 — Feeding Solutions {% endcomment %}
-        <div
-          class="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
-          data-scroll-to-shop
-          role="button"
-          tabindex="0"
+      {% comment %} ==================== ROW 2: CARD 4 (Bottom-Left Portrait) ==================== {% endcomment %}
+      <a
+        href="{{ url_4 }}"
+        class="wm-bento-card wm-bento-card--4"
+        aria-label="Dog Essentials — Everyday essentials"
+      >
+        <img
+          src="{{ 'bento-grid-4.webp' | asset_url }}"
+          alt="Playful dog with rope knot toy"
+          class="wm-bento-card__bg-img"
+          loading="lazy"
+          width="1156"
+          height="1360"
         >
-          <img
-            src="{{ 'bento-grid-5.webp' | asset_url }}"
-            alt="Dog eating from automatic feeder"
-            class="absolute inset-0 w-full h-full object-cover object-[70%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
-            loading="lazy"
-            width="500"
-            height="350"
-          >
-          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
-
-          <div class="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
-            <div class="space-y-0.5 sm:space-y-1">
-              <div>
-                {% render 'section-badge', label: 'Feeding Solutions', class: 'scale-80 sm:scale-85 origin-left' %}
-              </div>
-              <h3 class="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
-                Happier Mealtimes,<br>
-                <span class="text-[#7a46e5]">Happier Pets</span>
-              </h3>
-              <p class="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
-                Make daily feeding easier with practical feeding products.
-              </p>
-            </div>
-            <div class="pt-1.5">
-              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
-            </div>
-          </div>
+        <div class="wm-bento-card__overlay wm-bento-card__overlay--card4"></div>
+        <div class="wm-bento-card__content">
+          <span class="wm-bento-card__category">Dog Essentials</span>
+          <h3 class="wm-bento-card__title">
+            Everyday essentials.
+          </h3>
+          <p class="wm-bento-card__desc">
+            Toys, beds, leashes and more for real-life adventures.
+          </p>
+          <span class="wm-bento-card__cta">Shop essentials</span>
         </div>
+      </a>
 
-        {% comment %} Card 5 — Dirty Paws Solutions {% endcomment %}
-        <div
-          class="group relative overflow-hidden rounded-[18px] bg-white border border-[#E7E5E4] h-full min-h-[180px] md:min-h-0 flex items-center justify-between transition-all duration-300 cursor-pointer"
-          data-scroll-to-shop
-          role="button"
-          tabindex="0"
+      {% comment %} ==================== ROW 2: CARD 5 (Bottom-Center Portrait) ==================== {% endcomment %}
+      <a
+        href="{{ url_5 }}"
+        class="wm-bento-card wm-bento-card--5"
+        aria-label="Cat Care — Happier cats. Longer naps."
+      >
+        <img
+          src="{{ 'bento-grid-5.webp' | asset_url }}"
+          alt="Cat being gently groomed with wooden brush"
+          class="wm-bento-card__bg-img"
+          loading="lazy"
+          width="1156"
+          height="1360"
         >
-          <img
-            src="{{ 'bento-grid-4.webp' | asset_url }}"
-            alt="Dog muddy paws in paw cleaner cup"
-            class="absolute inset-0 w-full h-full object-cover object-[78%_center] translate-x-4 sm:translate-x-6 lg:translate-x-8 transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none select-none"
-            loading="lazy"
-            width="500"
-            height="350"
-          >
-          <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-50% to-transparent w-[80%] sm:w-[70%] lg:w-[64%] pointer-events-none z-[1]"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/88 to-transparent sm:hidden pointer-events-none z-[1]"></div>
-
-          <div class="relative z-10 w-full sm:w-[66%] lg:w-[62%] p-3.5 sm:p-4 lg:p-4.5 flex flex-col justify-between h-full">
-            <div class="space-y-0.5 sm:space-y-1">
-              <div>
-                {% render 'section-badge', label: 'Dirty Paws Solutions', class: 'scale-80 sm:scale-85 origin-left' %}
-              </div>
-              <h3 class="text-sm sm:text-base md:text-lg lg:text-[19px] xl:text-[20px] font-black text-[#1E2228] leading-[1.15] tracking-tight">
-                Clean Paws, More<br>
-                <span class="text-[#7a46e5]">Happy Adventures</span>
-              </h3>
-              <p class="text-[11px] sm:text-xs text-neutral-600 font-medium leading-tight max-w-[210px] pt-0.5 line-clamp-1 sm:line-clamp-2">
-                Make post-walk clean-ups easier with convenient paw-care essentials.
-              </p>
-            </div>
-            <div class="pt-1.5">
-              {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
-            </div>
-          </div>
+        <div class="wm-bento-card__overlay wm-bento-card__overlay--card5"></div>
+        <div class="wm-bento-card__content">
+          <span class="wm-bento-card__category">Cat Care</span>
+          <h3 class="wm-bento-card__title">
+            Happier cats.<br>Longer naps.
+          </h3>
+          <p class="wm-bento-card__desc">
+            Grooming, wellness and daily care for a calmer, happier cat.
+          </p>
+          <span class="wm-bento-card__cta">Shop cat care</span>
         </div>
+      </a>
 
-      </div>
+      {% comment %} ==================== ROW 2: CARD 6 (Bottom-Right Large) ==================== {% endcomment %}
+      <a
+        href="{{ url_6 }}"
+        class="wm-bento-card wm-bento-card--6"
+        aria-label="Food & Treats — Real ingredients for happy pets"
+      >
+        <img
+          src="{{ 'bento-grid-6.webp' | asset_url }}"
+          alt="Bowl of pet food with dog paw reaching"
+          class="wm-bento-card__bg-img"
+          loading="lazy"
+          width="1539"
+          height="1022"
+        >
+        <div class="wm-bento-card__overlay wm-bento-card__overlay--card6"></div>
+        <div class="wm-bento-card__content">
+          <span class="wm-bento-card__category">Food &amp; Treats</span>
+          <h2 class="wm-bento-card__title">
+            Real ingredients<br>for happy pets.
+          </h2>
+          <p class="wm-bento-card__desc">
+            Nutritious food and tasty treats they'll love.
+          </p>
+          <span class="wm-bento-card__cta">Shop food &amp; treats</span>
+        </div>
+      </a>
 
     </div>
   </div>
@@ -212,11 +236,42 @@
 
 {% schema %}
 {
-  "name": "Shop by Need (Bento)",
-  "settings": [],
+  "name": "Bento Grid (Shop by Need)",
+  "settings": [
+    {
+      "type": "url",
+      "id": "link_1",
+      "label": "Card 1 Link (Dog Nutrition)"
+    },
+    {
+      "type": "url",
+      "id": "link_2",
+      "label": "Card 2 Link (New Pet Parents)"
+    },
+    {
+      "type": "url",
+      "id": "link_3",
+      "label": "Card 3 Link (Toys & Treats)"
+    },
+    {
+      "type": "url",
+      "id": "link_4",
+      "label": "Card 4 Link (Dog Essentials)"
+    },
+    {
+      "type": "url",
+      "id": "link_5",
+      "label": "Card 5 Link (Cat Care)"
+    },
+    {
+      "type": "url",
+      "id": "link_6",
+      "label": "Card 6 Link (Food & Treats)"
+    }
+  ],
   "presets": [
     {
-      "name": "Shop by Need (Bento)"
+      "name": "Bento Grid (Shop by Need)"
     }
   ]
 }

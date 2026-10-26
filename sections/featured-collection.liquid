@@ -366,120 +366,40 @@
         data-products-scroll
         class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1 snap-x snap-mandatory"
       >
-        {%- if section.settings.collection != blank and section.settings.collection.products.size > 0 -%}
-          {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
+        {%- liquid
+          if section.settings.collection != blank and section.settings.collection.products.size > 0
+            assign featured_products = section.settings.collection.products
+          else
+            assign featured_products = collections['all'].products
+          endif
+        -%}
+        {%- if featured_products.size > 0 -%}
+          {%- for product in featured_products limit: section.settings.products_to_show -%}
             {% render 'product-card', product: product %}
           {%- endfor -%}
-        {%- else -%}
-          {% comment %} Default Wagmart Catalog Products matching React App {% endcomment %}
-          {% render 'product-card',
-            mock_id: 'prod-paw-cleaner',
-            mock_title: 'Paw Cleaner Kit',
-            mock_subtitle: 'Keep your home clean and your pet happy.',
-            mock_price: '₹799',
-            mock_original_price: '₹1,099',
-            mock_image: 'paw-cleaner-kit.webp',
-            mock_category: 'grooming',
-            mock_badge: 'Best Seller'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-auto-feeder',
-            mock_title: 'Automatic Pet Feeder & Water Dispenser',
-            mock_subtitle: '2-in-1 food and water bowl for cats and dogs.',
-            mock_price: '₹699',
-            mock_original_price: '₹999',
-            mock_image: 'item_p4_r2_c4.png',
-            mock_category: 'feeding',
-            mock_badge: 'Best Seller'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-slicker-brush',
-            mock_title: 'Self-Cleaning Slicker Grooming Brush',
-            mock_subtitle: 'One-click hair release deshedding brush.',
-            mock_price: '₹499',
-            mock_original_price: '₹749',
-            mock_image: 'item_p1_r1_c1.png',
-            mock_category: 'grooming',
-            mock_badge: 'Trending'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-nail-grinder',
-            mock_title: 'Electric Pet Nail Grinder & Trimmer',
-            mock_subtitle: 'Quiet diamond bit rechargeable claw trimmer.',
-            mock_price: '₹999',
-            mock_original_price: '₹1,499',
-            mock_image: 'item_p1_r1_c3.png',
-            mock_category: 'hygiene',
-            mock_badge: 'Vet Pick'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-tactical-collar',
-            mock_title: 'Tactical Heavy-Duty Dog Collar & Bungee Leash',
-            mock_subtitle: 'Durable nylon with quick-release metal buckle.',
-            mock_price: '₹899',
-            mock_original_price: '₹1,299',
-            mock_image: 'item_p1_r4_c4.png',
-            mock_category: 'collars',
-            mock_badge: 'Heavy Duty'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-travel-cover',
-            mock_title: 'Waterproof Backseat Dog Hammock Cover',
-            mock_subtitle: 'Scratch-proof car seat hammock with mesh window.',
-            mock_price: '₹1,299',
-            mock_original_price: '₹1,899',
-            mock_image: 'item_p3_r1_c2.png',
-            mock_category: 'travel',
-            mock_badge: 'Top Rated'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-dental-kit',
-            mock_title: 'Pet Dental Hygiene Oral Care Kit',
-            mock_subtitle: 'Dual-ended brush with soft silicone finger brush.',
-            mock_price: '₹399',
-            mock_original_price: '₹599',
-            mock_image: 'item_p1_r3_c3.png',
-            mock_category: 'hygiene',
-            mock_badge: 'Essential'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-rope-chew',
-            mock_title: 'Durable Cotton Braided Rope Chew Toy Set',
-            mock_subtitle: 'Tug-of-war chew ropes for active teething puppies.',
-            mock_price: '₹449',
-            mock_original_price: '₹699',
-            mock_image: 'item_p4_r1_c1.png',
-            mock_category: 'toys',
-            mock_badge: 'Playtime'
-          %}
         {%- endif -%}
       </div>
     </div>
 
     {% comment %} Clickable Pagination Dots {% endcomment %}
-    <div
-      data-products-dots
-      class="flex items-center justify-center gap-2 mt-6 sm:mt-8 min-h-[16px] select-none"
-      role="tablist"
-      aria-label="Product carousel pagination"
-    >
-      {%- for i in (1..8) -%}
-        <button
-          type="button"
-          class="carousel-dot{% if forloop.first %} is-active{% endif %}"
-          data-dot-index="{{ forloop.index0 }}"
-          aria-label="Go to slide {{ forloop.index }}"
-          {% if forloop.first %}aria-current="true"{% endif %}
-        ></button>
-      {%- endfor -%}
-    </div>
+    {%- if featured_products.size > 1 -%}
+      <div
+        data-products-dots
+        class="flex items-center justify-center gap-2 mt-6 sm:mt-8 min-h-[16px] select-none"
+        role="tablist"
+        aria-label="Product carousel pagination"
+      >
+        {%- for product in featured_products limit: section.settings.products_to_show -%}
+          <button
+            type="button"
+            class="carousel-dot{% if forloop.first %} is-active{% endif %}"
+            data-dot-index="{{ forloop.index0 }}"
+            aria-label="Go to slide {{ forloop.index }}"
+            {% if forloop.first %}aria-current="true"{% endif %}
+          ></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
 
     {% comment %} Centered Collection Link Button {% endcomment %}
     <div class="mt-8 sm:mt-10 flex justify-center">

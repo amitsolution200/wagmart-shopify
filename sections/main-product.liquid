@@ -1,19 +1,26 @@
 {% comment %}
-  Wagmart Main Product Details Page Section (sections/main-product.liquid)
-  High-converting e-commerce layout inspired by Amazon, Chewy, Nykaa & Shopify Dawn/Impulse.
+  Wagmart Premium Shopify Product Details Page (sections/main-product.liquid)
+  Exact recreation of reference screenshot:
+  1. Breadcrumb navigation
+  2. Main product gallery & product info
+  3. Product Description (separate section, clean text only, NO IMAGES)
+  4. Specifications (2-column table)
+  5. Benefits (4 dedicated cards with circular icons)
+  No other sections below Benefits.
 {% endcomment %}
 
 {{ 'product.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
   assign prod_title = product.title | default: 'Pet Grooming Glove'
-  assign prod_category = product.type | default: 'Pet Care Essentials'
+  assign prod_category = product.type | default: 'Grooming'
   assign prod_id = product.selected_or_first_available_variant.id | default: product.id | default: 'pet-grooming-glove'
   assign price_rupees = product.price | default: 33000 | divided_by: 100
-  assign compare_rupees = product.compare_at_price | default: 41500 | divided_by: 100
+  assign compare_rupees = product.compare_at_price | default: 41200 | divided_by: 100
   if compare_rupees <= price_rupees
     assign compare_rupees = price_rupees | times: 125 | divided_by: 100
   endif
+  assign save_pct = compare_rupees | minus: price_rupees | times: 100 | divided_by: compare_rupees
   assign is_available = product.available | default: true
   if product.featured_image != blank
     assign schema_img = product.featured_image | image_url: width: 900
@@ -29,7 +36,7 @@
   "@type": "Product",
   "name": {{ prod_title | json }},
   "image": [{{ schema_img | json }}],
-  "description": "Gently remove loose fur and mats while your pet enjoys a soothing bath or dry massage. Soft food-grade silicone bristles, ergonomic non-slip grip, suitable for dogs and cats.",
+  "description": "Gently remove loose fur and mats while your pet enjoys a soothing massage. Soft food-grade silicone bristles, ergonomic non-slip grip, suitable for dogs and cats.",
   "brand": {
     "@type": "Brand",
     "name": "Wagmart Pet Supplies"
@@ -61,7 +68,9 @@
 >
   <div class="wm-pdp__container">
 
-    {%- comment -%} 1. BREADCRUMB NAVIGATION {%- endcomment -%}
+    {%- comment -%} =========================================================
+       1. BREADCRUMB NAVIGATION
+       ========================================================= {%- endcomment -%}
     <nav class="wm-breadcrumb" aria-label="Breadcrumb">
       <ol class="wm-breadcrumb__list">
         <li class="wm-breadcrumb__item">
@@ -69,7 +78,7 @@
           <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
         </li>
         <li class="wm-breadcrumb__item">
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-breadcrumb__link">{{ prod_category }}</a>
+          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-breadcrumb__link">Pet Care Essentials</a>
           <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
         </li>
         <li class="wm-breadcrumb__item">
@@ -78,30 +87,29 @@
       </ol>
     </nav>
 
-    {%- comment -%} 2. TWO-COLUMN PRODUCT SECTION (55% Gallery / 45% Sticky Info Panel) {%- endcomment -%}
+    {%- comment -%} =========================================================
+       2. MAIN PRODUCT SECTION (Gallery + Product Information & Purchase Controls)
+       ========================================================= {%- endcomment -%}
     <section class="wm-pdp__main-grid" aria-label="Product details">
 
-      {%- comment -%} LEFT COLUMN: Gallery Component {%- endcomment -%}
-      <div>
+      {%- comment -%} LEFT COLUMN: Product Gallery with Vertical Thumbnails {%- endcomment -%}
+      <div class="wm-pdp__gallery-col">
         {% render 'product-gallery', product: product %}
       </div>
 
-      {%- comment -%} RIGHT COLUMN: Sticky Product Info Panel {%- endcomment -%}
+      {%- comment -%} RIGHT COLUMN: Product Information & Purchase Controls {%- endcomment -%}
       <div class="wm-info-panel">
 
-        {%- comment -%} 1. Category Label & Subtle Brand Pill (replaces "MY STORE 2") {%- endcomment -%}
-        <div class="wm-info__top-meta">
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-info__category">
-            <span>{{ prod_category }}</span>
-          </a>
-          <span class="wm-info__brand-pill">By Wagmart Originals</span>
+        {%- comment -%} 1. Product Category / Tag {%- endcomment -%}
+        <div class="wm-info__category">
+          {{ prod_category | upcase }}
         </div>
 
         {%- comment -%} 2. Product Title H1 {%- endcomment -%}
         <h1 class="wm-info__title">{{ prod_title }}</h1>
 
-        {%- comment -%} 3. Clickable Star Rating Row -> scrolls to #reviews {%- endcomment -%}
-        <a href="#reviews" class="wm-info__rating-row" aria-label="Rated 4.8 out of 5 stars based on 126 reviews. Click to read reviews.">
+        {%- comment -%} 3. Genuine Rating & Verified Vet Recommended Badge {%- endcomment -%}
+        <div class="wm-info__rating-row" aria-label="Rated 4.8 out of 5 stars based on 126 reviews.">
           <span class="wm-stars" aria-hidden="true">
             <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -111,583 +119,257 @@
           </span>
           <span class="wm-info__rating-score">4.8</span>
           <span class="wm-info__review-count">(126 reviews)</span>
-          <span class="wm-info__verified-tag">✓ Vet Recommended</span>
-        </a>
+          <span class="wm-info__vet-badge">✓ Vet Recommended</span>
+        </div>
 
-        {%- comment -%} 4. Price Row Block {%- endcomment -%}
-        {% render 'product-price-block', product: product %}
+        {%- comment -%} 4. Dynamic Price Display {%- endcomment -%}
+        <div class="wm-price-block" aria-label="Product pricing">
+          <div class="wm-price-block__row">
+            <span class="wm-price-block__current" data-pdp-price>₹{{ price_rupees }}</span>
+            {%- if compare_rupees > price_rupees -%}
+              <span class="wm-price-block__compare" data-pdp-compare>₹{{ compare_rupees }}</span>
+              <span class="wm-price-block__save-pill" data-pdp-save>Save {{ save_pct }}%</span>
+            {%- endif -%}
+          </div>
+          <p class="wm-price-block__tax-note">
+            <span>Inclusive of all taxes</span>
+            <span aria-hidden="true">&bull;</span>
+            <span class="wm-price-block__shipping-tag">Free Express Shipping above ₹499</span>
+          </p>
+        </div>
 
-        {%- comment -%} 5. Short Description (2-3 lines) + 4 Bullet Highlights {%- endcomment -%}
+        {%- comment -%} 5. Short Description Excerpt {%- endcomment -%}
         <p class="wm-info__short-desc">
-          Gently lift loose fur, dander, and tangles while treating your furry companion to a calming spa massage. Designed with ultra-soft food-grade silicone tips and a built-in shampoo reservoir for effortless wet or dry grooming.
+          Gently remove loose fur and mats while your pet enjoys a soothing massage. This grooming glove helps keep your pet's coat clean and healthy with soft silicone bristles.
         </p>
 
-        <ul class="wm-info__highlights" aria-label="Key product highlights">
-          <li class="wm-info__highlight-item">
-            <span class="wm-info__highlight-icon" aria-hidden="true">
+        {%- comment -%} 6. Product Benefits / Features Checklist (2x2 Grid with green checks) {%- endcomment -%}
+        <div class="wm-info__checklist" aria-label="Key product features">
+          <div class="wm-info__check-item">
+            <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
             <span>Soft silicone bristles</span>
-          </li>
-          <li class="wm-info__highlight-item">
-            <span class="wm-info__highlight-icon" aria-hidden="true">
+          </div>
+          <div class="wm-info__check-item">
+            <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
             <span>Gentle soothing massage</span>
-          </li>
-          <li class="wm-info__highlight-item">
-            <span class="wm-info__highlight-icon" aria-hidden="true">
+          </div>
+          <div class="wm-info__check-item">
+            <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
             <span>Works on dogs &amp; cats</span>
-          </li>
-          <li class="wm-info__highlight-item">
-            <span class="wm-info__highlight-icon" aria-hidden="true">
+          </div>
+          <div class="wm-info__check-item">
+            <span class="wm-info__check-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
-            <span>Machine washable &amp; durable</span>
-          </li>
-        </ul>
+            <span>Easy to clean &amp; durable</span>
+          </div>
+        </div>
 
-        {%- comment -%} 6, 7, 8. Product Form: Variants + Quantity Stepper + ATC / Buy Now {%- endcomment -%}
+        {%- comment -%} 7. Quantity Selector & Purchase Buttons {%- endcomment -%}
         {%- form 'product', product, id: 'product-form' -%}
-          <input type="hidden" name="id" value="{{ prod_id }}">
+          <input type="hidden" name="id" value="{{ prod_id }}" data-product-variant-id>
 
-          <div class="wm-variants">
-            {%- comment -%} Color Swatches {%- endcomment -%}
-            <div>
-              <div class="wm-variant-group__header">
-                <div>
-                  <span class="wm-variant-group__label">Color:</span>
-                  <span class="wm-variant-group__selected" data-selected-color>Aqua Mint</span>
-                </div>
-              </div>
-              <div class="wm-swatches" role="radiogroup" aria-label="Select color">
-                <button
-                  type="button"
-                  class="wm-swatch is-active"
-                  role="radio"
-                  aria-checked="true"
-                  data-color-swatch="Aqua Mint"
-                  data-color-filter="none"
-                >
-                  <span class="wm-swatch__dot" style="background-color:#5CE1C6;"></span>
-                  <span>Aqua Mint</span>
-                </button>
-                <button
-                  type="button"
-                  class="wm-swatch"
-                  role="radio"
-                  aria-checked="false"
-                  data-color-swatch="Sky Blue"
-                  data-color-filter="hue-rotate(28deg) saturate(1.05)"
-                >
-                  <span class="wm-swatch__dot" style="background-color:#60A5FA;"></span>
-                  <span>Sky Blue</span>
-                </button>
-                <button
-                  type="button"
-                  class="wm-swatch"
-                  role="radio"
-                  aria-checked="false"
-                  data-color-swatch="Blush Pink"
-                  data-color-filter="hue-rotate(155deg) saturate(0.95)"
-                >
-                  <span class="wm-swatch__dot" style="background-color:#F472B6;"></span>
-                  <span>Blush Pink</span>
-                </button>
-              </div>
+          <!-- Row 1: Quantity Selector [- 1 +] + Add to Cart + Wishlist -->
+          <div class="wm-pdp-actions-row">
+            <div class="wm-qty-selector" role="group" aria-label="Quantity">
+              <button type="button" class="wm-qty-btn wm-qty-btn--minus" data-qty-minus aria-label="Decrease quantity">&minus;</button>
+              <input type="number" class="wm-qty-input" id="wm-pdp-qty-input" name="quantity" value="1" min="1" max="18" data-qty-input aria-label="Quantity">
+              <button type="button" class="wm-qty-btn wm-qty-btn--plus" data-qty-plus aria-label="Increase quantity">+</button>
             </div>
 
-            {%- comment -%} Size / Pack Pills {%- endcomment -%}
-            <div>
-              <div class="wm-variant-group__header">
-                <div>
-                  <span class="wm-variant-group__label">Pack Size:</span>
-                  <span class="wm-variant-group__selected" data-selected-size>Single Pack (1 Pc)</span>
-                </div>
-              </div>
-              <div class="wm-size-pills" role="radiogroup" aria-label="Select pack size">
-                <button
-                  type="button"
-                  class="wm-size-pill is-active"
-                  role="radio"
-                  aria-checked="true"
-                  data-size-pill="Single Pack (1 Pc)"
-                  data-price="{{ price_rupees }}"
-                  data-compare="{{ compare_rupees }}"
-                  data-stock="18"
-                  data-variant-id="{{ prod_id }}"
-                >
-                  Single Pack (1 Pc)
-                </button>
-                <button
-                  type="button"
-                  class="wm-size-pill"
-                  role="radio"
-                  aria-checked="false"
-                  data-size-pill="Value Duo (Pack of 2)"
-                  data-price="599"
-                  data-compare="830"
-                  data-stock="5"
-                  data-variant-id="{{ prod_id }}"
-                >
-                  Value Duo (Pack of 2) &bull; Save 28%
-                </button>
-                <button
-                  type="button"
-                  class="wm-size-pill"
-                  role="radio"
-                  aria-checked="false"
-                  data-size-pill="Universal Fit (All Breeds)"
-                  data-price="{{ price_rupees }}"
-                  data-compare="{{ compare_rupees }}"
-                  data-stock="12"
-                  data-variant-id="{{ prod_id }}"
-                >
-                  Universal Fit (All Breeds)
-                </button>
-              </div>
-            </div>
+            <button type="button" class="wm-pdp-atc-btn" id="wm-pdp-atc-btn" data-pdp-atc-btn aria-label="Add {{ prod_title | escape }} to Cart">
+              <svg class="wm-pdp-atc-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              <span data-atc-text>Add to Cart</span>
+            </button>
+
+            <button type="button" class="wm-pdp-wishlist-btn" data-wishlist-btn data-pdp-wishlist aria-label="Add to Wishlist" aria-pressed="false">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+            </button>
           </div>
 
-          <div style="margin-top:16px;">
-            {% render 'product-quantity-stepper', product: product %}
-          </div>
+          <!-- Row 2: Buy It Now Button (Full Width Soft Light Green) -->
+          <button type="button" class="wm-pdp-buynow-btn" id="wm-pdp-buy-now-btn">
+            Buy it now
+          </button>
         {%- endform -%}
 
-        {%- comment -%} 9. Stock Indicator {%- endcomment -%}
-        <div class="wm-stock-status" data-pdp-stock role="status" aria-live="polite">
-          <span class="wm-stock-status__dot" aria-hidden="true"></span>
-          <span data-pdp-stock-text>In stock &ndash; ships in 24 hrs from Surat warehouse</span>
-        </div>
-
-        {%- comment -%} 10. Pincode Delivery Checker {%- endcomment -%}
-        <div class="wm-pincode">
-          <div class="wm-pincode__label">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+        {%- comment -%} 8. Service / Trust Row (3 Columns with Icons) {%- endcomment -%}
+        <div class="wm-pdp-trust-row" aria-label="Store guarantees">
+          <div class="wm-pdp-trust-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
             </svg>
-            <span>Check Delivery Date &amp; COD Eligibility</span>
+            <div class="wm-pdp-trust-copy">
+              <strong>Free Express Shipping</strong>
+              <span>above ₹499</span>
+            </div>
           </div>
-          <form class="wm-pincode__form" data-pincode-form>
-            <div class="wm-pincode__input-wrap">
-              <svg class="wm-pincode__pin-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-              <input
-                type="text"
-                id="wm-pincode-input"
-                class="wm-pincode__input"
-                placeholder="Enter 6-digit pincode (e.g. 395004)"
-                maxlength="6"
-                inputmode="numeric"
-                aria-label="Enter 6-digit delivery pincode"
-              >
+
+          <div class="wm-pdp-trust-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+            </svg>
+            <div class="wm-pdp-trust-copy">
+              <strong>Easy Returns</strong>
+              <span>within 7 days</span>
             </div>
-            <button type="submit" class="wm-pincode__btn">Check</button>
-          </form>
-          <div class="wm-pincode__result" data-pincode-result aria-live="polite">
-            <div class="wm-pincode__result-line">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              <span><strong data-default-delivery-date>Delivery by Tue, 27 Oct</strong> &bull; Free shipping above ₹499</span>
-            </div>
-            <div class="wm-pincode__result-line">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Pay on Delivery (COD) &amp; UPI available across India</span>
+          </div>
+
+          <div class="wm-pdp-trust-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <div class="wm-pdp-trust-copy">
+              <strong>Secure Payment</strong>
+              <span>100% safe checkout</span>
             </div>
           </div>
         </div>
-
-        {%- comment -%} 11, 12, 13. Trust Badges + Payment Icons + Share Row {%- endcomment -%}
-        {% render 'product-trust-badges', product: product %}
 
       </div>
     </section>
 
     {%- comment -%} =========================================================
-       3. BELOW THE FOLD SECTION 1: TABS (Desktop) / ACCORDIONS (Mobile)
+       NAVIGATION PILLS BAR: [ Description ]  [ Specifications ]  [ Benefits ]
        ========================================================= {%- endcomment -%}
-    <section class="wm-pdp-section" aria-label="Product Information Tabs">
-      <div class="wm-tabs__nav" role="tablist" aria-label="Product details tabs">
-        <button type="button" class="wm-tabs__tab-btn is-active" role="tab" aria-selected="true" data-tab-target="desc">Description</button>
-        <button type="button" class="wm-tabs__tab-btn" role="tab" aria-selected="false" data-tab-target="specs">Specifications</button>
-        <button type="button" class="wm-tabs__tab-btn" role="tab" aria-selected="false" data-tab-target="howto">How to Use</button>
-        <button type="button" class="wm-tabs__tab-btn" role="tab" aria-selected="false" data-tab-target="shipping">Shipping &amp; Returns</button>
-      </div>
+    <nav class="wm-pdp-nav-pills" aria-label="Section navigation">
+      <a href="#pdp-description" class="wm-pdp-pill is-active" data-pdp-nav-pill="description">Description</a>
+      <a href="#pdp-specifications" class="wm-pdp-pill" data-pdp-nav-pill="specifications">Specifications</a>
+      <a href="#pdp-benefits" class="wm-pdp-pill" data-pdp-nav-pill="benefits">Benefits</a>
+    </nav>
 
-      {%- comment -%} TAB 1: Description {%- endcomment -%}
-      <div class="wm-tab-panel is-active" data-tab-panel="desc">
-        <button type="button" class="wm-tab-panel__accordion-btn" data-accordion-toggle aria-expanded="true">
-          <span>Description</span>
-          <svg class="wm-tab-panel__accordion-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="wm-tab-panel__body">
-          <div class="wm-desc-grid">
-            <div class="wm-desc-copy">
-              <p>
-                Transform everyday shedding control and bath time into a bonding experience your pet loves. The <strong>Wagmart {{ prod_title }}</strong> fits comfortably in your hand, giving you effortless control around sensitive areas like legs, tail, and chest without pulling or tugging.
-              </p>
-              <p>
-                Crafted from 100% BPA-free, medical-grade soft silicone bristles, it reaches deep beneath the topcoat to lift loose fur, dander, and trapped dirt while stimulating natural skin oils for a healthier, shinier coat.
-              </p>
-              <h3>Why Pet Parents Love It:</h3>
-              <ul class="wm-desc-bullets">
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span><strong>2-in-1 Wet &amp; Dry Grooming:</strong> Use dry for daily deshedding or fill the top dispenser with pet shampoo for rich, foaming bath massages.</span>
-                </li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span><strong>Zero Scratch Guarantee:</strong> Rounded silicone tips massage the skin gently without irritating sensitive skin or puppies/kittens.</span>
-                </li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span><strong>Ergonomic Non-Slip Loop:</strong> Side finger loop keeps the brush securely anchored on your palm even when covered in soapy lather.</span>
-                </li>
-                <li>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span><strong>10-Second Easy Clean:</strong> Peel off collected fur in a single sheet and rinse under running water or toss in the top rack.</span>
-                </li>
-              </ul>
-            </div>
-
-            <div class="wm-desc-callout">
-              <h4>Ideal For All Coat Types</h4>
-              <p style="font-size:14.5px;color:#333;margin:0 0 14px;">
-                Tested by veterinarians across short, medium, and long-haired breeds including Golden Retrievers, Labradors, Indies, Pugs, Shih Tzus, Beagles, and Persian Cats.
-              </p>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;font-weight:700;color:#1B3A2A;">
-                <div style="background:#FFFFFF;padding:10px 12px;border-radius:10px;border:1px solid #E5E2DC;">✓ 95% Less Couch Fur</div>
-                <div style="background:#FFFFFF;padding:10px 12px;border-radius:10px;border:1px solid #E5E2DC;">✓ Saves 40% Shampoo</div>
-                <div style="background:#FFFFFF;padding:10px 12px;border-radius:10px;border:1px solid #E5E2DC;">✓ Boosts Coat Shine</div>
-                <div style="background:#FFFFFF;padding:10px 12px;border-radius:10px;border:1px solid #E5E2DC;">✓ Calms Anxious Pets</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {%- comment -%} TAB 2: Specifications (Clean 2-Column Table) {%- endcomment -%}
-      <div class="wm-tab-panel" data-tab-panel="specs">
-        <button type="button" class="wm-tab-panel__accordion-btn" data-accordion-toggle aria-expanded="false">
-          <span>Specifications</span>
-          <svg class="wm-tab-panel__accordion-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="wm-tab-panel__body">
-          <table class="wm-specs-table" aria-label="Product Technical Specifications">
-            <tbody>
-              <tr>
-                <th scope="row">Material</th>
-                <td>100% Food-Grade BPA-Free Soft Silicone &amp; Breathable TRP Grip</td>
-              </tr>
-              <tr>
-                <th scope="row">Size</th>
-                <td>11.5 cm &times; 10.5 cm &times; 6.2 cm (Ergonomic Universal Palm Fit, 125g)</td>
-              </tr>
-              <tr>
-                <th scope="row">Color</th>
-                <td>Aqua Mint, Sky Blue, Blush Pink</td>
-              </tr>
-              <tr>
-                <th scope="row">Suitable For</th>
-                <td>Dogs, Cats, Puppies &amp; Kittens (Short, Medium &amp; Long Coats)</td>
-              </tr>
-              <tr>
-                <th scope="row">Care</th>
-                <td>Peel off hair, rinse with warm soapy water or machine wash gentle cycle</td>
-              </tr>
-              <tr>
-                <th scope="row">Country of Origin</th>
-                <td>India (Packed &amp; Dispatched by Wagmart Pet Supplies, Surat, Gujarat)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {%- comment -%} TAB 3: How to Use {%- endcomment -%}
-      <div class="wm-tab-panel" data-tab-panel="howto">
-        <button type="button" class="wm-tab-panel__accordion-btn" data-accordion-toggle aria-expanded="false">
-          <span>How to Use</span>
-          <svg class="wm-tab-panel__accordion-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="wm-tab-panel__body">
-          <div class="wm-steps-grid">
-            <div class="wm-step-card">
-              <span class="wm-step-card__num">1</span>
-              <h4>Slip On &amp; Optional Fill</h4>
-              <p>Slide your fingers through the side grip strap. For bath time, pop open the top cap and add pet shampoo + water.</p>
-            </div>
-            <div class="wm-step-card">
-              <span class="wm-step-card__num">2</span>
-              <h4>Brush in Gentle Strokes</h4>
-              <p>Glide along your pet's back, neck, and legs in the direction of hair growth using circular massaging motions.</p>
-            </div>
-            <div class="wm-step-card">
-              <span class="wm-step-card__num">3</span>
-              <h4>Peel &amp; Rinse Clean</h4>
-              <p>Once finished, lift the collected fur layer right off the silicone tips and rinse under tap water.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {%- comment -%} TAB 4: Shipping & Returns {%- endcomment -%}
-      <div class="wm-tab-panel" data-tab-panel="shipping">
-        <button type="button" class="wm-tab-panel__accordion-btn" data-accordion-toggle aria-expanded="false">
-          <span>Shipping &amp; Returns</span>
-          <svg class="wm-tab-panel__accordion-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="wm-tab-panel__body">
-          <div class="wm-steps-grid">
-            <div class="wm-step-card">
-              <h4>24-Hour Express Dispatch</h4>
-              <p>All orders placed before 4:00 PM IST ship the same day from our Surat, Gujarat fulfillment center.</p>
-            </div>
-            <div class="wm-step-card">
-              <h4>Free Shipping Above ₹499</h4>
-              <p>Enjoy free express shipping across India on orders of ₹499+. Flat ₹49 shipping on smaller orders.</p>
-            </div>
-            <div class="wm-step-card">
-              <h4>Easy 7-Day Returns</h4>
-              <p>Not satisfied? Return unused items within 7 days of delivery for a full refund or instant replacement.</p>
-            </div>
-          </div>
-        </div>
+    {%- comment -%} =========================================================
+       3. PRODUCT DESCRIPTION SECTION (Clean Rounded Container, Text Only, NO IMAGES)
+       ========================================================= {%- endcomment -%}
+    <section id="pdp-description" class="wm-pdp-card-section" aria-labelledby="desc-heading">
+      <h2 id="desc-heading" class="wm-pdp-section-heading">Product Description</h2>
+      <div class="wm-pdp-desc-content">
+        {%- if product.description != blank -%}
+          {%- comment -%} Strip embedded image tags from product description to enforce image restriction {%- endcomment -%}
+          {{ product.description | replace: '<img', '<span style="display:none"' | replace: '</img>', '</span>' }}
+        {%- else -%}
+          <p>The pet grooming glove is designed to gently remove loose fur and mats while your pet enjoys a soothing massage. The soft and flexible silicone bristles effectively capture shed hair without pulling, making grooming a comfortable experience for your pet. It is easy to use, suitable for both dogs and cats, and helps keep their coat clean, smooth and healthy.</p>
+          <p>The ergonomic design fits comfortably in your hand, allowing better control during grooming sessions. The durable silicone material is safe for your pet's skin and easy to clean. Ideal for regular use, this grooming glove helps reduce shedding, promotes a healthier coat and strengthens the bond between you and your pet.</p>
+          <p>Suitable for all coat types and sizes, this grooming glove is a practical and effective tool for daily pet care at home.</p>
+        {%- endif -%}
       </div>
     </section>
 
     {%- comment -%} =========================================================
-       4. BELOW THE FOLD SECTION 2: FREQUENTLY BOUGHT TOGETHER
+       4. SPECIFICATIONS SECTION (Clean Rounded Container, 2-Column Table)
        ========================================================= {%- endcomment -%}
-    <section class="wm-pdp-section" aria-labelledby="wm-fbt-heading">
-      <div class="wm-section-header">
-        <div>
-          <p class="wm-section-eyebrow">COMPLETE GROOMING ROUTINE</p>
-          <h2 id="wm-fbt-heading" class="wm-section-title">Frequently Bought Together</h2>
-        </div>
-      </div>
-
-      <div class="wm-fbt-box">
-        <div class="wm-fbt__items">
-          {%- comment -%} Bundle Item 1: Current Product {%- endcomment -%}
-          <div class="wm-fbt-card is-selected" data-fbt-card>
-            <label class="wm-fbt-card__check-label">
-              <input
-                type="checkbox"
-                class="wm-fbt-card__checkbox"
-                checked
-                data-fbt-checkbox
-                data-fbt-main
-                data-id="{{ prod_id }}"
-                data-name="{{ prod_title | escape }}"
-                data-price="{{ price_rupees }}"
-                data-compare="{{ compare_rupees }}"
-                data-image="{{ schema_img }}"
-              >
-              <span>This Item</span>
-            </label>
-            <div class="wm-fbt-card__media">
-              <img src="{{ schema_img }}" alt="{{ prod_title | escape }}" width="110" height="110" loading="lazy">
-            </div>
-            <h3 class="wm-fbt-card__title">{{ prod_title }}</h3>
-            <div class="wm-fbt-card__price-row">
-              <span class="wm-fbt-card__price" data-fbt-item-price>₹{{ price_rupees }}</span>
-              <span class="wm-fbt-card__compare">₹{{ compare_rupees }}</span>
-            </div>
-          </div>
-
-          {%- comment -%} Bundle Item 2: Paw Cleaner Kit {%- endcomment -%}
-          <div class="wm-fbt-card is-selected" data-fbt-card>
-            <label class="wm-fbt-card__check-label">
-              <input
-                type="checkbox"
-                class="wm-fbt-card__checkbox"
-                checked
-                data-fbt-checkbox
-                data-id="prod-paw-cleaner"
-                data-name="Silicone Paw Cleaner Cup"
-                data-price="399"
-                data-compare="549"
-                data-image="{{ 'paw-cleaner-kit.webp' | asset_url }}"
-              >
-              <span>Add Companion</span>
-            </label>
-            <div class="wm-fbt-card__media">
-              <img src="{{ 'paw-cleaner-kit.webp' | asset_url }}" alt="Silicone Paw Cleaner Cup" width="110" height="110" loading="lazy">
-            </div>
-            <h3 class="wm-fbt-card__title">Silicone Paw Cleaner Cup</h3>
-            <div class="wm-fbt-card__price-row">
-              <span class="wm-fbt-card__price">₹399</span>
-              <span class="wm-fbt-card__compare">₹549</span>
-            </div>
-          </div>
-
-          {%- comment -%} Bundle Item 3: Dematting Rake {%- endcomment -%}
-          <div class="wm-fbt-card is-selected" data-fbt-card>
-            <label class="wm-fbt-card__check-label">
-              <input
-                type="checkbox"
-                class="wm-fbt-card__checkbox"
-                checked
-                data-fbt-checkbox
-                data-id="prod-nail-clipper"
-                data-name="Safety Pet Nail Clipper & File"
-                data-price="249"
-                data-compare="349"
-                data-image="{{ 'catalog-nail-clipper.webp' | asset_url }}"
-              >
-              <span>Add Essential</span>
-            </label>
-            <div class="wm-fbt-card__media">
-              <img src="{{ 'catalog-nail-clipper.webp' | asset_url }}" alt="Safety Pet Nail Clipper & File" width="110" height="110" loading="lazy">
-            </div>
-            <h3 class="wm-fbt-card__title">Safety Pet Nail Clipper &amp; File</h3>
-            <div class="wm-fbt-card__price-row">
-              <span class="wm-fbt-card__price">₹249</span>
-              <span class="wm-fbt-card__compare">₹349</span>
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} Bundle Price Summary & Add All CTA {%- endcomment -%}
-        <div class="wm-fbt__summary">
-          <p class="wm-fbt__summary-label">Total Bundle Price (Free Shipping):</p>
-          <div class="wm-fbt__summary-price-row">
-            <span class="wm-fbt__total-price" data-fbt-total>₹978</span>
-            <span class="wm-fbt__total-compare" data-fbt-compare>₹1,313</span>
-          </div>
-          <span class="wm-fbt__save-badge" data-fbt-save>You save ₹335 on this bundle</span>
-          <button type="button" class="wm-fbt__add-btn" data-fbt-add-btn>
-            Add All 3 to Cart &bull; ₹978
-          </button>
-        </div>
+    <section id="pdp-specifications" class="wm-pdp-card-section" aria-labelledby="specs-heading">
+      <h2 id="specs-heading" class="wm-pdp-section-heading">Specifications</h2>
+      <div class="wm-pdp-specs-wrap">
+        <table class="wm-pdp-specs-table" aria-label="Product Specifications">
+          <tbody>
+            <tr>
+              <th scope="row">Product Type</th>
+              <td>{{ product.type | default: 'Pet Grooming Glove' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Material</th>
+              <td>{{ product.metafields.custom.material | default: 'Silicone' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Suitable For</th>
+              <td>{{ product.metafields.custom.suitable_for | default: 'Dogs and Cats' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Product Dimensions</th>
+              <td>{{ product.metafields.custom.dimensions | default: 'One Size (Fits Most)' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Color</th>
+              <td>{{ product.metafields.custom.color | default: 'Blue / Turquoise' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Package Includes</th>
+              <td>{{ product.metafields.custom.package_includes | default: '1 x Pet Grooming Glove' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Care Instructions</th>
+              <td>{{ product.metafields.custom.care_instructions | default: 'Rinse with water and air dry' }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
     {%- comment -%} =========================================================
-       5. BELOW THE FOLD SECTION 3: CUSTOMER REVIEWS
+       5. BENEFITS SECTION (Clean Rounded Container, 4 Dedicated Cards with Icons)
        ========================================================= {%- endcomment -%}
-    {% render 'product-review-summary', product: product %}
+    <section id="pdp-benefits" class="wm-pdp-card-section" aria-labelledby="benefits-heading">
+      <h2 id="benefits-heading" class="wm-pdp-section-heading">Benefits</h2>
+      <div class="wm-pdp-benefits-grid">
 
-    {%- comment -%} =========================================================
-       6. BELOW THE FOLD SECTION 4: YOU MAY ALSO LIKE (4-Column Carousel)
-       ========================================================= {%- endcomment -%}
-    <section class="wm-pdp-section" aria-labelledby="wm-related-heading">
-      <div class="wm-section-header">
-        <div>
-          <p class="wm-section-eyebrow">CURATED FOR YOUR PET</p>
-          <h2 id="wm-related-heading" class="wm-section-title">You May Also Like</h2>
+        <!-- Benefit 1: Removes Loose Fur -->
+        <div class="wm-benefit-card">
+          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 4c0 4 8 4 8 8s-8 4-8 8"/><path d="M4 8c0 2 4 2 4 4s-4 2-4 4"/><path d="M16 8c0 2 4 2 4 4s-4 2-4 4"/>
+            </svg>
+          </div>
+          <h3 class="wm-benefit-card__title">Removes Loose Fur</h3>
+          <p class="wm-benefit-card__desc">Effectively lifts loose hair and mats.</p>
         </div>
-        <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" style="font-size:14px;font-weight:700;color:#1B3A2A;text-decoration:underline;">
-          View All Products &rarr;
-        </a>
-      </div>
 
-      <div class="wm-related-carousel-wrap">
-        <div class="wm-related-grid">
-          {% render 'product-card',
-            mock_id: 'prod-slicker-brush',
-            mock_title: 'Self-Cleaning Slicker Grooming Brush',
-            mock_subtitle: 'One-click hair release deshedding brush for dogs and cats.',
-            mock_price: '₹499',
-            mock_original_price: '₹749',
-            mock_image: 'catalog-slicker-brush.webp',
-            mock_category: 'grooming',
-            mock_badge: 'Best Seller',
-            mock_rating: '4.9',
-            mock_reviews: '118'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-dematting-rake',
-            mock_title: '2-in-1 Dematting & Deshedding Rake',
-            mock_subtitle: 'Dual-sided stainless steel teeth clear stubborn undercoat tangles.',
-            mock_price: '₹449',
-            mock_original_price: '₹649',
-            mock_image: 'catalog-dematting-rake.webp',
-            mock_category: 'grooming',
-            mock_badge: 'Vet Pick',
-            mock_rating: '4.7',
-            mock_reviews: '73'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-hair-roller',
-            mock_title: 'Reusable Pet Hair Remover Roller',
-            mock_subtitle: 'Electrostatic sofa, carpet and clothing fur catcher with self-clean chamber.',
-            mock_price: '₹349',
-            mock_original_price: '₹499',
-            mock_image: 'catalog-hair-remover-roller.webp',
-            mock_category: 'grooming',
-            mock_badge: 'Top Rated',
-            mock_rating: '4.8',
-            mock_reviews: '142'
-          %}
-
-          {% render 'product-card',
-            mock_id: 'prod-slow-feeder',
-            mock_title: 'Anti-Gulp Slow Feeder Maze Bowl',
-            mock_subtitle: 'Promotes healthy digestion and prevents bloating during mealtime.',
-            mock_price: '₹399',
-            mock_original_price: '₹599',
-            mock_image: 'catalog-slow-feeder-bowl.webp',
-            mock_category: 'feeding',
-            mock_badge: 'Essential',
-            mock_rating: '4.6',
-            mock_reviews: '64'
-          %}
+        <!-- Benefit 2: Gentle Massage -->
+        <div class="wm-benefit-card">
+          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#064E3B">
+              <circle cx="6.5" cy="7.5" r="2.2"/><circle cx="17.5" cy="7.5" r="2.2"/><circle cx="10" cy="4.5" r="2"/><circle cx="14" cy="4.5" r="2"/>
+              <path d="M12 10.5c-3 0-5.5 2-5.5 4.5 0 2.2 1.8 3.5 3.5 4 1.2.3 2.8.3 4 0 1.7-.5 3.5-1.8 3.5-4 0-2.5-2.5-4.5-5.5-4.5z"/>
+            </svg>
+          </div>
+          <h3 class="wm-benefit-card__title">Gentle Massage</h3>
+          <p class="wm-benefit-card__desc">Soothes your pet and improves circulation.</p>
         </div>
+
+        <!-- Benefit 3: Clean & Healthy Coat -->
+        <div class="wm-benefit-card">
+          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+              <circle cx="19" cy="5" r="1.5" fill="#064E3B"/>
+            </svg>
+          </div>
+          <h3 class="wm-benefit-card__title">Clean &amp; Healthy Coat</h3>
+          <p class="wm-benefit-card__desc">Helps keep the coat clean, smooth and tangle-free.</p>
+        </div>
+
+        <!-- Benefit 4: Suitable for Dogs & Cats -->
+        <div class="wm-benefit-card">
+          <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+          </div>
+          <h3 class="wm-benefit-card__title">Suitable for Dogs &amp; Cats</h3>
+          <p class="wm-benefit-card__desc">Works on all coat types and sizes.</p>
+        </div>
+
       </div>
     </section>
 
     {%- comment -%} =========================================================
-       7. BELOW THE FOLD SECTION 5: RECENTLY VIEWED
+       PAGE ENDS HERE: No other sections below Benefits
        ========================================================= {%- endcomment -%}
-    <section class="wm-pdp-section" aria-labelledby="wm-recent-heading">
-      <div class="wm-section-header">
-        <div>
-          <p class="wm-section-eyebrow">BROWSE HISTORY</p>
-          <h2 id="wm-recent-heading" class="wm-section-title">Recently Viewed</h2>
-        </div>
-      </div>
-      <div class="wm-recently-grid" data-recently-viewed-grid>
-        <a href="#top" class="wm-recent-mini-card">
-          <img src="{{ 'paw-cleaner-kit.webp' | asset_url }}" alt="Paw Cleaner Kit" width="56" height="56" loading="lazy">
-          <div>
-            <div style="font-size:13.5px;font-weight:700;color:#111827;">Paw Cleaner Kit</div>
-            <div style="font-size:13px;font-weight:800;color:#1B3A2A;">₹799 <span style="font-weight:400;color:#9CA3AF;text-decoration:line-through;font-size:11.5px;">₹1,099</span></div>
-          </div>
-        </a>
-        <a href="#top" class="wm-recent-mini-card">
-          <img src="{{ 'catalog-grooming-glove.webp' | asset_url }}" alt="5-Finger Deshedding Glove" width="56" height="56" loading="lazy">
-          <div>
-            <div style="font-size:13.5px;font-weight:700;color:#111827;">5-Finger Deshedding Glove</div>
-            <div style="font-size:13px;font-weight:800;color:#1B3A2A;">₹299 <span style="font-weight:400;color:#9CA3AF;text-decoration:line-through;font-size:11.5px;">₹399</span></div>
-          </div>
-        </a>
-        <a href="#top" class="wm-recent-mini-card">
-          <img src="{{ 'catalog-orthopedic-bed.webp' | asset_url }}" alt="Orthopedic Pet Bed" width="56" height="56" loading="lazy">
-          <div>
-            <div style="font-size:13.5px;font-weight:700;color:#111827;">Orthopedic Memory Foam Bed</div>
-            <div style="font-size:13px;font-weight:800;color:#1B3A2A;">₹1,899 <span style="font-weight:400;color:#9CA3AF;text-decoration:line-through;font-size:11.5px;">₹2,499</span></div>
-          </div>
-        </a>
-        <a href="#top" class="wm-recent-mini-card">
-          <img src="{{ 'catalog-rope-leash.webp' | asset_url }}" alt="Reflective Rope Dog Leash" width="56" height="56" loading="lazy">
-          <div>
-            <div style="font-size:13.5px;font-weight:700;color:#111827;">Reflective Rope Dog Leash</div>
-            <div style="font-size:13px;font-weight:800;color:#1B3A2A;">₹449 <span style="font-weight:400;color:#9CA3AF;text-decoration:line-through;font-size:11.5px;">₹649</span></div>
-          </div>
-        </a>
-      </div>
-    </section>
 
   </div>
 </div>
 
-{%- comment -%} 8. MOBILE STICKY BOTTOM BAR (Appears when main ATC scrolls out of view) {%- endcomment -%}
+{%- comment -%} Sticky Mobile Add to Cart Bar {%- endcomment -%}
 <div class="wm-sticky-mobile-bar" id="wm-sticky-mobile-bar" aria-label="Quick add to cart bar">
   <div class="wm-sticky-mobile-bar__info">
     <p class="wm-sticky-mobile-bar__title">{{ prod_title }}</p>
@@ -701,7 +383,7 @@
   </button>
 </div>
 
-{%- comment -%} 9. TOAST NOTIFICATION ("Added to cart ✓" + "View cart") {%- endcomment -%}
+{%- comment -%} Toast Notification {%- endcomment -%}
 <div class="wm-toast" id="wm-pdp-toast" role="status" aria-live="polite">
   <span data-toast-msg>Added to cart ✓</span>
   <button type="button" class="wm-toast__link" data-toast-view-cart>View cart &rarr;</button>

@@ -56,14 +56,13 @@
       currentImgIdx = (index + gallerySources.length) % gallerySources.length;
       const item = gallerySources[currentImgIdx];
 
-      mainImg.style.opacity = '0.35';
-      setTimeout(() => {
-        mainImg.src = item.src;
-        mainImg.alt = item.alt;
-        mainImg.style.filter = item.filter || 'none';
-        mainImg.style.transform = item.crop || '';
-        mainImg.style.opacity = '1';
-      }, 110);
+      mainImg.removeAttribute('srcset');
+      mainImg.removeAttribute('sizes');
+      mainImg.src = item.src;
+      mainImg.alt = item.alt;
+      mainImg.style.filter = item.filter || 'none';
+      mainImg.style.transform = item.crop || '';
+      mainImg.style.opacity = '1';
 
       thumbs.forEach((t, i) => {
         const active = i === currentImgIdx;
@@ -75,7 +74,7 @@
         d.classList.toggle('is-active', i === currentImgIdx);
       });
 
-      if (lightbox && lightbox.classList.contains('is-open') && lightboxImg) {
+      if (lightboxImg) {
         lightboxImg.src = item.src;
         lightboxImg.alt = item.alt;
       }
@@ -183,7 +182,7 @@
     // =========================================================================
     // 2. QUANTITY STEPPER & VARIANT SELECTION
     // =========================================================================
-    const qtyInput = document.getElementById('wm-pdp-qty');
+    const qtyInput = document.getElementById('wm-pdp-qty-input') || document.getElementById('wm-pdp-qty') || document.querySelector('[data-qty-input]');
     const qtyMinus = document.querySelector('[data-qty-minus]');
     const qtyPlus = document.querySelector('[data-qty-plus]');
     const priceCurrentEl = document.querySelector('[data-pdp-price]');
@@ -192,7 +191,7 @@
     const stickyPriceEl = document.querySelector('[data-sticky-price]');
     const stockStatusEl = document.querySelector('[data-pdp-stock]');
     const stockTextEl = document.querySelector('[data-pdp-stock-text]');
-    const atcBtn = document.getElementById('wm-pdp-atc-btn');
+    const atcBtn = document.getElementById('wm-pdp-atc-btn') || document.querySelector('[data-pdp-atc-btn]');
     const atcBtnText = document.querySelector('[data-atc-text]');
     const buyNowBtn = document.getElementById('wm-pdp-buy-now-btn');
     const stickyAtcBtn = document.getElementById('wm-sticky-atc-btn');
@@ -304,14 +303,8 @@
     const toastViewCart = document.querySelector('[data-toast-view-cart]');
     let toastTimer = null;
 
-    function showToast(message) {
-      if (!toast) return;
-      if (toastMsg && message) toastMsg.textContent = message;
-      toast.classList.add('is-visible');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove('is-visible');
-      }, 4000);
+    function showToast() {
+      // Toast notifications disabled per user preference
     }
 
     if (toastViewCart) {
@@ -518,6 +511,50 @@
         btn.setAttribute('aria-expanded', String(!isOpen));
       });
     });
+
+    // =========================================================================
+    // 6b. PDP NAVIGATION PILLS (Description, Specifications, Benefits)
+    // =========================================================================
+    const pdpNavPills = Array.from(document.querySelectorAll('[data-pdp-nav-pill]'));
+    if (pdpNavPills.length > 0) {
+      pdpNavPills.forEach((pill) => {
+        pill.addEventListener('click', (e) => {
+          const targetId = pill.getAttribute('href');
+          if (targetId && targetId.startsWith('#')) {
+            e.preventDefault();
+            const targetEl = document.querySelector(targetId);
+            if (targetEl) {
+              const yOffset = -80;
+              const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+              window.scrollTo({ top: y, behavior: 'smooth' });
+              pdpNavPills.forEach((p) => p.classList.remove('is-active'));
+              pill.classList.add('is-active');
+            }
+          }
+        });
+      });
+
+      const sectionEls = [
+        document.getElementById('pdp-description'),
+        document.getElementById('pdp-specifications'),
+        document.getElementById('pdp-benefits'),
+      ].filter(Boolean);
+
+      if ('IntersectionObserver' in window && sectionEls.length > 0) {
+        const pillObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              pdpNavPills.forEach((pill) => {
+                pill.classList.toggle('is-active', pill.getAttribute('href') === `#${id}`);
+              });
+            }
+          });
+        }, { rootMargin: '-15% 0px -70% 0px' });
+
+        sectionEls.forEach((el) => pillObserver.observe(el));
+      }
+    }
 
     // =========================================================================
     // 7. FREQUENTLY BOUGHT TOGETHER (Bundle Calculator & Add All)

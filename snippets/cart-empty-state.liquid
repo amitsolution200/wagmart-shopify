@@ -42,19 +42,19 @@
     <div class="wm-cart-empty-chips">
       <p class="wm-cart-empty-chips__label">Popular Categories</p>
       <div class="wm-cart-empty-chips__list">
-        <a href="/collections/all?category=food" class="wm-cart-chip">
+        <a href="{{ routes.all_products_collection_url }}?category=food" class="wm-cart-chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
           <span>Dry Food &amp; Kibble</span>
         </a>
-        <a href="/collections/all?category=grooming" class="wm-cart-chip">
+        <a href="{{ routes.all_products_collection_url }}?category=grooming" class="wm-cart-chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
           <span>Grooming &amp; Bath</span>
         </a>
-        <a href="/collections/all?category=toys" class="wm-cart-chip">
+        <a href="{{ routes.all_products_collection_url }}?category=toys" class="wm-cart-chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
           <span>Interactive Toys</span>
         </a>
-        <a href="/collections/all?category=accessories" class="wm-cart-chip">
+        <a href="{{ routes.all_products_collection_url }}?category=accessories" class="wm-cart-chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           <span>Accessories</span>
         </a>
@@ -62,72 +62,82 @@
     </div>
   </div>
 
-  {%- comment -%} 4-Product Bestsellers You Might Love Grid {%- endcomment -%}
-  <section id="wm-cart-bestsellers" class="wm-cart-cross-sell" aria-labelledby="wm-empty-bestsellers-title">
-    <div class="wm-cart-cross-sell__header">
-      <div>
-        <span class="wm-cart-cross-sell__eyebrow">PET PARENT FAVORITES</span>
-        <h2 id="wm-empty-bestsellers-title" class="wm-cart-cross-sell__title">Bestsellers You Might Love</h2>
+  {%- comment -%} Bestsellers You Might Love Grid (Render ONLY real Shopify Admin products) {%- endcomment -%}
+  {%- assign empty_cross_sell = collections['all'].products -%}
+  {%- if empty_cross_sell.size > 0 -%}
+    <section id="wm-cart-bestsellers" class="wm-cart-cross-sell" aria-labelledby="wm-empty-bestsellers-title">
+      <div class="wm-cart-cross-sell__header">
+        <div>
+          <span class="wm-cart-cross-sell__eyebrow">PET PARENT FAVORITES</span>
+          <h2 id="wm-empty-bestsellers-title" class="wm-cart-cross-sell__title">Bestsellers You Might Love</h2>
+        </div>
+        <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
+          <span>View all products</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
       </div>
-      <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
-        <span>View all products</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
 
-    <div class="wm-cart-cross-sell__grid">
-      {% render 'product-card',
-        mock_id: 'grooming-glove-1',
-        mock_title: 'Gentle Silicone Pet Grooming & De-Shedding Glove',
-        mock_category: 'Grooming',
-        mock_vendor: 'Wagmart Pro',
-        mock_price: '₹330',
-        mock_compare_price: '₹415',
-        mock_rating: '4.8',
-        mock_reviews: 126,
-        mock_badge: 'Bestseller',
-        mock_image: 'grooming.png',
-        mock_desc: '259 soft silicone tips gently lift loose fur and detangle coats while massaging your pet.'
-      %}
-      {% render 'product-card',
-        mock_id: 'salmon-kibble-2',
-        mock_title: 'Grain-Free Salmon & Sweet Potato Adult Dog Kibble (2kg)',
-        mock_category: 'Dry Food & Kibble',
-        mock_vendor: 'Wagmart Naturals',
-        mock_price: '₹899',
-        mock_compare_price: '₹1,099',
-        mock_rating: '4.9',
-        mock_reviews: 214,
-        mock_badge: 'Save 18%',
-        mock_image: 'Dry_Food_Kibble.png',
-        mock_desc: 'Rich in Omega-3 & 6 fatty acids for a shiny coat, healthy digestion, and strong immunity.'
-      %}
-      {% render 'product-card',
-        mock_id: 'rope-chew-toy-3',
-        mock_title: 'Heavy-Duty Braided Cotton Dental Tug & Chew Toy',
-        mock_category: 'Interactive Toys',
-        mock_vendor: 'Wagmart Play',
-        mock_price: '₹299',
-        mock_compare_price: '₹399',
-        mock_rating: '4.7',
-        mock_reviews: 98,
-        mock_badge: 'Vet Approved',
-        mock_image: 'Interactive_Toys.png',
-        mock_desc: '100% natural non-toxic cotton fibers clean teeth and massage gums during everyday play.'
-      %}
-      {% render 'product-card',
-        mock_id: 'padded-harness-4',
-        mock_title: 'Reflective No-Pull Padded Mesh Dog Walk Harness & Leash',
-        mock_category: 'Accessories',
-        mock_vendor: 'Wagmart Gear',
-        mock_price: '₹649',
-        mock_compare_price: '₹849',
-        mock_rating: '4.8',
-        mock_reviews: 164,
-        mock_badge: 'Top Rated',
-        mock_image: 'Accessories_Leashes.png',
-        mock_desc: 'Breathable air-mesh padding with 3M reflective stitching for safe, comfortable evening walks.'
-      %}
-    </div>
-  </section>
+      <div class="wm-cart-cross-sell__grid">
+        {%- for product in empty_cross_sell limit: 4 -%}
+          {%- liquid
+            assign real_price_inr = product.price | divided_by: 100.0 | round
+            assign real_compare_inr = 0
+            if product.compare_at_price > product.price
+              assign real_compare_inr = product.compare_at_price | divided_by: 100.0 | round
+            endif
+
+            if product.featured_image != blank
+              assign real_img = product.featured_image | image_url: width: 640
+            else
+              assign real_img = 'catalog-grooming-glove.webp' | asset_url
+            endif
+
+            assign second_img = ''
+            if product.images.size > 1
+              assign second_img = product.images[1] | image_url: width: 640
+            endif
+
+            assign primary_cat = product.type
+            if primary_cat == blank
+              assign primary_cat = product.collections.first.title | default: 'Grooming'
+            endif
+
+            assign promo_tags = ''
+            if product.compare_at_price > product.price
+              assign promo_tags = 'sale'
+            endif
+            for tag in product.tags
+              assign down_tag = tag | downcase
+              if down_tag contains 'new'
+                assign promo_tags = 'new'
+              elsif down_tag contains 'bestseller'
+                assign promo_tags = 'bestseller'
+              endif
+            endfor
+
+            assign real_rating = product.metafields.reviews.rating.value
+            assign real_reviews = product.metafields.reviews.rating_count.value | default: 0
+            assign real_stock = product.selected_or_first_available_variant.inventory_quantity | default: 1
+            assign unique_prod_id = product.selected_or_first_available_variant.id | default: product.id
+            assign clean_card_desc = product.description | strip_html | truncate: 110
+          -%}
+          {% render 'collection-product-card',
+            card_id: unique_prod_id,
+            card_title: product.title,
+            card_url: product.url,
+            card_category: primary_cat,
+            card_price_inr: real_price_inr,
+            card_compare_inr: real_compare_inr,
+            card_rating: real_rating,
+            card_reviews: real_reviews,
+            card_image: real_img,
+            card_hover_image: second_img,
+            card_badge_promo: promo_tags,
+            card_stock: real_stock,
+            card_desc: clean_card_desc
+          %}
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
 </div>
