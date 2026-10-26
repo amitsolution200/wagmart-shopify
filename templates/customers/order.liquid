@@ -1,0 +1,149 @@
+{% comment %}
+  Wagmart Order Details Page
+{% endcomment %}
+
+<style>
+  .wm-order-section {
+    background-color: #FBF9F7;
+    min-height: calc(100vh - 200px);
+    padding: 48px 20px 80px;
+    font-family: inherit;
+  }
+  .wm-order-container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .wm-order-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 32px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+    margin-bottom: 24px;
+  }
+  .wm-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #F4F4F5;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .wm-order-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #18181B;
+    margin: 0 0 6px;
+  }
+  .wm-order-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .wm-order-table th {
+    padding: 12px 14px;
+    font-weight: 700;
+    color: #71717A;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    border-bottom: 1.5px solid #F4F4F5;
+    text-align: left;
+  }
+  .wm-order-table td {
+    padding: 16px 14px;
+    border-bottom: 1px solid #F4F4F5;
+    color: #27272A;
+  }
+  .wm-order-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    color: #52525B;
+  }
+  .wm-order-summary-total {
+    font-size: 17px;
+    font-weight: 800;
+    color: #18181B;
+    border-top: 1.5px solid #E4E4E7;
+    padding-top: 12px;
+    margin-top: 8px;
+  }
+</style>
+
+<div class="wm-order-section">
+  <div class="wm-order-container">
+
+    <a href="{{ routes.account_url }}" style="display:inline-flex; align-items:center; gap:6px; color:#7A46E5; font-weight:700; font-size:14px; text-decoration:none; margin-bottom:16px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      <span>Back to Account</span>
+    </a>
+
+    <div class="wm-order-card">
+      <div class="wm-order-header">
+        <div>
+          <h1 class="wm-order-title">Order {{ order.name }}</h1>
+          <p style="margin:0; font-size:14px; color:#71717A;">Placed on {{ order.created_at | time_tag: format: 'date_at_time' }}</p>
+        </div>
+        <div>
+          <span style="background:#ECFDF5; color:#065F46; padding:6px 12px; border-radius:9999px; font-size:12.5px; font-weight:700;">
+            {{ order.financial_status_label }} · {{ order.fulfillment_status_label }}
+          </span>
+        </div>
+      </div>
+
+      <table class="wm-order-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th style="text-align:right;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for line_item in order.line_items -%}
+            <tr>
+              <td>
+                <div style="font-weight:700;">{{ line_item.title }}</div>
+                {%- if line_item.variant.title != 'Default Title' -%}
+                  <div style="font-size:13px; color:#71717A;">{{ line_item.variant.title }}</div>
+                {%- endif -%}
+              </td>
+              <td>{{ line_item.quantity }}</td>
+              <td style="text-align:right; font-weight:700;">{{ line_item.final_line_price | money }}</td>
+            </tr>
+          {%- endfor -%}
+        </tbody>
+      </table>
+
+      <div style="max-width:320px; margin-left:auto;">
+        <div class="wm-order-summary-row">
+          <span>Subtotal</span>
+          <span>{{ order.line_items_subtotal_price | money }}</span>
+        </div>
+        {%- for shipping_method in order.shipping_methods -%}
+          <div class="wm-order-summary-row">
+            <span>Shipping ({{ shipping_method.title }})</span>
+            <span>{{ shipping_method.price | money }}</span>
+          </div>
+        {%- endfor -%}
+        {%- for tax_line in order.tax_lines -%}
+          <div class="wm-order-summary-row">
+            <span>Tax ({{ tax_line.title }} {{ tax_line.rate | times: 100 }}%)</span>
+            <span>{{ tax_line.price | money }}</span>
+          </div>
+        {%- endfor -%}
+        <div class="wm-order-summary-row wm-order-summary-total">
+          <span>Total</span>
+          <span>{{ order.total_net_amount | default: order.total_price | money }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

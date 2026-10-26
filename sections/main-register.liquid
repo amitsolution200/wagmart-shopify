@@ -1,0 +1,416 @@
+{% comment %}
+  Wagmart Classic Customer Registration Section
+  Matches Wagmart design tokens: #7A46E5 primary, #F5F2EF cream, Lucide icons
+{% endcomment %}
+
+<style>
+  .wm-register-section {
+    background-color: #FBF9F7;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px 80px;
+    font-family: inherit;
+  }
+
+  .wm-register-container {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .wm-register-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (max-width: 480px) {
+    .wm-register-card {
+      padding: 32px 24px;
+      border-radius: 16px;
+    }
+  }
+
+  .wm-register-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .wm-register-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #F5F2EF;
+    color: #4F463E;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 14px;
+  }
+
+  .wm-register-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #18181B;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .wm-register-subtitle {
+    font-size: 14px;
+    color: #71717A;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .wm-register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .wm-register-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    .wm-register-row {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+  }
+
+  .wm-register-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .wm-register-label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #27272A;
+  }
+
+  .wm-register-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .wm-register-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border: 1.5px solid #E4E4E7;
+    border-radius: 12px;
+    font-size: 14.5px;
+    color: #18181B;
+    background-color: #FAFAFA;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+
+  .wm-register-input:focus {
+    outline: none;
+    border-color: #7A46E5;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(122, 70, 229, 0.15);
+  }
+
+  .wm-register-input--password {
+    padding-right: 46px;
+  }
+
+  .wm-register-eye-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #71717A;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+  }
+
+  .wm-register-eye-btn:hover {
+    color: #18181B;
+  }
+
+  .wm-register-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    color: #52525B;
+    cursor: pointer;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .wm-register-checkbox-label input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    border-radius: 4px;
+    accent-color: #7A46E5;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+
+  .wm-register-submit-btn {
+    width: 100%;
+    height: 50px;
+    background-color: #7A46E5;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 14px rgba(122, 70, 229, 0.3);
+    font-family: inherit;
+  }
+
+  .wm-register-submit-btn:hover {
+    background-color: #6938CE;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(122, 70, 229, 0.35);
+  }
+
+  .wm-register-submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .wm-register-alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+    background-color: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #991B1B;
+  }
+
+  .wm-register-alert svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .wm-register-footer {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 22px;
+    border-top: 1px solid #F4F4F5;
+    font-size: 14px;
+    color: #71717A;
+  }
+
+  .wm-register-footer a {
+    color: #7A46E5;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .wm-register-footer a:hover {
+    color: #6333C4;
+    text-decoration: underline;
+  }
+</style>
+
+<section class="wm-register-section">
+  <div class="wm-register-container">
+    
+    <div class="wm-register-card">
+
+      <div class="wm-register-header">
+        <div class="wm-register-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+          </svg>
+          <span>Join the Wagmart Family</span>
+        </div>
+        <h1 class="wm-register-title">{{ section.settings.register_title | default: 'Create Your Account' }}</h1>
+        <p class="wm-register-subtitle">{{ section.settings.register_subtitle | default: 'Get access to order tracking, pet wellness tips, and exclusive rewards.' }}</p>
+      </div>
+
+      {%- form 'create_customer', id: 'RegisterCustomerForm', class: 'wm-register-form' -%}
+
+        {%- if form.errors -%}
+          <div class="wm-register-alert" role="alert">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div>{{ form.errors | default_errors }}</div>
+          </div>
+        {%- endif -%}
+
+        <div class="wm-register-row">
+          <div class="wm-register-field">
+            <label for="RegisterFirstName" class="wm-register-label">First Name <span style="color:#EF4444;">*</span></label>
+            <div class="wm-register-input-wrap">
+              <input
+                type="text"
+                name="customer[first_name]"
+                id="RegisterFirstName"
+                autocomplete="given-name"
+                required
+                placeholder="e.g. Sarah"
+                class="wm-register-input"
+                value="{{ form.first_name }}"
+              >
+            </div>
+          </div>
+
+          <div class="wm-register-field">
+            <label for="RegisterLastName" class="wm-register-label">Last Name <span style="color:#EF4444;">*</span></label>
+            <div class="wm-register-input-wrap">
+              <input
+                type="text"
+                name="customer[last_name]"
+                id="RegisterLastName"
+                autocomplete="family-name"
+                required
+                placeholder="e.g. Jenkins"
+                class="wm-register-input"
+                value="{{ form.last_name }}"
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="wm-register-field">
+          <label for="RegisterEmail" class="wm-register-label">Email Address <span style="color:#EF4444;">*</span></label>
+          <div class="wm-register-input-wrap">
+            <input
+              type="email"
+              name="customer[email]"
+              id="RegisterEmail"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              required
+              placeholder="you@example.com"
+              class="wm-register-input"
+              value="{{ form.email }}"
+            >
+          </div>
+        </div>
+
+        <div class="wm-register-field">
+          <label for="RegisterPassword" class="wm-register-label">Password <span style="color:#EF4444;">*</span></label>
+          <div class="wm-register-input-wrap">
+            <input
+              type="password"
+              name="customer[password]"
+              id="RegisterPassword"
+              autocomplete="new-password"
+              required
+              minlength="6"
+              placeholder="At least 6 characters"
+              class="wm-register-input wm-register-input--password"
+            >
+            <button type="button" class="wm-register-eye-btn" data-toggle-password="RegisterPassword" aria-label="Toggle password visibility">
+              <svg class="wm-eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="wm-eye-closed" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-.722-3.25"/><path d="M2 8a10.645 10.645 0 0 0 20 0"/><path d="m20 15-1.726-2.05"/><path d="m4 15 1.726-2.05"/><path d="m9 18 .722-3.25"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <label class="wm-register-checkbox-label">
+          <input type="checkbox" name="customer[accepts_marketing]" id="RegisterMarketing" checked="checked" value="true">
+          <span>Keep me updated on pet wellness tips, new arrivals, and exclusive Wagmart offers.</span>
+        </label>
+
+        <button type="submit" class="wm-register-submit-btn">
+          <span>Create My Account</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
+        </button>
+
+      {%- endform -%}
+
+      <div class="wm-register-footer">
+        Already have an account? <a href="{{ routes.account_login_url }}">Sign in here</a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<script>
+  (function() {
+    document.querySelectorAll('[data-toggle-password]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var inputId = btn.getAttribute('data-toggle-password');
+        var input = document.getElementById(inputId);
+        if (!input) return;
+        var openIcon = btn.querySelector('.wm-eye-open');
+        var closedIcon = btn.querySelector('.wm-eye-closed');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          if (openIcon) openIcon.style.display = 'none';
+          if (closedIcon) closedIcon.style.display = 'block';
+        } else {
+          input.type = 'password';
+          if (openIcon) openIcon.style.display = 'block';
+          if (closedIcon) closedIcon.style.display = 'none';
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Customer Registration",
+  "settings": [
+    {
+      "type": "text",
+      "id": "register_title",
+      "label": "Registration Title",
+      "default": "Create Your Account"
+    },
+    {
+      "type": "text",
+      "id": "register_subtitle",
+      "label": "Registration Subtitle",
+      "default": "Get access to order tracking, pet wellness tips, and exclusive rewards."
+    }
+  ]
+}
+{% endschema %}

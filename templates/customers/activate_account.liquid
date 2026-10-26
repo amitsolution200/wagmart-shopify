@@ -1,0 +1,107 @@
+{% comment %}
+  Wagmart Activate Account Page
+{% endcomment %}
+
+<style>
+  .wm-activate-section {
+    background-color: #FBF9F7;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px 80px;
+    font-family: inherit;
+  }
+  .wm-activate-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 480px;
+  }
+  .wm-activate-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #18181B;
+    margin: 0 0 8px;
+    text-align: center;
+  }
+  .wm-activate-subtitle {
+    font-size: 14px;
+    color: #71717A;
+    margin: 0 0 24px;
+    text-align: center;
+  }
+  .wm-activate-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border: 1.5px solid #E4E4E7;
+    border-radius: 12px;
+    font-size: 14.5px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+  .wm-activate-input:focus {
+    outline: none;
+    border-color: #7A46E5;
+  }
+  .wm-activate-btn {
+    width: 100%;
+    height: 48px;
+    background: #7A46E5;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-family: inherit;
+  }
+  .wm-activate-btn:hover {
+    background: #6938CE;
+  }
+  .wm-activate-decline-btn {
+    width: 100%;
+    height: 44px;
+    background: #F4F4F5;
+    color: #52525B;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .wm-activate-decline-btn:hover {
+    background: #E4E4E7;
+  }
+</style>
+
+<div class="wm-activate-section">
+  <div class="wm-activate-card">
+    <h1 class="wm-activate-title">Activate Your Account</h1>
+    <p class="wm-activate-subtitle">Create your password to activate your Wagmart account.</p>
+
+    {%- form 'activate_customer_password' -%}
+      {%- if form.errors -%}
+        <div style="background:#FEF2F2; color:#991B1B; border:1px solid #FECACA; padding:12px; border-radius:10px; margin-bottom:16px; font-size:13.5px;">
+          {{ form.errors | default_errors }}
+        </div>
+      {%- endif -%}
+
+      <label for="password" style="display:block; font-size:13.5px; font-weight:700; margin-bottom:6px;">Password</label>
+      <input type="password" name="customer[password]" id="password" required class="wm-activate-input" placeholder="Create password">
+
+      <label for="password_confirmation" style="display:block; font-size:13.5px; font-weight:700; margin-bottom:6px;">Confirm Password</label>
+      <input type="password" name="customer[password_confirmation]" id="password_confirmation" required class="wm-activate-input" placeholder="Confirm password">
+
+      <button type="submit" class="wm-activate-btn">Activate Account</button>
+      <button type="submit" name="decline" class="wm-activate-decline-btn">Decline Invitation</button>
+    {%- endform -%}
+  </div>
+</div>
