@@ -41,14 +41,6 @@
     assign p_images = p_img
   endif
 
-  assign p_hover_img = ''
-  if p_images contains '|'
-    assign img_arr = p_images | split: '|'
-    if img_arr.size > 1
-      assign p_hover_img = img_arr[1]
-    endif
-  endif
-
   assign discount_pct = 0
   if p_compare > p_price and p_compare > 0
     assign diff = p_compare | minus: p_price

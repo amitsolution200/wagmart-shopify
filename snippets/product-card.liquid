@@ -40,11 +40,6 @@
       assign prod_image = fallback_asset_img
     endif
 
-    assign prod_hover_image = ''
-    if product.images.size > 1
-      assign prod_hover_image = product.images[1] | image_url: width: 700
-    endif
-
     assign prod_images_list = ''
     if product.images.size > 0
       for img_obj in product.images limit: 8
@@ -105,18 +100,11 @@
     else
       assign prod_image = mock_image | default: 'paw-cleaner-kit.webp' | asset_url
     endif
-    assign prod_hover_image = mock_hover_image | default: ''
     assign prod_images_list = prod_image
     assign prod_badge = mock_badge | default: ''
     assign prod_category = mock_category | default: 'grooming'
   endif
 -%}
-
-{%- assign discount_pct = 0 -%}
-{%- if prod_comp_num > prod_price_num and prod_comp_num > 0 -%}
-  {%- assign diff = prod_comp_num | minus: prod_price_num -%}
-  {%- assign discount_pct = diff | times: 100 | divided_by: prod_comp_num | round -%}
-{%- endif -%}
 
 {%- assign badge_label = '' -%}
 {%- assign cat_first = prod_category | split: ',' | first | default: 'Grooming' | strip | capitalize -%}

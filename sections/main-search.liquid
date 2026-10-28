@@ -145,10 +145,8 @@
               role="region"
               aria-label="Search results"
             >
-              {%- assign product_results_found = false -%}
               {%- for item in search.results -%}
                 {%- if item.object_type == 'product' -%}
-                  {%- assign product_results_found = true -%}
                   {%- liquid
                     assign real_price_inr = item.price | divided_by: 100.0 | round
                     assign real_compare_inr = 0

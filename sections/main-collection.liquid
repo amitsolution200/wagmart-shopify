@@ -9,7 +9,13 @@
 
 {{ 'collection.css' | asset_url | stylesheet_tag }}
 
-
+{%- liquid
+  assign display_title = collection.title | default: 'All Pet Products'
+  assign display_desc = collection.description | strip_html | default: 'Thoughtfully curated daily essentials for dogs and cats.'
+  assign total_count = collection.products_count | default: collection.all_products_count | default: 0
+  assign fallback_img = 'catalog-bath-massage-brush.webp' | asset_url
+  assign img_brush = 'catalog-bath-massage-brush.webp' | asset_url
+-%}
 
 {%- comment -%} JSON-LD CollectionPage & ItemList Schema for SEO {%- endcomment -%}
 <script type="application/ld+json">
@@ -61,10 +67,8 @@
     {%- comment -%} 2d. Category / Collection Sub-Navigation Circles {%- endcomment -%}
     <section class="wm-plp-subnav" data-plp-subnav aria-label="Shop by category">
       <div class="wm-plp-subnav__track" role="tablist">
-        {%- assign custom_col_count = 0 -%}
         {%- for col in collections -%}
           {%- unless col.handle == 'all' or col.handle == 'frontpage' -%}
-            {%- assign custom_col_count = custom_col_count | plus: 1 -%}
             {%- liquid
               assign is_active_col = false
               if collection.handle == col.handle
@@ -79,9 +83,8 @@
               if col_img != blank
                 assign col_img_url = col_img | image_url: width: 400
               else
-                assign col_img_url = img_kibble_2
+                assign col_img_url = fallback_img
               endif
-              assign col_count = col.all_products_count | default: col.products_count | default: col.products.size | default: 0
             -%}
             <a
               href="{{ circle_href }}"
@@ -108,65 +111,6 @@
             </a>
           {%- endunless -%}
         {%- endfor -%}
-
-        {%- if custom_col_count == 0 -%}
-          {%- comment -%} Default demo categories when no custom collections exist yet {%- endcomment -%}
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_bed }}" alt="Beds" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Beds</span>
-          </a>
-
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_bowl }}" alt="Bowls &amp; Feeders" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Bowls &amp; Feeders</span>
-          </a>
-
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_kibble_2 }}" alt="Dog Food &amp; Treats" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Dog Food &amp; Treats</span>
-          </a>
-
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_brush }}" alt="Grooming" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Grooming</span>
-          </a>
-
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_kibble_3 }}" alt="Cat Food &amp; Treats" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Cat Food &amp; Treats</span>
-          </a>
-
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_rope }}" alt="Collars, Leashes &amp; Harnesses" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Collars, Leashes &amp; Harnesses</span>
-          </a>
-
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_paw }}" alt="Hygiene &amp; Cleaning" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Hygiene &amp; Cleaning</span>
-          </a>
-
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
-            <span class="wm-plp-subnav__ring">
-              <img src="{{ img_kibble_1 }}" alt="Health &amp; Wellness" width="280" height="280" loading="eager">
-            </span>
-            <span class="wm-plp-subnav__label">Health &amp; Wellness</span>
-          </a>
-        {%- endif -%}
       </div>
     </section>
 
