@@ -1,4 +1,46 @@
 {%- comment -%}
-  Wagmart Collection Pagination (snippets/collection-pagination.liquid)
-  - Hidden per user request
+  Wagmart Pagination Snippet (snippets/collection-pagination.liquid)
+  - Accessible, responsive pagination controls for Collection and Search Results
+  - Integrates with AJAX filtering and history.pushState
 {%- endcomment -%}
+
+{%- if paginate.pages > 1 -%}
+  <nav class="wm-plp-pagination" data-plp-pagination aria-label="Pagination">
+    <div class="wm-plp-pagination__info">
+      Showing {{ paginate.current_offset | plus: 1 }}&ndash;{{ paginate.current_offset | plus: paginate.page_size | at_most: paginate.items }} of {{ paginate.items }} results
+    </div>
+    <ul class="wm-plp-pagination__list">
+      {%- if paginate.previous -%}
+        <li class="wm-plp-pagination__item">
+          <a href="{{ paginate.previous.url }}" class="wm-plp-pagination__link wm-plp-pagination__link--prev" aria-label="Previous page">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Previous</span>
+          </a>
+        </li>
+      {%- endif -%}
+
+      {%- for part in paginate.parts -%}
+        <li class="wm-plp-pagination__item">
+          {%- if part.is_link -%}
+            <a href="{{ part.url }}" class="wm-plp-pagination__link wm-plp-pagination__link--page" aria-label="Page {{ part.title }}">{{ part.title }}</a>
+          {%- else -%}
+            {%- if part.title == paginate.current_page -%}
+              <span class="wm-plp-pagination__link wm-plp-pagination__link--page is-active" aria-current="page" aria-label="Current page, page {{ part.title }}">{{ part.title }}</span>
+            {%- else -%}
+              <span class="wm-plp-pagination__link wm-plp-pagination__link--ellipsis" aria-hidden="true">&hellip;</span>
+            {%- endif -%}
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+
+      {%- if paginate.next -%}
+        <li class="wm-plp-pagination__item">
+          <a href="{{ paginate.next.url }}" class="wm-plp-pagination__link wm-plp-pagination__link--next" aria-label="Next page">
+            <span>Next</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </li>
+      {%- endif -%}
+    </ul>
+  </nav>
+{%- endif -%}

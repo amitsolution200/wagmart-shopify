@@ -26,7 +26,7 @@
   }
 
   function initCollectionPage() {
-    var pageEl = document.querySelector('[data-collection-page]');
+    var pageEl = document.querySelector('[data-collection-page], [data-search-page]');
     if (!pageEl) return;
 
     var workspace = pageEl.querySelector('[data-plp-workspace]');
@@ -127,6 +127,9 @@
       savedLayout = localStorage.getItem(STORAGE_LAYOUT_KEY) || 'grid';
       savedSidebar = localStorage.getItem(STORAGE_SIDEBAR_KEY) || 'open';
     } catch (e) {}
+    if (window.innerWidth < 768) {
+      savedLayout = 'grid';
+    }
     applyLayout(savedLayout, savedSidebar, false);
 
     window.addEventListener('resize', function () {
@@ -213,7 +216,7 @@
         if (inputMin && document.activeElement !== inputMin) inputMin.value = String(minVal);
         if (inputMax && document.activeElement !== inputMax) inputMax.value = String(maxVal);
         if (priceDisplay) {
-          priceDisplay.textContent = 'Price: ' + formatINR(minVal) + ' – ' + formatINR(maxVal);
+          priceDisplay.textContent = formatINR(minVal) + ' – ' + formatINR(maxVal);
         }
       }
 
@@ -260,11 +263,24 @@
 
       // Sort
       var currentSort = (sortSelect && sortSelect.value) || (mobileSortSelect && mobileSortSelect.value);
-      if (currentSort && currentSort !== 'featured') {
+      if (currentSort && currentSort !== 'featured' && currentSort !== 'relevance') {
         params.set('sort_by', currentSort);
       }
 
       if (form) {
+        // Search query and options
+        var qInput = form.querySelector('input[name="q"]');
+        if (qInput && qInput.value) {
+          params.set('q', qInput.value);
+        }
+        var optPrefix = form.querySelector('input[name="options[prefix]"]');
+        if (optPrefix && optPrefix.value) {
+          params.set('options[prefix]', optPrefix.value);
+        }
+        var typeInput = form.querySelector('input[name="type"]');
+        if (typeInput && typeInput.value) {
+          params.set('type', typeInput.value);
+        }
         // Collect checked checkboxes
         var checkedBoxes = form.querySelectorAll('input[type="checkbox"][data-filter-input]:checked');
         Array.prototype.forEach.call(checkedBoxes, function (cb) {
@@ -343,6 +359,9 @@
             var curForm = sidebar.querySelector('[data-plp-filter-form]');
             if (newForm && curForm) {
               curForm.innerHTML = newForm.innerHTML;
+              if (newForm.getAttribute('action')) {
+                curForm.setAttribute('action', newForm.getAttribute('action'));
+              }
             }
           }
 
@@ -384,10 +403,49 @@
           var newPagination = newDoc.querySelector('[data-plp-pagination-wrap]');
           if (paginationWrap && newPagination) {
             paginationWrap.innerHTML = newPagination.innerHTML;
-            paginationWrap.hidden = newPagination.hasAttribute('hidden') || count <= 12;
+            paginationWrap.hidden = newPagination.hasAttribute('hidden');
           }
 
-          // 7. Update browser URL history
+          // 7. Update Category Subnav Circles
+          var newSubnav = newDoc.querySelector('[data-plp-subnav]');
+          var curSubnav = pageEl.querySelector('[data-plp-subnav]');
+          if (curSubnav && newSubnav) {
+            curSubnav.innerHTML = newSubnav.innerHTML;
+          }
+
+          // 8. Update Hero Title & Description
+          var newHeroTitle = newDoc.querySelector('[data-plp-hero-title]');
+          var curHeroTitle = pageEl.querySelector('[data-plp-hero-title]');
+          if (curHeroTitle && newHeroTitle) {
+            curHeroTitle.innerHTML = newHeroTitle.innerHTML;
+          }
+
+          var newHeroDesc = newDoc.querySelector('[data-plp-hero-desc]');
+          var curHeroDesc = pageEl.querySelector('[data-plp-hero-desc]');
+          if (curHeroDesc && newHeroDesc) {
+            curHeroDesc.innerHTML = newHeroDesc.innerHTML;
+          }
+
+          // 9. Update Breadcrumb Current Item
+          var newBreadcrumb = newDoc.querySelector('[data-plp-breadcrumb-current]');
+          var curBreadcrumb = pageEl.querySelector('[data-plp-breadcrumb-current]');
+          if (curBreadcrumb && newBreadcrumb) {
+            curBreadcrumb.innerHTML = newBreadcrumb.innerHTML;
+          }
+
+          // 10. Update Collection Handle & Document Title
+          var newPageEl = newDoc.querySelector('[data-collection-page]');
+          if (pageEl && newPageEl) {
+            var newHandle = newPageEl.getAttribute('data-collection-handle');
+            if (newHandle) {
+              pageEl.setAttribute('data-collection-handle', newHandle);
+            }
+          }
+          if (newDoc.title) {
+            document.title = newDoc.title;
+          }
+
+          // 11. Update browser URL history
           if (pushState !== false) {
             window.history.pushState({ url: targetUrl }, '', targetUrl);
           }
@@ -433,12 +491,40 @@
       Array.prototype.forEach.call(clearButtons, function (btn) {
         btn.addEventListener('click', function (e) {
           e.preventDefault();
-          var baseUrl = form ? form.getAttribute('action') || window.location.pathname : window.location.pathname;
+          var baseUrl = btn.getAttribute('href') || (form ? form.getAttribute('action') : null) || window.location.pathname;
           var currentSort = (sortSelect && sortSelect.value) || (mobileSortSelect && mobileSortSelect.value);
-          if (currentSort && currentSort !== 'featured') {
-            baseUrl += '?sort_by=' + encodeURIComponent(currentSort);
+          var params = new URLSearchParams();
+          if (form) {
+            var qInp = form.querySelector('input[name="q"]');
+            if (qInp && qInp.value) params.set('q', qInp.value);
+            var optPfx = form.querySelector('input[name="options[prefix]"]');
+            if (optPfx && optPfx.value) params.set('options[prefix]', optPfx.value);
+            var typInp = form.querySelector('input[name="type"]');
+            if (typInp && typInp.value) params.set('type', typInp.value);
           }
-          fetchFilteredResults(baseUrl, true);
+          if (currentSort && currentSort !== 'featured' && currentSort !== 'relevance') {
+            params.set('sort_by', currentSort);
+          }
+          var qs = params.toString();
+          var cleanBase = baseUrl.split('?')[0];
+          var targetUrl = qs ? cleanBase + '?' + qs : cleanBase;
+          fetchFilteredResults(targetUrl, true);
+        });
+      });
+
+      // Pagination Links
+      var paginationLinks = pageEl.querySelectorAll('[data-plp-pagination] a');
+      Array.prototype.forEach.call(paginationLinks, function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          var href = link.getAttribute('href');
+          if (href) {
+            fetchFilteredResults(href, true);
+            if (workspace) {
+              var topPos = workspace.getBoundingClientRect().top + window.pageYOffset - 90;
+              window.scrollTo({ top: topPos, behavior: 'smooth' });
+            }
+          }
         });
       });
 
@@ -492,18 +578,166 @@
       if (window.WagmartCart && typeof window.WagmartCart.syncCardSteppers === 'function') {
         window.WagmartCart.syncCardSteppers();
       }
+
+      // Category Subnav Circle Click: Toggle category or reset to All products
+      var subnavItems = pageEl.querySelectorAll('[data-subnav-item], .wm-plp-subnav__item');
+      Array.prototype.forEach.call(subnavItems, function (item) {
+        item.addEventListener('click', function (e) {
+          e.preventDefault();
+          var isActive = item.classList.contains('is-active');
+          var allUrl = item.getAttribute('data-all-url') || (pageEl && pageEl.getAttribute('data-all-collection-url')) || '/collections/all';
+          var colUrl = item.getAttribute('data-col-url') || item.getAttribute('href') || allUrl;
+          var targetUrl = isActive ? allUrl : colUrl;
+          fetchFilteredResults(targetUrl, true);
+        });
+      });
+
+      bindSortOptionClicks();
+      syncSortUI();
     }
 
-    // Sort Dropdowns
+    // Custom Sort Dropdown & Mobile Sort Sheet (NO native OS select popup)
+    var customSort = pageEl.querySelector('[data-plp-custom-sort]');
+    var customSortTrigger = pageEl.querySelector('[data-plp-custom-sort-trigger]');
+    var customSortMenu = pageEl.querySelector('[data-plp-custom-sort-menu]');
+    var customSortCurrent = pageEl.querySelector('[data-plp-sort-current]');
+
+    var mobileSortDrawer = pageEl.querySelector('[data-plp-mobile-sort-drawer]');
+    var mobileSortTrigger = pageEl.querySelector('[data-plp-mobile-sort-trigger]');
+    var mobileSortCloses = pageEl.querySelectorAll('[data-plp-mobile-sort-close]');
+
+    function openCustomSortMenu() {
+      if (!customSortMenu || !customSortTrigger) return;
+      customSortMenu.hidden = false;
+      customSortTrigger.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeCustomSortMenu() {
+      if (!customSortMenu || !customSortTrigger) return;
+      customSortMenu.hidden = true;
+      customSortTrigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggleCustomSortMenu() {
+      if (!customSortMenu) return;
+      if (customSortMenu.hidden) {
+        openCustomSortMenu();
+      } else {
+        closeCustomSortMenu();
+      }
+    }
+
+    function openMobileSortDrawer() {
+      if (!mobileSortDrawer) return;
+      mobileSortDrawer.hidden = false;
+      var toolbarWrap = pageEl.querySelector('[data-plp-toolbar-wrap]');
+      if (toolbarWrap) toolbarWrap.style.zIndex = '9999';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSortDrawer() {
+      if (!mobileSortDrawer) return;
+      mobileSortDrawer.hidden = true;
+      var toolbarWrap = pageEl.querySelector('[data-plp-toolbar-wrap]');
+      if (toolbarWrap) toolbarWrap.style.zIndex = '';
+      document.body.style.overflow = '';
+    }
+
+    function selectSortOption(sortVal, optionLabel) {
+      if (sortSelect) sortSelect.value = sortVal;
+      if (mobileSortSelect) mobileSortSelect.value = sortVal;
+      var sidebarSortInput = pageEl.querySelector('[data-plp-sidebar-sort-input]');
+      if (sidebarSortInput) sidebarSortInput.value = sortVal;
+
+      if (customSortCurrent && optionLabel) {
+        customSortCurrent.textContent = optionLabel;
+      }
+
+      syncSortUI();
+      closeCustomSortMenu();
+      closeMobileSortDrawer();
+      triggerFilterUpdate();
+    }
+
+    function syncSortUI() {
+      var currentVal = (sortSelect && sortSelect.value) || (mobileSortSelect && mobileSortSelect.value);
+      if (!currentVal) {
+        var sidebarSortInput = pageEl.querySelector('[data-plp-sidebar-sort-input]');
+        currentVal = (sidebarSortInput && sidebarSortInput.value) || 'manual';
+      }
+      if (currentVal === 'featured') currentVal = 'manual';
+
+      var desktopOpts = pageEl.querySelectorAll('.wm-plp-custom-sort__option');
+      Array.prototype.forEach.call(desktopOpts, function (btn) {
+        var btnVal = btn.getAttribute('data-sort-value');
+        var isCurrent = btnVal === currentVal || (currentVal === 'manual' && btnVal === 'featured');
+        btn.classList.toggle('is-active', isCurrent);
+        btn.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+        if (isCurrent && customSortCurrent) {
+          var textEl = btn.querySelector('.wm-plp-custom-sort__option-text') || btn.querySelector('span') || btn;
+          customSortCurrent.textContent = textEl.textContent.trim();
+        }
+      });
+
+      var mobileOpts = pageEl.querySelectorAll('.wm-plp-mobile-sort-drawer__item');
+      Array.prototype.forEach.call(mobileOpts, function (btn) {
+        var btnVal = btn.getAttribute('data-sort-value');
+        var isCurrent = btnVal === currentVal || (currentVal === 'manual' && btnVal === 'featured');
+        btn.classList.toggle('is-active', isCurrent);
+      });
+    }
+
+    function bindSortOptionClicks() {
+      var sortOptions = pageEl.querySelectorAll('.wm-plp-custom-sort__option, .wm-plp-mobile-sort-drawer__item');
+      Array.prototype.forEach.call(sortOptions, function (opt) {
+        opt.onclick = function (e) {
+          e.preventDefault();
+          var val = opt.getAttribute('data-sort-value');
+          var labelText = (opt.querySelector('.wm-plp-custom-sort__option-text') || opt.querySelector('span') || opt).textContent.trim();
+          selectSortOption(val, labelText);
+        };
+      });
+    }
+
+    if (customSortTrigger) {
+      customSortTrigger.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleCustomSortMenu();
+      });
+    }
+
+    if (mobileSortTrigger) {
+      mobileSortTrigger.addEventListener('click', function (e) {
+        e.preventDefault();
+        openMobileSortDrawer();
+      });
+    }
+
+    Array.prototype.forEach.call(mobileSortCloses, function (btn) {
+      btn.addEventListener('click', function () {
+        closeMobileSortDrawer();
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (customSort && !customSort.contains(e.target)) {
+        closeCustomSortMenu();
+      }
+    });
+
+    // Hidden fallback select change triggers
     if (sortSelect) {
       sortSelect.addEventListener('change', function () {
         if (mobileSortSelect) mobileSortSelect.value = sortSelect.value;
+        syncSortUI();
         triggerFilterUpdate();
       });
     }
     if (mobileSortSelect) {
       mobileSortSelect.addEventListener('change', function () {
         if (sortSelect) sortSelect.value = mobileSortSelect.value;
+        syncSortUI();
         triggerFilterUpdate();
       });
     }
@@ -533,6 +767,8 @@
       if (e.key === 'Escape') {
         if (qvModal && !qvModal.hidden) closeQuickView();
         if (sidebar && sidebar.classList.contains('is-mobile-open')) closeMobileFilterDrawer();
+        if (customSortMenu && !customSortMenu.hidden) closeCustomSortMenu();
+        if (mobileSortDrawer && !mobileSortDrawer.hidden) closeMobileSortDrawer();
       }
     });
 

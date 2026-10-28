@@ -1,17 +1,12 @@
 {%- comment -%}
-  Wagmart Cart Quantity Stepper Snippet (40px height, rounded, AJAX-ready)
-  Parameters:
-  - item_key: unique line item key or variant ID
-  - item_title: product title for accessibility label
-  - quantity: current line item quantity
-  - max_qty: maximum allowed quantity (inventory cap)
+  Wagmart Cart Quantity Stepper Snippet (Matches reference screenshot: clean white bordered box with - qty +)
 {%- endcomment -%}
 
 {%- liquid
   assign key = item_key | default: '1'
   assign title = item_title | default: 'Item'
   assign qty = quantity | default: 1
-  assign max_stock = max_qty | default: 10
+  assign max_stock = max_qty | default: 99
 -%}
 
 <div
@@ -27,7 +22,7 @@
     data-key="{{ key }}"
     aria-label="Decrease quantity for {{ title | escape }}"
   >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
   <input
     type="number"
@@ -47,6 +42,6 @@
     {% if qty >= max_stock %}disabled{% endif %}
     aria-label="Increase quantity for {{ title | escape }}"
   >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 </div>

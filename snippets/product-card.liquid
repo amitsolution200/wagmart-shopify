@@ -1,18 +1,15 @@
 {% comment %}
-  Renders interactive Wagmart Product Card (Exact Unified Design across Homepage, Collection Page, Cart Page & Product Details Page)
-  Accepts:
-  - product: {Object} Shopify Product Object (optional)
-  - mock_id: {String} Fallback product ID
-  - mock_title: {String} Fallback title
-  - mock_subtitle: {String} Fallback subtitle
-  - mock_price: {String} Fallback price string
-  - mock_original_price: {String} Fallback compare price
-  - mock_image: {String} Fallback image asset name or URL
-  - mock_badge: {String} Fallback badge label
-  - mock_category: {String} Fallback category key
+  Renders interactive Wagmart Product Card (Converted from React ProductCard)
+  - 4:5 aspect ratio with rounded-[20px] and overflow-hidden
+  - Smooth 500ms hover image swap (fades out primary image, zooms in secondary image)
+  - Inside content: bottom left (title + price in default store Rupees ₹)
+  - Heart toggle: top right (toggles wishlist / favorite)
+  - Inside bottom right: On-hover Add to Cart button that transforms into - / + quantity stepper
+  - Fully responsive across mobile, tablet, and desktop
 {% endcomment %}
 
 {%- liquid
+  assign is_related = is_related | default: false
   assign fallback_asset_img = 'catalog-bath-massage-brush.webp' | asset_url
   if product != blank and mock_id == blank
     assign prod_id = product.selected_or_first_available_variant.id | default: product.variants.first.id | default: product.id
@@ -32,12 +29,22 @@
     if product.compare_at_price > product.price
       assign prod_comp_num = product.compare_at_price | divided_by: 100
       assign prod_compare_price = '₹' | append: prod_comp_num
+    else
+      assign prod_comp_num = prod_price_num | times: 125 | divided_by: 100 | round
+      assign prod_compare_price = '₹' | append: prod_comp_num
     endif
+
     if product.featured_image != blank
-      assign prod_image = product.featured_image | image_url: width: 640
+      assign prod_image = product.featured_image | image_url: width: 700
     else
       assign prod_image = fallback_asset_img
     endif
+
+    assign prod_hover_image = ''
+    if product.images.size > 1
+      assign prod_hover_image = product.images[1] | image_url: width: 700
+    endif
+
     assign prod_images_list = ''
     if product.images.size > 0
       for img_obj in product.images limit: 8
@@ -51,7 +58,7 @@
     else
       assign prod_images_list = prod_image
     endif
-    assign prod_badge = mock_badge | default: 'Best Seller'
+    assign prod_badge = mock_badge | default: ''
 
     assign p_cols_text = ''
     for col in product.collections
@@ -98,14 +105,31 @@
     else
       assign prod_image = mock_image | default: 'paw-cleaner-kit.webp' | asset_url
     endif
+    assign prod_hover_image = mock_hover_image | default: ''
     assign prod_images_list = prod_image
-    assign prod_badge = mock_badge | default: 'Best Seller'
+    assign prod_badge = mock_badge | default: ''
     assign prod_category = mock_category | default: 'grooming'
   endif
 -%}
 
+{%- assign discount_pct = 0 -%}
+{%- if prod_comp_num > prod_price_num and prod_comp_num > 0 -%}
+  {%- assign diff = prod_comp_num | minus: prod_price_num -%}
+  {%- assign discount_pct = diff | times: 100 | divided_by: prod_comp_num | round -%}
+{%- endif -%}
+
+{%- assign badge_label = '' -%}
+{%- assign cat_first = prod_category | split: ',' | first | default: 'Grooming' | strip | capitalize -%}
+{%- if cat_first != blank -%}
+  {%- assign badge_label = cat_first -%}
+{%- elsif prod_badge != blank -%}
+  {%- assign badge_label = prod_badge | capitalize -%}
+{%- else -%}
+  {%- assign badge_label = 'Grooming' -%}
+{%- endif -%}
+
 <div
-  class="wm-unified-card group relative shrink-0 w-[85vw] max-w-[340px] sm:w-[320px] md:w-[325px] lg:w-[335px] bg-[#FAF8F5] rounded-[22px] p-3 pb-4 border border-[#EAE5D9] hover:border-[#D5CEBF] select-none transition-all duration-300 flex flex-col justify-between snap-start cursor-pointer"
+  class="wm-unified-card wm-react-card group relative w-full flex flex-col select-none transition-all duration-300 cursor-pointer"
   data-product-card
   data-product-id="{{ prod_id }}"
   data-handle="{{ prod_handle | escape }}"
@@ -130,127 +154,120 @@
   role="region"
   aria-label="{{ prod_title | escape }}"
 >
-  <div class="wm-unified-card__top">
-    {% comment %} 1. HERO IMAGE STAGE {% endcomment %}
-    <div class="wm-unified-card__media relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-white/80 shrink-0 select-none flex items-center justify-center p-2.5">
-      <a href="{{ prod_url }}" class="w-full h-full flex items-center justify-center" aria-label="{{ prod_title | escape }}">
-        <img
-          src="{{ prod_image }}"
-          alt="{{ prod_title | escape }}"
-          class="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
-          loading="lazy"
-          width="300"
-          height="210"
-          onerror="this.onerror=null;this.src='{{ fallback_asset_img }}';"
-        >
-      </a>
+  <!-- Image Container (Rounded 20px, Overflow Hidden, #FBFBF7 Background, No Border) -->
+  <div class="wm-react-card__image-box relative w-full aspect-[4/5] rounded-[20px] overflow-hidden bg-[#FBFBF7] border-0 transition-all duration-500">
+    <!-- Full card product link -->
+    <a href="{{ prod_url }}" class="wm-unified-card__media block w-full h-full relative" aria-label="{{ prod_title | escape }}">
+      <!-- Primary Image -->
+      <img
+        src="{{ prod_image }}"
+        alt="{{ prod_title | escape }}"
+        loading="lazy"
+        width="600"
+        height="750"
+        class="wm-react-card__img-primary absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        onerror="this.onerror=null;this.src='{{ fallback_asset_img }}';"
+      >
+    </a>
 
-      {% comment %} Top-Left Category Badge {% endcomment %}
-      <div class="absolute top-[12px] left-[12px] z-10 pointer-events-none">
-        <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          {{ prod_badge }}
-        </span>
-      </div>
-
-      {% comment %} Top-Right Wishlist Heart + Quick View Eye Buttons {% endcomment %}
-      <div class="absolute top-[12px] right-[12px] z-10 flex flex-col gap-1.5">
-        <button
-          type="button"
-          class="w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
-          data-wishlist-btn
-          aria-label="Wishlist {{ prod_title | escape }}"
-        >
-          <svg class="w-4.5 h-4.5 transition-transform duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          class="w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
-          data-plp-qv-trigger
-          data-quick-view-trigger
-          aria-label="Quick view {{ prod_title | escape }}"
-        >
-          <svg class="w-4 h-4 text-neutral-700 hover:text-[#1B3A2A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    {% comment %} 2. PRODUCT TITLE & SUBTITLE {% endcomment %}
-    <div class="wm-unified-card__info px-1.5 pt-3.5">
-      <h3 class="font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#7a46e5] transition-colors duration-200">
-        <a href="{{ prod_url }}" class="hover:underline">{{ prod_title }}</a>
-      </h3>
-
-      <p class="mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 font-normal">
-        {{ prod_desc }}
-      </p>
-    </div>
-  </div>
-
-  {% comment %} 3. BOTTOM ROW: PRICE LOCKUP & ADD TO CART / STEPPER {% endcomment %}
-  <div class="wm-unified-card__bottom px-1 mt-auto pt-3 sm:pt-4 flex items-center justify-between gap-2">
-    {% comment %} Price Lockup {% endcomment %}
-    <div data-price-wrap class="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 min-w-0 pr-1">
-      <span data-price-val class="font-extrabold text-[19px] sm:text-[22px] text-[#111827] tracking-tight leading-none whitespace-nowrap">
-        {{ prod_price }}
+    <!-- Top Left: Category Badge (Glassmorphic pill with black text) -->
+    {%- if badge_label != blank -%}
+      <span class="wm-card__badge" aria-label="Category {{ badge_label | escape }}">
+        {{ badge_label }}
       </span>
-      {%- if prod_compare_price != blank -%}
-        <span data-compare-val class="text-[11.5px] sm:text-[13px] text-neutral-400 line-through font-normal whitespace-nowrap">
-          {{ prod_compare_price }}
-        </span>
-      {%- endif -%}
-    </div>
+    {%- endif -%}
 
-    {% comment %} Right CTA Button / Quantity Stepper Transformation {% endcomment %}
-    <div class="relative shrink-0 flex items-center justify-end">
-      {% comment %} Default Add to Cart Button {% endcomment %}
+    <!-- Top Right Actions: Heart Wishlist & Eye Quick View directly below it -->
+    <div class="wm-card__top-right-actions absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 flex flex-col items-center gap-1.5 pointer-events-auto">
+      <!-- 1. Heart Wishlist Button -->
       <button
         type="button"
-        class="h-[38px] sm:h-[42px] bg-black hover:bg-neutral-900 active:scale-95 text-white pl-1.5 pr-3.5 sm:pr-4 py-1 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-sm transition-all duration-200 cursor-pointer group/btn shrink-0"
-        data-add-to-cart
-        aria-label="Add {{ prod_title | escape }} to Cart"
+        class="wm-react-card__wishlist w-7 h-7 rounded-full bg-white/95 hover:bg-white text-neutral-800 shadow-sm backdrop-blur-xs flex items-center justify-center p-0.5 cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95"
+        data-wishlist-btn
+        data-wishlist-toggle
+        data-product-id="{{ prod_id }}"
+        aria-label="Wishlist {{ prod_title | escape }}"
       >
-        <span class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white text-black flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform duration-200 shadow-xs">
-          {% render 'icon-bag', class: 'w-3.5 h-3.5 stroke-[2.2]' %}
-        </span>
-        <span class="font-bold text-[12px] sm:text-[13px] tracking-tight whitespace-nowrap">
-          Add to Cart
-        </span>
+        <svg class="w-3.5 h-3.5 transition-colors duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+        </svg>
       </button>
 
-      {% comment %} Active Quantity Stepper (Shown when in cart) {% endcomment %}
+      <!-- 2. Eye Quick View Button Below Heart (Opens Quick View on Click) -->
+      <button
+        type="button"
+        class="wm-card__side-qv w-7 h-7 rounded-full bg-white/95 hover:bg-white text-neutral-800 shadow-sm backdrop-blur-xs flex items-center justify-center p-0.5 cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95"
+        data-quick-view-trigger
+        data-quick-view="{{ prod_handle | default: prod_id | default: 'pet-grooming-glove' | escape }}"
+        aria-label="Quick View {{ prod_title | escape }}"
+      >
+        <svg class="w-3.5 h-3.5 stroke-[2] text-neutral-700 hover:text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Bottom Inside Image: Add To Bag Button (White Pill) & Active Stepper -->
+    <div class="wm-card__img-qv-wrap absolute inset-x-2.5 bottom-2.5 sm:bottom-3 z-20 flex justify-center pointer-events-none">
+      <button
+        type="button"
+        class="wm-card__img-qv-btn pointer-events-auto flex items-center justify-center gap-1.5 w-full h-7 sm:h-7.5 px-3 rounded-full bg-white/95 hover:bg-white text-neutral-900 text-[10.5px] sm:text-[11px] font-semibold shadow-md backdrop-blur-xs transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer whitespace-nowrap"
+        data-add-to-cart
+        aria-label="Add {{ prod_title | escape }} to Bag"
+      >
+        {% render 'icon-bag', class: 'w-3.5 h-3.5 stroke-[2.2]' %}
+        <span>Add To Bag</span>
+      </button>
+
+      <!-- Stepper when product is in cart -->
       <div
-        class="hidden h-[38px] sm:h-[42px] bg-black text-white px-1.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
+        class="hidden pointer-events-auto w-full"
         data-card-stepper
       >
         <button
           type="button"
-          class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
           data-card-stepper-btn
           data-delta="-1"
           aria-label="Decrease quantity"
         >
-          <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
 
-        <span class="text-white font-extrabold text-[12.5px] sm:text-[13px] px-1 sm:px-1.5 min-w-[18px] text-center select-none shrink-0" data-card-qty>
+        <span data-card-qty>
           1
         </span>
 
         <button
           type="button"
-          class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
           data-card-stepper-btn
           data-delta="1"
           aria-label="Increase quantity"
         >
-          <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Below Image Box (Reference matching layout) -->
+  <div class="wm-card__info pt-2 pb-0.5 text-left flex flex-col items-start w-full flex-1">
+    <!-- Product Heading / Title -->
+    <h3 class="wm-card__title text-[13px] sm:text-[14.5px] leading-tight font-bold text-neutral-900 truncate w-full">
+      <a href="{{ prod_url }}" class="hover:underline text-neutral-900 block truncate" aria-label="{{ prod_title | escape }}">
+        {{ prod_title }}
+      </a>
+    </h3>
+
+    <!-- Bottom Row: Price -->
+    <div class="wm-card__bottom-row flex items-center justify-between gap-1.5 w-full pt-2">
+      <div data-price-wrap class="flex flex-col items-start leading-none shrink min-w-0">
+        <div class="flex items-baseline gap-1.5 truncate">
+          <span class="wm-card__price font-bold text-[13.5px] sm:text-[15px] text-neutral-900 tracking-tight" data-price-val>{{ prod_price }}</span>
+          {%- if prod_compare_price != blank -%}
+            <span class="wm-card__compare-price text-neutral-400 line-through text-[9px] sm:text-[11px]" data-compare-val>{{ prod_compare_price }}</span>
+          {%- endif -%}
+        </div>
       </div>
     </div>
   </div>

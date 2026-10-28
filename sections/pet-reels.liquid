@@ -1,125 +1,177 @@
 {% comment %}
-  Wagmart "Good Dogs. Great Style." Video Reels Section
-  Responsive 5-card grid on desktop (matching editorial reference),
-  smooth swipeable carousel on mobile/tablet,
-  and hover video playback with full sound (video properly fitted, no crop/cut).
+  Wagmart "Good Dogs. Great Style." Shoppable Video Reels Section
+  - Refined editorial design with distinct product pairing per reel
+  - Responsive across all devices:
+    * Desktop (>= 1280px): 5 cards in one row
+    * Laptop (1024px - 1279px): 4 cards per view carousel
+    * Tablet (768px - 1023px): 3 cards per view carousel
+    * Large Mobile (540px - 767px): 2 cards per view carousel
+    * Mobile Portrait (< 540px): 1.35 cards per view swipeable reel track
+  - Hover & tap video playback with interactive audio mute/unmute control
 {% endcomment %}
 
-<section id="stories" class="bg-white py-14 sm:py-20 overflow-hidden relative" data-reels-section>
-  <div class="max-w-[1460px] mx-auto px-4 sm:px-6 lg:px-8 relative">
-    
-    {% comment %} Section Header {% endcomment %}
-    <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-      {%- if section.settings.badge_label != blank -%}
-        {% render 'section-badge', label: section.settings.badge_label, class: 'mb-4' %}
-      {%- endif -%}
-      <h2 class="font-serif-title sm:font-nunito text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#111111] tracking-tight leading-tight">
+<section
+  id="stories"
+  class="wm-reels-section"
+  aria-label="{{ section.settings.title | default: 'Good Dogs. Great Style.' | escape }}"
+  data-reels-section
+>
+  <div class="wm-reels-container">
+
+    {% comment %} Editorial Section Header {% endcomment %}
+    <div class="wm-reels-header">
+      <h2 class="wm-reels-title">
         {{ section.settings.title | default: 'Good Dogs. Great Style.' }}
         {%- if section.settings.title_accent != blank -%}
-          <span class="text-[#7a46e5] ml-1">{{ section.settings.title_accent }}</span>
+          <span class="wm-reels-title-accent">{{ section.settings.title_accent }}</span>
         {%- endif -%}
       </h2>
       {%- if section.settings.subtitle != blank -%}
-        <p class="font-nunito text-sm sm:text-base text-neutral-600 max-w-2xl mx-auto mt-3 leading-relaxed">
+        <p class="wm-reels-subtitle">
           {{ section.settings.subtitle }}
         </p>
       {%- endif -%}
     </div>
 
-    {% comment %} Reels Wrapper {% endcomment %}
-    <div class="relative reels-wrapper">
-      
-      {% comment %} Left Navigation Arrow (Mobile/Tablet) {% endcomment %}
+    {% comment %} Reels Carousel Wrapper {% endcomment %}
+    <div class="wm-reels-stage">
+
+      {% comment %} Left Navigation Arrow {% endcomment %}
       <button
         type="button"
         data-reels-prev
-        class="reels-nav-btn reels-nav-prev"
-        aria-label="Previous reel"
+        class=" reels-nav-btn reels-nav-prev"
+        aria-label="Previous video reel"
       >
-        <svg class="w-5 h-5 text-neutral-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
 
-      {% comment %} Reels Carousel / Grid 5 Track {% endcomment %}
+      {% comment %} Reels Track {% endcomment %}
       <div
         data-reels-carousel
         class="reels-carousel"
+        role="region"
+        aria-label="Shoppable pet video reels"
+        tabindex="0"
       >
         {%- if section.blocks.size > 0 -%}
           {%- assign store_all_products = collections['all'].products -%}
           {%- for block in section.blocks -%}
             {%- liquid
-              assign prod = block.settings.product
-              if prod == blank and store_all_products.size > 0
-                assign prod = store_all_products.first
-              endif
-
-              if prod != blank
-                assign prod_id = prod.selected_or_first_available_variant.id | default: prod.id
-                assign prod_title = prod.title
-                assign prod_price = prod.price | money
-                if prod.compare_at_price > prod.price
-                  assign prod_compare = prod.compare_at_price | money
-                else
-                  assign prod_compare = ''
-                endif
-                assign prod_url = prod.url
-                if prod.featured_image
-                  assign prod_thumb = prod.featured_image | image_url: width: 200
-                else
-                  assign prod_thumb = 'catalog-bath-massage-brush.webp' | asset_url
-                endif
-              else
-                assign prod_id = block.id
-                assign prod_title = block.settings.product_title | default: 'Wagmart Pet Essential'
-                assign prod_price = block.settings.product_price | default: '₹330'
-                assign prod_compare = block.settings.product_compare_price | default: ''
-                assign prod_url = block.settings.product_url | default: routes.all_products_collection_url
-                assign prod_thumb = 'catalog-bath-massage-brush.webp' | asset_url
-              endif
-
               case forloop.index
                 when 1
+                  assign slot_handle = 'wagmart-teal-dog-collar-demo'
+                  assign fallback_title = 'Wagmart Teal Dog Collar'
+                  assign fallback_price = '₹499'
+                  assign fallback_compare = '₹699'
+                  assign fallback_thumb = 'catalog-rope-leash.webp' | asset_url
                   assign fallback_bg = 'reel-pawcleaner.webp' | asset_url
                   assign fallback_yt = 'AOr9WB0XIUY'
-                  assign fallback_story = 'Gentle care for healthy, happy pets every single day.'
+                  assign fallback_story = 'Everyday comfort collar crafted for city walks and outdoor adventures.'
                 when 2
+                  assign slot_handle = 'wagmart-pet-feeding-bowl'
+                  assign fallback_title = 'Wagmart Pet Feeding Bowl'
+                  assign fallback_price = '₹449'
+                  assign fallback_compare = '₹599'
+                  assign fallback_thumb = 'catalog-slow-feeder-bowl.webp' | asset_url
                   assign fallback_bg = 'reel-food.webp' | asset_url
                   assign fallback_yt = '5H4sZNYtBFc'
-                  assign fallback_story = 'Promotes healthy routine and mindful everyday care.'
+                  assign fallback_story = 'Promotes healthy digestion and turns mealtime into a calm daily ritual.'
                 when 3
+                  assign slot_handle = 'wagmart-pet-grooming-brush'
+                  assign fallback_title = 'Wagmart Pet Grooming Brush'
+                  assign fallback_price = '₹399'
+                  assign fallback_compare = '₹549'
+                  assign fallback_thumb = 'catalog-slicker-brush.webp' | asset_url
                   assign fallback_bg = 'reel-grooming.webp' | asset_url
                   assign fallback_yt = 'LB8Qfa9tTsU'
-                  assign fallback_story = 'Effortless grooming for clean coats and happy smiles.'
+                  assign fallback_story = 'One-click hair release effortlessly detangles coats without scratching sensitive skin.'
                 when 4
+                  assign slot_handle = 'wagmart-dog-play-ball'
+                  assign fallback_title = 'Wagmart Dog Play Ball'
+                  assign fallback_price = '₹299'
+                  assign fallback_compare = '₹399'
+                  assign fallback_thumb = 'catalog-rolling-cat-ball.webp' | asset_url
                   assign fallback_bg = 'reel-toys.webp' | asset_url
                   assign fallback_yt = 'vwz9XsIcRik'
-                  assign fallback_story = 'Interactive play and enrichment for your energetic pet.'
+                  assign fallback_story = 'Durable interactive bounce ball that keeps energetic pups happily engaged.'
                 when 5
+                  assign slot_handle = 'wagmart-pet-travel-carrier'
+                  assign fallback_title = 'Wagmart Pet Travel Carrier'
+                  assign fallback_price = '₹1,499'
+                  assign fallback_compare = '₹1,899'
+                  assign fallback_thumb = 'catalog-car-seat-hammock.webp' | asset_url
                   assign fallback_bg = 'reel-travel.webp' | asset_url
                   assign fallback_yt = 'GalPqZH1glY'
-                  assign fallback_story = 'Comfortable travel gear designed for everyday pet adventures.'
+                  assign fallback_story = 'Heavy-duty waterproof travel protection shielding seats from mud and fur.'
                 else
+                  assign slot_handle = 'pet-grooming-glove'
+                  assign fallback_title = 'Pet Grooming Glove'
+                  assign fallback_price = '₹330'
+                  assign fallback_compare = '₹450'
+                  assign fallback_thumb = 'catalog-bath-massage-brush.webp' | asset_url
                   assign fallback_bg = 'reel-pawcleaner.webp' | asset_url
                   assign fallback_yt = 'AOr9WB0XIUY'
                   assign fallback_story = 'Everyday mindful care for happy pets.'
               endcase
 
-              if block.settings.reel_image != blank
-                assign reel_img_src = block.settings.reel_image | image_url: width: 800
-              elsif fallback_bg != blank
-                assign reel_img_src = fallback_bg
+              assign prod = block.settings.product
+              if prod == blank or prod.handle == 'pet-grooming-glove'
+                if all_products[slot_handle] != blank
+                  assign prod = all_products[slot_handle]
+                endif
+              endif
+              if prod == blank and store_all_products.size > 0
+                assign idx0 = forloop.index0 | modulo: store_all_products.size
+                assign prod = store_all_products[idx0]
+              endif
+
+              if prod != blank
+                assign prod_id = prod.selected_or_first_available_variant.id | default: prod.id
+                assign prod_title = prod.title | replace: ' (Demo)', '' | remove_first: 'Wagmart '
+                assign prod_price_num = prod.price | divided_by: 100
+                assign prod_price = '₹' | append: prod_price_num
+                if prod.compare_at_price > prod.price
+                  assign prod_comp_num = prod.compare_at_price | divided_by: 100
+                  assign prod_compare = '₹' | append: prod_comp_num
+                else
+                  assign prod_compare = block.settings.product_compare_price | default: fallback_compare
+                endif
+                assign prod_url = prod.url
+                if block.settings.product_thumbnail != blank
+                  assign prod_thumb = block.settings.product_thumbnail | image_url: width: 200
+                elsif prod.featured_image != blank
+                  assign prod_thumb = prod.featured_image | image_url: width: 200
+                else
+                  assign prod_thumb = fallback_thumb
+                endif
               else
-                assign reel_img_src = 'reel-pawcleaner.webp' | asset_url
+                assign prod_id = block.id
+                assign prod_title = block.settings.product_title | default: fallback_title | remove_first: 'Wagmart '
+                assign prod_price = block.settings.product_price | default: fallback_price
+                assign prod_compare = block.settings.product_compare_price | default: fallback_compare
+                assign prod_url = block.settings.product_url | default: routes.all_products_collection_url
+                if block.settings.product_thumbnail != blank
+                  assign prod_thumb = block.settings.product_thumbnail | image_url: width: 200
+                else
+                  assign prod_thumb = fallback_thumb
+                endif
+              endif
+
+              if block.settings.reel_image != blank
+                assign reel_img_src = block.settings.reel_image | image_url: width: 900
+              else
+                assign reel_img_src = fallback_bg
               endif
 
               assign yt_id = block.settings.youtube_id | default: fallback_yt
               assign reel_caption = block.settings.story | default: fallback_story
             -%}
 
-            <div
-              class="reel-card group relative overflow-hidden bg-neutral-900 select-none cursor-pointer snap-start shrink-0"
+            <article
+              class="reel-card group"
               data-reel-card
               data-reel-id="{{ block.id }}"
               data-youtube-id="{{ yt_id }}"
@@ -133,37 +185,78 @@
               data-card-index="{{ forloop.index0 }}"
               {{ block.shopify_attributes }}
             >
-              {% comment %} Card Background Image (9:16 portrait fit) {% endcomment %}
+              {% comment %} Background Portrait Cover Image {% endcomment %}
               <img
                 data-reel-thumb
                 src="{{ reel_img_src }}"
-                alt="{{ prod_title | escape }}"
+                alt="{{ prod_title | escape }} video reel"
                 class="card-bg-img"
                 loading="lazy"
                 width="450"
                 height="800"
               >
 
-              {% comment %} Video preview container (Proper 9:16 fit, no scale crop) {% endcomment %}
-              <div class="absolute inset-0 w-full h-full overflow-hidden opacity-0 pointer-events-none transition-opacity duration-300 z-10" data-reel-video></div>
+              {% comment %} Subtle Top & Bottom Photographic Scrim {% endcomment %}
+              <div class="reel-card-scrim" aria-hidden="true"></div>
 
-              {% comment %} Floating Frosted-Glass Product Badge at Bottom {% endcomment %}
+              {% comment %} Video Preview Container {% endcomment %}
+              <div
+                class="reel-video-layer opacity-0 pointer-events-none"
+                data-reel-video
+              ></div>
+
+              {% comment %} Top-Right Interactive Play / Sound Control {% endcomment %}
+              <button
+                type="button"
+                class="reel-media-badge"
+                data-reel-audio-btn
+                aria-label="Play {{ prod_title | escape }} reel video"
+              >
+                {% comment %} Play Icon (Shown when idle) {% endcomment %}
+                <svg class="reel-icon-play" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M6 4.75L19.25 12 6 19.25V4.75z"></path>
+                </svg>
+                {% comment %} Sound On Icon (Shown when playing with audio) {% endcomment %}
+                <svg class="reel-icon-sound" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+                {% comment %} Muted Icon (Shown when muted) {% endcomment %}
+                <svg class="reel-icon-muted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+              </button>
+
+              {% comment %} Clean Shoppable Product Bar at Bottom {% endcomment %}
               <div class="reel-product-pill" data-product-pill>
-                <div class="pill-thumb-box">
+                <a
+                  href="{{ prod_url }}"
+                  class="pill-thumb-box"
+                  data-product-link
+                  aria-label="View {{ prod_title | escape }}"
+                >
                   <img
                     src="{{ prod_thumb }}"
                     alt="{{ prod_title | escape }}"
                     class="pill-thumb-img"
                     loading="lazy"
-                    width="88"
-                    height="88"
+                    width="84"
+                    height="84"
                   >
-                </div>
+                </a>
 
                 <div class="pill-info">
-                  <span class="pill-title" data-product-link title="{{ prod_title | escape }}">
+                  <a
+                    href="{{ prod_url }}"
+                    class="pill-title"
+                    data-product-link
+                    title="{{ prod_title | escape }}"
+                  >
                     {{ prod_title }}
-                  </span>
+                  </a>
                   <div class="pill-price-row">
                     <span class="pill-price">{{ prod_price }}</span>
                     {%- if prod_compare != blank and prod_compare != prod_price -%}
@@ -179,39 +272,41 @@
                   data-reel-quick-add
                   data-product-id="{{ prod_id }}"
                 >
-                  <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#111111] fill-current" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M8 1a2.5 2.5 0 0 0-2.5 2.5V4H3a1 1 0 0 0-1 1v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a1 1 0 0 0-1-1h-2.5V3.5A2.5 2.5 0 0 0 8 1zm1.5 3h-3V3.5a1.5 1.5 0 0 1 3 0V4z"/>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
                   </svg>
                 </button>
               </div>
-
-            </div>
+            </article>
           {%- endfor -%}
         {%- endif -%}
       </div>
 
-      {% comment %} Right Navigation Arrow (Mobile/Tablet) {% endcomment %}
+      {% comment %} Right Navigation Arrow {% endcomment %}
       <button
         type="button"
         data-reels-next
         class="reels-nav-btn reels-nav-next"
-        aria-label="Next reel"
+        aria-label="Next video reel"
       >
-        <svg class="w-5 h-5 text-neutral-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       </button>
 
     </div>
 
-    {% comment %} Pagination Dots Below (Mobile/Tablet) {% endcomment %}
-    <div class="reels-dots-container" data-reels-dots aria-label="Reels pagination">
+    {% comment %} Clickable Pagination Dots (Shown when carousel is scrollable) {% endcomment %}
+    <div class="reels-dots-container" data-reels-dots role="tablist" aria-label="Reels pagination">
       {%- for block in section.blocks -%}
         <button
           type="button"
           class="reels-dot-btn{% if forloop.first %} active{% endif %}"
           data-reels-dot="{{ forloop.index0 }}"
           aria-label="Go to reel {{ forloop.index }}"
+          {% if forloop.first %}aria-current="true"{% endif %}
         ></button>
       {%- endfor -%}
     </div>
@@ -221,300 +316,552 @@
 
 <style>
   /* =========================================================================
-     SCOPED STYLES: PET REELS 5-CARD GRID & MOBILE CAROUSEL
+     WAGMART SHOPPABLE VIDEO REELS — ALL-DEVICE RESPONSIVE DESIGN
      ========================================================================= */
-  #stories .reels-wrapper {
-    position: relative !important;
+  #stories.wm-reels-section {
+    background-color: #ffffff;
+    padding: clamp(44px, 5vw, 76px) 0;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    --reels-gap: 18px;
   }
 
-  /* Reel Card Dimensions & Design (9:16 native YouTube Shorts ratio) */
+  #stories .wm-reels-container {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  /* Section Header */
+  #stories .wm-reels-header {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto clamp(26px, 3.2vw, 42px) auto;
+  }
+
+  #stories .wm-reels-title {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: clamp(28px, 3.2vw, 42px);
+    font-weight: 800;
+    color: #142217;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  #stories .wm-reels-title-accent {
+    color: #44684a;
+    margin-left: 4px;
+  }
+
+  #stories .wm-reels-subtitle {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-size: clamp(14px, 1.05vw, 15.5px);
+    line-height: 1.6;
+    color: #556658;
+    max-width: 58ch;
+    margin: 10px auto 0 auto;
+    font-weight: 500;
+  }
+
+  /* Stage & Carousel Track */
+  #stories .wm-reels-stage {
+    position: relative;
+    width: 100%;
+  }
+
+  #stories [data-reels-carousel] {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: var(--reels-gap);
+    padding: 6px 0 12px 0;
+    margin: 0;
+    width: 100%;
+    outline: none;
+  }
+
+  #stories [data-reels-carousel]::-webkit-scrollbar {
+    display: none;
+  }
+
+  #stories [data-reels-carousel]:focus-visible {
+    outline: 2px solid #142217;
+    outline-offset: 4px;
+    border-radius: 22px;
+  }
+
+  /* Reel Card */
   #stories [data-reel-card] {
-    position: relative !important;
-    overflow: hidden !important;
-    border-radius: 22px !important;
-    background-color: #171717 !important;
-    aspect-ratio: 9 / 16 !important;
-    box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.08) !important;
-    transition: transform 0.35s ease, box-shadow 0.35s ease !important;
-    scroll-snap-align: start !important;
-    flex-shrink: 0 !important;
-  }
-  #stories [data-reel-card]:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0px 14px 32px rgba(0, 0, 0, 0.18) !important;
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    background-color: #141815;
+    aspect-ratio: 9 / 15.5;
+    height: auto;
+    min-height: 0;
+    border: 1px solid rgba(20, 34, 23, 0.08);
+    box-shadow: 0 6px 20px -4px rgba(20, 34, 23, 0.08);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    user-select: none;
+    cursor: pointer;
+    isolation: isolate;
   }
 
-  /* Background Image (edge-to-edge cover) */
+  @media (hover: hover) {
+    #stories [data-reel-card]:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px -6px rgba(20, 34, 23, 0.16);
+    }
+  }
+
+  /* Background Image (Scaled 1.18 to crop out any source pillarbox bars cleanly) */
   #stories .card-bg-img {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    border-radius: 22px !important;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-  #stories [data-reel-card]:hover .card-bg-img {
-    transform: scale(1.04) !important;
-  }
-
-  /* Video container & iframe - Exact card fit, DO NOT CUT OR SCALE */
-  #stories [data-reel-video] {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    overflow: hidden !important;
-    border-radius: 22px !important;
-    z-index: 10 !important;
-  }
-  #stories [data-reel-video] iframe {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    border: 0 !important;
-    border-radius: 22px !important;
-    pointer-events: none !important;
-    object-fit: cover !important;
-    transform: none !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    transform: scale(1.18);
+    transform-origin: center center;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    z-index: 1;
+    pointer-events: none;
   }
 
-  /* Frosted Glass Floating Badge at bottom */
+  @media (hover: hover) {
+    #stories [data-reel-card]:hover .card-bg-img {
+      transform: scale(1.22);
+    }
+  }
+
+  #stories [data-reel-card][data-playing="true"] .card-bg-img {
+    opacity: 0;
+  }
+
+  /* Subtle Scrim for Depth & Legibility */
+  #stories .reel-card-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(12, 16, 13, 0.22) 0%,
+      rgba(12, 16, 13, 0) 24%,
+      rgba(12, 16, 13, 0.08) 64%,
+      rgba(12, 16, 13, 0.58) 100%
+    );
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Video Layer & YouTube Iframe */
+  #stories .reel-video-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 20px;
+    z-index: 10;
+    background-color: #0f1310;
+    transition: opacity 0.3s ease;
+  }
+
+  #stories .reel-video-layer iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    pointer-events: none;
+    object-fit: cover;
+    transform: scale(1.04);
+    transform-origin: center center;
+  }
+
+  /* Top-Right Play / Audio Control Badge */
+  #stories .reel-media-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 25;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: rgba(20, 26, 22, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+  }
+
+  #stories .reel-media-badge:hover {
+    background-color: rgba(20, 26, 22, 0.85);
+    transform: scale(1.08);
+  }
+
+  #stories .reel-media-badge:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
+  #stories .reel-icon-play {
+    display: block;
+    margin-left: 1.5px;
+  }
+  #stories .reel-icon-sound,
+  #stories .reel-icon-muted {
+    display: none;
+  }
+
+  #stories [data-reel-card][data-playing="true"] .reel-icon-play {
+    display: none;
+  }
+  #stories [data-reel-card][data-playing="true"]:not([data-muted="true"]) .reel-icon-sound {
+    display: block;
+  }
+  #stories [data-reel-card][data-playing="true"][data-muted="true"] .reel-icon-muted {
+    display: block;
+  }
+
+  /* Bottom Shoppable Product Card (Clean Warm-White Surface) */
   #stories .reel-product-pill {
-    position: absolute !important;
-    bottom: 12px !important;
-    left: 12px !important;
-    right: 12px !important;
-    top: auto !important;
-    z-index: 20 !important;
-    background: rgba(45, 43, 40, 0.86) !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
-    border-radius: 16px !important;
-    padding: 7px 9px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 8px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
-    transition: background 0.25s ease, border-color 0.25s ease !important;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 25;
+    background-color: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(234, 229, 220, 0.95);
+    border-radius: 14px;
+    padding: 6px 7px 6px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    box-shadow: 0 8px 22px -4px rgba(15, 23, 42, 0.22);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.25s ease;
   }
-  #stories [data-reel-card]:hover .reel-product-pill {
-    background: rgba(36, 34, 32, 0.94) !important;
-    border-color: rgba(255, 255, 255, 0.26) !important;
+
+  @media (hover: hover) {
+    #stories [data-reel-card]:hover .reel-product-pill {
+      background-color: #ffffff;
+      box-shadow: 0 10px 26px -4px rgba(15, 23, 42, 0.28);
+    }
   }
 
   #stories .pill-thumb-box {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 10px !important;
-    background: rgba(0, 0, 0, 0.35) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    overflow: hidden !important;
-    flex-shrink: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 2px !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    background-color: #F7F5F0;
+    border: 1px solid #EAE5DC;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
   }
+
   #stories .pill-thumb-img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    border-radius: 7px !important;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   #stories .pill-info {
-    flex: 1 1 0% !important;
-    min-width: 0 !important;
-    text-align: left !important;
+    flex: 1 1 0%;
+    min-width: 0;
+    text-align: left;
   }
+
   #stories .pill-title {
-    color: #ffffff !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    line-height: 1.25 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: block !important;
-    font-family: inherit !important;
+    color: #142217;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    text-decoration: none;
+    transition: color 0.18s ease;
   }
+
+  #stories .pill-title:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   #stories .pill-price-row {
-    display: flex !important;
-    align-items: center !important;
-    gap: 5px !important;
-    margin-top: 3px !important;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
   }
+
   #stories .pill-price {
-    color: rgba(255, 255, 255, 0.95) !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    line-height: 1 !important;
+    color: #142217;
+    font-size: 12.5px;
+    font-weight: 800;
+    line-height: 1;
   }
+
   #stories .pill-compare {
-    color: rgba(255, 255, 255, 0.45) !important;
-    font-size: 11px !important;
-    text-decoration: line-through !important;
-    line-height: 1 !important;
+    color: #706A63;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: line-through;
+    line-height: 1;
   }
 
   #stories .pill-btn {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    background: #ffffff !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
-    cursor: pointer !important;
-    transition: transform 0.2s ease, background-color 0.2s ease !important;
-    border: none !important;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: #142217;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(20, 34, 23, 0.22);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
   }
+
   #stories .pill-btn:hover {
-    transform: scale(1.1) !important;
+    background-color: #253929;
+    transform: scale(1.07);
   }
+
   #stories .pill-btn:active {
-    transform: scale(0.95) !important;
+    transform: scale(0.95);
   }
 
-  /* Desktop View: Grid of 5 Cards side by side */
-  @media (min-width: 1024px) {
-    #stories [data-reels-carousel] {
-      display: grid !important;
-      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-      gap: 16px !important;
-      overflow: visible !important;
-      padding: 8px 0 !important;
-    }
-    #stories [data-reel-card] {
-      width: 100% !important;
-      max-width: none !important;
-      aspect-ratio: 9 / 16 !important;
-      height: auto !important;
-      min-height: 440px !important;
-    }
-    #stories .reels-nav-btn {
-      display: none !important;
-    }
-    #stories .reels-dots-container {
-      display: none !important;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    #stories [data-reels-carousel] {
-      gap: 18px !important;
-    }
-    #stories [data-reel-card] {
-      min-height: 480px !important;
-    }
-  }
-
-  /* Tablet & Mobile View: Smooth Horizontal Carousel */
-  @media (max-width: 1023px) {
-    #stories [data-reels-carousel] {
-      display: flex !important;
-      flex-wrap: nowrap !important;
-      overflow-x: auto !important;
-      overflow-y: hidden !important;
-      scroll-snap-type: x mandatory !important;
-      -webkit-overflow-scrolling: touch !important;
-      gap: 14px !important;
-      padding: 8px 0 16px 0 !important;
-      scrollbar-width: none !important;
-      scroll-behavior: smooth !important;
-    }
-    #stories [data-reels-carousel]::-webkit-scrollbar {
-      display: none !important;
-    }
-    #stories [data-reel-card] {
-      flex: 0 0 calc((100% - 14px) / 2.3) !important;
-      max-width: 290px !important;
-      aspect-ratio: 9 / 16 !important;
-    }
-    #stories .reels-nav-btn {
-      display: flex !important;
-    }
-    #stories .reels-dots-container {
-      display: flex !important;
-    }
-  }
-
-  @media (max-width: 639px) {
-    #stories [data-reel-card] {
-      flex: 0 0 76vw !important;
-      max-width: 285px !important;
-      aspect-ratio: 9 / 16 !important;
-    }
+  #stories .pill-btn:focus-visible {
+    outline: 2px solid #142217;
+    outline-offset: 2px;
   }
 
   /* Navigation Arrows */
   #stories .reels-nav-btn {
-    position: absolute !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    z-index: 30 !important;
-    width: 42px !important;
-    height: 42px !important;
-    border-radius: 50% !important;
-    background: rgba(255, 255, 255, 0.96) !important;
-    border: 1px solid rgba(0, 0, 0, 0.12) !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    transition: transform 0.25s ease, background-color 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease !important;
-    color: #111111 !important;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px solid #E5E0D5;
+    box-shadow: 0 6px 16px rgba(17, 24, 39, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #142217;
+    padding: 0;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, opacity 0.22s ease, box-shadow 0.22s ease;
   }
-  #stories .reels-nav-btn:hover {
-    background: #ffffff !important;
-    transform: translateY(-50%) scale(1.08) !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18) !important;
+
+  #stories .reels-nav-btn:hover:not(:disabled) {
+    border-color: #142217;
+    transform: translateY(-50%) scale(1.06);
+    box-shadow: 0 8px 22px rgba(17, 24, 39, 0.18);
   }
-  #stories .reels-nav-btn:active {
-    transform: translateY(-50%) scale(0.95) !important;
+
+  #stories .reels-nav-btn:active:not(:disabled) {
+    transform: translateY(-50%) scale(0.96);
   }
+
   #stories .reels-nav-btn:disabled {
-    opacity: 0.3 !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
+    opacity: 0;
+    pointer-events: none;
   }
+
   #stories .reels-nav-prev {
-    left: -10px !important;
+    left: -18px;
   }
+
   #stories .reels-nav-next {
-    right: -10px !important;
+    right: -18px;
   }
 
   /* Pagination Dots */
   #stories .reels-dots-container {
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    margin-top: 24px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 22px;
+    min-height: 12px;
   }
+
   #stories .reels-dot-btn {
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 9999px !important;
-    background-color: #d4d4d4 !important;
-    border: none !important;
-    padding: 0 !important;
-    cursor: pointer !important;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background-color: #D5CEBF;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
   }
-  #stories .reels-dot-btn:hover {
-    background-color: #999999 !important;
+
+  #stories .reels-dot-btn:hover:not(.active) {
+    background-color: #8A8377;
   }
+
   #stories .reels-dot-btn.active {
-    width: 26px !important;
-    background-color: #111111 !important;
+    width: 24px;
+    background-color: #142217;
+  }
+
+  /* =========================================================================
+     ALL-DEVICE BREAKPOINTS
+     ========================================================================= */
+
+  /* 1. Desktop (>= 1280px): 5 Cards in One Row */
+  @media (min-width: 1280px) {
+    #stories.wm-reels-section {
+      --reels-gap: 18px;
+    }
+    #stories [data-reel-card] {
+      flex: 0 0 calc((100% - (4 * var(--reels-gap))) / 5);
+      width: calc((100% - (4 * var(--reels-gap))) / 5);
+      max-width: calc((100% - (4 * var(--reels-gap))) / 5);
+    }
+  }
+
+  /* 2. Laptop (1024px - 1279px): 4 Cards in One Row */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    #stories.wm-reels-section {
+      --reels-gap: 16px;
+    }
+    #stories [data-reel-card] {
+      flex: 0 0 calc((100% - (3 * var(--reels-gap))) / 4);
+      width: calc((100% - (3 * var(--reels-gap))) / 4);
+      max-width: calc((100% - (3 * var(--reels-gap))) / 4);
+    }
+  }
+
+  /* 3. Tablet (768px - 1023px): 3 Cards in One Row */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #stories.wm-reels-section {
+      --reels-gap: 16px;
+    }
+    #stories .wm-reels-container {
+      padding: 0 2.25rem;
+    }
+    #stories [data-reel-card] {
+      flex: 0 0 calc((100% - (2 * var(--reels-gap))) / 3);
+      width: calc((100% - (2 * var(--reels-gap))) / 3);
+      max-width: calc((100% - (2 * var(--reels-gap))) / 3);
+    }
+    #stories .reels-nav-prev {
+      left: -14px;
+      width: 36px;
+      height: 36px;
+    }
+    #stories .reels-nav-next {
+      right: -14px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  /* 4. Large Mobile / Small Tablet (540px - 767px): 2 Cards in One Row */
+  @media (min-width: 540px) and (max-width: 767px) {
+    #stories.wm-reels-section {
+      --reels-gap: 14px;
+    }
+    #stories .wm-reels-container {
+      padding: 0 1.5rem;
+    }
+    #stories [data-reel-card] {
+      flex: 0 0 calc((100% - var(--reels-gap)) / 2);
+      width: calc((100% - var(--reels-gap)) / 2);
+      max-width: calc((100% - var(--reels-gap)) / 2);
+    }
+    #stories .reels-nav-prev {
+      left: -10px;
+      width: 34px;
+      height: 34px;
+    }
+    #stories .reels-nav-next {
+      right: -10px;
+      width: 34px;
+      height: 34px;
+    }
+  }
+
+  /* 5. Mobile Portrait (< 540px): 1 Full Card per View */
+  @media (max-width: 539px) {
+    #stories.wm-reels-section {
+      --reels-gap: 14px;
+      padding: 36px 0 44px 0;
+    }
+    #stories .wm-reels-container {
+      padding: 0 1.5rem;
+    }
+    #stories .wm-reels-header {
+      margin-bottom: 22px;
+    }
+    #stories [data-reel-card] {
+      flex: 0 0 100%;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 9 / 14.5;
+    }
+    #stories .reels-nav-prev {
+      left: -12px;
+      width: 34px;
+      height: 34px;
+    }
+    #stories .reels-nav-next {
+      right: -12px;
+      width: 34px;
+      height: 34px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #stories [data-reels-carousel] {
+      scroll-behavior: auto;
+    }
+    #stories [data-reel-card],
+    #stories .card-bg-img,
+    #stories .reel-product-pill,
+    #stories .pill-btn,
+    #stories .reels-nav-btn,
+    #stories .reels-dot-btn {
+      transition: none;
+    }
   }
 </style>
 
@@ -542,7 +889,7 @@
       "type": "textarea",
       "id": "subtitle",
       "label": "Subtitle",
-      "default": "Curious faces, everyday adventures & pure tail-wagging joy. Hover to watch videos with sound and discover each companion favourite."
+      "default": "Bold colours, curious faces and everyday adventures. Watch the videos and find your companion's next favourite accessory."
     }
   ],
   "blocks": [
@@ -568,12 +915,12 @@
         {
           "type": "text",
           "id": "product_price",
-          "label": "Price (e.g. €24,95)"
+          "label": "Price (e.g. ₹499)"
         },
         {
           "type": "text",
           "id": "product_compare_price",
-          "label": "Compare price (optional, e.g. €34,95)"
+          "label": "Compare price (optional, e.g. ₹699)"
         },
         {
           "type": "image_picker",
@@ -605,45 +952,45 @@
         {
           "type": "reel",
           "settings": {
-            "product_title": "Portable Muddy Paw Cleaner",
-            "product_price": "€24,95",
-            "product_compare_price": "€34,95",
+            "product_title": "Wagmart Teal Dog Collar",
+            "product_price": "₹499",
+            "product_compare_price": "₹699",
             "youtube_id": "AOr9WB0XIUY"
           }
         },
         {
           "type": "reel",
           "settings": {
-            "product_title": "Anti-Gulp Slow Feeder Bowl",
-            "product_price": "€29,95",
-            "product_compare_price": "€38,00",
+            "product_title": "Wagmart Pet Feeding Bowl",
+            "product_price": "₹449",
+            "product_compare_price": "₹599",
             "youtube_id": "5H4sZNYtBFc"
           }
         },
         {
           "type": "reel",
           "settings": {
-            "product_title": "Self-Cleaning Slicker Brush",
-            "product_price": "€19,95",
-            "product_compare_price": "€26,95",
+            "product_title": "Wagmart Pet Grooming Brush",
+            "product_price": "₹399",
+            "product_compare_price": "₹549",
             "youtube_id": "LB8Qfa9tTsU"
           }
         },
         {
           "type": "reel",
           "settings": {
-            "product_title": "Interactive Wobble Giggle Ball",
-            "product_price": "€22,95",
-            "product_compare_price": "€29,95",
+            "product_title": "Wagmart Dog Play Ball",
+            "product_price": "₹299",
+            "product_compare_price": "₹399",
             "youtube_id": "vwz9XsIcRik"
           }
         },
         {
           "type": "reel",
           "settings": {
-            "product_title": "Waterproof Pet Car Seat Hammock",
-            "product_price": "€49,95",
-            "product_compare_price": "€64,95",
+            "product_title": "Wagmart Pet Travel Carrier",
+            "product_price": "₹1,499",
+            "product_compare_price": "₹1,899",
             "youtube_id": "GalPqZH1glY"
           }
         }

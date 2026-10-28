@@ -1,62 +1,286 @@
-{% comment %}
-  Wagmart Search Results Page Section
-{% endcomment %}
+{%- comment -%}
+  Wagmart Search Results Page Section (sections/main-search.liquid)
+  - Features real Shopify Storefront Filtering (search.filters) configured in Shopify Search & Discovery
+  - Debounced predictive search in modal + URL-persisted search page results
+  - Desktop 260px collapsible sidebar + Mobile bottom-sheet filter drawer
+  - Grid & List views, INR pricing, stock/availability, sorting, pagination, and active filter chips
+{%- endcomment -%}
 
-<section class="py-12 sm:py-16 bg-white">
-  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
-    
-    <div class="text-center max-w-xl mx-auto mb-10">
-      {% render 'section-badge', label: 'Search Results', class: 'mb-3' %}
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#111827]">
-        {% if search.performed %}
-          Results for &ldquo;{{ search.terms }}&rdquo;
-        {% else %}
-          Search Our Catalog
-        {% endif %}
-      </h1>
+{{ 'collection.css' | asset_url | stylesheet_tag }}
 
-      <form action="{{ routes.search_url }}" method="get" class="mt-6 flex items-center max-w-md mx-auto bg-white rounded-full p-1.5 border border-[#D5CEBF] shadow-xs">
-        <input
-          type="search"
-          name="q"
-          value="{{ search.terms | escape }}"
-          placeholder="Search for toys, grooming, bowls..."
-          class="flex-1 px-4 py-2 text-sm bg-transparent focus:outline-hidden text-neutral-800 placeholder-neutral-400"
-        >
-        <button
-          type="submit"
-          class="px-5 py-2 rounded-full bg-[#7a46e5] text-white text-xs font-bold hover:bg-[#6835d6] transition"
-        >
-          Search
-        </button>
-      </form>
-    </div>
+{%- liquid
+  assign search_title = 'Search Results'
+  if search.performed
+    assign search_title = 'Results for “' | append: search.terms | append: '”'
+  endif
+
+  assign total_count = search.results_count | default: 0
+  assign fallback_img = 'catalog-bath-massage-brush.webp' | asset_url
+  assign img_brush = 'catalog-bath-massage-brush.webp' | asset_url
+-%}
+
+{%- comment -%} JSON-LD Schema for SEO {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SearchResultsPage",
+  "name": {{ search_title | json }},
+  "url": "{{ shop.url }}{{ routes.search_url }}?q={{ search.terms | url_encode }}",
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": {{ search_title | json }},
+    "numberOfItems": {{ total_count }}
+  }
+}
+</script>
+
+<div
+  class="wm-plp wm-search-page"
+  data-collection-page
+  data-search-page
+  data-search-terms="{{ search.terms | escape }}"
+  data-search-performed="{{ search.performed }}"
+  data-fallback-img="{{ fallback_img }}"
+>
+  <div class="wm-plp-container">
+
+    {%- comment -%} Breadcrumb {%- endcomment -%}
+    <nav class="wm-plp-breadcrumb" aria-label="Breadcrumb">
+      <ol class="wm-plp-breadcrumb__list">
+        <li class="wm-plp-breadcrumb__item">
+          <a href="{{ routes.root_url | default: '/' }}" class="wm-plp-breadcrumb__link">Home</a>
+        </li>
+        <li class="wm-plp-breadcrumb__sep" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </li>
+        <li class="wm-plp-breadcrumb__item">
+          <a href="{{ routes.search_url }}" class="wm-plp-breadcrumb__link">Search</a>
+        </li>
+        {%- if search.performed -%}
+          <li class="wm-plp-breadcrumb__sep" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="wm-plp-breadcrumb__item wm-plp-breadcrumb__item--current" aria-current="page">
+            &ldquo;{{ search.terms }}&rdquo;
+          </li>
+        {%- endif -%}
+      </ol>
+    </nav>
+
+    {%- comment -%} Search Hero Header {%- endcomment -%}
+    <header class="wm-plp-hero">
+      <div class="wm-plp-hero__decor wm-plp-hero__decor--left" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="96" height="96" fill="currentColor" opacity="0.06"><circle cx="35" cy="35" r="14"/><circle cx="65" cy="25" r="12"/><circle cx="90" cy="40" r="13"/><circle cx="25" cy="65" r="12"/><path d="M40 85c-10 0-18-8-15-18 3-9 14-14 25-14s22 5 25 14c3 10-5 18-15 18-6 0-10-3-10-3s-4 3-10 3z"/></svg>
+      </div>
+
+      <div class="wm-plp-hero__content">
+        <span class="wm-plp-hero__eyebrow">
+          WAGMART SEARCH &bull; <span data-plp-total-count>{{ total_count }} {% if total_count == 1 %}result{% else %}results{% endif %}</span>
+        </span>
+        <h1 class="wm-plp-hero__title" data-plp-hero-title>
+          {%- if search.performed -%}
+            Results for &ldquo;{{ search.terms }}&rdquo;
+          {%- else -%}
+            Search Our Catalog
+          {%- endif -%}
+        </h1>
+        <p class="wm-plp-hero__desc" data-plp-hero-desc>
+          {%- if search.performed -%}
+            Explore vet-approved pet food, grooming supplies, toys, and comfort gear matching your query.
+          {%- else -%}
+            Find high-quality pet supplies for dogs and cats. Search by pet, product type, brand, or need.
+          {%- endif -%}
+        </p>
+
+        {%- comment -%} Search Input Bar {%- endcomment -%}
+        <form action="{{ routes.search_url }}" method="get" role="search" class="mt-6 flex items-center max-w-lg mx-auto bg-white rounded-full p-1.5 border border-[#D5CEBF] shadow-xs focus-within:border-[#7A46E5] focus-within:ring-2 focus-within:ring-[#7A46E5]/20 transition">
+          <input type="hidden" name="type" value="product">
+          <input type="hidden" name="options[prefix]" value="last">
+          <div class="pl-3 pr-2 text-neutral-400" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input
+            type="search"
+            name="q"
+            value="{{ search.terms | escape }}"
+            placeholder="Search for toys, grooming, food, beds..."
+            aria-label="Search pet products"
+            class="flex-1 px-2 py-2 text-sm bg-transparent focus:outline-hidden text-neutral-800 placeholder-neutral-400"
+          >
+          <button
+            type="submit"
+            class="px-5 py-2.5 rounded-full bg-[#1B3A2A] text-white text-xs font-bold hover:bg-[#12281D] active:scale-95 transition"
+          >
+            Search
+          </button>
+        </form>
+      </div>
+
+      <div class="wm-plp-hero__decor wm-plp-hero__decor--right" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="96" height="96" fill="currentColor" opacity="0.06"><circle cx="35" cy="35" r="14"/><circle cx="65" cy="25" r="12"/><circle cx="90" cy="40" r="13"/><circle cx="25" cy="65" r="12"/><path d="M40 85c-10 0-18-8-15-18 3-9 14-14 25-14s22 5 25 14c3 10-5 18-15 18-6 0-10-3-10-3s-4 3-10 3z"/></svg>
+      </div>
+    </header>
 
     {%- if search.performed -%}
       {%- paginate search.results by 16 -%}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center sm:justify-items-stretch">
-          {%- for item in search.results -%}
-            {%- if item.object_type == 'product' -%}
-              {% render 'product-card', product: item %}
-            {%- endif -%}
-          {%- else -%}
-            <div class="col-span-full text-center py-16 text-neutral-500">
-              <p class="text-lg font-bold">No results found for &ldquo;{{ search.terms }}&rdquo;.</p>
-              <p class="text-xs text-neutral-400 mt-1">Try checking for typos or searching for a broader term like &ldquo;dog&rdquo; or &ldquo;cat&rdquo;.</p>
+
+        {%- comment -%} Toolbar: Filter toggle, result count, sort, view switcher, active chips {%- endcomment -%}
+        {% render 'collection-toolbar', results: search %}
+
+        {%- comment -%} Workspace: Sidebar + Results Grid {%- endcomment -%}
+        <div class="wm-plp-workspace" data-plp-workspace data-sidebar="open" data-layout="grid">
+          <div class="wm-plp-sidebar-backdrop" data-plp-sidebar-backdrop hidden></div>
+
+          {% render 'collection-filter-sidebar', results: search %}
+
+          <div class="wm-plp-results-col">
+            {%- comment -%} Loading Shimmer Skeletons {%- endcomment -%}
+            {% render 'collection-empty-state', state_type: 'skeleton' %}
+
+            {%- comment -%} Live Product Grid {%- endcomment -%}
+            <div
+              id="wm-plp-products"
+              class="wm-plp-grid"
+              data-plp-grid
+              role="region"
+              aria-label="Search results"
+            >
+              {%- assign product_results_found = false -%}
+              {%- for item in search.results -%}
+                {%- if item.object_type == 'product' -%}
+                  {%- assign product_results_found = true -%}
+                  {%- liquid
+                    assign real_price_inr = item.price | divided_by: 100.0 | round
+                    assign real_compare_inr = 0
+                    if item.compare_at_price > item.price
+                      assign real_compare_inr = item.compare_at_price | divided_by: 100.0 | round
+                    endif
+
+                    if item.featured_image != blank
+                      assign real_img = item.featured_image | image_url: width: 640
+                    else
+                      assign real_img = img_brush
+                    endif
+
+                    assign second_img = ''
+                    if item.images.size > 1
+                      assign second_img = item.images[1] | image_url: width: 640
+                    endif
+
+                    assign gallery_imgs_str = ''
+                    if item.images.size > 0
+                      for g_img in item.images limit: 8
+                        assign g_img_url = g_img | image_url: width: 800
+                        if gallery_imgs_str == blank
+                          assign gallery_imgs_str = g_img_url
+                        else
+                          assign gallery_imgs_str = gallery_imgs_str | append: '|' | append: g_img_url
+                        endif
+                      endfor
+                    else
+                      assign gallery_imgs_str = real_img
+                    endif
+
+                    assign p_cols = ''
+                    for col in item.collections
+                      assign p_cols = p_cols | append: ',' | append: col.title | append: ',' | append: col.handle
+                    endfor
+                    assign p_tags = item.tags | join: ','
+                    assign primary_cat = item.type | default: 'Pet Supplies'
+                    assign all_cats_combined = primary_cat | append: p_cols | append: ',' | append: p_tags
+
+                    assign detected_pets = 'dog,cat'
+                    assign raw_meta = item.title | append: ' ' | append: item.type | append: ' ' | append: p_tags | downcase
+                    if raw_meta contains 'cat' or raw_meta contains 'kitten'
+                      assign detected_pets = 'cat'
+                    elsif raw_meta contains 'dog' or raw_meta contains 'puppy'
+                      assign detected_pets = 'dog'
+                    endif
+
+                    assign has_vars = false
+                    if item.variants.size > 1
+                      assign has_vars = true
+                    endif
+
+                    assign card_desc_text = item.description | strip_html | strip
+                    if card_desc_text == blank
+                      assign card_desc_text = 'Crafted with pet-safe, vet-approved materials for daily comfort and care.'
+                    endif
+
+                    assign unique_prod_id = item.selected_or_first_available_variant.id | default: item.variants.first.id | default: item.id
+                    assign prod_sku_val = item.selected_or_first_available_variant.sku | default: ''
+                    assign prod_stock_val = 15
+                    if item.available == false
+                      assign prod_stock_val = 0
+                    endif
+                  -%}
+                  {% render 'collection-product-card',
+                    card_id: unique_prod_id,
+                    card_handle: item.handle,
+                    card_sku: prod_sku_val,
+                    card_title: item.title,
+                    card_url: item.url,
+                    card_category: primary_cat,
+                    card_categories: all_cats_combined,
+                    card_pet: detected_pets,
+                    card_price_inr: real_price_inr,
+                    card_compare_inr: real_compare_inr,
+                    card_image: real_img,
+                    card_images: gallery_imgs_str,
+                    card_hover_image: second_img,
+                    card_badge_promo: 'bestseller,sale',
+                    card_stock: prod_stock_val,
+                    card_has_variants: has_vars,
+                    card_desc: card_desc_text
+                  %}
+                {%- endif -%}
+              {%- endfor -%}
             </div>
-          {%- endfor -%}
+
+            {%- comment -%} Empty Filter / Search State {%- endcomment -%}
+            {% render 'collection-empty-state', state_type: 'empty' %}
+
+            {%- comment -%} Pagination Controls {%- endcomment -%}
+            <div class="wm-plp-pagination-wrap" data-plp-pagination-wrap {% if paginate.pages <= 1 %}hidden{% endif %}>
+              {% render 'collection-pagination', paginate: paginate %}
+            </div>
+          </div>
         </div>
 
-        {%- if paginate.pages > 1 -%}
-          <div class="mt-12 flex justify-center gap-2">
-            {{ paginate | default_pagination }}
-          </div>
-        {%- endif -%}
       {%- endpaginate -%}
+
+    {%- else -%}
+      {%- comment -%} Idle State before search is performed {%- endcomment -%}
+      <div class="py-16 text-center max-w-lg mx-auto">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#E8F3EC] flex items-center justify-center text-[#1B3A2A]" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h2 class="text-xl font-bold text-[#1B3A2A] mb-2">Find the Perfect Product for Your Pet</h2>
+        <p class="text-sm text-neutral-500 mb-6">Type a search term above, or explore popular pet essentials below:</p>
+        <div class="flex flex-wrap justify-center gap-2">
+          <a href="{{ routes.search_url }}?q=grooming&type=product" class="px-4 py-2 rounded-full border border-[#D5CEBF] bg-white text-xs font-semibold text-[#1B3A2A] hover:border-[#1B3A2A] hover:bg-[#E8F3EC] transition">
+            Grooming Essentials
+          </a>
+          <a href="{{ routes.search_url }}?q=dog+food&type=product" class="px-4 py-2 rounded-full border border-[#D5CEBF] bg-white text-xs font-semibold text-[#1B3A2A] hover:border-[#1B3A2A] hover:bg-[#E8F3EC] transition">
+            Dog Food
+          </a>
+          <a href="{{ routes.search_url }}?q=cat&type=product" class="px-4 py-2 rounded-full border border-[#D5CEBF] bg-white text-xs font-semibold text-[#1B3A2A] hover:border-[#1B3A2A] hover:bg-[#E8F3EC] transition">
+            Cat Supplies
+          </a>
+          <a href="{{ routes.search_url }}?q=toys&type=product" class="px-4 py-2 rounded-full border border-[#D5CEBF] bg-white text-xs font-semibold text-[#1B3A2A] hover:border-[#1B3A2A] hover:bg-[#E8F3EC] transition">
+            Toys &amp; Play
+          </a>
+          <a href="{{ routes.search_url }}?q=bed&type=product" class="px-4 py-2 rounded-full border border-[#D5CEBF] bg-white text-xs font-semibold text-[#1B3A2A] hover:border-[#1B3A2A] hover:bg-[#E8F3EC] transition">
+            Orthopedic Beds
+          </a>
+        </div>
+      </div>
     {%- endif -%}
 
   </div>
-</section>
+</div>
+
+<script src="{{ 'collection.js' | asset_url }}" defer></script>
 
 {% schema %}
 {

@@ -1,7 +1,11 @@
 {%- comment -%}
-  Wagmart Collection Product Card (snippets/collection-product-card.liquid)
-  - 100% identical to the Homepage Product Card (snippets/product-card.liquid)
-  - Supports both Grid View and Horizontal List View on the Collection Page
+  Wagmart Collection Product Card (Converted from React ProductCard)
+  - 4:5 aspect ratio with rounded-[20px] and overflow-hidden
+  - Smooth 500ms hover image swap (fades out primary image, zooms in secondary image)
+  - Inside content: bottom left (title + price in default store Rupees ₹)
+  - Heart toggle: top right (toggles wishlist / favorite)
+  - Inside bottom right: On-hover Add to Cart button that transforms into - / + quantity stepper
+  - Fully responsive across mobile, tablet, and desktop
 {%- endcomment -%}
 
 {%- liquid
@@ -37,6 +41,14 @@
     assign p_images = p_img
   endif
 
+  assign p_hover_img = ''
+  if p_images contains '|'
+    assign img_arr = p_images | split: '|'
+    if img_arr.size > 1
+      assign p_hover_img = img_arr[1]
+    endif
+  endif
+
   assign discount_pct = 0
   if p_compare > p_price and p_compare > 0
     assign diff = p_compare | minus: p_price
@@ -48,14 +60,14 @@
     assign is_sold_out = true
   endif
 
-  assign badge_text = 'Best Seller'
+  assign badge_text = ''
   if is_sold_out
     assign badge_text = 'Sold Out'
   endif
 -%}
 
 <div
-  class="wm-plp-card wm-unified-card group relative w-full bg-[#FAF8F5] rounded-[22px] p-3 pb-4 border border-[#EAE5D9] hover:border-[#D5CEBF] select-none transition-all duration-300 flex flex-col justify-between cursor-pointer{% if is_sold_out %} is-sold-out{% endif %}"
+  class="wm-plp-card wm-unified-card wm-react-card group relative w-full flex flex-col select-none transition-all duration-300 cursor-pointer{% if is_sold_out %} is-sold-out{% endif %}"
   data-product-card
   data-product-id="{{ p_id }}"
   data-handle="{{ p_handle | escape }}"
@@ -87,166 +99,146 @@
   role="region"
   aria-label="{{ p_title | escape }}"
 >
-  <div class="wm-plp-card__top wm-unified-card__top">
-    {%- comment -%} 1. HERO IMAGE STAGE (Identical to Homepage snippets/product-card.liquid) {%- endcomment -%}
-    <div class="wm-plp-card__media wm-unified-card__media relative w-full h-[205px] sm:h-[210px] rounded-[14px] overflow-hidden bg-white/80 shrink-0 select-none flex items-center justify-center p-2.5">
-      <a href="{{ p_url }}" class="wm-plp-card__media-link w-full h-full flex items-center justify-center" aria-label="{{ p_title | escape }}">
-        <img
-          src="{{ p_img }}"
-          alt="{{ p_title | escape }}"
-          class="wm-plp-card__img w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
-          width="300"
-          height="210"
-          loading="eager"
-          decoding="async"
-          onerror="this.onerror=null;this.src='{{ fallback_img }}';"
-        >
-      </a>
+  <!-- Image Container (4:5 Aspect Ratio, Rounded 20px, Overflow Hidden, #FBFBF7 Background, No Border) -->
+  <div class="wm-react-card__image-box relative w-full aspect-[4/5] rounded-[20px] overflow-hidden bg-[#FBFBF7] border-0 transition-all duration-500">
+    <!-- Full card product link -->
+    <a href="{{ p_url }}" class="wm-unified-card__media wm-plp-card__media-link block w-full h-full relative" aria-label="{{ p_title | escape }}">
+      <!-- Primary Image (Only one image, no second image on hover) -->
+      <img
+        src="{{ p_img }}"
+        alt="{{ p_title | escape }}"
+        class="wm-react-card__img-primary wm-plp-card__img absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        width="600"
+        height="750"
+        loading="eager"
+        decoding="async"
+        onerror="this.onerror=null;this.src='{{ fallback_img }}';"
+      >
 
-      {%- comment -%} Top-Left Category Badge {%- endcomment -%}
-      <div class="wm-plp-card__badges absolute top-[12px] left-[12px] z-10 pointer-events-none">
-        <span class="h-[24px] px-3 inline-flex items-center justify-center rounded-[7px] text-[11px] font-semibold leading-none tracking-normal bg-white text-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          {{ badge_text }}
+      <!-- Sold Out Badge only (Best Seller removed) -->
+      {%- if is_sold_out and badge_text != blank -%}
+        <div class="wm-plp-card__badges absolute top-3.5 left-3.5 sm:top-4 sm:left-4 z-10 pointer-events-none">
+          <span class="px-2.5 py-1 rounded-full text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-wider bg-neutral-900/80 text-white backdrop-blur-xs shadow-xs">
+            {{ badge_text }}
+          </span>
+        </div>
+      {%- elsif p_cat != blank -%}
+        <!-- Top Left: Category Badge (Glassmorphic pill with pure black text) -->
+        <span class="wm-card__badge" aria-label="Category {{ p_cat | escape }}">
+          {{ p_cat | capitalize }}
         </span>
-      </div>
-
-      {%- comment -%} Top-Right Wishlist Heart + Quick View Eye Buttons {%- endcomment -%}
-      <div class="absolute top-[12px] right-[12px] z-10 flex flex-col gap-1.5">
-        <button
-          type="button"
-          class="wm-plp-card__icon-btn w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
-          data-wishlist-btn
-          data-wishlist-toggle
-          data-product-id="{{ p_id }}"
-          aria-label="Wishlist {{ p_title | escape }}"
-          aria-pressed="false"
-        >
-          <svg class="w-4.5 h-4.5 transition-transform duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          class="wm-plp-card__icon-btn w-9 h-9 rounded-full bg-white text-neutral-800 shadow-[0_1px_4px_rgba(0,0,0,0.1)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
-          data-plp-qv-trigger
-          data-quick-view-trigger
-          aria-label="Quick view {{ p_title | escape }}"
-        >
-          <svg class="w-4 h-4 text-neutral-700 hover:text-[#1B3A2A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    {%- comment -%} 2. PRODUCT TITLE, SUBTITLE & LIST-VIEW CONTEXT {%- endcomment -%}
-    <div class="wm-plp-card__info wm-unified-card__info px-1.5 pt-3.5">
-      {%- comment -%} Shown only in List View (data-layout="list") {%- endcomment -%}
-      <div class="wm-plp-card__list-meta">
-        <span class="wm-plp-card__list-cat">{{ p_cat }}</span>
-        <span class="wm-plp-card__list-rating">
-          <span class="wm-plp-card__list-stars" aria-hidden="true">★★★★★</span>
-          <strong>{{ p_rating | default: '4.8' }}</strong>
-          <span>({{ p_reviews | default: 126 }} reviews)</span>
-        </span>
-        <span class="wm-plp-card__list-stock">
-          <span class="wm-plp-card__list-dot"></span>
-          {% if is_sold_out %}Out of Stock{% else %}In Stock{% endif %}
-        </span>
-      </div>
-
-      <h3 class="wm-plp-card__title font-jakarta text-[17.5px] font-bold text-[#111827] leading-[25px] line-clamp-2 group-hover:text-[#7a46e5] transition-colors duration-200">
-        <a href="{{ p_url }}" class="wm-plp-card__title-link hover:underline">{{ p_title }}</a>
-      </h3>
-
-      <p class="wm-plp-card__desc mt-2 text-[13px] text-neutral-500 leading-[19.5px] line-clamp-2 font-normal">
-        {{ p_desc }}
-      </p>
-
-      {%- comment -%} Shown only in List View (data-layout="list") {%- endcomment -%}
-      <div class="wm-plp-card__list-perks">
-        <span class="wm-plp-card__list-perk">✓ Vet-Tested &amp; Safe</span>
-        <span class="wm-plp-card__list-perk">✓ Free Shipping ₹499+</span>
-        <span class="wm-plp-card__list-perk">✓ Easy 7-Day Returns</span>
-      </div>
-    </div>
-  </div>
-
-  {%- comment -%} 3. BOTTOM ROW: PRICE LOCKUP & ADD TO CART / - 1 + STEPPER (Identical to Homepage snippets/product-card.liquid) {%- endcomment -%}
-  <div class="wm-plp-card__bottom wm-unified-card__bottom px-1 mt-auto pt-3 sm:pt-4 flex items-center justify-between gap-2">
-    {%- comment -%} Price Lockup {%- endcomment -%}
-    <div data-price-wrap class="wm-plp-card__price-wrap flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 min-w-0 pr-1">
-      <span data-price-val class="wm-plp-card__price font-extrabold text-[19px] sm:text-[22px] text-[#111827] tracking-tight leading-none whitespace-nowrap">
-        ₹{{ p_price }}
-      </span>
-      {%- if p_compare > p_price -%}
-        <span data-compare-val class="wm-plp-card__compare text-[11.5px] sm:text-[13px] text-neutral-400 line-through font-normal whitespace-nowrap">
-          ₹{{ p_compare }}
-        </span>
-        {%- if discount_pct > 0 -%}
-          <span class="wm-plp-card__list-save">{{ discount_pct }}% OFF</span>
-        {%- endif -%}
       {%- endif -%}
+    </a>
+
+    <!-- Top Right Actions: Heart Wishlist & Eye Quick View directly below it -->
+    <div class="wm-card__top-right-actions absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 flex flex-col items-center gap-1.5 pointer-events-auto">
+      <!-- 1. Heart Wishlist Button -->
+      <button
+        type="button"
+        class="wm-react-card__wishlist wm-plp-card__icon-btn w-7 h-7 rounded-full bg-white/95 hover:bg-white text-neutral-800 shadow-sm backdrop-blur-xs flex items-center justify-center p-0.5 cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95"
+        data-wishlist-btn
+        data-wishlist-toggle
+        data-product-id="{{ p_id }}"
+        aria-label="Wishlist {{ p_title | escape }}"
+      >
+        <svg class="w-3.5 h-3.5 transition-colors duration-200 stroke-2 text-neutral-700 hover:text-[#E11D48]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+        </svg>
+      </button>
+
+      <!-- 2. Eye Quick View Button Below Heart (Opens Quick View on Click) -->
+      <button
+        type="button"
+        class="wm-card__side-qv wm-plp-card__icon-btn w-7 h-7 rounded-full bg-white/95 hover:bg-white text-neutral-800 shadow-sm backdrop-blur-xs flex items-center justify-center p-0.5 cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95"
+        data-quick-view-trigger
+        data-quick-view="{{ p_handle | default: p_id | default: 'pet-grooming-glove' | escape }}"
+        aria-label="Quick View {{ p_title | escape }}"
+      >
+        <svg class="w-3.5 h-3.5 stroke-[2] text-neutral-700 hover:text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
     </div>
 
-    {%- comment -%} Right CTA Button / Quantity Stepper Transformation {%- endcomment -%}
-    <div class="wm-plp-card__actions relative shrink-0 flex items-center justify-end">
+    <!-- Bottom Inside Image: Add To Bag Button (White Pill) & Active Stepper -->
+    <div class="wm-card__img-qv-wrap absolute inset-x-2.5 bottom-2.5 sm:bottom-3 z-20 flex justify-center pointer-events-none">
       {%- if is_sold_out -%}
-        <button
-          type="button"
-          class="h-[38px] sm:h-[42px] bg-neutral-200 text-neutral-500 px-4 py-1 rounded-full font-bold text-[12px] sm:text-[13px] cursor-not-allowed shrink-0"
-          disabled
-        >
-          Out of Stock
-        </button>
+        <span class="wm-card__img-qv-btn pointer-events-auto flex items-center justify-center w-full h-7 sm:h-7.5 px-3 rounded-full bg-white/95 text-neutral-400 text-[10.5px] sm:text-[11px] font-semibold shadow-md select-none">
+          Sold Out
+        </span>
       {%- else -%}
-        {%- comment -%} Default Add to Cart Button {%- endcomment -%}
         <button
           type="button"
-          class="wm-plp-card__atc-btn h-[38px] sm:h-[42px] bg-black hover:bg-neutral-900 active:scale-95 text-white pl-1.5 pr-3.5 sm:pr-4 py-1 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-sm transition-all duration-200 cursor-pointer group/btn shrink-0"
+          class="wm-card__img-qv-btn pointer-events-auto flex items-center justify-center gap-1.5 w-full h-7 sm:h-7.5 px-3 rounded-full bg-white/95 hover:bg-white text-neutral-900 text-[10.5px] sm:text-[11px] font-semibold shadow-md backdrop-blur-xs transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer whitespace-nowrap"
           data-add-to-cart
-          aria-label="Add {{ p_title | escape }} to Cart"
+          aria-label="Add {{ p_title | escape }} to Bag"
         >
-          <span class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white text-black flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform duration-200 shadow-xs">
-            {% render 'icon-bag', class: 'w-3.5 h-3.5 stroke-[2.2]' %}
-          </span>
-          <span class="font-bold text-[12px] sm:text-[13px] tracking-tight whitespace-nowrap">
-            Add to Cart
-          </span>
+          {% render 'icon-bag', class: 'w-3.5 h-3.5 stroke-[2.2]' %}
+          <span>Add To Bag</span>
         </button>
 
-        {%- comment -%} Active Quantity Stepper (- 1 +) shown immediately when product is in cart {%- endcomment -%}
+        <!-- Stepper when product is in cart -->
         <div
-          class="wm-plp-card__stepper hidden h-[38px] sm:h-[42px] bg-black text-white px-1.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm transition-all duration-200 shrink-0"
+          class="hidden pointer-events-auto w-full"
           data-card-stepper
         >
           <button
             type="button"
-            class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
             data-card-stepper-btn
             data-delta="-1"
             aria-label="Decrease quantity"
           >
-            <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
 
-          <span class="text-white font-extrabold text-[12.5px] sm:text-[13px] px-1 sm:px-1.5 min-w-[18px] text-center select-none shrink-0" data-card-qty>
+          <span data-card-qty>
             1
           </span>
 
           <button
             type="button"
-            class="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-white hover:bg-gray-100 active:scale-90 text-black flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
             data-card-stepper-btn
             data-delta="1"
             aria-label="Increase quantity"
           >
-            <svg class="w-3.5 h-3.5 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </div>
       {%- endif -%}
     </div>
+  </div>
+
+  <!-- Content Below Image Box (Reference matching layout) -->
+  <div class="wm-card__info wm-plp-card__info pt-2 pb-0.5 text-left flex flex-col items-start w-full flex-1">
+    <div class="wm-plp-card__list-meta hidden">
+      <span class="wm-plp-card__list-cat">{{ p_cat }}</span>
+      <span class="wm-plp-card__list-stock"><span class="wm-plp-card__list-dot"></span>In Stock</span>
+    </div>
+
+    <!-- Product Heading / Title -->
+    <h3 class="wm-card__title text-[13px] sm:text-[14.5px] leading-tight font-bold text-neutral-900 truncate w-full">
+      <a href="{{ p_url }}" class="hover:underline text-neutral-900 block truncate" aria-label="{{ p_title | escape }}">
+        {{ p_title }}
+      </a>
+    </h3>
+
+    <!-- Bottom Row: Price -->
+    <div class="wm-card__bottom-row flex items-center justify-between gap-1.5 w-full pt-2">
+      <div data-price-wrap class="flex flex-col items-start leading-none shrink min-w-0">
+        <div class="flex items-baseline gap-1.5 truncate">
+          <span class="wm-card__price font-bold text-[13.5px] sm:text-[15px] text-neutral-900 tracking-tight" data-price-val>₹{{ p_price }}</span>
+          {%- if p_compare > p_price -%}
+            <span class="wm-card__compare-price text-neutral-400 line-through text-[9px] sm:text-[11px]" data-compare-val>₹{{ p_compare }}</span>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+
+    {%- if p_desc != blank -%}
+      <p class="wm-plp-card__desc text-[13.5px] leading-relaxed text-neutral-500 line-clamp-2 mt-1 hidden" data-product-desc>
+        {{ p_desc }}
+      </p>
+    {%- endif -%}
   </div>
 </div>

@@ -1,30 +1,98 @@
 {%- comment -%}
-  Wagmart Collection Toolbar & Active Filter Chips Row (snippets/collection-toolbar.liquid)
+  Wagmart Collection & Search Toolbar & Active Filter Chips Row (snippets/collection-toolbar.liquid)
   - Sticky under header when scrolling
   - Left: "Filter" toggle button with active count badge + dynamic result count
   - Right: "Sort by:" dropdown + 2 View Switcher buttons ONLY (Grid View & List View)
   - Active Filter Chips row below toolbar with removable dark-green pills and "Clear All" link
 {%- endcomment -%}
 
-{%- assign total_items = collection.products.size | default: 0 -%}
-{%- assign active_filter_count = 0 -%}
-{%- for filter in collection.filters -%}
-  {%- case filter.type -%}
-    {%- when 'list', 'boolean' -%}
-      {%- for value in filter.values -%}
-        {%- if value.active -%}
-          {%- assign active_filter_count = active_filter_count | plus: 1 -%}
-        {%- endif -%}
-      {%- endfor -%}
-    {%- when 'price_range' -%}
-      {%- if filter.min_value.value or filter.max_value.value -%}
-        {%- assign active_filter_count = active_filter_count | plus: 1 -%}
-      {%- endif -%}
-  {%- endcase -%}
-{%- endfor -%}
+{%- liquid
+  if results == blank
+    if search.performed or request.page_type == 'search'
+      assign results = search
+      assign is_search = true
+      assign total_items = search.results_count | default: search.results.size | default: 0
+    else
+      assign results = collection
+      assign is_search = false
+      assign total_items = collection.products_count | default: collection.products.size | default: 0
+    endif
+  else
+    if results == search
+      assign is_search = true
+      assign total_items = search.results_count | default: search.results.size | default: 0
+    else
+      assign is_search = false
+      assign total_items = collection.products_count | default: collection.products.size | default: 0
+    endif
+  endif
+
+  assign active_filter_count = 0
+  for filter in results.filters
+    case filter.type
+      when 'list', 'boolean'
+        for value in filter.values
+          if value.active
+            assign active_filter_count = active_filter_count | plus: 1
+          endif
+        endfor
+      when 'price_range'
+        if filter.min_value.value or filter.max_value.value
+          assign active_filter_count = active_filter_count | plus: 1
+        endif
+    endcase
+  endfor
+
+  assign current_sort = results.sort_by | default: results.default_sort_by
+  if current_sort == blank or current_sort == 'featured'
+    if is_search
+      assign current_sort = 'relevance'
+    else
+      assign current_sort = 'manual'
+    endif
+  endif
+
+  assign current_sort_name = ''
+  if results.sort_options.size > 0
+    for option in results.sort_options
+      if option.value == current_sort
+        assign current_sort_name = option.name
+        break
+      endif
+    endfor
+  endif
+  if current_sort_name == blank
+    case current_sort
+      when 'price-ascending'
+        assign current_sort_name = 'Price, low to high'
+      when 'price-descending'
+        assign current_sort_name = 'Price, high to low'
+      when 'created-ascending'
+        assign current_sort_name = 'Date, old to new'
+      when 'created-descending'
+        assign current_sort_name = 'Date, new to old'
+      when 'title-ascending'
+        assign current_sort_name = 'Alphabetically, A-Z'
+      when 'title-descending'
+        assign current_sort_name = 'Alphabetically, Z-A'
+      when 'best-selling'
+        assign current_sort_name = 'Best selling'
+      when 'relevance'
+        assign current_sort_name = 'Most relevant'
+      else
+        assign current_sort_name = 'Featured'
+    endcase
+  endif
+
+  if is_search
+    assign clear_all_url = routes.search_url | append: '?q=' | append: search.terms | url_encode | append: '&options%5Bprefix%5D=last&type=product'
+  else
+    assign clear_all_url = collection.url | default: routes.all_products_collection_url
+  endif
+-%}
 
 <div class="wm-plp-toolbar-wrap" data-plp-toolbar-wrap>
-  <div class="wm-plp-toolbar" role="region" aria-label="Collection controls">
+  <div class="wm-plp-toolbar" role="region" aria-label="Catalog controls">
     <div class="wm-plp-toolbar__left">
       <button
         type="button"
@@ -33,39 +101,100 @@
         aria-expanded="true"
         aria-controls="wm-plp-sidebar"
       >
-        {%- comment -%} Lucide: list-collapse {%- endcomment -%}
-        <svg class="lucide lucide-list-collapse" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M10 5h11"/><path d="M10 12h11"/><path d="M10 19h11"/><path d="m3 10 3-3-3-3"/><path d="m3 20 3-3-3-3"/>
+        <svg class="wm-plp-toolbar__filter-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/>
+          <circle cx="9" cy="7" r="2.2" fill="currentColor"/><circle cx="15" cy="17" r="2.2" fill="currentColor"/>
         </svg>
         <span>Filter</span>
         <span class="wm-plp-toolbar__filter-badge" data-plp-filter-badge {% if active_filter_count == 0 %}hidden{% endif %}>{{ active_filter_count }}</span>
       </button>
 
       <p class="wm-plp-toolbar__results" data-plp-results-text aria-live="polite">
-        {%- if total_items == 1 -%}
-          Showing <strong>1</strong> of <strong>1</strong> result (1 product)
-        {%- elsif total_items > 1 -%}
-          Showing <strong>1&ndash;{{ total_items }}</strong> of <strong>{{ total_items }}</strong> results ({{ total_items }} products)
+        {%- if is_search -%}
+          {%- if total_items == 1 -%}
+            Showing <strong>1</strong> result for &ldquo;{{ search.terms }}&rdquo;
+          {%- elsif total_items > 1 -%}
+            Showing <strong>{{ total_items }}</strong> results for &ldquo;{{ search.terms }}&rdquo;
+          {%- else -%}
+            Showing <strong>0</strong> results for &ldquo;{{ search.terms }}&rdquo;
+          {%- endif -%}
         {%- else -%}
-          Showing <strong>0</strong> results
+          {%- if total_items == 1 -%}
+            Showing <strong>1</strong> product
+          {%- elsif total_items > 1 -%}
+            Showing <strong>1&ndash;{{ total_items }}</strong> of <strong>{{ total_items }}</strong> products
+          {%- else -%}
+            Showing <strong>0</strong> products
+          {%- endif -%}
         {%- endif -%}
       </p>
     </div>
 
     <div class="wm-plp-toolbar__right">
       <div class="wm-plp-toolbar__sort">
-        <label for="wm-plp-sort-select" class="wm-plp-toolbar__sort-label">Sort by:</label>
-        <div class="wm-plp-toolbar__sort-select-wrap">
-          <select id="wm-plp-sort-select" class="wm-plp-toolbar__sort-select" data-plp-sort-select aria-label="Sort products by">
-            <option value="featured">Default Sorting</option>
-            <option value="best-selling">Best Selling</option>
-            <option value="price-ascending">Price: Low to High</option>
-            <option value="price-descending">Price: High to Low</option>
-            <option value="created-descending">Newest Arrivals</option>
-            <option value="rating-descending">Customer Rating</option>
-            <option value="title-ascending">Alphabetical (A&ndash;Z)</option>
+        <span class="wm-plp-toolbar__sort-prefix">Sort by:</span>
+        <div class="wm-plp-custom-sort" data-plp-custom-sort>
+          <button
+            type="button"
+            class="wm-plp-custom-sort__trigger"
+            data-plp-custom-sort-trigger
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-label="Sort products by"
+          >
+            <span class="wm-plp-custom-sort__current-text" data-plp-sort-current>{{ current_sort_name }}</span>
+            <svg class="wm-plp-custom-sort__chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+
+          <div class="wm-plp-custom-sort__menu" data-plp-custom-sort-menu role="listbox" hidden>
+            {%- if results.sort_options.size > 0 -%}
+              {%- for option in results.sort_options -%}
+                <button
+                  type="button"
+                  class="wm-plp-custom-sort__option{% if option.value == current_sort %} is-active{% endif %}"
+                  role="option"
+                  data-sort-value="{{ option.value }}"
+                  aria-selected="{% if option.value == current_sort %}true{% else %}false{% endif %}"
+                >
+                  <span class="wm-plp-custom-sort__option-text">{{ option.name }}</span>
+                  <svg class="wm-plp-custom-sort__check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              {%- endfor -%}
+            {%- else -%}
+              {%- assign fallback_options = "featured:Featured,best-selling:Best selling,title-ascending:Alphabetically, A-Z,title-descending:Alphabetically, Z-A,price-ascending:Price, low to high,price-descending:Price, high to low,created-ascending:Date, old to new,created-descending:Date, new to old" | split: "," -%}
+              {%- for item in fallback_options -%}
+                {%- assign parts = item | split: ":" -%}
+                <button
+                  type="button"
+                  class="wm-plp-custom-sort__option{% if parts[0] == current_sort %} is-active{% endif %}"
+                  role="option"
+                  data-sort-value="{{ parts[0] }}"
+                  aria-selected="{% if parts[0] == current_sort %}true{% else %}false{% endif %}"
+                >
+                  <span class="wm-plp-custom-sort__option-text">{{ parts[1] }}</span>
+                  <svg class="wm-plp-custom-sort__check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+
+          <!-- Hidden native select for full form/AJAX compatibility -->
+          <select id="wm-plp-sort-select" class="wm-plp-sort-select-hidden" data-plp-sort-select aria-hidden="true" tabindex="-1">
+            {%- if results.sort_options.size > 0 -%}
+              {%- for option in results.sort_options -%}
+                <option value="{{ option.value }}" {% if option.value == current_sort %}selected="selected"{% endif %}>
+                  {{ option.name }}
+                </option>
+              {%- endfor -%}
+            {%- else -%}
+              {%- for item in fallback_options -%}
+                {%- assign parts = item | split: ":" -%}
+                <option value="{{ parts[0] }}" {% if parts[0] == current_sort %}selected="selected"{% endif %}>
+                  {{ parts[1] }}
+                </option>
+              {%- endfor -%}
+            {%- endif -%}
           </select>
-          <svg class="wm-plp-toolbar__sort-chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
 
@@ -79,7 +208,6 @@
           aria-label="Grid view"
           title="Grid View"
         >
-          {%- comment -%} Lucide: layout-grid {%- endcomment -%}
           <svg class="lucide lucide-layout-grid" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/>
             <rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>
@@ -94,7 +222,6 @@
           aria-label="List view"
           title="List View"
         >
-          {%- comment -%} Lucide: layout-list {%- endcomment -%}
           <svg class="lucide lucide-layout-list" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>
             <path d="M14 4h7"/><path d="M14 9h7"/><path d="M14 15h7"/><path d="M14 20h7"/>
@@ -106,37 +233,86 @@
 
   {%- comment -%} Mobile Sticky 50/50 Filter + Sort Bar (<768px) {%- endcomment -%}
   <div class="wm-plp-mobile-bar">
-    <button type="button" class="wm-plp-mobile-bar__btn" data-plp-mobile-filter-open>
-      {%- comment -%} Lucide: list-collapse {%- endcomment -%}
-      <svg class="lucide lucide-list-collapse" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M10 5h11"/><path d="M10 12h11"/><path d="M10 19h11"/><path d="m3 10 3-3-3-3"/><path d="m3 20 3-3-3-3"/>
+    <button type="button" class="wm-plp-mobile-bar__btn wm-plp-mobile-bar__filter-btn" data-plp-mobile-filter-open>
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/>
+        <circle cx="9" cy="7" r="2.2" fill="currentColor"/><circle cx="15" cy="17" r="2.2" fill="currentColor"/>
       </svg>
       <span>Filter</span>
       <span class="wm-plp-mobile-bar__badge" data-plp-mobile-filter-badge {% if active_filter_count == 0 %}hidden{% endif %}>{{ active_filter_count }}</span>
     </button>
 
     <div class="wm-plp-mobile-bar__sort-wrap">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
-      <span>Sort by</span>
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-      <select class="wm-plp-mobile-bar__sort" data-plp-mobile-sort aria-label="Sort products on mobile">
-        <option value="featured">Default Sorting</option>
-        <option value="best-selling">Best Selling</option>
-        <option value="price-ascending">Price: Low to High</option>
-        <option value="price-descending">Price: High to Low</option>
-        <option value="created-descending">Newest Arrivals</option>
-        <option value="rating-descending">Customer Rating</option>
+      <button type="button" class="wm-plp-mobile-bar__btn wm-plp-mobile-bar__sort-btn" data-plp-mobile-sort-trigger aria-label="Sort products">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+        <span>Sort by</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <select class="wm-plp-sort-select-hidden" data-plp-mobile-sort aria-hidden="true" tabindex="-1">
+        {%- if results.sort_options.size > 0 -%}
+          {%- for option in results.sort_options -%}
+            <option value="{{ option.value }}" {% if option.value == current_sort %}selected="selected"{% endif %}>
+              {{ option.name }}
+            </option>
+          {%- endfor -%}
+        {%- else -%}
+          {%- for item in fallback_options -%}
+            {%- assign parts = item | split: ":" -%}
+            <option value="{{ parts[0] }}" {% if parts[0] == current_sort %}selected="selected"{% endif %}>
+              {{ parts[1] }}
+            </option>
+          {%- endfor -%}
+        {%- endif -%}
       </select>
     </div>
   </div>
 
-  {%- comment -%} 2f. Active Filter Chips Row {%- endcomment -%}
+  {%- comment -%} Mobile Custom Sort Bottom Sheet (<768px) {%- endcomment -%}
+  <div class="wm-plp-mobile-sort-drawer" data-plp-mobile-sort-drawer hidden>
+    <div class="wm-plp-mobile-sort-drawer__backdrop" data-plp-mobile-sort-close></div>
+    <div class="wm-plp-mobile-sort-drawer__dialog">
+      <div class="wm-plp-mobile-sort-drawer__head">
+        <h3 class="wm-plp-mobile-sort-drawer__title">Sort Products</h3>
+        <button type="button" class="wm-plp-mobile-sort-drawer__close" data-plp-mobile-sort-close aria-label="Close sort menu">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="wm-plp-mobile-sort-drawer__options">
+        {%- if results.sort_options.size > 0 -%}
+          {%- for option in results.sort_options -%}
+            <button
+              type="button"
+              class="wm-plp-mobile-sort-drawer__item{% if option.value == current_sort %} is-active{% endif %}"
+              data-sort-value="{{ option.value }}"
+            >
+              <span>{{ option.name }}</span>
+              <svg class="wm-plp-custom-sort__check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          {%- endfor -%}
+        {%- else -%}
+          {%- for item in fallback_options -%}
+            {%- assign parts = item | split: ":" -%}
+            <button
+              type="button"
+              class="wm-plp-mobile-sort-drawer__item{% if parts[0] == current_sort %} is-active{% endif %}"
+              data-sort-value="{{ parts[0] }}"
+            >
+              <span>{{ parts[1] }}</span>
+              <svg class="wm-plp-custom-sort__check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Active Filter Chips Row {%- endcomment -%}
   <div class="wm-plp-active-filters" data-plp-active-filters {% if active_filter_count == 0 %}hidden{% endif %}>
-    <span class="wm-plp-active-filters__label">Active Filter:</span>
+    <span class="wm-plp-active-filters__label">Active Filters:</span>
     <div class="wm-plp-active-filters__list" data-plp-filter-chips role="list" aria-label="Active product filters">
-      {%- for filter in collection.filters -%}
+      {%- for filter in results.filters -%}
         {%- for value in filter.active_values -%}
-          <a href="{{ value.url_to_remove }}" class="wm-plp-chip" data-remove-filter="{{ value.param_name | escape }}" data-filter-val="{{ value.value | escape }}" role="button">
+          <a href="{{ value.url_to_remove }}" class="wm-plp-chip" data-remove-filter="{{ value.param_name | escape }}" data-filter-val="{{ value.value | escape }}" role="button" aria-label="Remove {{ filter.label }}: {{ value.label }}">
             <span>{{ filter.label }}: {{ value.label }}</span>
             <span class="wm-plp-chip__close" aria-hidden="true">&times;</span>
           </a>
@@ -146,13 +322,13 @@
             assign min_p = filter.min_value.value | default: 0 | divided_by: 100.0 | floor
             assign max_p = filter.max_value.value | default: filter.range_max | divided_by: 100.0 | ceil
           -%}
-          <a href="{{ filter.url_to_remove }}" class="wm-plp-chip" data-remove-filter="price" role="button">
+          <a href="{{ filter.url_to_remove }}" class="wm-plp-chip" data-remove-filter="price" role="button" aria-label="Remove price filter">
             <span>Price: {{ cart.currency.symbol }}{{ min_p }} &ndash; {{ cart.currency.symbol }}{{ max_p }}</span>
             <span class="wm-plp-chip__close" aria-hidden="true">&times;</span>
           </a>
         {%- endif -%}
       {%- endfor -%}
     </div>
-    <button type="button" class="wm-plp-active-filters__clear" data-plp-clear-all>Clear All</button>
+    <a href="{{ clear_all_url }}" class="wm-plp-active-filters__clear" data-plp-clear-all role="button">Clear All</a>
   </div>
 </div>

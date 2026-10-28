@@ -1,101 +1,130 @@
 {%- comment -%}
-  Wagmart Sticky Order Summary Card Snippet
-  Parameters:
-  - cart_obj: Shopify cart object
+  Wagmart Order Summary Card Snippet (Matches reference screenshot)
+  - Soft grey rounded box (#F5F5F5, 12px radius)
+  - 1. Cart note accordion
+  - 2. Discount code accordion (open by default, white rounded input + green Apply button)
+  - 3. Share cart accordion
+  - 4. Total row + "Tax included and shipping calculated at checkout"
+  - 5. Full-width green "Checkout" button
+  - 6. Centered Payment Icons (Visa, Mastercard, Amex, PayPal, Diners Club, Discover)
 {%- endcomment -%}
 
 {%- liquid
   assign c = cart_obj | default: cart
   assign final_cents = c.total_price | default: 0
-  assign discount_cents = c.total_discount | default: 0
-  assign threshold_cents = 49900
-
-  if final_cents >= threshold_cents or final_cents == 0
-    assign shipping_inr = 0
-  else
-    assign shipping_inr = 49
-  endif
-
   assign subtotal_inr = final_cents | divided_by: 100.0 | round
-  assign discount_inr = discount_cents | divided_by: 100.0 | round
-  assign grand_total_inr = subtotal_inr | plus: shipping_inr
 -%}
 
-<aside class="wm-cart-summary" aria-labelledby="wm-cart-summary-heading" data-cart-summary>
-  <h2 id="wm-cart-summary-heading" class="wm-cart-summary__title">Order Summary</h2>
+<aside class="wm-cart-summary" aria-label="Cart summary" data-cart-summary>
 
-  {%- comment -%} 1. Free-Shipping Progress Bar {%- endcomment -%}
-  {% render 'cart-free-shipping-bar', cart_total_cents: final_cents, threshold_rupees: 499 %}
-
-  {%- comment -%} 2. Coupon / Promo Code Field {%- endcomment -%}
-  <div class="wm-cart-coupon" data-cart-coupon-box>
-    <div class="wm-cart-coupon__form">
-      <input
-        type="text"
-        class="wm-cart-coupon__input"
-        placeholder="Enter promo code (e.g. WAGMART10)"
-        aria-label="Promo or coupon code"
-        data-coupon-input
-      >
-      <button type="button" class="wm-cart-coupon__btn" data-coupon-apply>Apply</button>
-    </div>
-    <p class="wm-cart-coupon__feedback" data-coupon-feedback aria-live="polite"></p>
-    <div class="wm-cart-coupon__chip-wrap" data-coupon-chip-wrap hidden>
-      <span class="wm-cart-coupon__chip">
-        <span class="wm-cart-coupon__chip-code" data-coupon-chip-label>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-          <span data-coupon-code-text>WAGMART10</span>
-        </span>
-        <button type="button" class="wm-cart-coupon__chip-remove" data-coupon-remove aria-label="Remove coupon code">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </span>
+  {%- comment -%} 1. Cart Note Accordion {%- endcomment -%}
+  <div class="wm-cart-acc" data-summary-acc="note">
+    <button
+      type="button"
+      class="wm-cart-acc__trigger"
+      data-summary-acc-trigger="note"
+      aria-expanded="false"
+      aria-controls="wm-cart-acc-body-note"
+    >
+      <span class="wm-cart-acc__title">Cart note</span>
+      <svg class="wm-cart-acc__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <div id="wm-cart-acc-body-note" class="wm-cart-acc__body" data-summary-acc-body hidden>
+      <label for="wm-cart-note-textarea" class="sr-only">Cart note</label>
+      <textarea
+        id="wm-cart-note-textarea"
+        name="note"
+        class="wm-cart-note__textarea"
+        placeholder="Add special instructions for your order..."
+        data-cart-note-input
+      >{{ c.note }}</textarea>
+      <div class="wm-cart-note__status" data-cart-note-status aria-live="polite"></div>
     </div>
   </div>
 
-  {%- comment -%} 3. Cost Breakdown Rows {%- endcomment -%}
-  <div class="wm-cart-summary__rows">
-    <div class="wm-cart-summary__row">
-      <span>Subtotal (<span data-summary-item-count>{{ c.item_count | default: 0 }}</span> items)</span>
-      <span class="wm-cart-summary__val" data-summary-subtotal>&#8377;{{ subtotal_inr }}</span>
-    </div>
-
-    <div class="wm-cart-summary__row is-discount" data-summary-discount-row {% if discount_inr <= 0 %}hidden{% endif %}>
-      <span>Order Discount</span>
-      <span class="wm-cart-summary__val" data-summary-discount>&minus;&#8377;{{ discount_inr }}</span>
-    </div>
-
-    <div class="wm-cart-summary__row">
-      <span>Estimated Shipping</span>
-      <span class="wm-cart-summary__val{% if shipping_inr == 0 %} is-free{% endif %}" data-summary-shipping>
-        {%- if shipping_inr == 0 -%}FREE{%- else -%}&#8377;{{ shipping_inr }}{%- endif -%}
-      </span>
-    </div>
-
-    <div class="wm-cart-summary__row">
-      <span>Estimated Taxes (GST)</span>
-      <span class="wm-cart-summary__val" data-summary-tax>Included</span>
+  {%- comment -%} 2. Discount Code Accordion (Open by default per screenshot) {%- endcomment -%}
+  <div class="wm-cart-acc is-open" data-summary-acc="discount">
+    <button
+      type="button"
+      class="wm-cart-acc__trigger"
+      data-summary-acc-trigger="discount"
+      aria-expanded="true"
+      aria-controls="wm-cart-acc-body-discount"
+    >
+      <span class="wm-cart-acc__title">Discount code</span>
+      <svg class="wm-cart-acc__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <div id="wm-cart-acc-body-discount" class="wm-cart-acc__body" data-summary-acc-body>
+      <div class="wm-cart-coupon" data-cart-coupon-box>
+        <div class="wm-cart-coupon__form">
+          <input
+            type="text"
+            class="wm-cart-coupon__input"
+            placeholder="Please enter discount code"
+            aria-label="Please enter discount code"
+            data-coupon-input
+          >
+          <button type="button" class="wm-cart-coupon__btn" data-coupon-apply>Apply</button>
+        </div>
+        <p class="wm-cart-coupon__feedback" data-coupon-feedback aria-live="polite"></p>
+        <div class="wm-cart-coupon__chip-wrap" data-coupon-chip-wrap hidden>
+          <span class="wm-cart-coupon__chip">
+            <span class="wm-cart-coupon__chip-code" data-coupon-code-text>WAGMART10</span>
+            <button type="button" class="wm-cart-coupon__chip-remove" data-coupon-remove aria-label="Remove discount code">&times;</button>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <hr class="wm-cart-summary__divider">
-
-  {%- comment -%} 4. Total Row {%- endcomment -%}
-  <div class="wm-cart-summary__total-row">
-    <div class="wm-cart-summary__total-label">
-      Total Amount
-      <small>Inclusive of all taxes</small>
+  {%- comment -%} 3. Share Cart Accordion {%- endcomment -%}
+  <div class="wm-cart-acc" data-summary-acc="share">
+    <button
+      type="button"
+      class="wm-cart-acc__trigger"
+      data-summary-acc-trigger="share"
+      aria-expanded="false"
+      aria-controls="wm-cart-acc-body-share"
+    >
+      <span class="wm-cart-acc__title">Share cart</span>
+      <svg class="wm-cart-acc__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <div id="wm-cart-acc-body-share" class="wm-cart-acc__body" data-summary-acc-body hidden>
+      <div class="wm-cart-share">
+        <div class="wm-cart-coupon__form">
+          <input
+            type="text"
+            class="wm-cart-coupon__input"
+            value="{{ shop.url }}{{ routes.cart_url | default: '/cart' }}"
+            readonly
+            aria-label="Shareable cart link"
+            data-share-cart-input
+          >
+          <button type="button" class="wm-cart-coupon__btn" data-share-cart-copy>Copy</button>
+        </div>
+        <p class="wm-cart-coupon__feedback" data-share-cart-feedback aria-live="polite"></p>
+      </div>
     </div>
-    <span class="wm-cart-summary__total-val" data-summary-total>&#8377;{{ grand_total_inr }}</span>
   </div>
 
-  {%- comment -%} 5. Savings Pill {%- endcomment -%}
-  <div class="wm-cart-summary__savings-pill" data-summary-savings-pill {% if discount_inr <= 0 %}hidden{% endif %}>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    <span data-summary-savings-text>You save &#8377;{{ discount_inr }} on this order</span>
+  {%- comment -%} 4. Total & Tax/Shipping Note {%- endcomment -%}
+  <div class="wm-cart-summary__totals">
+    <div class="wm-cart-summary__total-row">
+      <span class="wm-cart-summary__total-label">Total</span>
+      <span class="wm-cart-summary__total-val" data-summary-total>&#8377;{{ subtotal_inr }}.00</span>
+    </div>
+    <p class="wm-cart-summary__tax-note">
+      Tax included and shipping calculated at checkout
+    </p>
   </div>
 
-  {%- comment -%} 6. Primary Proceed to Checkout CTA {%- endcomment -%}
+  {%- comment -%} 5. Checkout Button {%- endcomment -%}
   <button
     type="submit"
     name="checkout"
@@ -103,74 +132,57 @@
     class="wm-cart-summary__checkout-btn"
     data-cart-checkout-btn
   >
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    <span>PROCEED TO CHECKOUT</span>
+    Checkout
   </button>
 
-  {%- comment -%} 7. Secondary Continue Shopping Link {%- endcomment -%}
-  <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-summary__continue">
-    Continue shopping
-  </a>
-
-  {%- comment -%} 8. Optional Pincode Delivery Estimator {%- endcomment -%}
-  <div class="wm-cart-pincode" data-cart-pincode>
-    <p class="wm-cart-pincode__label">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Estimate Delivery Time
-    </p>
-    <div class="wm-cart-pincode__row">
-      <input
-        type="text"
-        class="wm-cart-pincode__input"
-        placeholder="Enter 6-digit pincode"
-        maxlength="6"
-        inputmode="numeric"
-        value="395007"
-        aria-label="Delivery pincode"
-        data-cart-pincode-input
-      >
-      <button type="button" class="wm-cart-pincode__btn" data-cart-pincode-btn>Check</button>
-    </div>
-    <p class="wm-cart-pincode__result" data-cart-pincode-result aria-live="polite">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span>Delivery by <strong>Tue, 28 Oct</strong> &bull; COD Available</span>
-    </p>
-  </div>
-
-  {%- comment -%} 9. Trust Badges (2x2 Grid, 14px text) {%- endcomment -%}
-  <div class="wm-cart-trust" role="list" aria-label="Store guarantees">
-    <div class="wm-cart-trust__item" role="listitem">
-      <span class="wm-cart-trust__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      </span>
-      <span class="wm-cart-trust__text">100% Secure Payments</span>
-    </div>
-    <div class="wm-cart-trust__item" role="listitem">
-      <span class="wm-cart-trust__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-      </span>
-      <span class="wm-cart-trust__text">Easy 7-Day Returns</span>
-    </div>
-    <div class="wm-cart-trust__item" role="listitem">
-      <span class="wm-cart-trust__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-      </span>
-      <span class="wm-cart-trust__text">Fast Express Delivery</span>
-    </div>
-    <div class="wm-cart-trust__item" role="listitem">
-      <span class="wm-cart-trust__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-      </span>
-      <span class="wm-cart-trust__text">Vet-Tested &amp; Safe</span>
-    </div>
-  </div>
-
-  {%- comment -%} 10. Payment Icon Row {%- endcomment -%}
-  <div class="wm-cart-payments" aria-label="Accepted payment methods">
-    <span class="wm-cart-payment-pill">UPI</span>
-    <span class="wm-cart-payment-pill">VISA</span>
-    <span class="wm-cart-payment-pill">Mastercard</span>
-    <span class="wm-cart-payment-pill">RuPay</span>
-    <span class="wm-cart-payment-pill">COD</span>
+  {%- comment -%} 6. Payment Icons Row (Visa, Mastercard, Amex, PayPal, Diners, Discover) {%- endcomment -%}
+  <div class="wm-cart-summary__payments" aria-label="Accepted payment methods">
+    <!-- Visa -->
+    <span class="wm-pay-badge" title="Visa">
+      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Visa">
+        <rect width="38" height="24" rx="3" fill="#1434CB"/>
+        <text x="19" y="15.5" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-weight="900" font-style="italic" font-size="10.5" letter-spacing="0.5">VISA</text>
+      </svg>
+    </span>
+    <!-- Mastercard -->
+    <span class="wm-pay-badge" title="Mastercard">
+      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Mastercard">
+        <rect width="38" height="24" rx="3" fill="#1F1F1F"/>
+        <circle cx="15" cy="12" r="6.5" fill="#EB001B"/>
+        <circle cx="23" cy="12" r="6.5" fill="#F79E1B" fill-opacity="0.9"/>
+      </svg>
+    </span>
+    <!-- American Express -->
+    <span class="wm-pay-badge" title="American Express">
+      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="American Express">
+        <rect width="38" height="24" rx="3" fill="#016FD0"/>
+        <text x="19" y="11.5" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-weight="800" font-size="6.5">AM</text>
+        <text x="19" y="18" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-weight="800" font-size="6.5">EX</text>
+      </svg>
+    </span>
+    <!-- PayPal -->
+    <span class="wm-pay-badge" title="PayPal">
+      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="PayPal">
+        <rect x="0.5" y="0.5" width="37" height="23" rx="2.5" fill="#FFFFFF" stroke="#E0E0E0"/>
+        <path d="M16.2 7h4.2c2.1 0 3.2 1 3 2.8-.3 2.2-1.8 3.4-4 3.4h-1.4l-.6 3.8h-2.3L16.2 7z" fill="#003087"/>
+        <path d="M17.8 9.2h3.3c1.6 0 2.5.8 2.3 2.3-.2 1.8-1.4 2.8-3.2 2.8h-1.1l-.5 3.2h-1.8l1-8.3z" fill="#0070BA" opacity="0.85"/>
+      </svg>
+    </span>
+    <!-- Diners Club -->
+    <span class="wm-pay-badge" title="Diners Club">
+      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Diners Club">
+        <rect x="0.5" y="0.5" width="37" height="23" rx="2.5" fill="#FFFFFF" stroke="#E0E0E0"/>
+        <circle cx="19" cy="12" r="6.5" fill="#0079BE"/>
+        <path d="M17.8 8.3a3.7 3.7 0 0 0 0 7.4V8.3zm2.4 0v7.4a3.7 3.7 0 0 0 0-7.4z" fill="#FFFFFF"/>
+      </svg>
+    </span>
+    <!-- Discover -->
+    <span class="wm-pay-badge" title="Discover">
+      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Discover">
+        <rect x="0.5" y="0.5" width="37" height="23" rx="2.5" fill="#FFFFFF" stroke="#E0E0E0"/>
+        <text x="18" y="13.5" text-anchor="middle" fill="#111111" font-family="Arial, sans-serif" font-weight="800" font-size="5.6">DISCOVER</text>
+        <path d="M22 23.5h13a2.5 2.5 0 0 0 2.5-2.5v-4.5L22 23.5z" fill="#F47216"/>
+      </svg>
+    </span>
   </div>
 </aside>

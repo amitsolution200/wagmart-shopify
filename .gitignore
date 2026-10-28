@@ -48,3 +48,13 @@ __pycache__/
 .shopify/
 scratch/
 *.zip
+
+# Playwright Test Results
+test-results/
+playwright-report/
+
+# SQLite Databases & Local Inquiries Data
+data/
+*.db
+*.db-wal
+*.db-shm

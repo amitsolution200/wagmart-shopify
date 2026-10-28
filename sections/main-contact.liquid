@@ -586,6 +586,11 @@ Surat, Gujarat, 395004
             
             {%- form 'contact', id: 'WagmartContactForm' -%}
 
+              {% comment %} Anti-spam honeypot (hidden from human visitors) {% endcomment %}
+              <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+                <input type="text" name="contact[hp_website]" id="WagmartFormHp" tabindex="-1" autocomplete="off">
+              </div>
+
               {%- if form.errors -%}
                 <div style="background-color: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; padding: 14px 16px; border-radius: 10px; margin-bottom: 20px; font-size: 14px;">
                   {{ form.errors | default_errors }}
@@ -686,6 +691,9 @@ Surat, Gujarat, 395004
                   <path d="m9 18 6-6-6-6"/>
                 </svg>
               </button>
+
+              {% comment %} On-Page Feedback Alert (Success / Error / Reference ID) {% endcomment %}
+              <div id="WagmartFormAlert" class="wagmart-form-alert" style="display: none; margin-top: 16px; padding: 14px 16px; border-radius: 8px; font-size: 13.5px; line-height: 1.5;" role="status" aria-live="polite"></div>
 
             {%- endform -%}
 
@@ -819,18 +827,24 @@ Surat, Gujarat, 395004
       var toastClose = document.getElementById('wm-contact-toast-close');
       var toastMsg = document.getElementById('wm-contact-toast-msg');
       var submitBtn = document.getElementById('WagmartFormSubmit');
+      var alertBox = document.getElementById('WagmartFormAlert');
       var toastTimer = null;
 
       if (!form || !toast) return;
 
-      function showToast(message) {
+      function showToast(message, isError) {
         if (message && toastMsg) toastMsg.textContent = message;
+        if (isError) {
+          toast.style.backgroundColor = '#991B1B';
+        } else {
+          toast.style.backgroundColor = '#1F2937';
+        }
         toast.classList.add('is-visible');
 
         if (toastTimer) clearTimeout(toastTimer);
         toastTimer = setTimeout(function() {
           hideToast();
-        }, 5000);
+        }, 6000);
       }
 
       function hideToast() {
@@ -839,6 +853,28 @@ Surat, Gujarat, 395004
           clearTimeout(toastTimer);
           toastTimer = null;
         }
+      }
+
+      function showAlert(type, title, message) {
+        if (!alertBox) return;
+        var isSuccess = type === 'success';
+        alertBox.style.display = 'block';
+        alertBox.style.backgroundColor = isSuccess ? '#ECFDF5' : '#FEF2F2';
+        alertBox.style.border = isSuccess ? '1px solid #A7F3D0' : '1px solid #FECACA';
+        alertBox.style.color = isSuccess ? '#065F46' : '#991B1B';
+        alertBox.innerHTML = '<strong>' + escapeHtml(title) + '</strong><div style="margin-top: 4px;">' + message + '</div>';
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function hideAlert() {
+        if (alertBox) alertBox.style.display = 'none';
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
       }
 
       if (toastClose) {
@@ -855,67 +891,120 @@ Surat, Gujarat, 395004
         }
       } catch (err) {}
 
-      // 2. Intercept form submit: strictly validate required fields before showing toast
+      // 2. Intercept form submit: strictly validate required fields and await real server persistence
       form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        hideAlert();
+
         var nameInput = document.getElementById('WagmartFormName');
         var emailInput = document.getElementById('WagmartFormEmail');
+        var orderInput = document.getElementById('WagmartFormOrder');
         var topicInput = document.getElementById('WagmartFormTopic');
         var msgInput = document.getElementById('WagmartFormMessage');
+        var hpInput = document.getElementById('WagmartFormHp');
 
         var nameVal = nameInput ? nameInput.value.trim() : '';
         var emailVal = emailInput ? emailInput.value.trim() : '';
+        var orderVal = orderInput ? orderInput.value.trim() : '';
         var topicVal = topicInput ? topicInput.value.trim() : '';
         var msgVal = msgInput ? msgInput.value.trim() : '';
+        var hpVal = hpInput ? hpInput.value.trim() : '';
 
-        // If any required field is empty, trigger native validation and ABORT (NEVER show toast)
+        // Anti-spam honeypot check
+        if (hpVal) {
+          showAlert('error', 'Submission Rejected', 'Automated submission detected.');
+          return;
+        }
+
+        // Required fields validation
         if (!nameVal || !emailVal || !topicVal || !msgVal) {
-          if (typeof form.reportValidity === 'function') {
-            form.reportValidity();
-          }
+          if (typeof form.reportValidity === 'function') form.reportValidity();
           return;
         }
 
         if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
-          if (typeof form.reportValidity === 'function') {
-            form.reportValidity();
-          }
+          if (typeof form.reportValidity === 'function') form.reportValidity();
           return;
         }
-
-        e.preventDefault();
 
         var originalBtnContent = submitBtn ? submitBtn.innerHTML : '';
         if (submitBtn) {
           submitBtn.disabled = true;
-          submitBtn.innerHTML = '<span class="wm-btn-spinner" aria-hidden="true"></span> <span>Sending...</span>';
+          submitBtn.innerHTML = '<span class="wm-btn-spinner" aria-hidden="true"></span> <span>Saving Inquiry...</span>';
         }
 
-        var formData = new FormData(form);
-        var targetAction = form.getAttribute('action') || window.location.pathname;
+        // Dynamic backend endpoint resolution
+        var backendUrl = window.WAGMART_API_BASE_URL || (window.location.port === '9292' ? 'http://localhost:3001/api/contact' : '/api/contact');
 
-        setTimeout(function() {
-          showToast('Thank you! Your message has been sent.');
-          form.reset();
+        var payload = {
+          name: nameVal,
+          email: emailVal,
+          order_number: orderVal,
+          topic: topicVal,
+          message: msgVal,
+          hp_website: hpVal
+        };
 
-          if (submitBtn) {
-            submitBtn.innerHTML = '<span>Message Sent ✓</span>';
-            setTimeout(function() {
+        fetch(backendUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+        .then(function(res) {
+          return res.json().then(function(data) {
+            return { status: res.status, ok: res.ok, data: data };
+          }).catch(function() {
+            return { status: res.status, ok: res.ok, data: null };
+          });
+        })
+        .then(function(result) {
+          if (result.ok && result.data && result.data.success) {
+            var ref = result.data.reference;
+            var successMsg = 'Thank you! Your message has been saved under reference #' + ref + '.';
+            showToast(successMsg, false);
+            showAlert('success', 'Inquiry Received (Ref #' + ref + ')',
+              'Thank you, <strong>' + escapeHtml(nameVal) + '</strong>. Your inquiry has been securely recorded. Our team will review your message and reply via email within 24 hours.'
+            );
+
+            form.reset();
+
+            if (submitBtn) {
+              submitBtn.innerHTML = '<span>Message Received ✓</span>';
+              setTimeout(function() {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnContent;
+              }, 4000);
+            }
+          } else {
+            // Error response from server (e.g. 400 validation, 429 rate limit, 500 error)
+            var errorMsg = (result.data && result.data.error) ? result.data.error : 'Unable to submit your inquiry. Please check your details and try again.';
+            if (result.data && result.data.errors) {
+              var fieldErrors = Object.values(result.data.errors).join('<br>');
+              errorMsg += '<br><small>' + fieldErrors + '</small>';
+            }
+            showToast('Submission error. Please check form.', true);
+            showAlert('error', 'Unable to Send Message', errorMsg);
+
+            if (submitBtn) {
               submitBtn.disabled = false;
               submitBtn.innerHTML = originalBtnContent;
-            }, 3000);
-          }
-
-          console.log('[Wagmart Contact Form] ✓ Message submitted. Toast displayed cleanly.');
-
-          // Background sync
-          fetch(targetAction, {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
             }
-          }).catch(function() {});
-        }, 300);
+          }
+        })
+        .catch(function(networkErr) {
+          showToast('Connection issue. Please retry.', true);
+          showAlert('error', 'Connection Error',
+            'Could not connect to the inquiry service. Please check your connection or reach our support team directly at +91 77779 85896.'
+          );
+
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnContent;
+          }
+        });
       });
     }
 

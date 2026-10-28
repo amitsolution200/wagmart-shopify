@@ -1,48 +1,58 @@
 {%- comment -%}
-  WAGMART cart drawer (right side). Server-rendered on load, then kept in sync by
-  the Ajax cart in assets/theme.js (/cart.js, /cart/change.js). Checkout posts to
-  Shopify's native checkout.
+  WAGMART Cart Drawer
+  - Modern minimalist design matching Kumbh Sans / React reference design
+  - Default store currency (INR / Rupees)
+  - All-device responsive (full screen mobile, max 500px desktop)
 {%- endcomment -%}
 
 <div class="wm-cart" id="cart-drawer" aria-hidden="true" data-cart-drawer data-fallback-image="{{ 'catalog-grooming-glove.webp' | asset_url }}">
   <div class="wm-backdrop" data-close-cart></div>
 
   <div class="wm-cart__panel" role="dialog" aria-modal="true" aria-labelledby="WmCartTitle" tabindex="-1">
+    
+    {%- comment -%} ── Header: "Your cart" + count badge + close button ── {%- endcomment -%}
     <div class="wm-cart__head">
-      <h2 class="wm-cart__title" id="WmCartTitle">
-        Your Cart<span class="wm-cart__count">(<span data-cart-total-qty id="cart-drawer-total-qty">{{ cart.item_count }}</span>)</span>
-      </h2>
+      <div class="wm-cart__head-left">
+        <h2 class="wm-cart__title" id="WmCartTitle">Your cart</h2>
+        <span class="wm-cart__badge" id="cart-drawer-total-qty" data-cart-total-qty>{{ cart.item_count }}</span>
+      </div>
       <button type="button" class="wm-close-btn" data-close-cart aria-label="Close cart">
-        {% render 'wm-icon', name: 'close', class: 'wm-icon wm-icon--sm', stroke: 2 %}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
     </div>
+
     <div class="wm-cart__progress" aria-hidden="true"></div>
 
+    {%- comment -%} ── Items Scroll Area ── {%- endcomment -%}
     <div class="wm-cart__body">
       <p class="wm-cart__notice" role="alert" data-cart-notice></p>
 
-      {%- comment -%} Empty state {%- endcomment -%}
+      {%- comment -%} Empty State ── {%- endcomment -%}
       <div id="cart-drawer-empty" class="wm-cart__empty{% if cart.item_count > 0 %} hidden{% endif %}">
-        <span class="wm-cart__empty-icon">{% render 'wm-icon', name: 'bag', class: 'wm-icon' %}</span>
-        <h3>Your cart is empty</h3>
-        <p>Find grooming, walking and feeding essentials your pet will love.</p>
-        <a class="wm-btn wm-btn--primary" href="{{ routes.all_products_collection_url }}">
-          <span class="wm-btn__label">Shop all products</span>
+        <p class="wm-cart__empty-title">Your cart is empty</p>
+        <a class="wm-cart__empty-btn" href="{{ routes.all_products_collection_url | default: '/collections/all' }}">
+          Shop all products
         </a>
       </div>
 
-      {%- comment -%} Line items {%- endcomment -%}
+      {%- comment -%} Line items list ── {%- endcomment -%}
       <ul id="cart-drawer-items" class="wm-cart__items{% if cart.item_count == 0 %} hidden{% endif %}" aria-label="Cart items">
         {%- for item in cart.items -%}
           <li class="wm-line" data-cart-item-id="{{ item.key }}">
+            <!-- Left: Rounded 12px product image (w-20 h-20) -->
             <a class="wm-line__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
               {%- if item.image -%}
-                <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.product.title | escape }}" width="84" height="84" loading="lazy" onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';">
+                <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.product.title | escape }}" width="80" height="80" loading="eager" onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';">
               {%- else -%}
-                <img src="{{ 'catalog-grooming-glove.webp' | asset_url }}" alt="{{ item.product.title | escape }}" width="84" height="84" loading="lazy">
+                <img src="{{ 'catalog-grooming-glove.webp' | asset_url }}" alt="{{ item.product.title | escape }}" width="80" height="80" loading="eager">
               {%- endif -%}
             </a>
-            <div>
+
+            <!-- Middle: Details (title + variant + stepper/remove row) -->
+            <div class="wm-line__details">
               <a class="wm-line__title" href="{{ item.url }}">{{ item.product.title | escape }}</a>
               {%- unless item.product.has_only_default_variant -%}
                 <p class="wm-line__variant">{{ item.variant.title | escape }}</p>
@@ -53,44 +63,56 @@
                   <p class="wm-line__variant">{{ property.first | escape }}: {{ property.last | escape }}</p>
                 {%- endif -%}
               {%- endfor -%}
-              {%- if item.quantity > 1 -%}
-                <p class="wm-line__unit">{{ item.final_price | money }} each</p>
-              {%- endif -%}
-              <div class="wm-line__actions">
-                <div class="wm-qty" role="group" aria-label="Quantity for {{ item.product.title | escape }}">
-                  <button type="button" data-cart-qty-btn="-1" data-key="{{ item.key }}" aria-label="Decrease quantity">&minus;</button>
-                  <output aria-live="polite">{{ item.quantity }}</output>
-                  <button type="button" data-cart-qty-btn="1" data-key="{{ item.key }}" aria-label="Increase quantity">+</button>
+
+              <!-- Stepper + Remove trigger row -->
+              <div class="wm-line__actions-row">
+                <div class="wm-line__stepper">
+                  <button type="button" class="wm-line__stepper-btn" data-cart-qty-btn="-1" data-key="{{ item.key }}" aria-label="Decrease quantity">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                  <output class="wm-line__qty-val" aria-live="polite">{{ item.quantity }}</output>
+                  <button type="button" class="wm-line__stepper-btn" data-cart-qty-btn="1" data-key="{{ item.key }}" aria-label="Increase quantity">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
                 </div>
-                <button type="button" class="wm-line__remove" data-cart-remove="{{ item.key }}" aria-label="Remove {{ item.product.title | escape }}">Remove</button>
+                <button type="button" class="wm-line__remove-btn" data-cart-remove="{{ item.key }}" aria-label="Remove {{ item.product.title | escape }}">
+                  Remove
+                </button>
               </div>
             </div>
-            <p class="wm-line__price">
+
+            <!-- Right: Line Price -->
+            <div class="wm-line__price">
               {{ item.final_line_price | money }}
-              {%- if item.original_line_price > item.final_line_price -%}
-                <s>{{ item.original_line_price | money }}</s>
-              {%- endif -%}
-            </p>
+            </div>
           </li>
         {%- endfor -%}
       </ul>
     </div>
 
-    {%- comment -%} Footer {%- endcomment -%}
+    {%- comment -%} ── Footer: Subtotal + Two Buttons (View Cart & Checkout) ── {%- endcomment -%}
     <div id="cart-drawer-footer" class="wm-cart__foot{% if cart.item_count == 0 %} hidden{% endif %}">
-      <div class="wm-cart__row">
-        <span>Subtotal</span>
-        <strong id="cart-drawer-subtotal">{{ cart.total_price | money }}</strong>
+      <!-- Subtotal row -->
+      <div class="wm-cart__subtotal-row">
+        <span class="wm-cart__subtotal-label">Subtotal</span>
+        <span class="wm-cart__subtotal-val" id="cart-drawer-subtotal">{{ cart.total_price | money }}</span>
       </div>
-      <p class="wm-cart__fine">Taxes, discounts and shipping are calculated at checkout.</p>
+
+      <!-- Two buttons: View Cart (redirects to cart page) + Checkout -->
       <form action="{{ routes.cart_url }}" method="post" id="cart-drawer-form" class="wm-cart__actions">
-        <a href="{{ routes.cart_url }}" class="wm-btn wm-btn--outline">
-          <span class="wm-btn__label">View Cart</span>
+        <a href="{{ routes.cart_url | default: '/cart' }}" class="wm-cart__view-btn">
+          View Cart
         </a>
-        <button type="submit" name="checkout" class="wm-btn wm-btn--primary">
-          <span class="wm-btn__label">Checkout</span>
+        <button type="submit" name="checkout" class="wm-cart__checkout-btn">
+          Checkout
         </button>
       </form>
     </div>
+
   </div>
 </div>

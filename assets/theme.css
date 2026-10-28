@@ -54,61 +54,10 @@ body {
 }
 
 /* ==========================================================================
-   Pet Reels Video Carousel & Cards
+   Pet Reels Video Carousel & Cards (Scoped in sections/pet-reels.liquid)
    ========================================================================== */
-.reels-carousel {
-  display: flex !important;
-  gap: 1.5rem !important;
-  overflow-x: auto !important;
-  scroll-behavior: smooth !important;
-  scroll-snap-type: x mandatory !important;
-  padding: 0.5rem 0.25rem 1rem 0.25rem !important;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
 .reels-carousel::-webkit-scrollbar {
-  display: none !important;
-}
-
-[data-reel-card] {
-  flex: 0 0 82vw !important;
-  max-width: 320px !important;
-  min-height: 460px !important;
-  height: 480px !important;
-  aspect-ratio: 9 / 14 !important;
-  position: relative !important;
-  border-radius: 24px !important;
-  overflow: hidden !important;
-  background-color: #171717 !important;
-  scroll-snap-align: start !important;
-  user-select: none !important;
-  cursor: pointer !important;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08) !important;
-  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-}
-[data-reel-card]:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.16) !important;
-}
-
-@media (min-width: 640px) {
-  [data-reel-card] {
-    flex: 0 0 300px !important;
-    height: 490px !important;
-  }
-}
-@media (min-width: 1024px) {
-  [data-reel-card] {
-    flex: 0 0 280px !important;
-    height: 480px !important;
-  }
-}
-@media (min-width: 1280px) {
-  [data-reel-card] {
-    flex: 0 0 310px !important;
-    height: 500px !important;
-  }
+  display: none;
 }
 
 /* Hero Banner Responsive Content Container */
@@ -129,63 +78,6 @@ body {
   }
 }
 
-/* Pet Reels Video on Hover */
-[data-reel-card] [data-reel-thumb] {
-  transition: opacity 0.4s ease, transform 0.6s ease !important;
-}
-
-[data-reel-card][data-playing="true"] [data-reel-thumb] {
-  opacity: 0 !important;
-}
-
-[data-reel-video] {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  overflow: hidden !important;
-  background-color: #000000 !important;
-  border-radius: 24px !important;
-  z-index: 10 !important;
-  transition: opacity 0.3s ease !important;
-}
-
-[data-reel-video] iframe {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  width: 100% !important;
-  height: 100% !important;
-  min-width: 100% !important;
-  min-height: 100% !important;
-  transform: translate(-50%, -50%) scale(1.35) !important;
-  transform-origin: center center !important;
-  border: 0 !important;
-  pointer-events: none !important;
-}
-
-[data-reel-card] [data-play-indicator] {
-  transition: opacity 0.3s ease, transform 0.3s ease !important;
-  z-index: 25 !important;
-}
-
-[data-reel-card][data-playing="true"] [data-play-indicator] {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: scale(0.85) !important;
-}
-
-[data-reel-card] [data-card-overlay] {
-  transition: opacity 0.3s ease, transform 0.3s ease !important;
-  z-index: 25 !important;
-}
-
-[data-reel-card][data-playing="true"] [data-card-overlay] {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translateY(8px) !important;
-}
-
 /* Global Page Background */
 /* Global Page Background & Sticky Header Scroll Context */
 html {
@@ -199,7 +91,7 @@ body {
   overflow-x: clip !important;
 }
 
-/* Sticky Header - Persists at top across all scroll positions & account popups */
+/* Sticky Header - Hide on scroll down, show on scroll up, transparent outer wrapper */
 #shopify-section-header,
 .shopify-section-header,
 header.wm-header {
@@ -207,6 +99,10 @@ header.wm-header {
   top: 0 !important;
   z-index: 1000 !important;
   width: 100% !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 #shopify-section-header header,
@@ -215,12 +111,17 @@ header.wm-header {
   top: 0 !important;
   z-index: 1000 !important;
   width: 100% !important;
-  background-color: #ffffff !important;
-  transition: box-shadow 0.3s ease, background-color 0.3s ease !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
-.header-scrolled {
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+#shopify-section-header.is-header-hidden,
+.shopify-section-header.is-header-hidden,
+header.wm-header.is-hidden:not(.shopify-section-header header) {
+  transform: translateY(-105%) !important;
+  pointer-events: none;
 }
 
 /* Product Card Stepper */
@@ -241,6 +142,182 @@ header.wm-header {
 
 [data-add-to-cart]:not(.hidden) {
   display: inline-flex !important;
+}
+
+/* React-Converted Product Card */
+.wm-react-card {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.wm-react-card__image-box {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 4 / 5 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  background-color: #FBFBF7 !important;
+  border: none !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+.wm-react-card:hover .wm-react-card__image-box {
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Single Image Hover (No secondary image swap) */
+.wm-react-card__img-primary {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.wm-react-card:hover .wm-react-card__img-primary {
+  transform: scale(1.05) !important;
+  opacity: 1 !important;
+}
+
+/* Heart Wishlist Button */
+.wm-react-card__wishlist {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9999px !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  color: #374151 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(4px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  cursor: pointer !important;
+  z-index: 20 !important;
+  transition: transform 0.2s ease, background-color 0.2s ease !important;
+}
+
+.wm-react-card__wishlist:hover {
+  background-color: #FFFFFF !important;
+  transform: scale(1.08) !important;
+}
+
+.wm-react-card__wishlist:active {
+  transform: scale(0.92) !important;
+}
+
+.wm-react-card__wishlist svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* Bottom Actions Container (Full-Width Add to Cart & Stepper) */
+.wm-react-card__actions {
+  position: absolute !important;
+  left: 12px !important;
+  right: 12px !important;
+  bottom: 12px !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+}
+
+[data-product-card],
+[data-related-products-section] {
+  scroll-margin-top: 140px !important;
+}
+
+.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add) {
+  width: 100% !important;
+  height: 40px !important;
+  background-color: #FFFFFF !important;
+  color: #111827 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+  outline: none !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+}
+
+.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add):hover {
+  background-color: #F9FAFB !important;
+}
+
+.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add):active {
+  transform: scale(0.97) !important;
+}
+
+/* Desktop: Fade & slide in on hover; Mobile: always visible */
+@media (min-width: 641px) {
+  .wm-react-card [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden) {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease !important;
+    pointer-events: auto !important;
+  }
+
+  .wm-react-card:hover [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden),
+  .wm-react-card:focus-within [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden) {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .wm-react-card [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden) {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+}
+
+/* Quantity Stepper when item is in cart */
+.wm-react-card [data-card-stepper]:not(.wm-card__stepper) {
+  width: 100% !important;
+  height: 32px !important;
+  background-color: #111827 !important;
+  color: #FFFFFF !important;
+  border-radius: 9999px !important;
+  padding: 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22) !important;
+  box-sizing: border-box !important;
+  transition: all 0.25s ease !important;
+}
+
+.wm-react-card [data-card-stepper]:not(.wm-card__stepper):not(.hidden) {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  pointer-events: auto !important;
+  display: flex !important;
+}
+
+.wm-react-card [data-card-stepper]:not(.wm-card__stepper).hidden {
+  display: none !important;
+}
+
+.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add).hidden {
+  display: none !important;
 }
 
 /* Unified Quick View Modal Add to Cart Button & Stepper */
@@ -403,4 +480,349 @@ header.wm-header {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(122, 70, 229, 0.75);
 }
+
+/* ==========================================================================
+   UNIVERSAL WAGMART PRODUCT CARD (Homepage, PDP & Collection Page)
+   ========================================================================== */
+
+/* 1. Category Badge: Top-Left Glassmorphic Pill with Pure Black Text */
+[data-product-card] .wm-card__badge,
+.wm-unified-card .wm-card__badge {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 20 !important;
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  color: #000000 !important;
+  backdrop-filter: blur(10px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 9999px !important;
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px rgba(255, 255, 255, 0.6) !important;
+  pointer-events: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
+/* 2. Top Right Stacked Heart Wishlist & Eye Quick View Buttons */
+[data-product-card] .wm-card__top-right-actions,
+.wm-unified-card .wm-card__top-right-actions {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 25 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  pointer-events: auto !important;
+}
+
+[data-product-card] .wm-react-card__wishlist,
+[data-product-card] .wm-card__side-qv,
+.wm-unified-card .wm-react-card__wishlist,
+.wm-unified-card .wm-card__side-qv {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  width: 27px !important;
+  height: 27px !important;
+  min-width: 27px !important;
+  min-height: 27px !important;
+  border-radius: 9999px !important;
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(229, 231, 235, 0.7) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  color: #374151 !important;
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
+}
+
+[data-product-card] .wm-react-card__wishlist:hover,
+[data-product-card] .wm-card__side-qv:hover,
+.wm-unified-card .wm-react-card__wishlist:hover,
+.wm-unified-card .wm-card__side-qv:hover {
+  background-color: #FFFFFF !important;
+  transform: scale(1.1) !important;
+  color: #111827 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-product-card] .wm-react-card__wishlist svg,
+[data-product-card] .wm-card__side-qv svg,
+.wm-unified-card .wm-react-card__wishlist svg,
+.wm-unified-card .wm-card__side-qv svg {
+  width: 13px !important;
+  height: 13px !important;
+  stroke-width: 2 !important;
+}
+
+/* 3. Bottom Inside Image: White Pill "Add To Bag" Button & Active Stepper */
+[data-product-card] .wm-card__img-qv-wrap,
+.wm-unified-card .wm-card__img-qv-wrap {
+  position: absolute !important;
+  left: 10px !important;
+  right: 10px !important;
+  bottom: 10px !important;
+  z-index: 25 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  pointer-events: auto !important;
+}
+
+@media (hover: hover) and (min-width: 768px) {
+  [data-product-card] .wm-card__img-qv-wrap,
+  .wm-unified-card .wm-card__img-qv-wrap {
+    opacity: 0 !important;
+    transform: translateY(6px) !important;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  [data-product-card]:hover .wm-card__img-qv-wrap,
+  [data-product-card]:focus-within .wm-card__img-qv-wrap,
+  [data-product-card]:has([data-card-stepper]:not(.hidden)) .wm-card__img-qv-wrap,
+  .wm-unified-card:hover .wm-card__img-qv-wrap,
+  .wm-unified-card:focus-within .wm-card__img-qv-wrap,
+  .wm-unified-card:has([data-card-stepper]:not(.hidden)) .wm-card__img-qv-wrap {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+}
+
+@media (hover: none), (max-width: 767px) {
+  [data-product-card] .wm-card__img-qv-wrap,
+  .wm-unified-card .wm-card__img-qv-wrap {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+}
+
+[data-product-card] .wm-card__img-qv-btn,
+.wm-unified-card .wm-card__img-qv-btn {
+  width: 100% !important;
+  height: 36px !important;
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  color: #111827 !important;
+  border: 1px solid rgba(229, 231, 235, 0.5) !important;
+  border-radius: 9999px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease !important;
+  white-space: nowrap !important;
+  outline: none !important;
+  text-decoration: none !important;
+}
+
+[data-product-card] .wm-card__img-qv-btn svg,
+.wm-unified-card .wm-card__img-qv-btn svg {
+  width: 13px !important;
+  height: 13px !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+}
+
+[data-product-card] .wm-card__img-qv-btn:hover,
+.wm-unified-card .wm-card__img-qv-btn:hover {
+  background-color: #ffffff !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14) !important;
+}
+
+[data-product-card] .wm-card__img-qv-btn:active,
+.wm-unified-card .wm-card__img-qv-btn:active {
+  transform: scale(0.96) !important;
+}
+
+/* 4. Active Quantity Stepper (- 1 +) Inside Image */
+[data-product-card] [data-card-stepper],
+.wm-unified-card [data-card-stepper] {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  height: 36px !important;
+  background-color: #111827 !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  padding: 0 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto !important;
+  box-sizing: border-box !important;
+}
+
+[data-product-card] [data-card-stepper].hidden,
+.wm-unified-card [data-card-stepper].hidden {
+  display: none !important;
+}
+
+[data-product-card] [data-card-stepper-btn],
+.wm-unified-card [data-card-stepper-btn] {
+  width: 21px !important;
+  height: 21px !important;
+  border-radius: 9999px !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  transition: background-color 0.15s ease, transform 0.1s ease !important;
+}
+
+[data-product-card] [data-card-stepper-btn]:hover,
+.wm-unified-card [data-card-stepper-btn]:hover {
+  background-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+[data-product-card] [data-card-stepper-btn]:active,
+.wm-unified-card [data-card-stepper-btn]:active {
+  transform: scale(0.9) !important;
+}
+
+[data-product-card] [data-card-qty],
+.wm-unified-card [data-card-qty] {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  min-width: 14px !important;
+  text-align: center !important;
+  user-select: none !important;
+  padding: 0 2px !important;
+}
+
+[data-product-card] .wm-card__action-wrap,
+[data-product-card] .wm-card__btn-add,
+.wm-unified-card .wm-card__action-wrap,
+.wm-unified-card .wm-card__btn-add {
+  display: none !important;
+}
+
+[data-product-card] .wm-card__bottom-row,
+.wm-unified-card .wm-card__bottom-row {
+  border: none !important;
+  border-top: none !important;
+}
+
+/* All Product Cards: Compare / Original Price (on the right side of main price) */
+[data-product-card] .wm-card__compare-price,
+[data-product-card] [data-compare-val],
+.wm-react-card .wm-card__compare-price,
+.wm-react-card [data-compare-val],
+.wm-unified-card .wm-card__compare-price,
+.wm-unified-card [data-compare-val] {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: #9CA3AF !important;
+  text-decoration: line-through !important;
+}
+
+@media (max-width: 767px) {
+  [data-product-card] .wm-card__compare-price,
+  [data-product-card] [data-compare-val],
+  .wm-react-card .wm-card__compare-price,
+  .wm-react-card [data-compare-val],
+  .wm-unified-card .wm-card__compare-price,
+  .wm-unified-card [data-compare-val] {
+    font-size: 10px !important;
+  }
+}
+
+/* Mobile (< 768px): Compact Add To Bag & -/+ Quantity Stepper across all cards */
+@media (max-width: 767px) {
+  [data-product-card] .wm-card__img-qv-wrap,
+  .wm-unified-card .wm-card__img-qv-wrap {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+  }
+
+  .wm-react-card .wm-card__img-qv-btn[data-add-to-cart]:not(.wm-card__btn-add),
+  [data-product-card] .wm-card__img-qv-btn,
+  .wm-unified-card .wm-card__img-qv-btn {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 9px !important;
+    font-size: 10.5px !important;
+    gap: 4px !important;
+  }
+
+  .wm-react-card .wm-card__img-qv-btn[data-add-to-cart] svg,
+  [data-product-card] .wm-card__img-qv-btn svg,
+  .wm-unified-card .wm-card__img-qv-btn svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+
+  .wm-react-card .wm-card__img-qv-wrap [data-card-stepper]:not(.wm-card__stepper),
+  [data-product-card] .wm-card__img-qv-wrap [data-card-stepper],
+  .wm-unified-card .wm-card__img-qv-wrap [data-card-stepper] {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 5px !important;
+    font-size: 10.5px !important;
+  }
+
+  .wm-react-card [data-card-stepper] [data-card-stepper-btn],
+  [data-product-card] [data-card-stepper-btn],
+  .wm-unified-card [data-card-stepper-btn] {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .wm-react-card [data-card-stepper] [data-card-stepper-btn] svg,
+  [data-product-card] [data-card-stepper-btn] svg,
+  .wm-unified-card [data-card-stepper-btn] svg {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  .wm-react-card [data-card-stepper] [data-card-qty],
+  [data-product-card] [data-card-qty],
+  .wm-unified-card [data-card-qty] {
+    font-size: 10.5px !important;
+    min-width: 12px !important;
+  }
+}
+
+
 

@@ -19,7 +19,7 @@
 
     {% comment %} Product Categories - Compact Filter Pills {% endcomment %}
     <div data-filter-bar class="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-8">
-      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-[#2B1B47] text-white shadow-xs" data-filter-tab="all">All Products</button>
+      <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-black text-white shadow-xs" data-filter-tab="all">All Products</button>
       <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="grooming">Grooming &amp; Hygiene</button>
       <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="feeding">Feeding &amp; Bowls</button>
       <button type="button" class="px-4 py-2 rounded-full text-xs font-nunito font-bold whitespace-nowrap transition-all duration-200 cursor-pointer bg-white text-[#4B5563] hover:text-[#111827] hover:bg-[#F3EFEA] border border-[#E5E0D5]" data-filter-tab="hygiene">Hygiene &amp; Care</button>
@@ -29,272 +29,580 @@
     </div>
 
 <style>
-  /* Wagmart Best Sellers Responsive Grid & Card Styling */
+  /* Wagmart Home Page Best Sellers Single-Row Responsive Carousel */
   #shop [data-product-card] {
     box-shadow: none !important;
     filter: none !important;
-    border: 1px solid #EAE5D9 !important;
-    transition: border-color 0.25s ease, transform 0.25s ease !important;
+    border: none !important;
+    background: transparent !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    scroll-snap-align: start !important;
   }
   #shop [data-product-card]:hover {
     box-shadow: none !important;
     filter: none !important;
     transform: none !important;
-    border-color: #D5CEBF !important;
   }
-  
-  /* Laptop / Desktop: 5 Cards Grid & Centered Filters */
-  @media (min-width: 1024px) {
+  #shop [data-product-card].hidden,
+  #shop [data-product-card][hidden],
+  #shop [data-products-scroll] [data-product-card].hidden,
+  #shop [data-products-scroll] [data-product-card][hidden] {
+    display: none !important;
+  }
+
+  #shop .wm-react-card__image-box,
+  #shop [data-product-card]:hover .wm-react-card__image-box {
+    width: 100% !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Wagmart Reference Product Card Action Buttons (Add to Bag & Quick View) */
+  #shop [data-product-card] .wm-card__bottom-row {
+    border: none !important;
+    border-top: none !important;
+  }
+
+  /* Badge at Top Left of Card Image (Glassmorphic pill with pure black text) */
+  #shop [data-product-card] .wm-card__badge {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 20 !important;
+    background-color: rgba(255, 255, 255, 0.75) !important;
+    color: #000000 !important;
+    backdrop-filter: blur(10px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    border-radius: 9999px !important;
+    padding: 4px 10px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.02em !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px rgba(255, 255, 255, 0.6) !important;
+    pointer-events: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+
+  /* Top Right Stacked Heart Wishlist & Eye Quick View Buttons */
+  #shop [data-product-card] .wm-card__top-right-actions {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 25 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    pointer-events: auto !important;
+  }
+
+  #shop [data-product-card] .wm-react-card__wishlist,
+  #shop [data-product-card] .wm-card__side-qv {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    width: 27px !important;
+    height: 27px !important;
+    min-width: 27px !important;
+    min-height: 27px !important;
+    border-radius: 9999px !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    border: 1px solid rgba(229, 231, 235, 0.7) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    color: #374151 !important;
+    transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
+  }
+
+  #shop [data-product-card] .wm-react-card__wishlist:hover,
+  #shop [data-product-card] .wm-card__side-qv:hover {
+    background-color: #FFFFFF !important;
+    transform: scale(1.1) !important;
+    color: #111827 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  #shop [data-product-card] .wm-react-card__wishlist svg,
+  #shop [data-product-card] .wm-card__side-qv svg {
+    width: 13px !important;
+    height: 13px !important;
+    stroke-width: 2 !important;
+  }
+
+  /* Bottom Inside Image: White Pill "Add To Bag" Button & Active Stepper */
+  #shop [data-product-card] .wm-card__img-qv-wrap {
+    position: absolute !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    z-index: 25 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    pointer-events: auto !important;
+  }
+
+  @media (hover: hover) and (min-width: 768px) {
+    #shop [data-product-card] .wm-card__img-qv-wrap {
+      opacity: 0 !important;
+      transform: translateY(6px) !important;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    #shop [data-product-card]:hover .wm-card__img-qv-wrap,
+    #shop [data-product-card]:focus-within .wm-card__img-qv-wrap,
+    #shop [data-product-card]:has([data-card-stepper]:not(.hidden)) .wm-card__img-qv-wrap {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+    }
+  }
+
+  @media (hover: none), (max-width: 767px) {
+    #shop [data-product-card] .wm-card__img-qv-wrap {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+    }
+  }
+
+  #shop [data-product-card] .wm-card__img-qv-btn {
+    width: 100% !important;
+    height: 36px !important;
+    background-color: rgba(255, 255, 255, 0.96) !important;
+    color: #111827 !important;
+    border: 1px solid rgba(229, 231, 235, 0.5) !important;
+    border-radius: 9999px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.01em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease !important;
+    white-space: nowrap !important;
+    outline: none !important;
+    text-decoration: none !important;
+  }
+
+  #shop [data-product-card] .wm-card__img-qv-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+    stroke: currentColor !important;
+    stroke-width: 2 !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+  }
+
+  #shop [data-product-card] .wm-card__img-qv-btn:hover {
+    background-color: #ffffff !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14) !important;
+  }
+
+  #shop [data-product-card] .wm-card__img-qv-btn:active {
+    transform: scale(0.96) !important;
+  }
+
+  /* Active Quantity Stepper styling inside Card Image */
+  #shop [data-product-card] [data-card-stepper] {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 36px !important;
+    background-color: #111827 !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 9999px !important;
+    padding: 0 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  #shop [data-product-card] [data-card-stepper].hidden {
+    display: none !important;
+  }
+
+  #shop [data-product-card] [data-card-stepper-btn] {
+    width: 21px !important;
+    height: 21px !important;
+    border-radius: 9999px !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    transition: background-color 0.15s ease, transform 0.1s ease !important;
+  }
+
+  #shop [data-product-card] [data-card-stepper-btn]:hover {
+    background-color: rgba(255, 255, 255, 0.35) !important;
+  }
+
+  #shop [data-product-card] [data-card-stepper-btn]:active {
+    transform: scale(0.9) !important;
+  }
+
+  #shop [data-product-card] [data-card-qty] {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    min-width: 14px !important;
+    text-align: center !important;
+    user-select: none !important;
+    padding: 0 2px !important;
+  }
+
+  @media (max-width: 767px) {
+    #shop [data-product-card] .wm-card__img-qv-wrap {
+      left: 8px !important;
+      right: 8px !important;
+      bottom: 8px !important;
+    }
+    #shop [data-product-card] .wm-card__img-qv-btn[data-add-to-cart] {
+      height: 28px !important;
+      min-height: 28px !important;
+      padding: 0 9px !important;
+      font-size: 10.5px !important;
+      gap: 4px !important;
+    }
+    #shop [data-product-card] .wm-card__img-qv-btn[data-add-to-cart] svg {
+      width: 11px !important;
+      height: 11px !important;
+    }
+    #shop [data-product-card] .wm-card__img-qv-wrap [data-card-stepper] {
+      height: 28px !important;
+      min-height: 28px !important;
+      padding: 0 5px !important;
+      font-size: 10.5px !important;
+    }
+    #shop [data-product-card] [data-card-stepper-btn] {
+      width: 18px !important;
+      height: 18px !important;
+    }
+    #shop [data-product-card] [data-card-stepper-btn] svg {
+      width: 8px !important;
+      height: 8px !important;
+    }
+    #shop [data-product-card] [data-card-qty] {
+      font-size: 10.5px !important;
+      min-width: 12px !important;
+    }
+  }
+
+  /* Active Filter Tab: Solid Black Background */
+  #shop [data-filter-tab].is-active,
+  #shop [data-filter-tab].bg-black,
+  #shop [data-filter-tab].bg-\[\#2B1B47\] {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+
+  /* Single-Row Horizontal Scrolling Carousel on All Devices */
+  #shop [data-products-scroll] {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    position: relative !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 4px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+  #shop [data-products-scroll]::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Navigation Arrows: Centered Vertically on Product Image Box & Visible on Hover */
+  #shop [data-scroll-prev],
+  #shop [data-scroll-next] {
+    display: flex !important;
+    position: absolute !important;
+    top: 42% !important;
+    translate: none !important;
+    transform: translateY(-50%) !important;
+    z-index: 30 !important;
+    background-color: #ffffff !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+    border-radius: 9999px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    opacity: 0 !important;
+    color: #111827 !important;
+    outline: none !important;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
+  }
+
+  /* Show arrows when hovering over the carousel / cards, or when hovering/focusing the arrows */
+  #shop .group\/carousel:hover [data-scroll-prev]:not(.is-disabled):not(:disabled),
+  #shop .group\/carousel:hover [data-scroll-next]:not(.is-disabled):not(:disabled),
+  #shop [data-scroll-prev]:not(.is-disabled):not(:disabled):hover,
+  #shop [data-scroll-next]:not(.is-disabled):not(:disabled):hover,
+  #shop [data-scroll-prev]:focus-visible,
+  #shop [data-scroll-next]:focus-visible {
+    opacity: 1 !important;
+  }
+
+  /* Hover state: NO border, smooth scale and shadow */
+  #shop [data-scroll-prev]:hover:not(.is-disabled):not(:disabled),
+  #shop [data-scroll-next]:hover:not(.is-disabled):not(:disabled) {
+    border: none !important;
+    border-color: transparent !important;
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    transform: translateY(-50%) scale(1.06) !important;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.16) !important;
+  }
+
+  /* Disabled State: When at start (first card) or end (last card), completely unclickable and disabled */
+  #shop [data-scroll-prev].is-disabled,
+  #shop [data-scroll-prev]:disabled,
+  #shop [data-scroll-prev][aria-disabled="true"],
+  #shop [data-scroll-next].is-disabled,
+  #shop [data-scroll-next]:disabled,
+  #shop [data-scroll-next][aria-disabled="true"] {
+    opacity: 0.22 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+    transform: translateY(-50%) !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-color: transparent !important;
+  }
+
+  /* 1. Desktop View (>= 1280px): 5 Cards in One Row */
+  @media (min-width: 1280px) {
+    #shop .max-w-\[1500px\] {
+      padding-left: 2rem !important;
+      padding-right: 2rem !important;
+    }
     #shop [data-filter-bar] {
       justify-content: center !important;
     }
-    #shop [data-products-scroll] [data-product-card] {
-      flex: 0 0 calc((100% - 4rem) / 5) !important;
-      width: calc((100% - 4rem) / 5) !important;
-      max-width: calc((100% - 4rem) / 5) !important;
-      min-width: calc((100% - 4rem) / 5) !important;
-      padding: 0.75rem 0.75rem 1rem !important;
-      scroll-snap-align: start !important;
+    #shop [data-scroll-prev] {
+      left: -1.25rem !important;
+      width: 40px !important;
+      height: 40px !important;
     }
-    #shop [data-product-card] .h-\[205px\],
-    #shop [data-product-card] .sm\:h-\[210px\] {
-      height: 170px !important;
+    #shop [data-scroll-next] {
+      right: -1.25rem !important;
+      width: 40px !important;
+      height: 40px !important;
     }
-    #shop [data-product-card] h3 {
-      font-size: 0.95rem !important;
-      line-height: 1.3 !important;
-    }
-    #shop [data-product-card] p {
-      font-size: 0.75rem !important;
-      line-height: 1.35 !important;
-    }
-    #shop [data-product-card] [data-price-wrap] {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 2px !important;
-    }
-    #shop [data-product-card] [data-price-val] {
-      font-size: 1.15rem !important;
-      line-height: 1 !important;
-    }
-    #shop [data-product-card] [data-compare-val] {
-      font-size: 0.75rem !important;
-      line-height: 1 !important;
-    }
-    #shop [data-product-card] [data-add-to-cart] {
-      height: 38px !important;
-      padding-left: 0.35rem !important;
-      padding-right: 0.75rem !important;
-      gap: 0.35rem !important;
-    }
-    #shop [data-product-card] [data-add-to-cart] span:first-child {
-      width: 28px !important;
-      height: 28px !important;
-    }
-    #shop [data-product-card] [data-add-to-cart] span:last-child {
-      font-size: 11.5px !important;
-    }
-    #shop [data-product-card] [data-card-stepper] {
-      height: 38px !important;
-      padding: 0.25rem 0.4rem !important;
-      gap: 0.25rem !important;
-    }
-    #shop [data-product-card] [data-card-stepper] [data-card-stepper-btn] {
-      width: 26px !important;
-      height: 26px !important;
-    }
-    #shop [data-product-card] [data-card-stepper] [data-card-qty] {
-      font-size: 13px !important;
-      min-width: 18px !important;
-      padding: 0 0.2rem !important;
-    }
-  }
-
-  /* Tablet & Mobile Container Reset */
-  @media (max-width: 1023px) {
     #shop [data-products-scroll] {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
+      gap: 20px !important;
+    }
+    #shop [data-products-scroll] [data-product-card] {
+      flex: 0 0 calc((100% - 80px) / 5) !important;
+      width: calc((100% - 80px) / 5) !important;
+      max-width: calc((100% - 80px) / 5) !important;
+      min-width: calc((100% - 80px) / 5) !important;
+    }
+    #shop .carousel-dot:nth-child(n+3) {
+      display: none !important;
     }
   }
 
-  /* Tablet View: Filter Bar, 3 Cards Grid & Arrow Positioning (641px - 1023px) */
-  @media (min-width: 641px) and (max-width: 1023px) {
-    /* 1. Category Filter: Start cleanly from left with zero negative scroll clipping */
+  /* 2. Laptop View (1024px - 1279px): 4 Cards in One Row */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    #shop .max-w-\[1500px\] {
+      padding-left: 2rem !important;
+      padding-right: 2rem !important;
+    }
+    #shop [data-filter-bar] {
+      justify-content: center !important;
+    }
+    #shop [data-scroll-prev] {
+      left: -1.25rem !important;
+      width: 40px !important;
+      height: 40px !important;
+    }
+    #shop [data-scroll-next] {
+      right: -1.25rem !important;
+      width: 40px !important;
+      height: 40px !important;
+    }
+    #shop [data-products-scroll] {
+      gap: 18px !important;
+    }
+    #shop [data-products-scroll] [data-product-card] {
+      flex: 0 0 calc((100% - 54px) / 4) !important;
+      width: calc((100% - 54px) / 4) !important;
+      max-width: calc((100% - 54px) / 4) !important;
+      min-width: calc((100% - 54px) / 4) !important;
+    }
+    #shop .carousel-dot:nth-child(n+4) {
+      display: none !important;
+    }
+  }
+
+  /* 3. Tablet View (768px - 1023px): 3 Cards in One Row */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #shop .max-w-\[1500px\] {
+      padding-left: 2.25rem !important;
+      padding-right: 2.25rem !important;
+    }
     #shop [data-filter-bar] {
       justify-content: flex-start !important;
       padding-left: 0.25rem !important;
       padding-right: 0.25rem !important;
     }
-
-    /* 2. Section Gutter: 2.75rem (44px) padding so arrows sit outside the cards */
-    #shop .max-w-\[1500px\] {
-      padding-left: 2.75rem !important;
-      padding-right: 2.75rem !important;
-    }
-
-    /* 3. Navigation Arrows: In outer gutters, no overlapping onto cards */
     #shop [data-scroll-prev] {
-      left: -2.35rem !important;
+      left: -1.35rem !important;
       width: 36px !important;
       height: 36px !important;
     }
     #shop [data-scroll-next] {
-      right: -2.35rem !important;
+      right: -1.35rem !important;
       width: 36px !important;
       height: 36px !important;
     }
-
-    /* 4. 3 Cards Grid: Exactly (100% - 2rem)/3 with zero overflow */
+    #shop [data-products-scroll] {
+      gap: 16px !important;
+    }
     #shop [data-products-scroll] [data-product-card] {
-      flex: 0 0 calc((100% - 2rem) / 3) !important;
-      width: calc((100% - 2rem) / 3) !important;
-      max-width: calc((100% - 2rem) / 3) !important;
-      min-width: calc((100% - 2rem) / 3) !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-      padding: 0.75rem 0.75rem 1rem !important;
-      scroll-snap-align: start !important;
+      flex: 0 0 calc((100% - 32px) / 3) !important;
+      width: calc((100% - 32px) / 3) !important;
+      max-width: calc((100% - 32px) / 3) !important;
+      min-width: calc((100% - 32px) / 3) !important;
     }
-    #shop [data-products-scroll] [data-product-card]:first-child {
-      margin-left: 0 !important;
-    }
-    #shop [data-products-scroll] [data-product-card]:last-child {
-      margin-right: 0 !important;
-    }
-
-    /* 5. Card Elements Proportions & Proper Content Display on Tablet (3-Card Grid) */
-    #shop [data-product-card] .h-\[205px\],
-    #shop [data-product-card] .sm\:h-\[210px\] {
-      height: 170px !important;
-    }
-    #shop [data-product-card] h3 {
-      font-size: 0.95rem !important;
-      line-height: 1.3 !important;
-    }
-    #shop [data-product-card] p {
-      font-size: 0.75rem !important;
-      line-height: 1.35 !important;
-    }
-    #shop [data-product-card] [data-price-wrap] {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 2px !important;
-    }
-    #shop [data-product-card] [data-price-val] {
-      font-size: 1.15rem !important;
-      line-height: 1 !important;
-    }
-    #shop [data-product-card] [data-compare-val] {
-      font-size: 0.75rem !important;
-      line-height: 1 !important;
-    }
-    #shop [data-product-card] [data-add-to-cart] {
-      height: 38px !important;
-      padding-left: 0.35rem !important;
-      padding-right: 0.75rem !important;
-      gap: 0.35rem !important;
-    }
-    #shop [data-product-card] [data-add-to-cart] span:first-child {
-      width: 28px !important;
-      height: 28px !important;
-    }
-    #shop [data-product-card] [data-add-to-cart] span:last-child {
-      font-size: 11.5px !important;
-    }
-    #shop [data-product-card] [data-card-stepper] {
-      height: 38px !important;
-      padding: 0.25rem 0.4rem !important;
-      gap: 0.25rem !important;
-    }
-    #shop [data-product-card] [data-card-stepper] [data-card-stepper-btn] {
-      width: 26px !important;
-      height: 26px !important;
-    }
-    #shop [data-product-card] [data-card-stepper] [data-card-qty] {
-      font-size: 13px !important;
-      min-width: 18px !important;
-      padding: 0 0.2rem !important;
+    #shop .carousel-dot:nth-child(n+5) {
+      display: none !important;
     }
   }
 
-  /* Mobile View: 1 Full Card (100% width, arrows outside card in gutters, zero overlap) */
-  @media (max-width: 640px) {
-    /* 1. Section Gutter: 2.5rem (40px) padding so arrows sit outside the card */
-    #shop .max-w-\[1500px\] {
-      padding-left: 2.5rem !important;
-      padding-right: 2.5rem !important;
+  /* 4. Mobile View (< 768px): 2 Cards in One Row */
+  @media (max-width: 767px) {
+    #shop {
+      padding-top: 2.5rem !important;
+      padding-bottom: 3.5rem !important;
     }
-
-    /* 2. Navigation Arrows: In outer gutters, no overlapping onto card */
+    #shop .max-w-\[1500px\] {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    #shop .text-center {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+    #shop [data-filter-bar] {
+      justify-content: flex-start !important;
+      gap: 0.375rem !important;
+      margin-bottom: 1.5rem !important;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+    #shop [data-scroll-prev],
+    #shop [data-scroll-next] {
+      top: 122px !important;
+    }
     #shop [data-scroll-prev] {
-      left: -2.15rem !important;
+      left: 0.25rem !important;
       width: 32px !important;
       height: 32px !important;
     }
     #shop [data-scroll-next] {
-      right: -2.15rem !important;
+      right: 0.25rem !important;
       width: 32px !important;
       height: 32px !important;
     }
-
-    /* 3. Single Card Full Width */
     #shop [data-products-scroll] {
+      gap: 12px !important;
+      padding-top: 0.5rem !important;
+      padding-bottom: 4px !important;
       padding-left: 0 !important;
       padding-right: 0 !important;
     }
     #shop [data-products-scroll] [data-product-card] {
-      flex: 0 0 100% !important;
+      flex: 0 0 220px !important;
+      width: 220px !important;
+      max-width: 220px !important;
+      min-width: 220px !important;
+      height: 332px !important;
+      scroll-margin-left: 16px !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:first-child,
+    #shop [data-products-scroll] [data-product-card].is-first-visible {
+      margin-left: 16px !important;
+      scroll-margin-left: 16px !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:last-child,
+    #shop [data-products-scroll] [data-product-card].is-last-visible {
+      margin-right: 16px !important;
+      scroll-margin-right: 16px !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:not(:first-child):not(.is-first-visible) {
+      margin-left: 0 !important;
+    }
+    #shop [data-products-scroll] [data-product-card]:not(:last-child):not(.is-last-visible) {
+      margin-right: 0 !important;
+    }
+    #shop [data-products-scroll] .wm-react-card__image-box {
       width: 100% !important;
-      max-width: 100% !important;
-      min-width: 100% !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-      padding: 0.85rem 0.85rem 1.15rem !important;
-      scroll-snap-align: start !important;
+      height: 220px !important;
+      aspect-ratio: 1 / 1 !important;
     }
-    #shop [data-products-scroll] [data-product-card]:first-child {
-      margin-left: 0 !important;
+    #shop .carousel-dot:nth-child(n+6) {
+      display: none !important;
     }
-    #shop [data-products-scroll] [data-product-card]:last-child {
-      margin-right: 0 !important;
-    }
-
-    /* 4. Card Elements Proportions & Proper Content Display on Mobile */
-    #shop [data-product-card] .h-\[205px\],
-    #shop [data-product-card] .sm\:h-\[210px\] {
-      height: 190px !important;
-    }
-    #shop [data-product-card] h3 {
-      font-size: 1.05rem !important;
-      line-height: 1.35 !important;
-    }
-    #shop [data-product-card] p {
-      font-size: 0.825rem !important;
-      line-height: 1.4 !important;
-    }
-    #shop [data-product-card] [data-price-val] {
-      font-size: 1.25rem !important;
-      line-height: 1 !important;
-    }
-    #shop [data-product-card] [data-compare-val] {
-      font-size: 0.85rem !important;
-      line-height: 1 !important;
-    }
-    #shop [data-product-card] [data-add-to-cart] {
-      height: 40px !important;
-      padding-left: 0.45rem !important;
-      padding-right: 0.85rem !important;
-      gap: 0.45rem !important;
-    }
-    #shop [data-product-card] [data-card-stepper] {
-      height: 40px !important;
-      padding: 0.25rem 0.45rem !important;
-      gap: 0.35rem !important;
+    #shop [data-products-dots] {
+      margin-top: 8px !important;
     }
   }
 
-  /* Clickable Carousel Dots */ 
+  /* Clickable Carousel Dots with Reduced Gap */ 
+  #shop [data-products-dots] {
+    display: flex !important;
+    gap: 5px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-top: 10px !important;
+  }
   #shop .carousel-dot {
     display: inline-block !important;
     height: 8px !important;
@@ -305,15 +613,15 @@
     cursor: pointer !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 4px !important;
+    margin: 0 !important;
     outline: none !important;
     box-shadow: none !important;
     flex-shrink: 0 !important;
   }
   #shop .carousel-dot.is-active {
-    width: 26px !important;
-    min-width: 26px !important;
-    background-color: #7A46E5 !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    background-color: #000000 !important;
   }
   #shop .carousel-dot:not(.is-active) {
     width: 8px !important;
@@ -321,33 +629,19 @@
     background-color: #D5CEBF !important;
   }
   #shop .carousel-dot:hover:not(.is-active) {
-    background-color: #9D74EC !important;
-  }
-
-  /* Laptop: 5 Cards Grid -> 2 Dots visible */
-  @media (min-width: 1024px) {
-    #shop .carousel-dot:nth-child(n+3) {
-      display: none !important;
-    }
-  }
-
-  /* Tablet: 3 Cards Grid -> 3 Dots visible */
-  @media (min-width: 641px) and (max-width: 1023px) {
-    #shop .carousel-dot:nth-child(n+4) {
-      display: none !important;
-    }
+    background-color: #6B7280 !important;
   }
 </style>
 
     {% comment %} Product Carousel with Responsive Cards {% endcomment %}
     <div class="relative group/carousel">
       
-      {% comment %} Navigation Arrows {% endcomment %}
+      {% comment %} Navigation Arrows - Properly Centered on Card (50%) {% endcomment %}
       <button
         type="button"
         data-scroll-prev
         aria-label="Previous products"
-        class="flex absolute -left-2 sm:-left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
+        class="flex absolute -left-3 sm:-left-4 lg:-left-6 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-black hover:border-black transition-all cursor-pointer select-none"
       >
         {% render 'icon-chevron-left', class: 'w-4 h-4 sm:w-5 sm:h-5' %}
       </button>
@@ -356,7 +650,7 @@
         type="button"
         data-scroll-next
         aria-label="Next products"
-        class="flex absolute -right-2 sm:-right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-[#7a46e5] hover:border-[#7a46e5]/40 transition-all cursor-pointer"
+        class="flex absolute -right-3 sm:-right-4 lg:-right-6 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-md border border-[#E5E0D5] items-center justify-center text-[#111827] hover:text-black hover:border-black transition-all cursor-pointer select-none"
       >
         {% render 'icon-chevron-right', class: 'w-4 h-4 sm:w-5 sm:h-5' %}
       </button>
@@ -364,7 +658,7 @@
       {% comment %} Cards Container {% endcomment %}
       <div
         data-products-scroll
-        class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1 snap-x snap-mandatory"
+        class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth pt-2 pb-1 px-1 snap-x snap-mandatory relative"
       >
         {%- liquid
           if section.settings.collection != blank and section.settings.collection.products.size > 0
@@ -381,11 +675,54 @@
       </div>
     </div>
 
-    {% comment %} Clickable Pagination Dots {% endcomment %}
+    <script>
+      (function() {
+        function wmCenterArrows() {
+          var s = document.getElementById('shop');
+          if (!s) return;
+          var c = s.querySelector('.group\\/carousel');
+          var img = s.querySelector('[data-product-card]:not(.hidden) .wm-react-card__image-box') || s.querySelector('.wm-react-card__image-box');
+          if (!c || !img) return;
+          var cR = c.getBoundingClientRect();
+          var iR = img.getBoundingClientRect();
+          if (iR.height > 0) {
+            var y = Math.round((iR.top - cR.top) + (iR.height / 2));
+            var p = s.querySelector('[data-scroll-prev]');
+            var n = s.querySelector('[data-scroll-next]');
+            if (p) p.style.setProperty('top', y + 'px', 'important');
+            if (n) n.style.setProperty('top', y + 'px', 'important');
+          }
+        }
+        function wmUpdateArrowStates() {
+          var s = document.getElementById('shop');
+          if (!s) return;
+          var sc = s.querySelector('[data-products-scroll]');
+          var p = s.querySelector('[data-scroll-prev]');
+          var n = s.querySelector('[data-scroll-next]');
+          if (!sc || !p || !n) return;
+          var sL = Math.round(sc.scrollLeft);
+          var mS = Math.max(0, sc.scrollWidth - sc.clientWidth);
+          var atStart = sL <= 4;
+          var atEnd = sL >= mS - 4;
+          p.disabled = atStart;
+          p.setAttribute('aria-disabled', atStart ? 'true' : 'false');
+          if (atStart) p.classList.add('is-disabled'); else p.classList.remove('is-disabled');
+          n.disabled = atEnd;
+          n.setAttribute('aria-disabled', atEnd ? 'true' : 'false');
+          if (atEnd) n.classList.add('is-disabled'); else n.classList.remove('is-disabled');
+        }
+        wmCenterArrows();
+        wmUpdateArrowStates();
+        window.addEventListener('resize', function() { wmCenterArrows(); wmUpdateArrowStates(); }, { passive: true });
+        window.addEventListener('load', function() { wmCenterArrows(); wmUpdateArrowStates(); }, { passive: true });
+      })();
+    </script>
+
+    {% comment %} Clickable Pagination Dots with Tight 5px Spacing {% endcomment %}
     {%- if featured_products.size > 1 -%}
       <div
         data-products-dots
-        class="flex items-center justify-center gap-2 mt-6 sm:mt-8 min-h-[16px] select-none"
+        class="flex items-center justify-center gap-1.5 mt-2 sm:mt-2.5 min-h-[16px] select-none"
         role="tablist"
         aria-label="Product carousel pagination"
       >
@@ -402,18 +739,19 @@
     {%- endif -%}
 
     {% comment %} Centered Collection Link Button {% endcomment %}
-    <div class="mt-8 sm:mt-10 flex justify-center">
-      {%- assign target_collection_url = section.settings.button_url | default: section.settings.collection.url | default: routes.all_products_collection_url -%}
-      {%- if target_collection_url == blank -%}
-        {%- assign target_collection_url = '/collections/all' -%}
-      {%- endif -%}
-      {%- assign btn_text = section.settings.button_label | default: 'View All Products' -%}
-      {% render 'theme-button',
-        text: btn_text,
-        href: target_collection_url,
-        class: 'text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 font-bold'
-      %}
-    </div>
+    {%- if section.settings.button_label != blank -%}
+      <div class="mt-8 sm:mt-12 flex justify-center">
+        {%- assign target_collection_url = section.settings.button_url | default: section.settings.collection.url | default: routes.all_products_collection_url -%}
+        {%- if target_collection_url == blank -%}
+          {%- assign target_collection_url = '/collections/all' -%}
+        {%- endif -%}
+        {% render 'theme-button',
+          text: section.settings.button_label,
+          href: target_collection_url,
+          class: 'text-sm sm:text-base px-7 sm:px-9 py-2.5 sm:py-3 font-bold'
+        %}
+      </div>
+    {%- endif -%}
 
   </div>
 </section>

@@ -43,10 +43,22 @@
   // =========================================================================
   const Cart = {
     _lastTrigger: null,
+    _pendingPromise: null,
 
     setLoading(isLoading) {
       const drawer = document.getElementById('cart-drawer');
-      if (drawer) drawer.classList.toggle('is-loading', !!isLoading);
+      if (drawer) {
+        drawer.classList.toggle('is-loading', !!isLoading);
+        const checkoutBtns = drawer.querySelectorAll('#cart-drawer-form button[type="submit"], [name="checkout"]');
+        checkoutBtns.forEach((btn) => {
+          btn.disabled = !!isLoading;
+          if (isLoading) {
+            btn.setAttribute('aria-busy', 'true');
+          } else {
+            btn.removeAttribute('aria-busy');
+          }
+        });
+      }
     },
 
     notify(message) {
@@ -129,66 +141,92 @@
       this.notify('');
       this.setLoading(true);
 
-      const targetQty = Math.max(1, Number(quantity) || 1);
+      const addPromise = (async () => {
+        const targetQty = Math.max(1, Number(quantity) || 1);
+        const targetStr = String(variantId != null ? variantId : '').trim();
 
-      // 1. Instant optimistic update in local state
-      let existing = WagmartState.cart.items.find(
-        (i) => i.id == variantId || i.product_id == variantId || (i.variant_id && i.variant_id == variantId)
-      );
+        // 1. Instant optimistic update in local state
+        let existing = WagmartState.cart.items.find(
+          (i) =>
+            String(i.id) === targetStr ||
+            String(i.key) === targetStr ||
+            (i.variant_id && String(i.variant_id) === targetStr) ||
+            (i.product_id && String(i.product_id) === targetStr)
+        );
 
-      if (existing) {
-        existing._wm_v2 = true;
-        existing.quantity = Math.max(1, (Number(existing.quantity) || 1) + targetQty);
-        existing.final_line_price = (existing.final_price || existing.price || 0) * existing.quantity;
-      } else {
-        const priceVal = (mockItem && mockItem.price) || 79900;
-        const compareVal = (mockItem && (mockItem.compare_at_price || mockItem.original_price)) || Math.round(priceVal * 1.25);
-        const itemTitle = (mockItem && (mockItem.name || mockItem.title)) || 'Product';
-        const newItem = {
-          _wm_v2: true,
-          id: variantId,
-          key: String(variantId),
-          product_id: variantId,
-          variant_id: variantId,
-          title: itemTitle,
-          product_title: itemTitle,
-          variant_title: (mockItem && mockItem.variant_title) || 'Standard Pack',
-          vendor: (mockItem && mockItem.vendor) || 'Wagmart',
-          url: (mockItem && mockItem.url) || '/products/pet-grooming-glove',
-          price: priceVal,
-          final_price: priceVal,
-          compare_at_price: compareVal,
-          original_price: compareVal,
-          original_line_price: compareVal * targetQty,
-          final_line_price: priceVal * targetQty,
-          quantity: targetQty,
-          max_stock: (mockItem && mockItem.max_stock) || 10,
-          image: (mockItem && mockItem.image) || '',
-        };
-        WagmartState.cart.items.push(newItem);
-      }
-
-      this._recalcLocalCart();
-      this.render();
-      if (openDrawer) this.openDrawer();
-
-      // 2. If it's a numeric Shopify variant, post to /cart/add.js
-      if (!isNaN(Number(variantId)) && Number(variantId) > 0) {
-        try {
-          const res = await fetch('/cart/add.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({ id: Number(variantId), quantity: targetQty }),
-          });
-          if (res.ok) {
-            await this.fetch();
-          }
-        } catch (err) {
-          console.warn('Shopify cart API warning (using local cart):', err);
+        if (existing) {
+          existing._wm_v2 = true;
+          existing.quantity = Math.max(1, (Number(existing.quantity) || 1) + targetQty);
+          const unitPrice = Number(existing.final_price) || Number(existing.price) || 0;
+          existing.final_line_price = unitPrice * existing.quantity;
+        } else {
+          const priceVal = (mockItem && mockItem.price) || 79900;
+          const compareVal = (mockItem && (mockItem.compare_at_price || mockItem.original_price)) || Math.round(priceVal * 1.25);
+          const itemTitle = (mockItem && (mockItem.name || mockItem.title)) || 'Product';
+          const newItem = {
+            _wm_v2: true,
+            id: variantId,
+            key: String(variantId),
+            product_id: variantId,
+            variant_id: variantId,
+            title: itemTitle,
+            product_title: itemTitle,
+            variant_title: (mockItem && mockItem.variant_title) || 'Standard Pack',
+            vendor: (mockItem && mockItem.vendor) || 'Wagmart',
+            url: (mockItem && mockItem.url) || '/products/pet-grooming-glove',
+            price: priceVal,
+            final_price: priceVal,
+            compare_at_price: compareVal,
+            original_price: compareVal,
+            original_line_price: compareVal * targetQty,
+            final_line_price: priceVal * targetQty,
+            quantity: targetQty,
+            max_stock: (mockItem && mockItem.max_stock) || 10,
+            image: (mockItem && mockItem.image) || '',
+          };
+          WagmartState.cart.items.push(newItem);
         }
-      }
 
-      this.setLoading(false);
+        this._recalcLocalCart();
+        this.render();
+        if (openDrawer) this.openDrawer();
+
+        // 2. If it's a numeric Shopify variant, post to /cart/add.js
+        if (!isNaN(Number(variantId)) && Number(variantId) > 0) {
+          try {
+            const res = await fetch('/cart/add.js', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+              body: JSON.stringify({ id: Number(variantId), quantity: targetQty }),
+            });
+            if (res.ok) {
+              await this.fetch();
+            } else {
+              const errData = await res.json().catch(() => null);
+              console.warn('Shopify cart add API warning:', res.status, errData);
+              if (errData && errData.description) {
+                this.notify(errData.description);
+              }
+            }
+          } catch (err) {
+            console.warn('Shopify cart API warning (using local cart):', err);
+          }
+        }
+      })();
+
+      this._pendingPromise = addPromise;
+      try {
+        await addPromise;
+      } finally {
+        if (this._pendingPromise === addPromise) {
+          this._pendingPromise = null;
+        }
+        this.setLoading(false);
+      }
       return true;
     },
 
@@ -196,67 +234,120 @@
       this.notify('');
       this.setLoading(true);
 
-      const targetQty = Number(quantity);
+      const updatePromise = (async () => {
+        const targetQty = Math.max(0, parseInt(quantity, 10) || 0);
+        const targetStr = String(keyOrId != null ? keyOrId : '').trim();
 
-      // 1. Update in local state
-      const itemIndex = WagmartState.cart.items.findIndex(
-        (i) => i.id == keyOrId || i.key == keyOrId || i.product_id == keyOrId || (i.variant_id && i.variant_id == keyOrId)
-      );
+        // 1. Locate item in local state
+        const itemIndex = WagmartState.cart.items.findIndex(
+          (i) =>
+            String(i.key) === targetStr ||
+            String(i.id) === targetStr ||
+            (i.variant_id && String(i.variant_id) === targetStr) ||
+            (i.product_id && String(i.product_id) === targetStr)
+        );
+        const existingItem = itemIndex > -1 ? WagmartState.cart.items[itemIndex] : null;
 
-      if (itemIndex > -1) {
-        if (targetQty <= 0) {
-          WagmartState.cart.items.splice(itemIndex, 1);
-        } else {
-          WagmartState.cart.items[itemIndex].quantity = targetQty;
-          WagmartState.cart.items[itemIndex].final_line_price =
-            (WagmartState.cart.items[itemIndex].final_price || WagmartState.cart.items[itemIndex].price || 0) * targetQty;
+        // 2. Resolve Shopify line change identifier
+        // In Shopify Ajax Cart API /cart/change.js:
+        // - line item key (contains ':') is the most accurate and preferred identifier
+        // - variant ID (numeric string) is also supported
+        let changeId = null;
+        if (existingItem && existingItem.key && String(existingItem.key).includes(':')) {
+          changeId = String(existingItem.key);
+        } else if (targetStr.includes(':')) {
+          changeId = targetStr;
+        } else if (existingItem && existingItem.variant_id && !isNaN(Number(existingItem.variant_id)) && Number(existingItem.variant_id) > 0) {
+          changeId = String(existingItem.variant_id);
+        } else if (existingItem && existingItem.id && !isNaN(Number(existingItem.id)) && Number(existingItem.id) > 0) {
+          changeId = String(existingItem.id);
+        } else if (!isNaN(Number(targetStr)) && Number(targetStr) > 0) {
+          changeId = targetStr;
         }
-      } else if (targetQty > 0) {
-        WagmartState.cart.items.push({
-          id: keyOrId,
-          key: String(keyOrId),
-          product_id: keyOrId,
-          variant_id: keyOrId,
-          title: 'Product',
-          product_title: 'Product',
-          price: 79900,
-          final_price: 79900,
-          original_line_price: 79900,
-          final_line_price: 79900 * targetQty,
-          quantity: targetQty,
-          image: '',
-        });
-      }
 
-      this._recalcLocalCart();
-      this.render();
-
-      // 2. If it's a numeric Shopify variant, post to /cart/change.js
-      if (!isNaN(Number(keyOrId)) && Number(keyOrId) > 0) {
-        try {
-          const res = await fetch('/cart/change.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({ id: String(keyOrId), quantity: Math.max(0, targetQty) }),
-          });
-          if (res.ok) {
-            const data = await res.json().catch(() => null);
-            if (data) {
-              const mockItems = WagmartState.cart.items.filter((i) => isNaN(Number(i.id)) || Number(i.id) <= 0);
-              WagmartState.cart = data;
-              if (mockItems.length > 0) {
-                WagmartState.cart.items.push(...mockItems);
-                this._recalcLocalCart();
-              }
-              this.render();
-            }
+        // 3. Optimistic local state update
+        if (itemIndex > -1) {
+          if (targetQty <= 0) {
+            WagmartState.cart.items.splice(itemIndex, 1);
+          } else {
+            WagmartState.cart.items[itemIndex].quantity = targetQty;
+            const unitPrice =
+              Number(WagmartState.cart.items[itemIndex].final_price) ||
+              Number(WagmartState.cart.items[itemIndex].price) ||
+              0;
+            WagmartState.cart.items[itemIndex].final_line_price = unitPrice * targetQty;
           }
-        } catch (err) {
-          console.warn('Shopify cart change API warning:', err);
+        } else if (targetQty > 0) {
+          WagmartState.cart.items.push({
+            id: keyOrId,
+            key: String(keyOrId),
+            product_id: keyOrId,
+            variant_id: keyOrId,
+            title: 'Product',
+            product_title: 'Product',
+            price: 79900,
+            final_price: 79900,
+            original_line_price: 79900,
+            final_line_price: 79900 * targetQty,
+            quantity: targetQty,
+            image: '',
+          });
         }
-      }
 
-      this.setLoading(false);
+        this._recalcLocalCart();
+        this.render();
+
+        // 4. Send request to Shopify Ajax Cart API /cart/change.js
+        if (changeId) {
+          try {
+            const res = await fetch('/cart/change.js', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+              body: JSON.stringify({ id: changeId, quantity: targetQty }),
+            });
+
+            if (res.ok) {
+              const serverCart = await res.json().catch(() => null);
+              if (serverCart && Array.isArray(serverCart.items)) {
+                const serverIds = new Set(serverCart.items.map((i) => String(i.id)));
+                const mockItems = WagmartState.cart.items.filter(
+                  (i) =>
+                    i &&
+                    (isNaN(Number(i.id)) || Number(i.id) <= 0) &&
+                    !serverIds.has(String(i.id)) &&
+                    (Number(i.quantity) || 0) > 0
+                );
+                WagmartState.cart = serverCart;
+                if (mockItems.length > 0) {
+                  WagmartState.cart.items.push(...mockItems);
+                }
+                this._recalcLocalCart();
+                this.render();
+              }
+            } else {
+              const errData = await res.json().catch(() => null);
+              console.warn('Shopify cart change API response not ok:', res.status, errData);
+            }
+          } catch (err) {
+            console.warn('Shopify cart change API error:', err);
+          }
+        }
+      })();
+
+      this._pendingPromise = updatePromise;
+      try {
+        await updatePromise;
+      } finally {
+        if (this._pendingPromise === updatePromise) {
+          this._pendingPromise = null;
+        }
+        this.setLoading(false);
+      }
+      return true;
     },
 
     async clear() {
@@ -288,41 +379,34 @@
           <div class="wm-backdrop" data-close-cart></div>
           <div class="wm-cart__panel" role="dialog" aria-modal="true" aria-labelledby="WmCartTitle" tabindex="-1">
             <div class="wm-cart__head">
-              <h2 class="wm-cart__title" id="WmCartTitle">
-                Your Cart<span class="wm-cart__count">(<span data-cart-total-qty id="cart-drawer-total-qty">0</span>)</span>
-              </h2>
+              <div class="wm-cart__head-left">
+                <h2 class="wm-cart__title" id="WmCartTitle">Your cart</h2>
+                <span class="wm-cart__badge" id="cart-drawer-total-qty" data-cart-total-qty>0</span>
+              </div>
               <button type="button" class="wm-close-btn" data-close-cart aria-label="Close cart">
-                <svg class="wm-icon wm-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
             <div class="wm-cart__progress" aria-hidden="true"></div>
             <div class="wm-cart__body">
               <p class="wm-cart__notice" role="alert" data-cart-notice></p>
               <div id="cart-drawer-empty" class="wm-cart__empty">
-                <span class="wm-cart__empty-icon">
-                  <svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8h13l-.9 11.1a2 2 0 0 1-2 1.9H8.4a2 2 0 0 1-2-1.9Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg>
-                </span>
-                <h3>Your cart is empty</h3>
-                <p>Find grooming, walking and feeding essentials your pet will love.</p>
-                <a class="wm-btn wm-btn--primary" href="${shopUrl}">
-                  <span class="wm-btn__label">Shop all products</span>
-                </a>
+                <p class="wm-cart__empty-title">Your cart is empty</p>
+                <a class="wm-cart__empty-btn" href="${shopUrl}">Shop all products</a>
               </div>
               <ul id="cart-drawer-items" class="wm-cart__items hidden" aria-label="Cart items"></ul>
             </div>
             <div id="cart-drawer-footer" class="wm-cart__foot hidden">
-              <div class="wm-cart__row">
-                <span>Subtotal</span>
-                <strong id="cart-drawer-subtotal">₹0</strong>
+              <div class="wm-cart__subtotal-row">
+                <span class="wm-cart__subtotal-label">Subtotal</span>
+                <span class="wm-cart__subtotal-val" id="cart-drawer-subtotal">₹0</span>
               </div>
-              <p class="wm-cart__fine">Taxes, discounts and shipping are calculated at checkout.</p>
               <form action="${cartUrl}" method="post" id="cart-drawer-form" class="wm-cart__actions">
-                <a href="${cartUrl}" class="wm-btn wm-btn--outline">
-                  <span class="wm-btn__label">View Cart</span>
-                </a>
-                <button type="submit" name="checkout" class="wm-btn wm-btn--primary">
-                  <span class="wm-btn__label">Checkout</span>
-                </button>
+                <a href="${cartUrl}" class="wm-cart__view-btn">View Cart</a>
+                <button type="submit" name="checkout" class="wm-cart__checkout-btn">Checkout</button>
               </form>
             </div>
           </div>
@@ -418,36 +502,47 @@
                 item.product_has_only_default_variant || !item.variant_title
                   ? ''
                   : `<p class="wm-line__variant">${escapeHtml(item.variant_title)}</p>`;
-              const props = Object.entries(item.properties || {})
-                .filter(([k, v]) => v && String(k).charAt(0) !== '_')
-                .map(([k, v]) => `<p class="wm-line__variant">${escapeHtml(k)}: ${escapeHtml(v)}</p>`)
-                .join('');
-              const unit =
-                item.quantity > 1
-                  ? `<p class="wm-line__unit">${formatMoney(item.final_price || item.price || 0)} each</p>`
+              const props =
+                item.properties && typeof item.properties === 'object'
+                  ? Object.entries(item.properties)
+                      .filter(([k, v]) => v && !String(k).startsWith('_'))
+                      .map(([k, v]) => `<p class="wm-line__variant">${escapeHtml(k)}: ${escapeHtml(v)}</p>`)
+                      .join('')
                   : '';
-              const linePrice = item.final_line_price != null ? item.final_line_price : (item.price || 0) * item.quantity;
-              const original =
-                item.original_line_price > linePrice ? `<s>${formatMoney(item.original_line_price)}</s>` : '';
+              const unitPrice = item.final_price || item.price || 0;
+              const linePrice = item.final_line_price != null ? item.final_line_price : (unitPrice * (Number(item.quantity) || 1));
 
               return `
               <li class="wm-line" data-cart-item-id="${key}">
                 <a class="wm-line__media" href="${url}" tabindex="-1" aria-hidden="true">
-                  ${imageSrc ? `<img src="${imageSrc}" alt="${title}" width="84" height="84" loading="lazy" onerror="this.onerror=null;if('${drawerFallback}')this.src='${drawerFallback}';">` : ''}
+                  ${imageSrc ? `<img src="${imageSrc}" alt="${title}" width="80" height="80" loading="eager" onerror="this.onerror=null;if('${drawerFallback}')this.src='${drawerFallback}';">` : ''}
                 </a>
-                <div>
+                <div class="wm-line__details">
                   <a class="wm-line__title" href="${url}">${title}</a>
-                  ${variant}${props}${unit}
-                  <div class="wm-line__actions">
-                    <div class="wm-qty" role="group" aria-label="Quantity for ${title}">
-                      <button type="button" data-cart-qty-btn="-1" data-key="${key}" aria-label="Decrease quantity">&minus;</button>
-                      <output aria-live="polite">${Number(item.quantity) || 0}</output>
-                      <button type="button" data-cart-qty-btn="1" data-key="${key}" aria-label="Increase quantity">+</button>
+                  ${variant}${props}
+                  <div class="wm-line__actions-row">
+                    <div class="wm-line__stepper">
+                      <button type="button" class="wm-line__stepper-btn" data-cart-qty-btn="-1" data-key="${key}" aria-label="Decrease quantity">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                      </button>
+                      <output class="wm-line__qty-val" aria-live="polite">${Number(item.quantity) || 0}</output>
+                      <button type="button" class="wm-line__stepper-btn" data-cart-qty-btn="1" data-key="${key}" aria-label="Increase quantity">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                      </button>
                     </div>
-                    <button type="button" class="wm-line__remove" data-cart-remove="${key}" aria-label="Remove ${title}">Remove</button>
+                    <button type="button" class="wm-line__remove-btn" data-cart-remove="${key}" aria-label="Remove ${title}">
+                      Remove
+                    </button>
                   </div>
                 </div>
-                <p class="wm-line__price">${formatMoney(linePrice)}${original}</p>
+                <div class="wm-line__price">
+                  ${formatMoney(linePrice)}
+                </div>
               </li>
             `;
             })
@@ -701,11 +796,6 @@
           const s = primaryEl.getAttribute('src');
           if (s) addUnique(s);
         }
-      }
-
-      // Ensure gallery images always match the main product image when a product has a single image
-      if (list.length === 1 && list[0]) {
-        return [list[0], list[0], list[0]];
       }
 
       return list.slice(0, 8);
@@ -1126,9 +1216,15 @@
       this.initSwipeAndKeyboard();
       this.lastTrigger = triggerEl || document.activeElement;
 
-      // Close open desktop header panels
+      // Close open desktop header panels and search overlay so Quick View opens cleanly in front
+      document.dispatchEvent(new CustomEvent('wagmart:overlay-open', { detail: { id: 'quick-view' } }));
       document.querySelectorAll('.wm-panel.is-open').forEach((p) => p.classList.remove('is-open'));
       document.querySelectorAll('.wm-header').forEach((h) => h.classList.remove('is-panel-open'));
+      document.querySelectorAll('[data-search], #WmSearch, #search-modal').forEach((s) => {
+        s.classList.remove('is-open');
+        s.setAttribute('aria-hidden', 'true');
+      });
+      document.querySelectorAll('[data-search-open]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
 
       let title = '';
       let category = '';
@@ -1442,6 +1538,7 @@
         const cartDrawerOpen = document.getElementById('cart-drawer')?.classList.contains('is-open');
         if (!opts.keepScrollLock && !cartDrawerOpen) {
           document.body.style.overflow = '';
+          document.documentElement.classList.remove('wm-scroll-lock');
         }
         this._closeTimer = null;
 
@@ -1450,7 +1547,7 @@
           !cartDrawerOpen &&
           this.lastTrigger &&
           typeof this.lastTrigger.focus === 'function' &&
-          document.body.contains(this.lastTrigger)
+          document.body.contains(this.lastTrigger) && !this.lastTrigger.closest('[data-search][aria-hidden="true"]')
         ) {
           this.lastTrigger.focus({ preventScroll: true });
         }
@@ -1628,7 +1725,18 @@
     if (!scrollContainer) return;
 
     function getVisibleCards() {
-      return Array.from(scrollContainer.querySelectorAll('[data-product-card]:not(.hidden)'));
+      return Array.from(scrollContainer.querySelectorAll('[data-product-card]:not(.hidden):not([hidden])'))
+        .filter((c) => c.style.display !== 'none');
+    }
+
+    function getCardTargetLeft(idx, cards) {
+      if (idx === 0) return 0;
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        // On mobile, keep 16px left padding so second and subsequent cards have 16px padding on left
+        return Math.max(0, cards[idx].offsetLeft - 16);
+      }
+      return cards[idx].offsetLeft;
     }
 
     function getCurrentIndex() {
@@ -1638,7 +1746,8 @@
       let closestIdx = 0;
       let minDiff = Infinity;
       cards.forEach((c, idx) => {
-        const diff = Math.abs(c.offsetLeft - currentScroll);
+        const target = getCardTargetLeft(idx, cards);
+        const diff = Math.abs(target - currentScroll);
         if (diff < minDiff) {
           minDiff = diff;
           closestIdx = idx;
@@ -1647,15 +1756,60 @@
       return closestIdx;
     }
 
+    function updateArrowStates() {
+      if (!scrollContainer) return;
+      const scrollLeft = Math.round(scrollContainer.scrollLeft);
+      const maxScroll = Math.max(0, scrollContainer.scrollWidth - scrollContainer.clientWidth);
+
+      const isAtStart = scrollLeft <= 4;
+      const isAtEnd = scrollLeft >= maxScroll - 4 || maxScroll <= 4;
+
+      if (prevBtn) {
+        prevBtn.disabled = isAtStart;
+        prevBtn.setAttribute('aria-disabled', isAtStart ? 'true' : 'false');
+        if (isAtStart) {
+          prevBtn.classList.add('is-disabled');
+        } else {
+          prevBtn.classList.remove('is-disabled');
+        }
+        if (maxScroll <= 4) {
+          prevBtn.style.setProperty('opacity', '0', 'important');
+          prevBtn.style.setProperty('pointer-events', 'none', 'important');
+        } else {
+          prevBtn.style.removeProperty('opacity');
+          prevBtn.style.removeProperty('pointer-events');
+        }
+      }
+
+      if (nextBtn) {
+        nextBtn.disabled = isAtEnd;
+        nextBtn.setAttribute('aria-disabled', isAtEnd ? 'true' : 'false');
+        if (isAtEnd) {
+          nextBtn.classList.add('is-disabled');
+        } else {
+          nextBtn.classList.remove('is-disabled');
+        }
+        if (maxScroll <= 4) {
+          nextBtn.style.setProperty('opacity', '0', 'important');
+          nextBtn.style.setProperty('pointer-events', 'none', 'important');
+        } else {
+          nextBtn.style.removeProperty('opacity');
+          nextBtn.style.removeProperty('pointer-events');
+        }
+      }
+    }
+
     if (prevBtn) {
       prevBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
         const cards = getVisibleCards();
         if (cards.length === 0) return;
+        if (scrollContainer.scrollLeft <= 4) return;
         const currentIdx = getCurrentIndex();
         const targetIdx = Math.max(0, currentIdx - 1);
-        scrollContainer.scrollTo({ left: cards[targetIdx].offsetLeft, behavior: 'smooth' });
+        const targetLeft = getCardTargetLeft(targetIdx, cards);
+        scrollContainer.scrollTo({ left: targetLeft, behavior: 'smooth' });
       });
     }
 
@@ -1665,10 +1819,11 @@
         e.preventDefault();
         const cards = getVisibleCards();
         if (cards.length === 0) return;
-        const currentIdx = getCurrentIndex();
         const maxScroll = Math.max(0, scrollContainer.scrollWidth - scrollContainer.clientWidth);
+        if (scrollContainer.scrollLeft >= maxScroll - 4) return;
+        const currentIdx = getCurrentIndex();
         const targetIdx = Math.min(cards.length - 1, currentIdx + 1);
-        const targetLeft = Math.min(maxScroll, cards[targetIdx].offsetLeft);
+        const targetLeft = targetIdx === cards.length - 1 ? maxScroll : Math.min(maxScroll, getCardTargetLeft(targetIdx, cards));
         scrollContainer.scrollTo({ left: targetLeft, behavior: 'smooth' });
       });
     }
@@ -1679,26 +1834,44 @@
       const allDots = Array.from(dotsContainer.querySelectorAll('.carousel-dot'));
       if (allDots.length === 0) return;
 
+      const visibleCards = getVisibleCards();
+      const currentScrollWidth = scrollContainer.scrollWidth;
+      const currentContainerWidth = scrollContainer.clientWidth;
+      const currentMax = Math.max(0, currentScrollWidth - currentContainerWidth);
+
+      if (visibleCards.length <= 1 || currentMax <= 4) {
+        dotsContainer.style.setProperty('display', 'none', 'important');
+        return;
+      } else {
+        dotsContainer.style.removeProperty('display');
+      }
+
+      allDots.forEach((dot, idx) => {
+        if (idx >= visibleCards.length) {
+          dot.style.setProperty('display', 'none', 'important');
+        } else {
+          dot.style.removeProperty('display');
+        }
+      });
+
       const visibleDots = allDots.filter((d) => window.getComputedStyle(d).display !== 'none');
       const pageCount = visibleDots.length;
-      if (pageCount <= 1) return;
+      if (pageCount <= 1) {
+        dotsContainer.style.setProperty('display', 'none', 'important');
+        return;
+      }
 
       visibleDots.forEach((dot, idx) => {
         if (!dot._hasThemeClick) {
           dot._hasThemeClick = true;
           dot.addEventListener('click', () => {
-            const currentScrollWidth = scrollContainer.scrollWidth;
-            const currentContainerWidth = scrollContainer.clientWidth;
-            const currentMax = Math.max(1, currentScrollWidth - currentContainerWidth);
-            const target = (currentMax / (pageCount - 1)) * idx;
+            const max = Math.max(1, scrollContainer.scrollWidth - scrollContainer.clientWidth);
+            const target = (max / (pageCount - 1)) * idx;
             scrollContainer.scrollTo({ left: target, behavior: 'smooth' });
           });
         }
       });
 
-      const currentScrollWidth = scrollContainer.scrollWidth;
-      const currentContainerWidth = scrollContainer.clientWidth;
-      const currentMax = Math.max(1, currentScrollWidth - currentContainerWidth);
       const scrollFraction = currentMax > 0 ? scrollContainer.scrollLeft / currentMax : 0;
       const activeIdx = Math.min(pageCount - 1, Math.max(0, Math.round(scrollFraction * (pageCount - 1))));
 
@@ -1718,14 +1891,53 @@
       if (!ticking) {
         window.requestAnimationFrame(() => {
           updateDots();
+          updateArrowStates();
           ticking = false;
         });
         ticking = true;
       }
     }, { passive: true });
 
-    window.addEventListener('resize', updateDots, { passive: true });
-    window.addEventListener('load', updateDots, { passive: true });
+    updateArrowStates();
+
+    // Dynamically calculate exact vertical center of product image box for arrows
+    function updateArrowPosition() {
+      const carouselWrap = shopSection.querySelector('.group\\/carousel') || (scrollContainer && scrollContainer.parentElement);
+      const visibleCards = getVisibleCards();
+      const firstImageBox = (visibleCards.length > 0 && visibleCards[0].querySelector('.wm-react-card__image-box')) || shopSection.querySelector('.wm-react-card__image-box');
+      if (!carouselWrap || !firstImageBox) return;
+
+      const carouselRect = carouselWrap.getBoundingClientRect();
+      const imgRect = firstImageBox.getBoundingClientRect();
+      if (imgRect.height > 0) {
+        const centerY = (imgRect.top - carouselRect.top) + (imgRect.height / 2);
+        const topPx = `${Math.round(centerY)}px`;
+        carouselWrap.style.setProperty('--arrow-top', topPx);
+        if (prevBtn) prevBtn.style.setProperty('top', topPx, 'important');
+        if (nextBtn) nextBtn.style.setProperty('top', topPx, 'important');
+      }
+    }
+
+    const cardImages = shopSection.querySelectorAll('[data-product-card] img');
+    cardImages.forEach((img) => {
+      if (img.complete) {
+        updateArrowPosition();
+      } else {
+        img.addEventListener('load', updateArrowPosition, { once: true });
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      updateDots();
+      updateArrowPosition();
+      updateArrowStates();
+    }, { passive: true });
+
+    window.addEventListener('load', () => {
+      updateDots();
+      updateArrowPosition();
+      updateArrowStates();
+    }, { passive: true });
 
     // Category Tabs Filtering
     filterPills.forEach((btn) => {
@@ -1733,37 +1945,60 @@
         const cat = btn.getAttribute('data-filter-tab');
         filterPills.forEach((p) => {
           if (p === btn) {
-            p.classList.add('bg-[#2B1B47]', 'text-white', 'shadow-xs');
-            p.classList.remove('bg-white', 'text-[#4B5563]', 'border');
+            p.classList.add('bg-black', 'text-white', 'shadow-xs');
+            p.classList.remove('bg-white', 'text-[#4B5563]', 'border', 'bg-[#2B1B47]');
           } else {
-            p.classList.remove('bg-[#2B1B47]', 'text-white', 'shadow-xs');
+            p.classList.remove('bg-black', 'text-white', 'shadow-xs', 'bg-[#2B1B47]');
             p.classList.add('bg-white', 'text-[#4B5563]', 'border');
           }
         });
 
         // Filter cards (supports comma-separated multi-category matching)
-        const cards = shopSection.querySelectorAll('[data-product-card]');
+        const cards = Array.from(shopSection.querySelectorAll('[data-product-card]'));
         cards.forEach((card) => {
-          const cardCatRaw = (card.getAttribute('data-product-category') || '').toLowerCase();
+          const cardCatRaw = (card.getAttribute('data-product-category') || card.getAttribute('data-category') || '').toLowerCase();
           const cardCats = cardCatRaw
             .split(',')
             .map((s) => s.trim())
             .filter(Boolean);
-          if (cat === 'all' || cardCats.includes(cat.toLowerCase()) || cardCatRaw.includes(cat.toLowerCase())) {
+          const isMatch = cat === 'all' || cardCats.includes(cat.toLowerCase()) || cardCatRaw.includes(cat.toLowerCase());
+          if (isMatch) {
             card.classList.remove('hidden');
+            card.hidden = false;
+            card.style.removeProperty('display');
           } else {
             card.classList.add('hidden');
+            card.hidden = true;
+            card.style.setProperty('display', 'none', 'important');
           }
         });
 
+        // Update first and last visible card classes for mobile 16px margins
+        cards.forEach((c) => c.classList.remove('is-first-visible', 'is-last-visible'));
+        const visibleCards = cards.filter((c) => !c.classList.contains('hidden') && !c.hidden && c.style.display !== 'none');
+        if (visibleCards.length > 0) {
+          visibleCards[0].classList.add('is-first-visible');
+          visibleCards[visibleCards.length - 1].classList.add('is-last-visible');
+        }
+
         scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
         setTimeout(updateDots, 100);
+        setTimeout(updateArrowPosition, 100);
+        setTimeout(updateArrowStates, 100);
       });
     });
 
+    updateArrowPosition();
+    updateArrowStates();
     setTimeout(updateDots, 100);
+    setTimeout(updateArrowPosition, 100);
+    setTimeout(updateArrowStates, 100);
     setTimeout(updateDots, 400);
+    setTimeout(updateArrowPosition, 400);
+    setTimeout(updateArrowStates, 400);
     setTimeout(updateDots, 1000);
+    setTimeout(updateArrowPosition, 1000);
+    setTimeout(updateArrowStates, 1000);
   }
 
   // =========================================================================
@@ -1776,38 +2011,66 @@
     const carousel = section.querySelector('[data-reels-carousel]');
     const prevBtn = section.querySelector('[data-reels-prev]');
     const nextBtn = section.querySelector('[data-reels-next]');
+    const dotsContainer = section.querySelector('[data-reels-dots]');
     const dots = section.querySelectorAll('[data-reels-dot]');
     const cards = section.querySelectorAll('[data-reel-card]');
 
     const getStep = () => {
-      const firstCard = carousel ? carousel.querySelector('[data-reel-card]') : null;
-      return firstCard ? firstCard.offsetWidth + 16 : 320;
+      if (cards.length >= 2) {
+        const diff = cards[1].offsetLeft - cards[0].offsetLeft;
+        if (diff > 0) return diff;
+      }
+      const firstCard = cards[0];
+      return firstCard ? firstCard.offsetWidth + 16 : 280;
+    };
+
+    const getPerView = () => {
+      if (!carousel || !cards.length) return 1;
+      const step = getStep();
+      const firstW = cards[0].offsetWidth || step;
+      const gap = Math.max(0, step - firstW);
+      return Math.max(1, Math.round((carousel.clientWidth + gap) / step));
+    };
+
+    const getPagesCount = () => {
+      if (!carousel || !cards.length) return 1;
+      const isScrollable = carousel.scrollWidth > carousel.clientWidth + 8;
+      if (!isScrollable) return 1;
+      return Math.max(1, cards.length - getPerView() + 1);
     };
 
     function updateArrowVisibility() {
       if (!carousel || !prevBtn || !nextBtn) return;
-      const isScrollable = carousel.scrollWidth > carousel.clientWidth + 10;
+      const isScrollable = carousel.scrollWidth > carousel.clientWidth + 8;
       if (!isScrollable) {
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
+        if (dotsContainer) dotsContainer.style.display = 'none';
         return;
       }
       prevBtn.style.display = 'flex';
       nextBtn.style.display = 'flex';
+      if (dotsContainer) dotsContainer.style.display = 'flex';
       prevBtn.disabled = carousel.scrollLeft <= 5;
-      nextBtn.disabled = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
+      nextBtn.disabled = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 8;
     }
 
     function updateDots() {
       if (!carousel || !dots.length) return;
+      const pages = getPagesCount();
       const step = getStep();
-      const activeIndex = Math.min(dots.length - 1, Math.max(0, Math.round(carousel.scrollLeft / step)));
+      const maxScroll = Math.max(0, carousel.scrollWidth - carousel.clientWidth);
+      let activeIndex = step > 0 ? Math.round(carousel.scrollLeft / step) : 0;
+      if (carousel.scrollLeft >= maxScroll - 8) {
+        activeIndex = pages - 1;
+      }
+      activeIndex = Math.min(pages - 1, Math.max(0, activeIndex));
+
       dots.forEach((dot, idx) => {
-        if (idx === activeIndex) {
-          dot.classList.add('active');
-        } else {
-          dot.classList.remove('active');
-        }
+        dot.style.display = idx < pages ? 'inline-block' : 'none';
+        const isActive = idx === activeIndex;
+        dot.classList.toggle('active', isActive);
+        dot.setAttribute('aria-current', isActive ? 'true' : 'false');
       });
     }
 
@@ -1832,7 +2095,7 @@
       setTimeout(() => {
         updateArrowVisibility();
         updateDots();
-      }, 300);
+      }, 150);
     }
 
     // Pagination Dots Click Handler
@@ -1858,24 +2121,17 @@
 
         const prodId = card.getAttribute('data-product-id') || 'reel-item-' + Date.now();
         const prodName = card.getAttribute('data-product-name') || 'Wagmart Pet Essential';
-        const prodPriceStr = card.getAttribute('data-product-price') || '€24,95';
+        const prodPriceStr = card.getAttribute('data-product-price') || '₹399';
         const prodImg = card.getAttribute('data-product-image') || '';
 
-        // Button feedback animation
-        btn.classList.add('scale-115');
-        const originalBg = btn.style.backgroundColor;
-        btn.style.backgroundColor = '#111111';
-        const icon = btn.querySelector('svg');
-        if (icon) icon.style.color = '#ffffff';
-
+        btn.style.transform = 'scale(0.92)';
+        btn.style.backgroundColor = '#2F6343';
         setTimeout(() => {
-          btn.classList.remove('scale-115');
-          btn.style.backgroundColor = originalBg;
-          if (icon) icon.style.color = '';
-        }, 300);
+          btn.style.transform = '';
+          btn.style.backgroundColor = '';
+        }, 320);
 
-        // Parse price to cents
-        const numeric = parseFloat(prodPriceStr.replace(/[^0-9.,]/g, '').replace(',', '.')) || 24.95;
+        const numeric = parseFloat(prodPriceStr.replace(/[^0-9.]/g, '')) || 399;
         const priceCents = Math.round(numeric * 100);
 
         await Cart.add(prodId, 1, true, {
@@ -1886,28 +2142,41 @@
       });
     });
 
-    // Hover Video Playback with Sound for each card (proper fit, no cut/zoom)
+    // Hover & Tap Video Playback with Sound for each card
     cards.forEach((card) => {
       const rawYtId = card.getAttribute('data-youtube-id');
       const cleanId = (typeof ReelModal !== 'undefined' && ReelModal.extractId)
         ? ReelModal.extractId(rawYtId)
         : (rawYtId ? rawYtId.trim() : '');
       const videoContainer = card.querySelector('[data-reel-video]');
+      const audioBtn = card.querySelector('[data-reel-audio-btn]');
       let hoverTimeout = null;
+
+      function stopOtherCards() {
+        cards.forEach((other) => {
+          if (other !== card && other.getAttribute('data-playing') === 'true') {
+            other.removeAttribute('data-playing');
+            other.removeAttribute('data-muted');
+            const otherVid = other.querySelector('[data-reel-video]');
+            if (otherVid) {
+              otherVid.classList.remove('opacity-100');
+              otherVid.classList.add('opacity-0', 'pointer-events-none');
+              otherVid.innerHTML = '';
+            }
+          }
+        });
+      }
 
       function startVideo() {
         if (!cleanId || !videoContainer) return;
+        stopOtherCards();
         card.setAttribute('data-playing', 'true');
+        card.removeAttribute('data-muted');
 
         let iframe = videoContainer.querySelector('iframe');
         if (!iframe) {
           iframe = document.createElement('iframe');
-          iframe.className =
-            'absolute inset-0 w-full h-full object-cover pointer-events-none border-0 rounded-[22px]';
-          iframe.style.width = '100%';
-          iframe.style.height = '100%';
-          iframe.style.objectFit = 'cover';
-          iframe.style.transform = 'none';
+          iframe.className = 'absolute inset-0 w-full h-full object-cover pointer-events-none border-0';
           iframe.setAttribute(
             'allow',
             'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
@@ -1932,7 +2201,7 @@
           videoContainer.appendChild(iframe);
         }
 
-        const targetSrc = `https://www.youtube-nocookie.com/embed/${cleanId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${cleanId}&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+        const targetSrc = 'https://www.youtube-nocookie.com/embed/' + cleanId + '?autoplay=1&mute=1&controls=0&loop=1&playlist=' + cleanId + '&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1';
         if (iframe.src !== targetSrc) {
           iframe.src = targetSrc;
         }
@@ -1947,6 +2216,7 @@
           hoverTimeout = null;
         }
         card.removeAttribute('data-playing');
+        card.removeAttribute('data-muted');
 
         if (videoContainer) {
           videoContainer.classList.remove('opacity-100');
@@ -1962,25 +2232,59 @@
         }
       }
 
+      function toggleMute() {
+        const iframe = videoContainer ? videoContainer.querySelector('iframe') : null;
+        if (!iframe) return;
+        const isMuted = card.getAttribute('data-muted') === 'true';
+        try {
+          if (isMuted) {
+            iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
+            iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
+            card.removeAttribute('data-muted');
+          } else {
+            iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'mute', args: [] }), '*');
+            card.setAttribute('data-muted', 'true');
+          }
+        } catch (e) {}
+      }
+
+      if (audioBtn) {
+        audioBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (card.getAttribute('data-playing') === 'true') {
+            toggleMute();
+          } else {
+            startVideo();
+          }
+        });
+      }
+
       card.addEventListener('mouseenter', () => {
-        hoverTimeout = setTimeout(startVideo, 180);
+        if (window.matchMedia('(hover: hover)').matches) {
+          hoverTimeout = setTimeout(startVideo, 160);
+        }
       });
 
       card.addEventListener('mouseleave', () => {
-        stopVideo();
+        if (window.matchMedia('(hover: hover)').matches) {
+          stopVideo();
+        }
       });
 
-      // On click on the card: DO NOT OPEN POPUP MODAL (per user request)
-      // Only navigate if clicking on product title/link with valid URL
       card.addEventListener('click', (e) => {
-        if (e.target.closest('[data-reel-quick-add]')) return;
-
-        const prodLink = e.target.closest('[data-product-link]');
-        if (prodLink) {
+        if (e.target.closest('[data-reel-quick-add]') || e.target.closest('[data-reel-audio-btn]')) return;
+        if (e.target.closest('[data-product-link]') || e.target.closest('[data-product-pill]')) {
           const url = card.getAttribute('data-product-url');
           if (url && url !== '#shop' && url !== '#') {
             window.location.href = url;
           }
+          return;
+        }
+        if (card.getAttribute('data-playing') === 'true') {
+          stopVideo();
+        } else {
+          startVideo();
         }
       });
     });
@@ -2126,7 +2430,9 @@
           // Immediately switch button to stepper with default quantity 1 on ONLY this card
           const stepper = card.querySelector('[data-card-stepper]');
           const qtyDisplay = card.querySelector('[data-card-qty]');
+          const qvBtn = card.querySelector('.wm-card__btn-qv');
           addBtn.classList.add('hidden');
+          if (qvBtn) qvBtn.classList.add('hidden');
           if (stepper) stepper.classList.remove('hidden');
           if (qtyDisplay) qtyDisplay.textContent = '1';
 
@@ -2152,21 +2458,23 @@
           );
           const qtyDisplay = card.querySelector('[data-card-qty]');
           const domQty = parseInt(qtyDisplay?.textContent?.trim() || '1', 10);
-          const currentQty = currentItem ? (Number(currentItem.quantity) || domQty || 1) : (domQty || 1);
+          const currentQty = domQty || (currentItem ? Number(currentItem.quantity) || 1 : 1);
           const newQty = Math.max(0, currentQty + delta);
 
           const addBtn = card.querySelector('[data-add-to-cart]');
+          const qvBtn = card.querySelector('.wm-card__btn-qv');
           const stepper = card.querySelector('[data-card-stepper]');
 
           if (newQty <= 0) {
             // Remove item from cart and immediately revert card to Add to Cart button
             if (stepper) stepper.classList.add('hidden');
             if (addBtn) addBtn.classList.remove('hidden');
+            if (qvBtn) qvBtn.classList.remove('hidden');
             if (qtyDisplay) qtyDisplay.textContent = '1';
-            Cart.update(id, 0);
+            Cart.update(currentItem?.key || id, 0);
           } else {
             if (qtyDisplay) qtyDisplay.textContent = newQty;
-            Cart.update(id, newQty);
+            Cart.update(currentItem?.key || id, newQty);
           }
         }
         return;
@@ -2186,9 +2494,12 @@
         e.preventDefault();
         const key = cartQtyBtn.getAttribute('data-key');
         const delta = parseInt(cartQtyBtn.getAttribute('data-cart-qty-btn'), 10);
-        const item = WagmartState.cart.items.find((i) => (i.key || i.id) == key);
+        const item = WagmartState.cart.items.find(
+          (i) => String(i.key) === String(key) || String(i.id) === String(key)
+        );
         if (item) {
-          Cart.update(key, item.quantity + delta);
+          const nextQty = Math.max(0, (Number(item.quantity) || 1) + delta);
+          Cart.update(key, nextQty);
         }
         return;
       }
@@ -2390,6 +2701,29 @@
           window.location.href = '/collections/all';
         }
         return;
+      }
+    });
+
+    // Cart Drawer Form Submit Listener (Awaits pending Cart API updates before proceeding to checkout)
+    document.addEventListener('submit', async (e) => {
+      const drawerForm = e.target.closest('#cart-drawer-form');
+      if (drawerForm) {
+        if (Cart._pendingPromise) {
+          e.preventDefault();
+          const checkoutBtn = drawerForm.querySelector('button[type="submit"][name="checkout"], .wm-btn--primary');
+          if (checkoutBtn) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.setAttribute('aria-busy', 'true');
+          }
+          try {
+            await Cart._pendingPromise;
+          } catch (err) {}
+          if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.removeAttribute('aria-busy');
+          }
+          drawerForm.submit();
+        }
       }
     });
 

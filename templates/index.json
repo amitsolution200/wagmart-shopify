@@ -109,16 +109,19 @@
     "pet_trust": {
       "type": "pet-trust",
       "settings": {
-        "badge_label": "The Wagmart Difference",
-        "title": "A Happier World for",
-        "title_accent": "Pets & Their People",
-        "subtitle": "Thoughtfully chosen essentials for everyday pet care.",
-        "col1_title": "Made for the Love They Give",
-        "col1_desc": "Discover thoughtful everyday essentials designed to make caring for your pets simpler and more enjoyable.",
-        "metric_number": "3 Lakh+",
-        "metric_label": "Happy Pet Parents",
-        "delivery_title": "Fast Delivery",
-        "delivery_desc": "Everyday essentials delivered to your door."
+        "eyebrow": "WHY PET PARENTS LOVE US",
+        "heading": "Why Choose Wagmart?",
+        "description": "We're passionate about pets and committed to making their lives happier, healthier and easier with high-quality products and trusted service.",
+        "item1_title": "Premium Pet Essentials",
+        "item1_desc": "Carefully selected food, toys, grooming, and everyday care products.",
+        "item2_title": "Fast & Reliable Delivery",
+        "item2_desc": "Get your pet's favorites delivered quickly to your doorstep.",
+        "item3_title": "Trusted Quality & Safety",
+        "item3_desc": "Products chosen with comfort, durability, and pet safety in mind.",
+        "item4_title": "Friendly Customer Support",
+        "item4_desc": "Helpful support for choosing the right products for your furry friend.",
+        "btn_text": "Shop Now",
+        "btn_link": "/collections/all"
       }
     },
     "pet_reels": {
@@ -127,61 +130,61 @@
         "reel_1": {
           "type": "reel",
           "settings": {
-            "product": "pet-grooming-glove",
-            "product_title": "",
-            "product_price": "",
-            "product_compare_price": "",
-            "product_url": "",
+            "product": "wagmart-teal-dog-collar-demo",
+            "product_title": "Wagmart Teal Dog Collar",
+            "product_price": "₹499",
+            "product_compare_price": "₹699",
+            "product_url": "/products/wagmart-teal-dog-collar-demo",
             "youtube_id": "AOr9WB0XIUY",
-            "story": "Gentle silicone bristles quickly wash away mud and grit before paws step inside."
+            "story": "Everyday comfort collar crafted for city walks and outdoor adventures."
           }
         },
         "reel_2": {
           "type": "reel",
           "settings": {
-            "product": "pet-grooming-glove",
-            "product_title": "",
-            "product_price": "",
-            "product_compare_price": "",
-            "product_url": "",
+            "product": "wagmart-pet-feeding-bowl",
+            "product_title": "Wagmart Pet Feeding Bowl",
+            "product_price": "₹449",
+            "product_compare_price": "₹599",
+            "product_url": "/products/wagmart-pet-feeding-bowl",
             "youtube_id": "5H4sZNYtBFc",
-            "story": "Promotes healthy digestion and turns mealtime into a fun, mindful maze."
+            "story": "Promotes healthy digestion and turns mealtime into a calm daily ritual."
           }
         },
         "reel_3": {
           "type": "reel",
           "settings": {
-            "product": "pet-grooming-glove",
-            "product_title": "",
-            "product_price": "",
-            "product_compare_price": "",
-            "product_url": "",
+            "product": "wagmart-pet-grooming-brush",
+            "product_title": "Wagmart Pet Grooming Brush",
+            "product_price": "₹399",
+            "product_compare_price": "₹549",
+            "product_url": "/products/wagmart-pet-grooming-brush",
             "youtube_id": "LB8Qfa9tTsU",
-            "story": "One-click hair release effortlessly detangles mats without scratching sensitive skin."
+            "story": "One-click hair release effortlessly detangles coats without scratching sensitive skin."
           }
         },
         "reel_4": {
           "type": "reel",
           "settings": {
-            "product": "pet-grooming-glove",
-            "product_title": "",
-            "product_price": "",
-            "product_compare_price": "",
-            "product_url": "",
+            "product": "wagmart-dog-play-ball",
+            "product_title": "Wagmart Dog Play Ball",
+            "product_price": "₹299",
+            "product_compare_price": "₹399",
+            "product_url": "/products/wagmart-dog-play-ball",
             "youtube_id": "vwz9XsIcRik",
-            "story": "No batteries required giggle sounds that keep energetic dogs happily engaged for hours."
+            "story": "Durable interactive bounce ball that keeps energetic pups happily engaged."
           }
         },
         "reel_5": {
           "type": "reel",
           "settings": {
-            "product": "pet-grooming-glove",
-            "product_title": "",
-            "product_price": "",
-            "product_compare_price": "",
-            "product_url": "",
+            "product": "wagmart-pet-travel-carrier",
+            "product_title": "Wagmart Pet Travel Carrier",
+            "product_price": "₹1,499",
+            "product_compare_price": "₹1,899",
+            "product_url": "/products/wagmart-pet-travel-carrier",
             "youtube_id": "GalPqZH1glY",
-            "story": "Heavy-duty waterproof hammock shielding your back seat from mud, fur, and scratches."
+            "story": "Heavy-duty waterproof travel protection shielding seats from mud and fur."
           }
         }
       },

@@ -1,28 +1,23 @@
 {%- comment -%}
-  Wagmart Cart Item Row Snippet
-  Parameters:
-  - item: Shopify cart line_item object
+  Wagmart Cart Item Row Snippet (Matches reference screenshot)
+  Columns:
+  1. Product (Image + Title + Variant/Option)
+  2. Price (Unit price)
+  3. Quantity (White bordered [- qty +] stepper)
+  4. Total (Line item total)
+  5. Remove (Outline trash icon button)
 {%- endcomment -%}
 
 {%- liquid
   assign item_key = item.key | default: item.id
   assign item_title = item.product.title | default: item.product_title | default: item.title
   assign item_url = item.url | default: '/products/pet-grooming-glove'
-  assign item_vendor = item.vendor | default: 'Wagmart'
   assign unit_price_inr = item.final_price | divided_by: 100.0 | round
-  assign compare_price_cents = item.variant.compare_at_price | default: item.original_price
-  assign compare_price_inr = compare_price_cents | divided_by: 100.0 | round
   assign line_price_inr = item.final_line_price | divided_by: 100.0 | round
-  assign orig_line_cents = compare_price_cents | times: item.quantity
-  assign orig_line_inr = orig_line_cents | divided_by: 100.0 | round
 
-  assign inv_qty = item.variant.inventory_quantity | default: 10
+  assign inv_qty = item.variant.inventory_quantity | default: 99
   if inv_qty <= 0
-    assign inv_qty = 10
-  endif
-  assign show_low_stock = false
-  if inv_qty <= 5 and inv_qty > 0
-    assign show_low_stock = true
+    assign inv_qty = 99
   endif
 -%}
 
@@ -33,14 +28,15 @@
   data-item-title="{{ item_title | escape }}"
   data-max-stock="{{ inv_qty }}"
 >
+  {%- comment -%} 1. Product Column (Image + Title + Option) {%- endcomment -%}
   <div class="wm-cart-item__product">
     <a href="{{ item_url }}" class="wm-cart-item__media" aria-label="{{ item_title | escape }}">
       {%- if item.image != blank -%}
         <img
           src="{{ item.image | image_url: width: 240 }}"
           alt="{{ item_title | escape }}"
-          width="104"
-          height="104"
+          width="80"
+          height="80"
           loading="lazy"
           onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';"
         >
@@ -48,72 +44,42 @@
         <img
           src="{{ 'catalog-grooming-glove.webp' | asset_url }}"
           alt="{{ item_title | escape }}"
-          width="104"
-          height="104"
+          width="80"
+          height="80"
           loading="lazy"
         >
       {%- endif -%}
     </a>
 
     <div class="wm-cart-item__details">
-      <span class="wm-cart-item__vendor">{{ item_vendor }}</span>
       <a href="{{ item_url }}" class="wm-cart-item__title">{{ item_title }}</a>
 
       {%- unless item.product.has_only_default_variant -%}
-        <p class="wm-cart-item__variant">{{ item.variant.title }}</p>
+        {%- if item.options_with_values != blank -%}
+          {%- for option in item.options_with_values -%}
+            <p class="wm-cart-item__variant">
+              <span class="wm-cart-item__opt-label">{{ option.name }}:</span> {{ option.value }}
+            </p>
+          {%- endfor -%}
+        {%- elsif item.variant.title != blank and item.variant.title != 'Default Title' -%}
+          <p class="wm-cart-item__variant">
+            <span class="wm-cart-item__opt-label">Type:</span> {{ item.variant.title }}
+          </p>
+        {%- endif -%}
       {%- endunless -%}
 
-      <div class="wm-cart-item__mobile-unit">
-        &#8377;{{ unit_price_inr }}
-        {%- if compare_price_cents > item.final_price -%}
-          <s>&#8377;{{ compare_price_inr }}</s>
-        {%- endif -%}
-      </div>
-
-      <div class="wm-cart-item__badges">
-        {%- if show_low_stock -%}
-          <span class="wm-cart-item__stock-low">
-            <span class="wm-cart-item__stock-dot" aria-hidden="true"></span>
-            Only {{ inv_qty }} left
-          </span>
-        {%- else -%}
-          <span class="wm-cart-item__stock-ok">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            In Stock
-          </span>
-        {%- endif -%}
-      </div>
-
-      <div class="wm-cart-item__subactions">
-        <button
-          type="button"
-          class="wm-cart-item__action-link is-remove"
-          data-cart-page-remove="{{ item_key }}"
-          aria-label="Remove {{ item_title | escape }} from cart"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          <span>Remove</span>
-        </button>
-        <button
-          type="button"
-          class="wm-cart-item__action-link"
-          data-cart-save-later="{{ item_key }}"
-          aria-label="Save {{ item_title | escape }} for later"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          <span>Save for later</span>
-        </button>
+      <div class="wm-cart-item__mobile-price">
+        &#8377;{{ unit_price_inr }}.00
       </div>
     </div>
   </div>
 
+  {%- comment -%} 2. Price Column {%- endcomment -%}
   <div class="wm-cart-item__unit-col">
-    <span class="wm-cart-item__unit-price">&#8377;{{ unit_price_inr }}</span>
-    {%- if compare_price_cents > item.final_price -%}
-      <span class="wm-cart-item__unit-compare">&#8377;{{ compare_price_inr }}</span>
-    {%- endif -%}
+    <span class="wm-cart-item__unit-price">&#8377;{{ unit_price_inr }}.00</span>
   </div>
 
+  {%- comment -%} 3. Quantity Column {%- endcomment -%}
   <div class="wm-cart-item__qty-col">
     {% render 'cart-quantity-stepper',
       item_key: item_key,
@@ -123,10 +89,23 @@
     %}
   </div>
 
+  {%- comment -%} 4. Total Column {%- endcomment -%}
   <div class="wm-cart-item__total-col">
-    <span class="wm-cart-item__line-total" data-line-total>&#8377;{{ line_price_inr }}</span>
-    {%- if orig_line_cents > item.final_line_price -%}
-      <span class="wm-cart-item__line-compare" data-line-compare>&#8377;{{ orig_line_inr }}</span>
-    {%- endif -%}
+    <span class="wm-cart-item__line-total" data-line-total>&#8377;{{ line_price_inr }}.00</span>
+  </div>
+
+  {%- comment -%} 5. Trash Remove Button Column {%- endcomment -%}
+  <div class="wm-cart-item__remove-col">
+    <button
+      type="button"
+      class="wm-cart-item__trash-btn"
+      data-cart-page-remove="{{ item_key }}"
+      aria-label="Remove {{ item_title | escape }} from cart"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+    </button>
   </div>
 </div>

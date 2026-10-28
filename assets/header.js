@@ -26,8 +26,8 @@
       : String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
   function money(cents) {
-    if (window.WagmartFormatMoney) return window.WagmartFormatMoney(cents);
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format((Number(cents) || 0) / 100);
+    const num = Math.round((Number(cents) || 0) / 100);
+    return '₹' + num.toLocaleString('en-IN');
   }
 
   function announceOverlay(id) {
@@ -257,14 +257,67 @@
   };
 
   // ===========================================================================
-  // 3. STICKY STATE
+  // 3. STICKY & SMART HIDE-ON-SCROLL-DOWN / SHOW-ON-SCROLL-UP STATE
   // ===========================================================================
   function initScrollState() {
+    const sectionWrap = header.closest('#shopify-section-header, .shopify-section-header');
+    let lastScrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
     let ticking = false;
+
+    const syncHeaderHeight = () => {
+      const h = (sectionWrap || header).offsetHeight;
+      if (h > 0) {
+        document.documentElement.style.setProperty('--wm-header-total', h + 'px');
+      }
+    };
+    syncHeaderHeight();
+    window.addEventListener('resize', syncHeaderHeight, { passive: true });
+
+    const setHidden = (hide) => {
+      header.classList.toggle('is-hidden', hide);
+      if (sectionWrap) sectionWrap.classList.toggle('is-header-hidden', hide);
+    };
+
     const onScroll = () => {
       ticking = false;
-      header.classList.toggle('is-scrolled', window.scrollY > 8);
+      const currentY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+      const delta = currentY - lastScrollY;
+      const isHidden = header.classList.contains('is-hidden');
+
+      header.classList.toggle('is-scrolled', currentY > 8);
+
+      const overlayActive =
+        header.classList.contains('is-panel-open') ||
+        (Drawer && Drawer.isOpen && Drawer.isOpen()) ||
+        (Search && Search.isOpen && Search.isOpen()) ||
+        (Account && Account.isOpen && Account.isOpen());
+
+      // Always show navbar near top of page or when any header overlay/drawer is open
+      if (currentY <= 72 || overlayActive) {
+        if (isHidden) setHidden(false);
+        lastScrollY = currentY;
+        return;
+      }
+
+      if (!isHidden) {
+        // Navbar is currently visible: track highest scroll point when scrolling up, hide after scrolling down > 8px
+        if (delta < 0) {
+          lastScrollY = currentY;
+        } else if (delta > 8) {
+          setHidden(true);
+          lastScrollY = currentY;
+        }
+      } else {
+        // Navbar is currently hidden: track lowest scroll point when scrolling down, show immediately on slight upward scroll (> 4px)
+        if (delta > 0) {
+          lastScrollY = currentY;
+        } else if (delta < -4) {
+          setHidden(false);
+          lastScrollY = currentY;
+        }
+      }
     };
+
     window.addEventListener(
       'scroll',
       () => {
@@ -496,6 +549,8 @@
     },
 
     setState(html, showResults) {
+      if (this.body) this.body.hidden = !showResults;
+      this.el.classList.toggle('has-results', !!showResults);
       if (this.idle) this.idle.hidden = !!showResults;
       if (this.results) {
         this.results.hidden = !showResults;
@@ -521,8 +576,10 @@
       const varies = product.price_min && product.price_max && product.price_min !== product.price_max;
       const compare = product.compare_at_price_max != null ? toCents(product.compare_at_price_max) : 0;
       let html = `${varies ? 'From ' : ''}${esc(money(price))}`;
-      if (compare > price) html += `<s>${esc(money(compare))}</s>`;
-      if (product.available === false) html += ' · Sold out';
+      if (compare > price) html += ` <s>${esc(money(compare))}</s>`;
+      if (product.available === false) {
+        html += ` <span class="wm-sold-out-badge" style="display:inline-block;margin-left:6px;padding:2px 7px;font-size:11px;font-weight:700;border-radius:999px;background:#FEE2E2;color:#DC2626;">Sold out</span>`;
+      }
       return html;
     },
 
@@ -548,35 +605,68 @@
       }
 
       let i = 0;
+      const pool = document.getElementById('WmSearchCardPool');
       const productItems = products
         .map((p) => {
-          const img = p.featured_image && p.featured_image.url ? p.featured_image.url : p.image;
-          const thumb = img
-            ? `<img class="wm-result__thumb" src="${esc(this.imageUrl(img, 120))}" alt="" width="56" height="56" loading="lazy">`
-            : `<span class="wm-result__thumb"></span>`;
-          return `<li><a class="wm-result" id="WmSearchOpt${i++}" role="option" aria-selected="false" href="${esc(p.url)}">
-              ${thumb}
-              <span class="wm-result__text">
-                <span class="wm-result__title">${esc(p.title)}</span>
-                <span class="wm-result__meta">${this.priceHtml(p) || esc(p.product_type || '')}</span>
-              </span>
-            </a></li>`;
+          const cleanUrl = (p.url || '').split('?')[0];
+          const handle = p.handle || cleanUrl.split('/products/')[1] || '';
+          let cardHtml = '';
+          if (pool && handle) {
+            const match = pool.querySelector('[data-pool-handle="' + handle.replace(/"/g, '') + '"]');
+            if (match) cardHtml = match.innerHTML;
+          }
+          if (!cardHtml) {
+            const img = p.featured_image && p.featured_image.url ? p.featured_image.url : p.image;
+            const imgSrc = img ? this.imageUrl(img, 600) : '';
+            const priceVal = p.price != null ? '₹' + Math.round(parseFloat(p.price)) : '';
+            const prodId = String(p.id || '');
+            cardHtml = `<div class="wm-unified-card wm-react-card group relative w-full flex flex-col select-none transition-all duration-300 cursor-pointer" data-product-card data-product-id="${esc(prodId)}" data-handle="${esc(handle)}" data-title="${esc(p.title)}" data-price="${esc(String(Math.round(parseFloat(p.price || 0))))}" data-image="${esc(imgSrc)}" data-url="${esc(cleanUrl)}" data-product-url="${esc(cleanUrl)}">
+              <div class="wm-react-card__image-box relative w-full aspect-[4/5] rounded-[20px] overflow-hidden bg-[#FBFBF7] border-0">
+                <a href="${esc(p.url)}" class="wm-unified-card__media block w-full h-full relative">
+                  ${imgSrc ? `<img src="${esc(imgSrc)}" alt="${esc(p.title)}" class="wm-react-card__img-primary absolute inset-0 w-full h-full object-cover" loading="lazy">` : ''}
+                </a>
+                <div class="wm-card__top-right-actions absolute top-3 right-3 z-20 flex flex-col items-center gap-2">
+                  <button type="button" class="wm-card__wishlist-btn w-9 h-9 rounded-full bg-white text-neutral-900 shadow-[0_4px_14px_rgba(0,0,0,0.08)] flex items-center justify-center transition-all duration-300 ease-out hover:bg-neutral-900 hover:text-white active:scale-95 cursor-pointer" data-wishlist-toggle="${esc(prodId)}" aria-label="Add to wishlist" aria-pressed="false">
+                    <svg class="wm-icon-heart w-[16px] h-[16px] transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  </button>
+                  <button type="button" class="wm-card__side-qv w-9 h-9 rounded-full bg-white text-neutral-900 shadow-[0_4px_14px_rgba(0,0,0,0.08)] flex items-center justify-center transition-all duration-300 ease-out opacity-100 lg:opacity-0 lg:translate-x-2 lg:group-hover:opacity-100 lg:group-hover:translate-x-0 hover:bg-neutral-900 hover:text-white active:scale-95 cursor-pointer" data-quick-view-trigger data-quick-view="${esc(handle)}" aria-label="Quick view ${esc(p.title)}">
+                    <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <div class="wm-card__img-qv-wrap absolute inset-x-3 bottom-3 z-20 transition-all duration-300 ease-out opacity-100 translate-y-0 lg:opacity-0 lg:translate-y-2 lg:group-hover:opacity-100 lg:group-hover:translate-y-0">
+                  <button type="button" class="wm-card__img-add-btn w-full py-2.5 px-4 rounded-full bg-white text-neutral-900 text-[13px] font-semibold tracking-wide shadow-[0_6px_20px_rgba(0,0,0,0.10)] hover:bg-neutral-900 hover:text-white transition-colors duration-200 flex items-center justify-center cursor-pointer" data-add-to-cart="${esc(prodId)}" data-product-id="${esc(prodId)}" aria-label="Add ${esc(p.title)} to bag">
+                    <span data-add-label>Add To Bag</span>
+                  </button>
+                  <div class="wm-card__img-stepper hidden w-full py-1.5 px-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-semibold shadow-[0_6px_20px_rgba(0,0,0,0.16)] items-center justify-between" data-card-stepper="${esc(prodId)}">
+                    <button type="button" class="wm-card__step-btn w-6 h-6 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer" data-card-step-minus="${esc(prodId)}" aria-label="Decrease quantity">&minus;</button>
+                    <span class="wm-card__step-qty text-[13px] font-semibold tabular-nums px-2" data-card-step-qty="${esc(prodId)}">1</span>
+                    <button type="button" class="wm-card__step-btn w-6 h-6 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer" data-card-step-plus="${esc(prodId)}" aria-label="Increase quantity">&#43;</button>
+                  </div>
+                </div>
+              </div>
+              <div class="wm-card__info pt-3 pb-1 text-left flex flex-col items-start gap-1">
+                <h3 class="wm-card__title text-[15px] leading-[22px] font-normal text-neutral-900 truncate w-full">
+                  <a href="${esc(p.url)}" class="hover:underline text-neutral-900 block truncate">${esc(p.title)}</a>
+                </h3>
+                <div class="wm-card__price-wrap text-[14px] leading-[20px] font-normal text-neutral-600 flex items-baseline gap-2">
+                  <span class="wm-card__price font-medium text-neutral-900">${esc(priceVal)}</span>
+                </div>
+              </div>
+            </div>`;
+          }
+          return `<div class="wm-search-cards-grid__item" id="WmSearchOpt${i++}" role="option" aria-selected="false">${cardHtml}</div>`;
         })
         .join('');
 
       const collectionItems = collections
         .map(
-          (c) => `<li><a class="wm-result" id="WmSearchOpt${i++}" role="option" aria-selected="false" href="${esc(c.url)}">
-              <span class="wm-result__thumb" style="display:grid;place-items:center;color:var(--wm-purple)">${this.icon('paw')}</span>
-              <span class="wm-result__text"><span class="wm-result__title">${esc(c.title)}</span><span class="wm-result__meta">Collection</span></span>
-            </a></li>`
+          (c) => `<a class="wm-search__tag" id="WmSearchOpt${i++}" role="option" aria-selected="false" href="${esc(c.url)}">${esc(c.title)}</a>`
         )
         .join('');
 
       this.setState(
-        `${products.length ? `<p class="wm-search__label">Products</p><ul class="wm-results" role="listbox" aria-label="Products">${productItems}</ul>` : ''}
-         ${collections.length ? `<p class="wm-search__label" style="margin-top:18px">Collections</p><ul class="wm-results" role="listbox" aria-label="Collections">${collectionItems}</ul>` : ''}
-         <div class="wm-search__all"><a class="wm-link-arrow" href="${esc(searchUrl)}">View all results for “${esc(term)}” ${this.icon('arrow-right')}</a></div>`,
+        `${collections.length ? `<div class="wm-search__section"><div class="wm-search__head-row"><p class="wm-search__label">Collections</p></div><div class="wm-search__tags">${collectionItems}</div></div>` : ''}
+         ${products.length ? `<div class="wm-search__section wm-search__section--products"><div class="wm-search__head-row"><p class="wm-search__label">Products</p></div><div class="wm-search-cards-grid" role="listbox" aria-label="Products">${productItems}</div></div>` : ''}`,
         true
       );
     },
@@ -642,6 +732,8 @@
       this.input = this.el.querySelector('[data-search-input]');
       this.results = this.el.querySelector('[data-search-results]');
       this.idle = this.el.querySelector('[data-search-idle]');
+      this.body = this.el.querySelector('[data-search-body]');
+      this.categorySelect = this.el.querySelector('[data-search-category]');
       this.clearBtn = this.el.querySelector('[data-search-clear]');
       const form = this.el.querySelector('[data-search-form]');
 
@@ -672,6 +764,9 @@
         } else if (e.key === 'ArrowUp') {
           e.preventDefault();
           this.move(-1);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          this.close();
         } else if (e.key === 'Enter' && this.activeIndex > -1) {
           const active = this.results.querySelectorAll('[role="option"]')[this.activeIndex];
           if (active) {
@@ -686,7 +781,14 @@
           this.input.focus();
         }
       });
-      this.el.addEventListener('keydown', (e) => trapFocus(this.el.querySelector('[role="dialog"]'), e));
+      this.el.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          this.close();
+          return;
+        }
+        trapFocus(this.el.querySelector('[role="dialog"]'), e);
+      });
     },
   };
 
@@ -877,15 +979,84 @@
 
     // Opening the cart from inside the mobile drawer
     document.addEventListener('click', (e) => {
-      if (e.target.closest('[data-open-cart]')) {
+      if (e.target.closest('[data-open-cart], [data-quick-view-trigger], [data-quick-view], [data-plp-qv-trigger]')) {
         Drawer.close({ returnFocus: false });
         Search.close({ returnFocus: false });
+        Panels.close();
       }
     });
   }
 
+  // ===========================================================================
+  // MEGA MENU COLLECTION HOVER -> RELATED PRODUCTS SWITCHER
+  // ===========================================================================
+  const MegaCollectionSplit = {
+    init() {
+      const splitContainers = document.querySelectorAll('[data-mega-split]');
+      if (!splitContainers.length) return;
+
+      splitContainers.forEach((container) => {
+        const tabs = Array.from(container.querySelectorAll('[data-mega-tab]'));
+        const panels = Array.from(container.querySelectorAll('[data-mega-panel]'));
+
+        function switchCollection(handle) {
+          if (!handle) return;
+          tabs.forEach((t) => {
+            const match = t.getAttribute('data-mega-tab') === handle;
+            t.classList.toggle('is-active', match);
+            t.setAttribute('aria-selected', String(match));
+          });
+
+          panels.forEach((p) => {
+            const match = p.getAttribute('data-mega-panel') === handle;
+            p.classList.toggle('is-active', match);
+          });
+        }
+
+        tabs.forEach((tab, idx) => {
+          const handle = tab.getAttribute('data-mega-tab');
+
+          // Hover switch (mouse pointerenter)
+          tab.addEventListener('pointerenter', (e) => {
+            if (e.pointerType === 'mouse') {
+              switchCollection(handle);
+            }
+          });
+
+          // Focus switch for keyboard accessibility
+          tab.addEventListener('focus', () => {
+            switchCollection(handle);
+          });
+
+          // Keyboard arrow navigation
+          tab.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              const next = tabs[(idx + 1) % tabs.length];
+              next.focus();
+              switchCollection(next.getAttribute('data-mega-tab'));
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              const prev = tabs[(idx - 1 + tabs.length) % tabs.length];
+              prev.focus();
+              switchCollection(prev.getAttribute('data-mega-tab'));
+            } else if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              const activePanel = container.querySelector(`[data-mega-panel="${handle}"]`);
+              if (activePanel) {
+                const firstLink = activePanel.querySelector('a, button');
+                if (firstLink) firstLink.focus();
+              }
+            }
+          });
+        });
+      });
+    },
+  };
+
   function init() {
     Panels.init();
+    MegaCollectionSplit.init();
     Carousel.init();
     initScrollState();
     Drawer.init();

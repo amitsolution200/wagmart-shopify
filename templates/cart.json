@@ -3,9 +3,18 @@
     "main": {
       "type": "main-cart",
       "settings": {}
+    },
+    "related-products": {
+      "type": "related-products",
+      "settings": {
+        "heading": "More Featured Products",
+        "products_to_show": 5,
+        "show_view_all": true
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "related-products"
   ]
 }

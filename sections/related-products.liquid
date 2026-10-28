@@ -1,0 +1,550 @@
+{% comment %}
+  Wagmart More Featured Products Section (sections/related-products.liquid)
+  - Header with "MORE FEATURED PRODUCTS" on left and "See All" underlined link on right
+  - Laptop / Desktop (>= 1024px): 5-column grid (5 cards in a row)
+  - Tablet (641px - 1023px): 3 cards per view horizontal slider + Left & Right side arrows
+  - Mobile (<= 640px): 1 card per view horizontal slider + Left & Right side arrows
+{% endcomment %}
+
+{%- liquid
+  assign current_product_id = product.id
+  assign max_products = section.settings.products_to_show | default: 5
+  if max_products < 5
+    assign max_products = 5
+  endif
+
+  assign primary_collection = product.collections.first
+  if primary_collection == blank or primary_collection.products.size <= 1
+    assign primary_collection = collections['all']
+  endif
+
+  assign related_products_count = 0
+-%}
+
+<style>
+  .wm-pdp-featured {
+    padding: 40px 16px 64px;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    position: relative;
+  }
+  @media (min-width: 1024px) {
+    .wm-pdp-featured {
+      padding: 40px 32px 72px;
+    }
+  }
+  .wm-pdp-featured__head {
+    max-width: 1800px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .wm-pdp-featured__title {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    text-transform: none;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .wm-pdp-featured__link {
+    font-size: 14px;
+    color: #000000;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+  }
+
+  .wm-pdp-featured__carousel-wrap {
+    max-width: 1800px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* Remove Left & Right navigation arrows on ALL devices */
+  .wm-pdp-featured__arrow {
+    display: none !important;
+  }
+
+  /* Responsive Grid on All Devices */
+  .wm-pdp-featured__grid {
+    display: grid !important;
+    width: 100% !important;
+    max-width: 1800px;
+    margin: 0 auto;
+    overflow: visible !important;
+  }
+
+  .wm-related-products__item {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: none !important;
+    display: flex !important;
+  }
+
+  .wm-related-products__item > [data-product-card],
+  .wm-related-products__item > .wm-unified-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .wm-pdp-featured .wm-react-card__image-box,
+  .wm-pdp-featured [data-product-card]:hover .wm-react-card__image-box,
+  .wm-pdp-featured .wm-unified-card:hover .wm-react-card__image-box {
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* 1. Desktop View (>= 1280px): 5 Grid Columns */
+  @media (min-width: 1280px) {
+    .wm-pdp-featured__grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      gap: 20px !important;
+    }
+  }
+
+  /* 2. Laptop View (1024px - 1279px): 4 Grid Columns */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .wm-pdp-featured__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 18px !important;
+    }
+  }
+
+  /* 3. Tablet View (768px - 1023px): 3 Grid Columns (Reference Image 3) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .wm-pdp-featured__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 16px !important;
+    }
+  }
+
+  /* 4. Mobile View (< 768px): 2 Grid Columns (Reference Image 2) */
+  @media (max-width: 767px) {
+    .wm-pdp-featured {
+      padding: 32px 14px 48px;
+    }
+    .wm-pdp-featured__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px 10px !important;
+    }
+  }
+
+  /* Scoped Styling for More Featured Products Cards */
+  .wm-pdp-featured .wm-card__top-right-actions {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 25 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    pointer-events: auto !important;
+  }
+
+  /* Heart and Eye circle buttons (slightly decreased size ~26-27px) */
+  .wm-pdp-featured .wm-react-card__wishlist,
+  .wm-pdp-featured .wm-card__side-qv {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    width: 27px !important;
+    height: 27px !important;
+    min-width: 27px !important;
+    min-height: 27px !important;
+    border-radius: 9999px !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    border: 1px solid rgba(229, 231, 235, 0.7) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    color: #374151 !important;
+    transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
+  }
+
+  .wm-pdp-featured .wm-react-card__wishlist:hover,
+  .wm-pdp-featured .wm-card__side-qv:hover {
+    background-color: #FFFFFF !important;
+    transform: scale(1.1) !important;
+    color: #111827 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  .wm-pdp-featured .wm-react-card__wishlist svg,
+  .wm-pdp-featured .wm-card__side-qv svg {
+    width: 13px !important;
+    height: 13px !important;
+    stroke-width: 2 !important;
+  }
+
+  /* Bottom Inside Image: White Pill "Add To Bag" Button */
+  .wm-pdp-featured .wm-card__img-qv-wrap {
+    display: flex !important;
+    pointer-events: auto !important;
+    z-index: 25 !important;
+  }
+
+  @media (hover: hover) {
+    .wm-pdp-featured .wm-card__img-qv-wrap {
+      opacity: 0 !important;
+      transform: translateY(6px) !important;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .wm-pdp-featured [data-product-card]:hover .wm-card__img-qv-wrap,
+    .wm-pdp-featured .wm-unified-card:hover .wm-card__img-qv-wrap {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+  }
+
+  @media (hover: none), (max-width: 767px) {
+    .wm-pdp-featured .wm-card__img-qv-wrap {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+  }
+
+  .wm-pdp-featured .wm-card__img-qv-btn {
+    background-color: rgba(255, 255, 255, 0.96) !important;
+    color: #111827 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    height: 30px !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(229, 231, 235, 0.5) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important;
+  }
+
+  .wm-pdp-featured .wm-card__img-qv-btn:hover {
+    background-color: #FFFFFF !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14) !important;
+  }
+
+  .wm-pdp-featured .wm-card__img-qv-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+    stroke: currentColor !important;
+    stroke-width: 2 !important;
+  }
+
+  /* Stepper inside image for related cards */
+  .wm-pdp-featured [data-card-stepper] {
+    width: 100% !important;
+    height: 30px !important;
+    background-color: #111827 !important;
+    color: #ffffff !important;
+    border-radius: 9999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 6px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .wm-pdp-featured [data-card-stepper].hidden {
+    display: none !important;
+  }
+
+  /* Completely remove the black background Add to Bag button beside price */
+  .wm-pdp-featured .wm-card__action-wrap,
+  .wm-pdp-featured .wm-card__btn-add {
+    display: none !important;
+  }
+
+  /* Mobile-only (< 768px): Slightly compact Add To Bag & -/+ Quantity Stepper inside More Featured Products */
+  @media (max-width: 767px) {
+    .wm-pdp-featured [data-product-card] .wm-card__img-qv-wrap,
+    .wm-pdp-featured .wm-unified-card .wm-card__img-qv-wrap {
+      left: 8px !important;
+      right: 8px !important;
+      bottom: 8px !important;
+    }
+
+    .wm-pdp-featured .wm-react-card .wm-card__img-qv-btn[data-add-to-cart]:not(.wm-card__btn-add),
+    .wm-pdp-featured [data-product-card] .wm-card__img-qv-btn,
+    .wm-pdp-featured .wm-unified-card .wm-card__img-qv-btn {
+      height: 28px !important;
+      min-height: 28px !important;
+      padding: 0 9px !important;
+      font-size: 10.5px !important;
+      gap: 4px !important;
+    }
+
+    .wm-pdp-featured .wm-react-card .wm-card__img-qv-btn[data-add-to-cart] svg,
+    .wm-pdp-featured [data-product-card] .wm-card__img-qv-btn svg,
+    .wm-pdp-featured .wm-unified-card .wm-card__img-qv-btn svg {
+      width: 11px !important;
+      height: 11px !important;
+    }
+
+    .wm-pdp-featured .wm-react-card .wm-card__img-qv-wrap [data-card-stepper]:not(.wm-card__stepper),
+    .wm-pdp-featured [data-product-card] .wm-card__img-qv-wrap [data-card-stepper],
+    .wm-pdp-featured .wm-unified-card .wm-card__img-qv-wrap [data-card-stepper] {
+      height: 28px !important;
+      min-height: 28px !important;
+      padding: 0 5px !important;
+      font-size: 10.5px !important;
+    }
+
+    .wm-pdp-featured .wm-react-card [data-card-stepper] [data-card-stepper-btn],
+    .wm-pdp-featured [data-product-card] [data-card-stepper-btn],
+    .wm-pdp-featured .wm-unified-card [data-card-stepper-btn] {
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    .wm-pdp-featured .wm-react-card [data-card-stepper] [data-card-stepper-btn] svg,
+    .wm-pdp-featured [data-product-card] [data-card-stepper-btn] svg,
+    .wm-pdp-featured .wm-unified-card [data-card-stepper-btn] svg {
+      width: 8px !important;
+      height: 8px !important;
+    }
+
+    .wm-pdp-featured .wm-react-card [data-card-stepper] [data-card-qty],
+    .wm-pdp-featured [data-product-card] [data-card-qty],
+    .wm-pdp-featured .wm-unified-card [data-card-qty] {
+      font-size: 10.5px !important;
+      min-width: 12px !important;
+    }
+  }
+</style>
+
+<section
+  class="wm-pdp-featured"
+  id="wm-related-products-{{ section.id }}"
+  data-related-products-section
+  aria-labelledby="wm-related-heading-{{ section.id }}"
+>
+  <div class="wm-pdp-featured__head">
+    {%- assign featured_heading = section.settings.heading | default: 'More Featured Products' -%}
+    {%- if featured_heading == 'MORE FEATURED PRODUCTS' -%}
+      {%- assign featured_heading = 'More Featured Products' -%}
+    {%- endif -%}
+    <h2 class="wm-pdp-featured__title" id="wm-related-heading-{{ section.id }}">
+      {{ featured_heading }}
+    </h2>
+    {%- if section.settings.show_view_all -%}
+      <a href="{{ primary_collection.url | default: routes.all_products_collection_url | default: '/collections/all' }}" class="wm-pdp-featured__link">
+        See All
+      </a>
+    {%- endif -%}
+  </div>
+
+  <div class="wm-pdp-featured__carousel-wrap" data-related-carousel>
+    <div
+      class="wm-pdp-featured__grid"
+      data-related-products-scroll
+    >
+      {%- comment -%} Primary Pass: Same Collection {%- endcomment -%}
+      {%- if primary_collection != blank and primary_collection.products.size > 0 -%}
+        {%- for rel_product in primary_collection.products -%}
+          {%- if rel_product.id != current_product_id and related_products_count < max_products -%}
+            <div class="wm-related-products__item">
+              {% render 'product-card', product: rel_product, is_related: true %}
+            </div>
+            {%- assign related_products_count = related_products_count | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- comment -%} Secondary Pass: All Products (if collection didn't have enough) {%- endcomment -%}
+      {%- if related_products_count < max_products and collections['all'].products.size > 0 -%}
+        {%- for rel_product in collections['all'].products -%}
+          {%- if rel_product.id != current_product_id and related_products_count < max_products -%}
+            {%- assign already_rendered = false -%}
+            {%- if primary_collection != blank -%}
+              {%- for p_check in primary_collection.products -%}
+                {%- if p_check.id == rel_product.id -%}
+                  {%- assign already_rendered = true -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+
+            {%- unless already_rendered -%}
+              <div class="wm-related-products__item">
+                {% render 'product-card', product: rel_product, is_related: true %}
+              </div>
+              {%- assign related_products_count = related_products_count | plus: 1 -%}
+            {%- endunless -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- comment -%} Fallback Mock Products {%- endcomment -%}
+      {%- if related_products_count == 0 -%}
+        {%- assign fallback_img = 'catalog-bath-massage-brush.webp' | asset_url -%}
+        <div class="wm-related-products__item">
+          {% render 'product-card',
+            mock_id: '47717959139500',
+            mock_title: 'Wagmart Pet Grooming Brush',
+            mock_price: '₹399',
+            mock_original_price: '₹549',
+            mock_image: fallback_img,
+            mock_badge: 'Best Seller',
+            mock_category: 'grooming',
+            is_related: true
+          %}
+        </div>
+        <div class="wm-related-products__item">
+          {% render 'product-card',
+            mock_id: '47717960941740',
+            mock_title: 'Wagmart Pet Feeding Bowl',
+            mock_price: '₹449',
+            mock_original_price: '₹599',
+            mock_image: fallback_img,
+            mock_badge: 'Popular',
+            mock_category: 'feeding',
+            is_related: true
+          %}
+        </div>
+        <div class="wm-related-products__item">
+          {% render 'product-card',
+            mock_id: '47717961859244',
+            mock_title: 'Wagmart Pet Travel Carrier',
+            mock_price: '₹1499',
+            mock_original_price: '₹1999',
+            mock_image: fallback_img,
+            mock_badge: 'Top Rated',
+            mock_category: 'travel',
+            is_related: true
+          %}
+        </div>
+        <div class="wm-related-products__item">
+          {% render 'product-card',
+            mock_id: '47717962514604',
+            mock_title: 'Wagmart Pet Care Mitt',
+            mock_price: '₹249',
+            mock_original_price: '₹349',
+            mock_image: fallback_img,
+            mock_badge: 'Sale',
+            mock_category: 'hygiene',
+            is_related: true
+          %}
+        </div>
+        <div class="wm-related-products__item">
+          {% render 'product-card',
+            mock_id: '47717962514605',
+            mock_title: 'Wagmart Dog Play Ball',
+            mock_price: '₹299',
+            mock_original_price: '₹399',
+            mock_image: fallback_img,
+            mock_badge: 'Popular',
+            mock_category: 'toys',
+            is_related: true
+          %}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    function initRelatedCarousel(root) {
+      if (!root || root.dataset.carouselBound === 'true') return;
+      root.dataset.carouselBound = 'true';
+
+      var track = root.querySelector('[data-related-products-scroll]');
+      var prevBtn = root.querySelector('[data-related-prev]');
+      var nextBtn = root.querySelector('[data-related-next]');
+      if (!track || !prevBtn || !nextBtn) return;
+
+      function getStepWidth() {
+        var firstItem = track.querySelector('.wm-related-products__item');
+        if (!firstItem) return track.clientWidth;
+        var style = window.getComputedStyle(track);
+        var gap = parseFloat(style.columnGap || style.gap) || 16;
+        return firstItem.getBoundingClientRect().width + gap;
+      }
+
+      prevBtn.addEventListener('click', function () {
+        var step = getStepWidth();
+        if (track.scrollLeft <= 4) {
+          track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+        } else {
+          track.scrollBy({ left: -step, behavior: 'smooth' });
+        }
+      });
+
+      nextBtn.addEventListener('click', function () {
+        var step = getStepWidth();
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        if (track.scrollLeft >= maxScroll - 4) {
+          track.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          track.scrollBy({ left: step, behavior: 'smooth' });
+        }
+      });
+    }
+
+    function bindAll() {
+      var wraps = document.querySelectorAll('[data-related-carousel]');
+      for (var i = 0; i < wraps.length; i++) {
+        initRelatedCarousel(wraps[i]);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindAll);
+    } else {
+      bindAll();
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Related Products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "More featured products"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 5,
+      "label": "Products to Show"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show 'See All' in Header",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Related Products"
+    }
+  ]
+}
+{% endschema %}

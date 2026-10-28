@@ -1,0 +1,125 @@
+{%- comment -%}
+  WAGMART Mega Menu: Collections (Left) + Hover-Triggered Related Products (Right)
+  - Left side: Clean editorial list of store collections
+  - Right side: 4-column grid using the exact site-wide Wagmart Product Card (snippets/product-card.liquid)
+{%- endcomment -%}
+
+<div class="wm-mega-split" data-mega-split>
+  <!-- LEFT COLUMN: Clean Editorial Collections List -->
+  <aside class="wm-mega-split__sidebar" aria-label="Store Collections">
+    <div class="wm-mega-split__sidebar-head">
+      <span class="wm-mega-split__sidebar-title">Collections</span>
+    </div>
+
+    <ul class="wm-mega-split__nav" role="tablist" aria-orientation="vertical">
+      <li class="wm-mega-split__nav-item" role="presentation">
+        <a
+          href="{{ routes.all_products_collection_url | default: '/collections/all' }}"
+          class="wm-mega-split__tab is-active"
+          role="tab"
+          id="wm-tab-all-products"
+          aria-selected="true"
+          aria-controls="wm-panel-all-products"
+          data-mega-tab="all-products"
+        >
+          <span class="wm-mega-split__tab-text">All Products</span>
+          <svg class="wm-mega-split__tab-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </li>
+
+      {%- for col in collections -%}
+        {%- unless col.handle == 'frontpage' or col.handle == 'all' -%}
+          <li class="wm-mega-split__nav-item" role="presentation">
+            <a
+              href="{{ col.url }}"
+              class="wm-mega-split__tab"
+              role="tab"
+              id="wm-tab-{{ col.handle }}"
+              aria-selected="false"
+              aria-controls="wm-panel-{{ col.handle }}"
+              data-mega-tab="{{ col.handle }}"
+            >
+              <span class="wm-mega-split__tab-text">{{ col.title }}</span>
+              <svg class="wm-mega-split__tab-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          </li>
+        {%- endunless -%}
+      {%- endfor -%}
+    </ul>
+
+    <div class="wm-mega-split__sidebar-footer">
+      <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-mega-split__all-link">
+        Shop All Products
+      </a>
+    </div>
+  </aside>
+
+  <!-- RIGHT COLUMN: Related Products Showcase (Uses exact snippets/product-card.liquid) -->
+  <main class="wm-mega-split__showcase" aria-label="Collection Products Preview">
+    <!-- "All Products" Panel -->
+    <div
+      class="wm-mega-split__panel is-active"
+      id="wm-panel-all-products"
+      role="tabpanel"
+      aria-labelledby="wm-tab-all-products"
+      data-mega-panel="all-products"
+    >
+      <div class="wm-mega-split__panel-head">
+        <h3 class="wm-mega-split__panel-title">All Products</h3>
+        <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-mega-split__see-all">
+          See All
+        </a>
+      </div>
+
+      <div class="wm-mega-split__grid">
+        {%- for product in collections.all.products limit: 4 -%}
+          <div class="wm-mega-split__card-wrap">
+            {% render 'product-card', product: product %}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {%- for col in collections -%}
+      {%- unless col.handle == 'frontpage' or col.handle == 'all' -%}
+        <div
+          class="wm-mega-split__panel"
+          id="wm-panel-{{ col.handle }}"
+          role="tabpanel"
+          aria-labelledby="wm-tab-{{ col.handle }}"
+          data-mega-panel="{{ col.handle }}"
+        >
+          <div class="wm-mega-split__panel-head">
+            <h3 class="wm-mega-split__panel-title">{{ col.title }}</h3>
+            <a href="{{ col.url }}" class="wm-mega-split__see-all">
+              See All
+            </a>
+          </div>
+
+          {%- if col.products.size > 0 -%}
+            <div class="wm-mega-split__grid">
+              {%- for product in col.products limit: 4 -%}
+                <div class="wm-mega-split__card-wrap">
+                  {% render 'product-card', product: product %}
+                </div>
+              {%- endfor -%}
+            </div>
+          {%- else -%}
+            <div class="wm-mega-split__empty">
+              <p class="wm-mega-split__empty-text">No products currently listed in <strong>{{ col.title }}</strong>.</p>
+              <div class="wm-mega-split__empty-actions">
+                <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-mega-split__see-all">Browse All Products</a>
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endunless -%}
+    {%- endfor -%}
+  </main>
+</div>

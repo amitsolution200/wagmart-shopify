@@ -100,7 +100,20 @@
             {%- if nav_links.size > 0 -%}
               {%- for link in nav_links -%}
                 {%- assign link_handle = link.title | downcase -%}
-                {%- if link_handle == 'shop' or link_handle contains 'bestseller' -%}
+                {%- if link_handle == 'shop' or link_handle contains 'product' or link_handle contains 'collection' or link_handle contains 'catalog' -%}
+                  <li>
+                    <button
+                      type="button"
+                      class="wm-nav__link"
+                      id="WmTriggerCollections"
+                      data-panel-trigger="collections"
+                      aria-expanded="false"
+                      aria-controls="WmPanelCollections"
+                    >
+                      {{ link.title }} {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
+                    </button>
+                  </li>
+                {%- elsif link_handle contains 'bestseller' -%}
                   <li>
                     <button
                       type="button"
@@ -124,16 +137,16 @@
                 <button
                   type="button"
                   class="wm-nav__link"
-                  id="WmTriggerBest"
-                  data-panel-trigger="bestsellers"
+                  id="WmTriggerCollections"
+                  data-panel-trigger="collections"
                   aria-expanded="false"
-                  aria-controls="WmPanelBest"
+                  aria-controls="WmPanelCollections"
                 >
-                  Shop {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
+                  Collections {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron', stroke: 1.75 %}
                 </button>
               </li>
               <li>
-                <a class="wm-nav__link" data-nav-plain href="{{ routes.all_products_collection_url }}"{% if all_products_current %} aria-current="page"{% endif %}>Collection</a>
+                <a class="wm-nav__link" data-nav-plain href="{{ routes.all_products_collection_url }}"{% if all_products_current %} aria-current="page"{% endif %}>All Products</a>
               </li>
               <li>
                 {%- if blog_url != blank -%}
@@ -319,6 +332,12 @@
     </div>
 
     {%- comment -%} ============ DESKTOP DROPDOWN PANELS ============ {%- endcomment -%}
+    <div class="wm-panel" id="WmPanelCollections" data-panel="collections" aria-labelledby="WmTriggerCollections">
+      <div class="wm-panel__inner">
+        {% render 'header-collection-mega' %}
+      </div>
+    </div>
+
     <div class="wm-panel" id="WmPanelBest" data-panel="bestsellers" aria-labelledby="WmTriggerBest">
       <div class="wm-panel__inner">
         {% render 'header-bestsellers',
@@ -348,7 +367,41 @@
           {%- if nav_links.size > 0 -%}
             {%- for link in nav_links -%}
               {%- assign link_handle = link.title | downcase -%}
-              {%- if link_handle == 'shop' or link_handle contains 'bestseller' -%}
+              {%- if link_handle == 'shop' or link_handle contains 'product' or link_handle contains 'collection' or link_handle contains 'catalog' -%}
+                <li>
+                  <div class="wm-mnav__row">
+                    <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMCollections" data-accordion-toggle>{{ link.title }}</button>
+                    <button type="button" class="wm-mnav__toggle" aria-expanded="false" aria-controls="WmMCollections" aria-label="Show {{ link.title }} collections" data-accordion-toggle>
+                      {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
+                    </button>
+                  </div>
+                  <div class="wm-acc" id="WmMCollections">
+                    <div class="wm-acc__inner">
+                      <div class="wm-acc__content">
+                        {%- comment -%} Mobile only shows collection names, NO products! {%- endcomment -%}
+                        <ul class="wm-mnav__sublist">
+                          <li class="wm-mnav__subitem wm-mnav__subitem--all">
+                            <a class="wm-mnav__sublink wm-mnav__sublink--all" href="{{ routes.all_products_collection_url }}">
+                              <span>All Products</span>
+                              {% render 'wm-icon', name: 'arrow-right', class: 'wm-mnav__subarrow' %}
+                            </a>
+                          </li>
+                          {%- for col in collections -%}
+                            {%- unless col.handle == 'frontpage' -%}
+                              <li class="wm-mnav__subitem">
+                                <a class="wm-mnav__sublink" href="{{ col.url }}">
+                                  <span>{{ col.title }}</span>
+                                  {% render 'wm-icon', name: 'chevron-right', class: 'wm-mnav__subarrow' %}
+                                </a>
+                              </li>
+                            {%- endunless -%}
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              {%- elsif link_handle contains 'bestseller' -%}
                 <li>
                   <div class="wm-mnav__row">
                     <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>{{ link.title }}</button>
@@ -377,26 +430,38 @@
           {%- else -%}
             <li>
               <div class="wm-mnav__row">
-                <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMBest" data-accordion-toggle>Shop</button>
-                <button type="button" class="wm-mnav__toggle" aria-expanded="false" aria-controls="WmMBest" aria-label="Show Shop products" data-accordion-toggle>
+                <button type="button" class="wm-mnav__link" aria-expanded="false" aria-controls="WmMCollections" data-accordion-toggle>Collections</button>
+                <button type="button" class="wm-mnav__toggle" aria-expanded="false" aria-controls="WmMCollections" aria-label="Show Collections" data-accordion-toggle>
                   {% render 'wm-icon', name: 'chevron-down', class: 'wm-nav__chevron' %}
                 </button>
               </div>
-              <div class="wm-acc" id="WmMBest">
+              <div class="wm-acc" id="WmMCollections">
                 <div class="wm-acc__inner">
                   <div class="wm-acc__content">
-                    {% render 'header-bestsellers',
-                      layout: 'mobile',
-                      source_collection: section.settings.bestsellers_collection,
-                      limit: best_limit,
-                      show_preview: section.settings.show_catalog_preview,
-                      id_prefix: 'WmMBestC'
-                    %}
+                    {%- comment -%} Mobile only shows collection names, NO products! {%- endcomment -%}
+                    <ul class="wm-mnav__sublist">
+                      <li class="wm-mnav__subitem wm-mnav__subitem--all">
+                        <a class="wm-mnav__sublink wm-mnav__sublink--all" href="{{ routes.all_products_collection_url }}">
+                          <span>All Products</span>
+                          {% render 'wm-icon', name: 'arrow-right', class: 'wm-mnav__subarrow' %}
+                        </a>
+                      </li>
+                      {%- for col in collections -%}
+                        {%- unless col.handle == 'frontpage' -%}
+                          <li class="wm-mnav__subitem">
+                            <a class="wm-mnav__sublink" href="{{ col.url }}">
+                              <span>{{ col.title }}</span>
+                              {% render 'wm-icon', name: 'chevron-right', class: 'wm-mnav__subarrow' %}
+                            </a>
+                          </li>
+                        {%- endunless -%}
+                      {%- endfor -%}
+                    </ul>
                   </div>
                 </div>
               </div>
             </li>
-            <li><a class="wm-mnav__link" href="{{ routes.all_products_collection_url }}">Collection</a></li>
+            <li><a class="wm-mnav__link" href="{{ routes.all_products_collection_url }}">All Products</a></li>
             <li><a class="wm-mnav__link" href="{{ blog_url }}">Blog</a></li>
             <li><a class="wm-mnav__link" href="{{ contact_url }}">Contact</a></li>
           {%- endif -%}

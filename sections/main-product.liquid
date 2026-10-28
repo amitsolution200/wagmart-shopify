@@ -1,35 +1,74 @@
 {% comment %}
-  Wagmart Premium Shopify Product Details Page (sections/main-product.liquid)
-  Exact recreation of reference screenshot:
-  1. Breadcrumb navigation
-  2. Main product gallery & product info
-  3. Product Description (separate section, clean text only, NO IMAGES)
-  4. Specifications (2-column table)
-  5. Benefits (4 dedicated cards with circular icons)
-  No other sections below Benefits.
+  Wagmart Shopify Product Details Page (sections/main-product.liquid)
+  Converted from React ProductDetailsPage component & fully responsive across all devices:
+  - Mobile / Tablet (< 1024px): Infinity loop touch/drag image slider with pill/dot indicators
+  - Laptop / Desktop (>= 1024px): Vertically stacked square rounded-[20px] images on left, sticky info panel on right
+  - Category, Title + Wishlist Heart button, Price in Rupees (₹), Short Description
+  - NO Size / Material dropdowns
+  - Only Two Buttons:
+    1) "Add to Cart" button -> clicking transforms into [- qty +] stepper synced with Shopify Cart
+    2) "Buy Now" button below -> redirects to /checkout
+  - Three Accordions:
+    1) Product Description (open by default)
+    2) Specifications
+    3) Benefits (text only, no icons)
 {% endcomment %}
 
 {{ 'product.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
   assign prod_title = product.title | default: 'Pet Grooming Glove'
-  assign prod_category = product.type | default: 'Grooming'
-  assign prod_id = product.selected_or_first_available_variant.id | default: product.id | default: 'pet-grooming-glove'
-  assign price_rupees = product.price | default: 33000 | divided_by: 100
-  assign compare_rupees = product.compare_at_price | default: 41200 | divided_by: 100
-  if compare_rupees <= price_rupees
-    assign compare_rupees = price_rupees | times: 125 | divided_by: 100
+  assign prod_category = product.type
+  if prod_category == blank and product.collections.first != blank
+    assign prod_category = product.collections.first.title
   endif
-  assign save_pct = compare_rupees | minus: price_rupees | times: 100 | divided_by: compare_rupees
-  assign is_available = product.available | default: true
-  if product.featured_image != blank
-    assign schema_img = product.featured_image | image_url: width: 900
+  if prod_category == blank
+    assign prod_category = 'Pet Care'
+  endif
+
+  assign current_variant = product.selected_or_first_available_variant | default: product.variants.first
+  assign prod_id = current_variant.id | default: product.id | default: 'pet-grooming-glove'
+  assign price_rupees = product.price | default: 33000 | divided_by: 100
+  assign compare_rupees = product.compare_at_price | default: 0 | divided_by: 100
+  assign is_available = current_variant.available | default: product.available | default: true
+
+  assign inv_mgmt = current_variant.inventory_management
+  assign inv_policy = current_variant.inventory_policy
+  assign inv_qty = current_variant.inventory_quantity
+
+  if inv_mgmt == blank
+    assign track_stock = false
+    assign real_stock = 999
   else
-    assign schema_img = 'catalog-bath-massage-brush.webp' | asset_url
+    assign track_stock = true
+    assign real_stock = inv_qty
+  endif
+
+  assign fallback_img_1 = 'catalog-bath-massage-brush.webp' | asset_url
+
+  if product.featured_image != blank
+    assign schema_img = product.featured_image | image_url: width: 1000
+  else
+    assign schema_img = fallback_img_1
+  endif
+
+  # IN-CART QUANTITY DETECTION:
+  assign in_cart_qty = 0
+  for item in cart.items
+    assign item_prod_id = item.product_id | default: item.product.id
+    assign item_var_id = item.variant_id | default: item.variant.id | default: item.id
+    if item_var_id == current_variant.id or item_var_id == prod_id or item_prod_id == product.id or item.handle == product.handle
+      assign in_cart_qty = in_cart_qty | plus: item.quantity
+    endif
+  endfor
+
+  assign short_desc = product.metafields.custom.short_description | default: product.description | strip_html | truncatewords: 28
+  if short_desc == blank
+    assign short_desc = 'Thoughtfully crafted with pet-safe materials for everyday comfort, gentle care, and lasting durability.'
   endif
 -%}
 
-{%- comment -%} JSON-LD Structured Data for SEO & Rich Snippets {%- endcomment -%}
+{%- comment -%} JSON-LD Structured Data for SEO {%- endcomment -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org/",
@@ -48,387 +87,516 @@
     "price": "{{ price_rupees }}",
     "availability": "https://schema.org/{% if is_available %}InStock{% else %}OutOfStock{% endif %}",
     "itemCondition": "https://schema.org/NewCondition"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "reviewCount": "126"
   }
 }
 </script>
 
-<div
-  class="wm-pdp"
+<section
+  class="wm-pdp-react px-4 lg:px-8 pt-8 lg:pt-16 pb-16"
   data-wm-pdp
   data-product-id="{{ prod_id }}"
+  data-shopify-product-id="{{ product.id }}"
+  data-handle="{{ product.handle }}"
   data-product-title="{{ prod_title | escape }}"
   data-base-price="{{ price_rupees }}"
   data-compare-price="{{ compare_rupees }}"
-  data-max-stock="18"
+  data-max-stock="{% if track_stock %}{{ real_stock }}{% else %}99{% endif %}"
+  data-inventory-tracked="{{ track_stock }}"
+  data-in-cart-qty="{{ in_cart_qty }}"
 >
-  <div class="wm-pdp__container">
+  <div class="wm-pdp-react__container max-w-[1250px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
 
     {%- comment -%} =========================================================
-       1. BREADCRUMB NAVIGATION
+       LEFT COLUMN:
+       - Mobile/Tablet view (< 1024px): Infinity loop slider with pill/dot indicators + thumbnail gallery below
+       - Laptop/Desktop view (>= 1024px): Stacked rounded-[20px] images
        ========================================================= {%- endcomment -%}
-    <nav class="wm-breadcrumb" aria-label="Breadcrumb">
-      <ol class="wm-breadcrumb__list">
-        <li class="wm-breadcrumb__item">
-          <a href="{{ routes.root_url | default: '/' }}" class="wm-breadcrumb__link">Home</a>
-          <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
-        </li>
-        <li class="wm-breadcrumb__item">
-          <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-breadcrumb__link">Pet Care Essentials</a>
-          <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
-        </li>
-        <li class="wm-breadcrumb__item">
-          <span class="wm-breadcrumb__current" aria-current="page">{{ prod_title }}</span>
-        </li>
-      </ol>
-    </nav>
+    <div class="wm-pdp-react__media-col">
 
-    {%- comment -%} =========================================================
-       2. MAIN PRODUCT SECTION (Gallery + Product Information & Purchase Controls)
-       ========================================================= {%- endcomment -%}
-    <section class="wm-pdp__main-grid" aria-label="Product details">
-
-      {%- comment -%} LEFT COLUMN: Product Gallery with Vertical Thumbnails {%- endcomment -%}
-      <div class="wm-pdp__gallery-col">
-        {% render 'product-gallery', product: product %}
-      </div>
-
-      {%- comment -%} RIGHT COLUMN: Product Information & Purchase Controls {%- endcomment -%}
-      <div class="wm-info-panel">
-
-        {%- comment -%} 1. Product Category / Tag {%- endcomment -%}
-        <div class="wm-info__category">
-          {{ prod_category | upcase }}
-        </div>
-
-        {%- comment -%} 2. Product Title H1 {%- endcomment -%}
-        <h1 class="wm-info__title">{{ prod_title }}</h1>
-
-        {%- comment -%} 3. Genuine Rating & Verified Vet Recommended Badge {%- endcomment -%}
-        <div class="wm-info__rating-row" aria-label="Rated 4.8 out of 5 stars based on 126 reviews.">
-          <span class="wm-stars" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          </span>
-          <span class="wm-info__rating-score">4.8</span>
-          <span class="wm-info__review-count">(126 reviews)</span>
-          <span class="wm-info__vet-badge">✓ Vet Recommended</span>
-        </div>
-
-        {%- comment -%} 4. Dynamic Price Display {%- endcomment -%}
-        <div class="wm-price-block" aria-label="Product pricing">
-          <div class="wm-price-block__row">
-            <span class="wm-price-block__current" data-pdp-price>₹{{ price_rupees }}</span>
-            {%- if compare_rupees > price_rupees -%}
-              <span class="wm-price-block__compare" data-pdp-compare>₹{{ compare_rupees }}</span>
-              <span class="wm-price-block__save-pill" data-pdp-save>Save {{ save_pct }}%</span>
-            {%- endif -%}
+      {%- comment -%} Mobile/Tablet view: Infinity loop slider + Gallery Thumbnails below {%- endcomment -%}
+      <div class="wm-pdp-react__mobile-slider block lg:hidden relative" data-pdp-slider>
+        <div class="wm-pdp-react__slider-stage relative">
+          <div class="wm-pdp-react__slider-viewport overflow-hidden rounded-[20px]" data-pdp-slider-viewport>
+            <div class="wm-pdp-react__slider-track flex" data-pdp-slider-track>
+              {%- if product.images.size > 0 -%}
+                {%- for image in product.images -%}
+                  {%- assign img_url = image | image_url: width: 1000 -%}
+                  <div class="wm-pdp-react__slide min-w-0 shrink-0 basis-full relative" data-pdp-slide="{{ forloop.index0 }}">
+                    <div class="wm-pdp-react__image-card relative bg-[#FBFBF7] overflow-hidden rounded-[20px]">
+                      <img
+                        src="{{ img_url }}"
+                        alt="{{ image.alt | default: prod_title | escape }} {{ forloop.index }}"
+                        class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
+                        width="800"
+                        height="1000"
+                        {% if forloop.first %}id="wm-main-product-image" fetchpriority="high"{% else %}loading="eager"{% endif %}
+                        onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
+                      >
+                    </div>
+                  </div>
+                {%- endfor -%}
+              {%- else -%}
+                <div class="wm-pdp-react__slide min-w-0 shrink-0 basis-full relative" data-pdp-slide="0">
+                  <div class="wm-pdp-react__image-card relative bg-[#FBFBF7] overflow-hidden rounded-[20px]">
+                    <img
+                      src="{{ schema_img }}"
+                      alt="{{ prod_title | escape }}"
+                      id="wm-main-product-image"
+                      class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
+                      width="800"
+                      height="1000"
+                      fetchpriority="high"
+                      onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
+                    >
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
           </div>
-          <p class="wm-price-block__tax-note">
-            <span>Inclusive of all taxes</span>
-            <span aria-hidden="true">&bull;</span>
-            <span class="wm-price-block__shipping-tag">Free Express Shipping above ₹499</span>
-          </p>
+
+          {%- comment -%} Properly centered Dot/pill indicators (only shown if multiple images exist) {%- endcomment -%}
+          {%- if product.images.size > 1 -%}
+            <div class="wm-pdp-react__dots" data-pdp-dots>
+              {%- for image in product.images -%}
+                <button
+                  type="button"
+                  data-pdp-dot="{{ forloop.index0 }}"
+                  class="wm-pdp-react__dot h-1.5 rounded-full transition-all duration-300 cursor-pointer{% if forloop.first %} is-active w-6 bg-black{% else %} w-1.5 bg-black/25{% endif %}"
+                  aria-label="Go to slide {{ forloop.index }}"
+                ></button>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
         </div>
 
-        {%- comment -%} 5. Short Description Excerpt {%- endcomment -%}
-        {%- assign short_desc = product.metafields.custom.short_description | default: product.description | strip_html | truncatewords: 28 -%}
-        {%- if short_desc != blank -%}
-          <p class="wm-info__short-desc">
-            {{ short_desc }}
-          </p>
+        {%- comment -%} Gallery thumbnails below main image (only shown if multiple images exist) {%- endcomment -%}
+        {%- if product.images.size > 1 -%}
+          <div class="wm-pdp-react__thumbs" data-pdp-thumbs role="tablist" aria-label="Product gallery thumbnails">
+            {%- for image in product.images -%}
+              {%- assign thumb_url = image | image_url: width: 320 -%}
+              <button
+                type="button"
+                class="wm-pdp-react__thumb{% if forloop.first %} is-active{% endif %}"
+                data-pdp-thumb="{{ forloop.index0 }}"
+                aria-label="View image {{ forloop.index }}"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              >
+                <img
+                  src="{{ thumb_url }}"
+                  alt="{{ image.alt | default: prod_title | escape }} thumbnail {{ forloop.index }}"
+                  class="wm-pdp-react__thumb-img"
+                  width="160"
+                  height="160"
+                  loading="eager"
+                  onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
+                >
+              </button>
+            {%- endfor -%}
+          </div>
         {%- endif -%}
-
-        {%- comment -%} 6. Product Benefits / Features Checklist (2x2 Grid with green checks) {%- endcomment -%}
-        {%- liquid
-          assign feat_1 = product.metafields.custom.feature_1 | default: section.settings.feature_1 | default: '100% Pet-Safe Materials'
-          assign feat_2 = product.metafields.custom.feature_2 | default: section.settings.feature_2 | default: 'Tested & Vet Approved'
-          assign feat_3 = product.metafields.custom.feature_3 | default: section.settings.feature_3 | default: 'Suitable for Dogs & Cats'
-          assign feat_4 = product.metafields.custom.feature_4 | default: section.settings.feature_4 | default: 'Durable & Easy to Clean'
-        -%}
-        <div class="wm-info__checklist" aria-label="Key product features">
-          <div class="wm-info__check-item">
-            <span class="wm-info__check-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </span>
-            <span>{{ feat_1 }}</span>
-          </div>
-          <div class="wm-info__check-item">
-            <span class="wm-info__check-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </span>
-            <span>{{ feat_2 }}</span>
-          </div>
-          <div class="wm-info__check-item">
-            <span class="wm-info__check-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </span>
-            <span>{{ feat_3 }}</span>
-          </div>
-          <div class="wm-info__check-item">
-            <span class="wm-info__check-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </span>
-            <span>{{ feat_4 }}</span>
-          </div>
-        </div>
-
-        {%- comment -%} 7. Quantity Selector & Purchase Buttons {%- endcomment -%}
-        {%- form 'product', product, id: 'product-form' -%}
-          <input type="hidden" name="id" value="{{ prod_id }}" data-product-variant-id>
-
-          <!-- Row 1: Quantity Selector [- 1 +] + Add to Cart + Wishlist -->
-          <div class="wm-pdp-actions-row">
-            <div class="wm-qty-selector" role="group" aria-label="Quantity">
-              <button type="button" class="wm-qty-btn wm-qty-btn--minus" data-qty-minus aria-label="Decrease quantity">&minus;</button>
-              <input type="number" class="wm-qty-input" id="wm-pdp-qty-input" name="quantity" value="1" min="1" max="18" data-qty-input aria-label="Quantity">
-              <button type="button" class="wm-qty-btn wm-qty-btn--plus" data-qty-plus aria-label="Increase quantity">+</button>
-            </div>
-
-            <button type="button" class="wm-pdp-atc-btn" id="wm-pdp-atc-btn" data-pdp-atc-btn aria-label="Add {{ prod_title | escape }} to Cart">
-              <svg class="wm-pdp-atc-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
-              </svg>
-              <span data-atc-text>Add to Cart</span>
-            </button>
-
-            <button type="button" class="wm-pdp-wishlist-btn" data-wishlist-btn data-pdp-wishlist aria-label="Add to Wishlist" aria-pressed="false">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Row 2: Buy It Now Button (Full Width Soft Light Green) -->
-          <button type="button" class="wm-pdp-buynow-btn" id="wm-pdp-buy-now-btn">
-            Buy it now
-          </button>
-        {%- endform -%}
-
-        {%- comment -%} 8. Service / Trust Row (3 Columns with Icons) {%- endcomment -%}
-        <div class="wm-pdp-trust-row" aria-label="Store guarantees">
-          <div class="wm-pdp-trust-badge">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-            </svg>
-            <div class="wm-pdp-trust-copy">
-              <strong>Free Express Shipping</strong>
-              <span>above ₹499</span>
-            </div>
-          </div>
-
-          <div class="wm-pdp-trust-badge">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
-            </svg>
-            <div class="wm-pdp-trust-copy">
-              <strong>Easy Returns</strong>
-              <span>within 7 days</span>
-            </div>
-          </div>
-
-          <div class="wm-pdp-trust-badge">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-            <div class="wm-pdp-trust-copy">
-              <strong>Secure Payment</strong>
-              <span>100% safe checkout</span>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </section>
 
-    {%- comment -%} =========================================================
-       NAVIGATION PILLS BAR: [ Description ]  [ Specifications ]  [ Benefits ]
-       ========================================================= {%- endcomment -%}
-    <nav class="wm-pdp-nav-pills" aria-label="Section navigation">
-      <a href="#pdp-description" class="wm-pdp-pill is-active" data-pdp-nav-pill="description">Description</a>
-      <a href="#pdp-specifications" class="wm-pdp-pill" data-pdp-nav-pill="specifications">Specifications</a>
-      <a href="#pdp-benefits" class="wm-pdp-pill" data-pdp-nav-pill="benefits">Benefits</a>
-    </nav>
-
-    {%- comment -%} =========================================================
-       3. PRODUCT DESCRIPTION SECTION (Clean Rounded Container, Text Only, NO IMAGES)
-       ========================================================= {%- endcomment -%}
-    <section id="pdp-description" class="wm-pdp-card-section" aria-labelledby="desc-heading">
-      <h2 id="desc-heading" class="wm-pdp-section-heading">Product Description</h2>
-      <div class="wm-pdp-desc-content">
-        {%- if product.description != blank -%}
-          {%- comment -%} Strip embedded image tags from product description to enforce image restriction {%- endcomment -%}
-          {{ product.description | replace: '<img', '<span style="display:none"' | replace: '</img>', '</span>' }}
+      {%- comment -%} Laptop/Desktop view: Stacked images {%- endcomment -%}
+      <div class="wm-pdp-react__desktop-stack hidden lg:block space-y-4" data-pdp-desktop-stack>
+        {%- if product.images.size > 0 -%}
+          {%- for image in product.images -%}
+            {%- assign img_url = image | image_url: width: 1000 -%}
+            <div class="wm-pdp-react__stack-card relative aspect-4/4 rounded-[20px] bg-[#FBFBF7] overflow-hidden">
+              <img
+                src="{{ img_url }}"
+                alt="{{ image.alt | default: prod_title | escape }} {{ forloop.index }}"
+                class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
+                width="900"
+                height="900"
+                {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
+              >
+            </div>
+          {%- endfor -%}
         {%- else -%}
-          <p class="wm-pdp-desc-empty">No product description provided yet. You can add a rich product description in Shopify Admin &gt; Products.</p>
+          <div class="wm-pdp-react__stack-card relative aspect-4/4 rounded-[20px] bg-[#FBFBF7] overflow-hidden">
+            <img
+              src="{{ schema_img }}"
+              alt="{{ prod_title | escape }}"
+              class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
+              width="900"
+              height="900"
+              fetchpriority="high"
+              onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
+            >
+          </div>
         {%- endif -%}
       </div>
-    </section>
+
+    </div>
 
     {%- comment -%} =========================================================
-       4. SPECIFICATIONS SECTION (Clean Rounded Container, 2-Column Table)
+       RIGHT COLUMN: Sticky Product Info, Actions & Accordions
        ========================================================= {%- endcomment -%}
-    <section id="pdp-specifications" class="wm-pdp-card-section" aria-labelledby="specs-heading">
-      <h2 id="specs-heading" class="wm-pdp-section-heading">Specifications</h2>
-      <div class="wm-pdp-specs-wrap">
-        <table class="wm-pdp-specs-table" aria-label="Product Specifications">
-          <tbody>
-            {%- if product.type != blank -%}
-              <tr>
-                <th scope="row">Product Type</th>
-                <td>{{ product.type }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.vendor != blank -%}
-              <tr>
-                <th scope="row">Brand / Vendor</th>
-                <td>{{ product.vendor }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.selected_or_first_available_variant.sku != blank -%}
-              <tr>
-                <th scope="row">SKU</th>
-                <td>{{ product.selected_or_first_available_variant.sku }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.metafields.custom.material != blank -%}
-              <tr>
-                <th scope="row">Material</th>
-                <td>{{ product.metafields.custom.material }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.metafields.custom.suitable_for != blank -%}
-              <tr>
-                <th scope="row">Suitable For</th>
-                <td>{{ product.metafields.custom.suitable_for }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.metafields.custom.dimensions != blank -%}
-              <tr>
-                <th scope="row">Product Dimensions</th>
-                <td>{{ product.metafields.custom.dimensions }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.metafields.custom.color != blank -%}
-              <tr>
-                <th scope="row">Color</th>
-                <td>{{ product.metafields.custom.color }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.metafields.custom.package_includes != blank -%}
-              <tr>
-                <th scope="row">Package Includes</th>
-                <td>{{ product.metafields.custom.package_includes }}</td>
-              </tr>
-            {%- endif -%}
-            {%- if product.metafields.custom.care_instructions != blank -%}
-              <tr>
-                <th scope="row">Care Instructions</th>
-                <td>{{ product.metafields.custom.care_instructions }}</td>
-              </tr>
-            {%- endif -%}
-            {%- unless product.type != blank or product.vendor != blank or product.selected_or_first_available_variant.sku != blank or product.metafields.custom.material != blank or product.metafields.custom.suitable_for != blank -%}
-              <tr>
-                <th scope="row">Availability</th>
-                <td>{% if product.available %}In Stock{% else %}Out of Stock{% endif %}</td>
-              </tr>
-            {%- endunless -%}
-          </tbody>
-        </table>
+    <div class="wm-pdp-react__info lg:sticky lg:top-28 self-start">
+
+      {%- comment -%} Category {%- endcomment -%}
+      <div class="wm-pdp-react__category text-[12px] text-meta tracking-wider uppercase mb-2">
+        {{ prod_category }}
       </div>
-    </section>
 
-    {%- comment -%} =========================================================
-       5. BENEFITS SECTION (Clean Rounded Container, 4 Dedicated Cards with Icons)
-       ========================================================= {%- endcomment -%}
-    {%- unless section.settings.show_benefits == false -%}
-      <section id="pdp-benefits" class="wm-pdp-card-section" aria-labelledby="benefits-heading">
-        <h2 id="benefits-heading" class="wm-pdp-section-heading">{{ section.settings.benefits_heading | default: 'Benefits' }}</h2>
-        <div class="wm-pdp-benefits-grid">
+      {%- comment -%} Title + Wishlist Heart Button {%- endcomment -%}
+      <div class="wm-pdp-react__title-row flex items-start justify-between gap-4">
+        <h1 class="wm-pdp-react__title text-[28px] md:text-[36px] leading-tight text-black">
+          {{ prod_title }}
+        </h1>
+        <button
+          type="button"
+          data-pdp-wishlist
+          data-wishlist-btn
+          data-product-id="{{ prod_id }}"
+          aria-label="Favorite"
+          aria-pressed="false"
+          class="wm-pdp-react__fav-btn w-10 h-10 cursor-pointer flex items-center justify-center shrink-0"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="wm-pdp-react__heart-svg text-black"
+            aria-hidden="true"
+          >
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+        </button>
+      </div>
 
-          <!-- Benefit 1 -->
-          <div class="wm-benefit-card">
-            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 4c0 4 8 4 8 8s-8 4-8 8"/><path d="M4 8c0 2 4 2 4 4s-4 2-4 4"/><path d="M16 8c0 2 4 2 4 4s-4 2-4 4"/>
-              </svg>
+      {%- comment -%} Price in Rupees (₹), never USD {%- endcomment -%}
+      <div class="wm-pdp-react__price text-[16px] text-black mt-2" data-pdp-price>
+        ₹{{ price_rupees }}
+      </div>
+
+      {%- comment -%} Short Description {%- endcomment -%}
+      <p class="wm-pdp-react__short-desc mt-4 text-[14px] leading-[24px] text-[#555]">
+        {{ short_desc }}
+      </p>
+
+      {%- comment -%} Purchase Form:
+         - NO Size or Material dropdowns
+         - Button 1: Add to Cart -> transforms into [- qty +] stepper when clicked
+         - Button 2 (Below): Buy Now -> redirects directly to /checkout
+      {%- endcomment -%}
+      {%- form 'product', product, id: 'product-form', class: 'wm-pdp-react__form mt-8' -%}
+        <input type="hidden" name="id" value="{{ prod_id }}" data-product-variant-id>
+        <input
+          type="hidden"
+          id="wm-pdp-qty-input"
+          name="quantity"
+          value="{% if in_cart_qty > 0 %}{{ in_cart_qty }}{% else %}1{% endif %}"
+          data-qty-input
+        >
+
+        <div class="wm-pdp-react__buttons flex flex-col md:grid md:grid-cols-2 gap-3">
+          {%- comment -%} Top / Left Slot: Add to Cart Button OR [- qty +] Quantity Stepper {%- endcomment -%}
+          <div class="wm-pdp-react__primary-slot w-full">
+            <button
+              type="button"
+              id="wm-pdp-atc-btn"
+              data-pdp-atc-btn
+              class="wm-pdp-react__atc-btn{% if in_cart_qty > 0 %} hidden{% endif %} w-full cursor-pointer bg-black text-white text-[14px] rounded-[10px] py-3 hover:bg-[#222] transition-colors"
+              {% if track_stock and real_stock <= 0 and inv_policy != 'continue' %}disabled{% endif %}
+            >
+              <span data-atc-text>
+                {%- if track_stock and real_stock <= 0 and inv_policy != 'continue' -%}
+                  Sold Out
+                {%- else -%}
+                  Add to Cart
+                {%- endif -%}
+              </span>
+            </button>
+
+            <div
+              id="wm-pdp-stepper"
+              data-pdp-stepper
+              class="wm-pdp-react__stepper{% if in_cart_qty == 0 %} hidden{% endif %} flex items-center justify-between rounded-[10px] border border-black bg-black text-white w-full text-[14px] transition-colors"
+              role="group"
+              aria-label="Quantity"
+            >
+              <button
+                type="button"
+                data-qty-minus
+                class="wm-pdp-react__stepper-btn px-5 py-3 cursor-pointer flex items-center justify-center text-white"
+                aria-label="Decrease"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+
+              <span class="wm-pdp-react__stepper-qty font-normal select-none" data-pdp-qty-display>
+                {%- if in_cart_qty > 0 -%}{{ in_cart_qty }}{%- else -%}1{%- endif -%}
+              </span>
+
+              <button
+                type="button"
+                data-qty-plus
+                class="wm-pdp-react__stepper-btn px-5 py-3 cursor-pointer flex items-center justify-center text-white"
+                aria-label="Increase"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
             </div>
-            <h3 class="wm-benefit-card__title">{{ section.settings.b1_title | default: 'Premium Quality' }}</h3>
-            <p class="wm-benefit-card__desc">{{ section.settings.b1_desc | default: 'Effectively lifts loose hair and mats.' }}</p>
           </div>
 
-          <!-- Benefit 2 -->
-          <div class="wm-benefit-card">
-            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="#064E3B">
-                <circle cx="6.5" cy="7.5" r="2.2"/><circle cx="17.5" cy="7.5" r="2.2"/><circle cx="10" cy="4.5" r="2"/><circle cx="14" cy="4.5" r="2"/>
-                <path d="M12 10.5c-3 0-5.5 2-5.5 4.5 0 2.2 1.8 3.5 3.5 4 1.2.3 2.8.3 4 0 1.7-.5 3.5-1.8 3.5-4 0-2.5-2.5-4.5-5.5-4.5z"/>
-              </svg>
-            </div>
-            <h3 class="wm-benefit-card__title">{{ section.settings.b2_title | default: 'Gentle & Soothing' }}</h3>
-            <p class="wm-benefit-card__desc">{{ section.settings.b2_desc | default: 'Soothes your pet and improves circulation.' }}</p>
-          </div>
-
-          <!-- Benefit 3 -->
-          <div class="wm-benefit-card">
-            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
-                <circle cx="19" cy="5" r="1.5" fill="#064E3B"/>
-              </svg>
-            </div>
-            <h3 class="wm-benefit-card__title">{{ section.settings.b3_title | default: 'Clean & Healthy Coat' }}</h3>
-            <p class="wm-benefit-card__desc">{{ section.settings.b3_desc | default: 'Helps keep the coat clean, smooth and tangle-free.' }}</p>
-          </div>
-
-          <!-- Benefit 4 -->
-          <div class="wm-benefit-card">
-            <div class="wm-benefit-card__icon-wrap" aria-hidden="true">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#064E3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-              </svg>
-            </div>
-            <h3 class="wm-benefit-card__title">{{ section.settings.b4_title | default: 'Suitable for Dogs & Cats' }}</h3>
-            <p class="wm-benefit-card__desc">{{ section.settings.b4_desc | default: 'Works on all coat types and sizes.' }}</p>
-          </div>
-
+          {%- comment -%} Bottom Slot: Buy Now Button (redirects to checkout) {%- endcomment -%}
+          <button
+            type="button"
+            id="wm-pdp-buy-now-btn"
+            data-pdp-buy-now
+            class="wm-pdp-react__buynow-btn w-full border cursor-pointer border-black text-black text-[14px] rounded-[10px] py-3 text-center hover:bg-black hover:text-white transition-colors"
+            {% if track_stock and real_stock <= 0 and inv_policy != 'continue' %}style="display: none;"{% endif %}
+          >
+            Buy Now
+          </button>
         </div>
-      </section>
-    {%- endunless -%}
+      {%- endform -%}
 
-    {%- comment -%} =========================================================
-       PAGE ENDS HERE: No other sections below Benefits
-       ========================================================= {%- endcomment -%}
+      {%- comment -%} =========================================================
+         THREE ACCORDIONS:
+         1. Product Description (open by default)
+         2. Specifications
+         3. Benefits (no icons)
+         ========================================================= {%- endcomment -%}
+      <div class="wm-pdp-react__accordions mt-10" data-pdp-accordions>
 
+        {%- comment -%} 1. Product Description {%- endcomment -%}
+        <div class="wm-pdp-accordion is-open" id="pdp-description" data-pdp-accordion="description">
+          <button
+            type="button"
+            class="wm-pdp-accordion__trigger"
+            data-pdp-accordion-trigger="description"
+            aria-expanded="true"
+            aria-controls="pdp-accordion-body-description"
+          >
+            <span class="wm-pdp-accordion__title">Product Description</span>
+            <span class="wm-pdp-accordion__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </span>
+          </button>
+          <div
+            id="pdp-accordion-body-description"
+            class="wm-pdp-accordion__body"
+            data-pdp-accordion-body
+          >
+            <div class="wm-pdp-accordion__content">
+              {%- if product.description != blank -%}
+                {{ product.description | replace: '<img', '<span style="display:none"' | replace: '</img>', '</span>' }}
+              {%- else -%}
+                <p>{{ short_desc }}</p>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} 2. Specifications {%- endcomment -%}
+        <div class="wm-pdp-accordion" id="pdp-specifications" data-pdp-accordion="specifications">
+          <button
+            type="button"
+            class="wm-pdp-accordion__trigger"
+            data-pdp-accordion-trigger="specifications"
+            aria-expanded="false"
+            aria-controls="pdp-accordion-body-specifications"
+          >
+            <span class="wm-pdp-accordion__title">Specifications</span>
+            <span class="wm-pdp-accordion__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </span>
+          </button>
+          <div
+            id="pdp-accordion-body-specifications"
+            class="wm-pdp-accordion__body"
+            data-pdp-accordion-body
+            hidden
+          >
+            <div class="wm-pdp-accordion__content">
+              <table class="wm-pdp-specs-list" aria-label="Product Specifications">
+                <tbody>
+                  {%- if product.type != blank -%}
+                    <tr>
+                      <th scope="row">Product Type</th>
+                      <td>{{ product.type }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if product.vendor != blank -%}
+                    <tr>
+                      <th scope="row">Brand</th>
+                      <td>{{ product.vendor }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if current_variant.sku != blank -%}
+                    <tr>
+                      <th scope="row">SKU</th>
+                      <td>{{ current_variant.sku }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if product.metafields.custom.material != blank -%}
+                    <tr>
+                      <th scope="row">Material</th>
+                      <td>{{ product.metafields.custom.material }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if product.metafields.custom.suitable_for != blank -%}
+                    <tr>
+                      <th scope="row">Suitable For</th>
+                      <td>{{ product.metafields.custom.suitable_for }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if product.metafields.custom.dimensions != blank -%}
+                    <tr>
+                      <th scope="row">Dimensions</th>
+                      <td>{{ product.metafields.custom.dimensions }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if product.metafields.custom.color != blank -%}
+                    <tr>
+                      <th scope="row">Color</th>
+                      <td>{{ product.metafields.custom.color }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if product.metafields.custom.package_includes != blank -%}
+                    <tr>
+                      <th scope="row">Package Includes</th>
+                      <td>{{ product.metafields.custom.package_includes }}</td>
+                    </tr>
+                  {%- endif -%}
+                  {%- if product.metafields.custom.care_instructions != blank -%}
+                    <tr>
+                      <th scope="row">Care Instructions</th>
+                      <td>{{ product.metafields.custom.care_instructions }}</td>
+                    </tr>
+                  {%- endif -%}
+                  <tr>
+                    <th scope="row">Availability</th>
+                    <td>{% if is_available %}In Stock{% else %}Out of Stock{% endif %}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} 3. Benefits (NO ICONS per user requirement) {%- endcomment -%}
+        {%- unless section.settings.show_benefits == false -%}
+          <div class="wm-pdp-accordion" id="pdp-benefits" data-pdp-accordion="benefits">
+            <button
+              type="button"
+              class="wm-pdp-accordion__trigger"
+              data-pdp-accordion-trigger="benefits"
+              aria-expanded="false"
+              aria-controls="pdp-accordion-body-benefits"
+            >
+              <span class="wm-pdp-accordion__title">{{ section.settings.benefits_heading | default: 'Benefits' }}</span>
+              <span class="wm-pdp-accordion__icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </span>
+            </button>
+            <div
+              id="pdp-accordion-body-benefits"
+              class="wm-pdp-accordion__body"
+              data-pdp-accordion-body
+              hidden
+            >
+              <div class="wm-pdp-accordion__content">
+                {%- liquid
+                  assign p_text = product.title | append: ' ' | append: product.type | downcase
+                  assign is_feeding = false
+                  assign is_toy = false
+                  if p_text contains 'bowl' or p_text contains 'feed' or p_text contains 'water' or p_text contains 'dish'
+                    assign is_feeding = true
+                  elsif p_text contains 'ball' or p_text contains 'toy' or p_text contains 'play' or p_text contains 'chew'
+                    assign is_toy = true
+                  endif
+                -%}
+
+                <div class="wm-pdp-benefits-editorial">
+                  {%- if is_feeding -%}
+                    <p class="wm-pdp-benefits-editorial__lead">
+                      Built for clean, steady daily meals. A balanced base helps reduce tipping and spills, while the smooth interior wipes down in seconds after wet or dry food.
+                    </p>
+                    <dl class="wm-pdp-benefits-rows">
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Daily Use</dt>
+                        <dd>Suitable for dry kibble, wet food, and fresh water</dd>
+                      </div>
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Surface Finish</dt>
+                        <dd>Non-porous, odor-resistant interior that rinses clean easily</dd>
+                      </div>
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Stability</dt>
+                        <dd>Low-center profile stays put during enthusiastic mealtime</dd>
+                      </div>
+                    </dl>
+                  {%- elsif is_toy -%}
+                    <p class="wm-pdp-benefits-editorial__lead">
+                      Made for active daily play, indoors or at the park. A textured grip makes it easy for dogs to pick up and carry while remaining gentle on teeth and gums.
+                    </p>
+                    <dl class="wm-pdp-benefits-rows">
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Play Style</dt>
+                        <dd>Ideal for fetch, solo chewing, and interactive training</dd>
+                      </div>
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Mouth Feel</dt>
+                        <dd>Resilient, non-abrasive surface that is easy on gums</dd>
+                      </div>
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Care &amp; Cleaning</dt>
+                        <dd>Rinses clean with water after outdoor sessions</dd>
+                      </div>
+                    </dl>
+                  {%- else -%}
+                    <p class="wm-pdp-benefits-editorial__lead">
+                      Designed for calm, everyday grooming routines, lifting loose undercoat and surface dander without pulling on sensitive skin. Flexible tips follow your pet's natural contours so brushing feels familiar and stress-free.
+                    </p>
+                    <dl class="wm-pdp-benefits-rows">
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Coat Compatibility</dt>
+                        <dd>Works across short, medium, and thick double coats</dd>
+                      </div>
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Skin Comfort</dt>
+                        <dd>Rounded soft-touch tips prevent scratching or irritation</dd>
+                      </div>
+                      <div class="wm-pdp-benefits-row">
+                        <dt>Care &amp; Cleaning</dt>
+                        <dd>Peeled fur lifts off in one piece; rinses clean under water</dd>
+                      </div>
+                    </dl>
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+          </div>
+        {%- endunless -%}
+
+      </div>
+
+    </div>
   </div>
-</div>
-
-{%- comment -%} Sticky Mobile Add to Cart Bar {%- endcomment -%}
-<div class="wm-sticky-mobile-bar" id="wm-sticky-mobile-bar" aria-label="Quick add to cart bar">
-  <div class="wm-sticky-mobile-bar__info">
-    <p class="wm-sticky-mobile-bar__title">{{ prod_title }}</p>
-    <div class="wm-sticky-mobile-bar__price" data-sticky-price>₹{{ price_rupees }}</div>
-  </div>
-  <button type="button" class="wm-sticky-mobile-bar__btn" id="wm-sticky-atc-btn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
-    </svg>
-    <span>Add to Cart</span>
-  </button>
-</div>
-
-{%- comment -%} Toast Notification {%- endcomment -%}
-<div class="wm-toast" id="wm-pdp-toast" role="status" aria-live="polite">
-  <span data-toast-msg>Added to cart ✓</span>
-  <button type="button" class="wm-toast__link" data-toast-view-cart>View cart &rarr;</button>
-</div>
+</section>
 
 <script src="{{ 'product.js' | asset_url }}" defer></script>
 
@@ -438,40 +606,12 @@
   "settings": [
     {
       "type": "header",
-      "content": "Key Features"
-    },
-    {
-      "type": "text",
-      "id": "feature_1",
-      "label": "Feature 1",
-      "default": "100% Pet-Safe Materials"
-    },
-    {
-      "type": "text",
-      "id": "feature_2",
-      "label": "Feature 2",
-      "default": "Tested & Vet Approved"
-    },
-    {
-      "type": "text",
-      "id": "feature_3",
-      "label": "Feature 3",
-      "default": "Suitable for Dogs & Cats"
-    },
-    {
-      "type": "text",
-      "id": "feature_4",
-      "label": "Feature 4",
-      "default": "Durable & Easy to Clean"
-    },
-    {
-      "type": "header",
       "content": "Product Benefits"
     },
     {
       "type": "checkbox",
       "id": "show_benefits",
-      "label": "Show Benefits Section",
+      "label": "Show Benefits Accordion",
       "default": true
     },
     {

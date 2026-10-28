@@ -7,14 +7,16 @@
     "@playwright/test": "^1.64.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "playwright test",
     "theme:info": "shopify theme info",
     "theme:list": "shopify theme list --store gk2scz-zu.myshopify.com",
     "theme:dev": "shopify theme dev --store gk2scz-zu.myshopify.com --theme 159000527020",
     "theme:check": "shopify theme check",
     "theme:pull:dev": "shopify theme pull --store gk2scz-zu.myshopify.com --theme 159000527020",
     "theme:push:dev": "shopify theme push --store gk2scz-zu.myshopify.com --theme 159000527020",
-    "mcp:start": "node mcp/shopify-store-mcp/server.mjs"
+    "mcp:start": "node mcp/shopify-store-mcp/server.mjs",
+    "server": "node server/index.js",
+    "start": "node server/index.js"
   },
   "repository": {
     "type": "git",
@@ -27,5 +29,9 @@
   "bugs": {
     "url": "https://github.com/amitsolution200/wagmart-shopify/issues"
   },
-  "homepage": "https://github.com/amitsolution200/wagmart-shopify#readme"
+  "homepage": "https://github.com/amitsolution200/wagmart-shopify#readme",
+  "dependencies": {
+    "express": "^5.3.0",
+    "nodemailer": "^10.2.1"
+  }
 }

@@ -1,9 +1,383 @@
 {%- comment -%}
-  WAGMART search panel.
-  Live suggestions come from Shopify's Predictive Search API (routes.predictive_search_url),
-  i.e. only real, indexed store products and collections. Pressing Enter submits to the
-  standard search results page.
+  WAGMART Search Modal (snippets/search-modal.liquid)
+  - Tablet & Laptop (>= 768px): Top floating search bar over blurred backdrop (Ref Image 1)
+  - Mobile (< 768px): Full-screen white overlay with top-right circular close button (Ref Image 2)
+  - Bespoke Custom Category Dropdown ("All categories") — no native HTML <select>
+  - "What are you searching for?" input + Search icon (No mic icon)
+  - Live predictive search results when typing
 {%- endcomment -%}
+
+<style>
+  /* Tablet & Laptop (>= 768px): Reference Image 1 Top Bar */
+  #WmSearch.wm-search {
+    position: fixed;
+    inset: 0;
+    z-index: 1350;
+    visibility: hidden;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  #WmSearch.wm-search.is-open {
+    visibility: visible;
+  }
+  #WmSearch.wm-search .wm-backdrop {
+    background: rgba(17, 17, 17, 0.38);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  #WmSearch.wm-search.is-open .wm-backdrop {
+    opacity: 1;
+  }
+
+  #WmSearch .wm-search__panel {
+    position: relative;
+    width: min(1320px, calc(100% - 40px));
+    max-height: calc(100dvh - 36px);
+    margin: 14px auto 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: #FFFFFF;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
+    overflow: visible;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+  #WmSearch.wm-search.is-open .wm-search__panel {
+    opacity: 1;
+    transform: none;
+  }
+
+  #WmSearch .wm-search__mobile-top {
+    display: none;
+  }
+
+  #WmSearch .wm-search__form {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 16px 9px 10px;
+    border-bottom: none;
+    background: #FFFFFF;
+    border-radius: 12px;
+    margin: 0;
+    position: relative;
+  }
+
+  #WmSearch.wm-search.has-results .wm-search__form {
+    border-bottom: 1px solid #EBEAE4;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  /* Custom Category Dropdown */
+  #WmSearch .wm-search__cat-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  #WmSearch .wm-search__cat-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #F4F4F2;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 9px 13px 9px 14px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #111111;
+    cursor: pointer;
+    min-width: 145px;
+    max-width: 195px;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  #WmSearch .wm-search__cat-btn:hover,
+  #WmSearch .wm-search__cat-wrap.is-open .wm-search__cat-btn {
+    background: #ECECE8;
+  }
+
+  #WmSearch .wm-search__cat-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  #WmSearch .wm-search__cat-chevron {
+    color: #444444;
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #WmSearch .wm-search__cat-wrap.is-open .wm-search__cat-chevron {
+    transform: rotate(180deg);
+  }
+
+  #WmSearch .wm-search__cat-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 60;
+    min-width: 270px;
+    max-width: min(320px, calc(100vw - 40px));
+    background: #FFFFFF;
+    border: 1px solid #E6E4DC;
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 16px 40px rgba(17, 17, 17, 0.14), 0 2px 8px rgba(17, 17, 17, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  }
+
+  #WmSearch .wm-search__cat-wrap.is-open .wm-search__cat-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  #WmSearch .wm-search__cat-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9.5px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 400;
+    color: #262626;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.14s ease, color 0.14s ease;
+  }
+
+  #WmSearch .wm-search__cat-item:hover {
+    background: #F6F5F0;
+    color: #000000;
+  }
+
+  #WmSearch .wm-search__cat-item.is-selected {
+    background: #F2F0E8;
+    color: #000000;
+    font-weight: 500;
+  }
+
+  #WmSearch .wm-search__cat-check {
+    width: 14px;
+    height: 14px;
+    color: #111111;
+    opacity: 0;
+    flex-shrink: 0;
+    transition: opacity 0.14s ease;
+  }
+
+  #WmSearch .wm-search__cat-item.is-selected .wm-search__cat-check {
+    opacity: 1;
+  }
+
+  #WmSearch .wm-search__input {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #111111;
+  }
+  #WmSearch .wm-search__input:focus {
+    outline: none;
+  }
+  #WmSearch .wm-search__input::placeholder {
+    color: #6B6B6B;
+  }
+  #WmSearch .wm-search__input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  #WmSearch .wm-search__clear {
+    border: 0;
+    background: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #555555;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  #WmSearch .wm-search__clear[hidden] {
+    display: none !important;
+  }
+
+  #WmSearch .wm-search__submit-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #111111;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background-color 0.15s ease;
+  }
+  #WmSearch .wm-search__submit-btn:hover {
+    background: #F4F3EE;
+  }
+
+  #WmSearch .wm-search__body {
+    overflow-y: auto;
+    padding: 18px 22px 24px;
+    overscroll-behavior: contain;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    background: #FFFFFF;
+  }
+  #WmSearch .wm-search__body[hidden] {
+    display: none !important;
+  }
+
+  /* Search Product Cards Grid */
+  #WmSearch .wm-search-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  #WmSearch .wm-search-cards-grid__item {
+    min-width: 0;
+    width: 100%;
+    display: flex;
+  }
+
+  #WmSearch .wm-search-cards-grid__item > .wm-unified-card {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #WmSearch .wm-search__all {
+    display: none !important;
+    border: none !important;
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    #WmSearch .wm-search-cards-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  @media (max-width: 639px) {
+    #WmSearch .wm-search-cards-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+  }
+
+  /* Mobile (< 768px): Full-Screen White Overlay (Reference Image 2) */
+  @media (max-width: 767px) {
+    #WmSearch.wm-search .wm-backdrop {
+      display: none !important;
+    }
+
+    #WmSearch .wm-search__panel {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      border: none !important;
+      background: #FFFFFF !important;
+      box-shadow: none !important;
+      padding: 20px 20px 24px !important;
+      transform: none !important;
+    }
+
+    #WmSearch .wm-search__mobile-top {
+      display: flex !important;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: 24px;
+    }
+
+    #WmSearch .wm-search__mobile-close {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: none;
+      background: #EFECE4;
+      color: #1E2532;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    #WmSearch .wm-search__form {
+      padding: 0 0 18px 0 !important;
+      border-bottom: 1px solid #ECEAE2 !important;
+      border-radius: 0 !important;
+      gap: 10px !important;
+    }
+
+    #WmSearch .wm-search__cat-btn {
+      min-width: 82px;
+      max-width: 92px;
+      padding: 10px 10px 10px 12px;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    #WmSearch .wm-search__cat-menu {
+      top: calc(100% + 10px);
+      left: 0;
+      min-width: 240px;
+      max-width: calc(100vw - 40px);
+      max-height: 55dvh;
+    }
+
+    #WmSearch .wm-search__input {
+      font-size: 14px;
+      height: 40px;
+    }
+
+    #WmSearch .wm-search__body {
+      padding: 18px 0 24px !important;
+      flex: 1;
+      border-radius: 0;
+    }
+  }
+</style>
 
 <div
   class="wm-search"
@@ -16,16 +390,78 @@
   <div class="wm-backdrop" data-search-close></div>
 
   <div class="wm-search__panel" role="dialog" aria-modal="true" aria-label="Search products">
+    {%- comment -%} Mobile Top-Right Circular Close Button (Ref Image 2) {%- endcomment -%}
+    <div class="wm-search__mobile-top">
+      <button type="button" class="wm-search__mobile-close" data-search-close aria-label="Close search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
     <form class="wm-search__form" action="{{ routes.search_url }}" method="get" role="search" data-search-form>
-      {% render 'wm-icon', name: 'search' %}
-      <label class="wm-sr-only" for="WmSearchInput">Search pet products</label>
+      {%- comment -%} Left: Bespoke Custom Category Dropdown (NO native HTML <select>) {%- endcomment -%}
+      <div class="wm-search__cat-wrap" data-search-cat-wrap>
+        <input type="hidden" id="WmSearchCategory" value="" data-search-category>
+        <button
+          type="button"
+          class="wm-search__cat-btn"
+          data-search-cat-btn
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-label="Select category"
+        >
+          <span class="wm-search__cat-label" data-search-cat-label>All categories</span>
+          <svg class="wm-search__cat-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="wm-search__cat-menu" data-search-cat-menu role="listbox" aria-label="Categories">
+          <button
+            type="button"
+            class="wm-search__cat-item is-selected"
+            role="option"
+            aria-selected="true"
+            data-cat-value=""
+            data-cat-label="All categories"
+          >
+            <span>All categories</span>
+            <svg class="wm-search__cat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </button>
+          {%- for col in collections -%}
+            {%- unless col.handle == 'all' or col.handle == 'frontpage' -%}
+              <button
+                type="button"
+                class="wm-search__cat-item"
+                role="option"
+                aria-selected="false"
+                data-cat-value="{{ col.title | escape }}"
+                data-cat-label="{{ col.title | escape }}"
+                data-collection-url="{{ col.url }}"
+              >
+                <span>{{ col.title }}</span>
+                <svg class="wm-search__cat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </button>
+            {%- endunless -%}
+          {%- endfor -%}
+        </div>
+      </div>
+
+      {%- comment -%} Middle: Search Input {%- endcomment -%}
+      <label class="wm-sr-only" for="WmSearchInput">What are you searching for?</label>
       <input
         class="wm-search__input"
         id="WmSearchInput"
         type="search"
         name="q"
         value="{{ search.terms | escape }}"
-        placeholder="Search pet products..."
+        placeholder="What are you searching for?"
         autocomplete="off"
         autocorrect="off"
         autocapitalize="off"
@@ -37,40 +473,104 @@
         data-search-input
       >
       <input type="hidden" name="options[prefix]" value="last">
+
       <button type="button" class="wm-search__clear" data-search-clear hidden>Clear</button>
-      <button type="button" class="wm-close-btn" data-search-close aria-label="Close search">
-        {% render 'wm-icon', name: 'close', class: 'wm-icon wm-icon--sm', stroke: 2 %}
+
+      {%- comment -%} Right: Search Submit Icon Button (NO mic icon) {%- endcomment -%}
+      <button type="submit" class="wm-search__submit-btn" aria-label="Submit search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.5-3.5"></path>
+        </svg>
       </button>
     </form>
 
-    <div class="wm-search__body">
-      {%- comment -%} Idle state: real store products {%- endcomment -%}
-      <div data-search-idle>
-        {%- assign idle_products = collections.all.products -%}
-        {%- if idle_products.size > 0 -%}
-          <p class="wm-search__label">Products</p>
-          <ul class="wm-results" role="listbox" aria-label="Products">
-            {%- for product in idle_products limit: 6 -%}
-              <li>
-                <a class="wm-result" href="{{ product.url }}">
-                  {%- if product.featured_image -%}
-                    <img class="wm-result__thumb" src="{{ product.featured_image | image_url: width: 120 }}" alt="{{ product.title | escape }}" width="56" height="56" loading="lazy">
-                  {%- else -%}
-                    <span class="wm-result__thumb"></span>
-                  {%- endif -%}
-                  <span class="wm-result__text">
-                    <span class="wm-result__title">{{ product.title | escape }}</span>
-                    <span class="wm-result__meta">{{ product.price | money }}</span>
-                  </span>
-                </a>
-              </li>
-            {%- endfor -%}
-          </ul>
-        {%- endif -%}
-      </div>
-
-      {%- comment -%} Live region: loading / results / empty / error (rendered by header.js) {%- endcomment -%}
+    {%- comment -%} Live Search Results Container (shown when typing) {%- endcomment -%}
+    <div class="wm-search__body" data-search-body hidden>
       <div id="WmSearchResults" data-search-results aria-live="polite" hidden></div>
+    </div>
+
+    {%- comment -%} Pre-rendered store product cards pool for instant search card rendering {%- endcomment -%}
+    <div id="WmSearchCardPool" hidden aria-hidden="true" style="display:none !important;">
+      {%- for prod in collections.all.products limit: 50 -%}
+        <div data-pool-handle="{{ prod.handle }}" data-pool-url="{{ prod.url }}">
+          {% render 'product-card', product: prod %}
+        </div>
+      {%- endfor -%}
     </div>
   </div>
 </div>
+
+<script>
+  (function () {
+    function initCustomSearchCategory() {
+      var wrap = document.querySelector('[data-search-cat-wrap]');
+      if (!wrap || wrap.dataset.catBound === 'true') return;
+      wrap.dataset.catBound = 'true';
+
+      var btn = wrap.querySelector('[data-search-cat-btn]');
+      var labelEl = wrap.querySelector('[data-search-cat-label]');
+      var hiddenInput = wrap.querySelector('[data-search-category]');
+      var items = wrap.querySelectorAll('.wm-search__cat-item');
+      var searchInput = document.querySelector('#WmSearchInput');
+
+      function closeMenu() {
+        wrap.classList.remove('is-open');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      }
+
+      function toggleMenu(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var isOpen = wrap.classList.toggle('is-open');
+        if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+
+      if (btn) {
+        btn.addEventListener('click', toggleMenu);
+      }
+
+      for (var i = 0; i < items.length; i++) {
+        items[i].addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var val = this.getAttribute('data-cat-value') || '';
+          var lbl = this.getAttribute('data-cat-label') || 'All categories';
+
+          if (hiddenInput) hiddenInput.value = val;
+          if (labelEl) labelEl.textContent = lbl;
+
+          for (var j = 0; j < items.length; j++) {
+            var isMatch = items[j] === this;
+            items[j].classList.toggle('is-selected', isMatch);
+            items[j].setAttribute('aria-selected', isMatch ? 'true' : 'false');
+          }
+
+          closeMenu();
+          if (searchInput) {
+            searchInput.focus();
+            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        });
+      }
+
+      document.addEventListener('click', function (e) {
+        if (!wrap.contains(e.target)) {
+          closeMenu();
+        }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeMenu();
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCustomSearchCategory);
+    } else {
+      initCustomSearchCategory();
+    }
+  })();
+</script>

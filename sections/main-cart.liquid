@@ -1,5 +1,4 @@
 {{ 'cart.css' | asset_url | stylesheet_tag }}
-{{ 'collection.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
   assign has_items = false
@@ -14,42 +13,21 @@
   </script>
 
   <div class="wm-cart-container">
-    {%- comment -%} Breadcrumb {%- endcomment -%}
-    <nav class="wm-cart-breadcrumb" aria-label="Breadcrumb">
-      <a href="{{ routes.root_url | default: '/' }}">Home</a>
-      <span class="wm-cart-breadcrumb__sep" aria-hidden="true">/</span>
-      <span class="wm-cart-breadcrumb__current" aria-current="page">Shopping Cart</span>
-    </nav>
-
     {%- comment -%} =======================================================
-       1. FILLED CART STATE
+       1. FILLED CART STATE (Matches reference design)
        ======================================================= {%- endcomment -%}
     <div class="wm-cart-filled-wrap" data-cart-filled-view {% unless has_items %}hidden{% endunless %}>
-      {%- comment -%} Page Header {%- endcomment -%}
-      <header class="wm-cart-header">
-        <div class="wm-cart-header__left">
-          <h1 class="wm-cart-header__title">Shopping Cart</h1>
-          <span class="wm-cart-header__count" data-cart-header-count>
-            {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}
-          </span>
-        </div>
-        <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          <span>Continue shopping</span>
-        </a>
-      </header>
-
-      {%- comment -%} Two-Column Layout (65% Left / 35% Right, gap 32px) {%- endcomment -%}
       <form action="{{ routes.cart_url | default: '/cart' }}" method="post" id="wm-cart-form" novalidate>
         <div class="wm-cart-grid">
-          {%- comment -%} LEFT COLUMN: Cart Items Card {%- endcomment -%}
+          {%- comment -%} LEFT COLUMN: Cart Items Table {%- endcomment -%}
           <div class="wm-cart-left-col">
-            <div class="wm-cart-items-card">
+            <div class="wm-cart-items-table">
               <div class="wm-cart-table-head" aria-hidden="true">
-                <span>Product</span>
-                <span>Price</span>
-                <span>Quantity</span>
-                <span style="text-align: right;">Total</span>
+                <span class="wm-cart-th wm-cart-th--product">Product</span>
+                <span class="wm-cart-th wm-cart-th--price">Price</span>
+                <span class="wm-cart-th wm-cart-th--qty">Quantity</span>
+                <span class="wm-cart-th wm-cart-th--total">Total</span>
+                <span class="wm-cart-th wm-cart-th--action"></span>
               </div>
 
               <div class="wm-cart-items-list" data-cart-page-items role="region" aria-live="polite" aria-label="Shopping cart items">
@@ -57,155 +35,15 @@
                   {% render 'cart-item-row', item: item %}
                 {%- endfor -%}
               </div>
-
-              {%- comment -%} Cart Footer Actions: Order Note & Clear Cart {%- endcomment -%}
-              <div class="wm-cart-items-footer">
-                <div class="wm-cart-footer-bar">
-                  <button
-                    type="button"
-                    class="wm-cart-note-toggle"
-                    data-cart-note-toggle
-                    aria-expanded="{% if cart.note != blank %}true{% else %}false{% endif %}"
-                    aria-controls="wm-cart-note-panel"
-                  >
-                    <svg class="wm-cart-note-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    <span>Add order note or special delivery instructions</span>
-                    <svg class="wm-cart-note-toggle__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                  </button>
-
-                  <button type="button" class="wm-cart-clear-btn" data-cart-clear-btn>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    <span>Clear cart</span>
-                  </button>
-                </div>
-
-                <div
-                  id="wm-cart-note-panel"
-                  class="wm-cart-note-drawer{% if cart.note != blank %} is-open{% endif %}"
-                  data-cart-note-panel
-                >
-                  <label for="wm-cart-note-textarea" class="sr-only">Order note</label>
-                  <textarea
-                    id="wm-cart-note-textarea"
-                    name="note"
-                    class="wm-cart-note-textarea"
-                    placeholder="E.g. Please call before delivery, leave package with security guard, or include gift message..."
-                    data-cart-note-input
-                  >{{ cart.note }}</textarea>
-                  <div class="wm-cart-note-status" data-cart-note-status aria-live="polite"></div>
-                </div>
-              </div>
-            </div>
-
-            {%- comment -%} Saved for Later Section {%- endcomment -%}
-            <div class="wm-cart-saved" data-saved-later-section hidden>
-              <h2 class="wm-cart-saved__title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                <span>Saved for Later (<span data-saved-later-count>0</span>)</span>
-              </h2>
-              <div class="wm-cart-saved__grid" data-saved-later-list></div>
             </div>
           </div>
 
-          {%- comment -%} RIGHT COLUMN: Sticky Order Summary {%- endcomment -%}
+          {%- comment -%} RIGHT COLUMN: Gray Summary Card {%- endcomment -%}
           <div class="wm-cart-right-col">
             {% render 'cart-order-summary', cart_obj: cart %}
           </div>
         </div>
       </form>
-
-      {%- comment -%} BELOW THE CART: You May Also Like (Renders exact same collection product card) {%- endcomment -%}
-      {%- assign cross_sell_count = 0 -%}
-      {%- for prod in collections['all'].products -%}
-        {%- assign in_cart = false -%}
-        {%- for item in cart.items -%}
-          {%- if item.product_id == prod.id -%}
-            {%- assign in_cart = true -%}
-          {%- endif -%}
-        {%- endfor -%}
-        {%- unless in_cart -%}
-          {%- assign cross_sell_count = cross_sell_count | plus: 1 -%}
-        {%- endunless -%}
-      {%- endfor -%}
-
-      {%- if cross_sell_count > 0 -%}
-        <section class="wm-cart-cross-sell" aria-labelledby="wm-cart-upsell-title">
-          <div class="wm-cart-cross-sell__header">
-            <div>
-              <span class="wm-cart-cross-sell__eyebrow">COMPLETE YOUR PET'S ROUTINE</span>
-              <h2 id="wm-cart-upsell-title" class="wm-cart-cross-sell__title">You May Also Like</h2>
-            </div>
-            <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-cart-header__continue">
-              <span>Explore all</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-          </div>
-
-          <div class="wm-cart-cross-sell__grid">
-            {%- assign rendered_cs = 0 -%}
-            {%- for product in collections['all'].products limit: 4 -%}
-              {%- liquid
-                assign real_price_inr = product.price | divided_by: 100.0 | round
-                assign real_compare_inr = 0
-                if product.compare_at_price > product.price
-                  assign real_compare_inr = product.compare_at_price | divided_by: 100.0 | round
-                endif
-
-                if product.featured_image != blank
-                  assign real_img = product.featured_image | image_url: width: 640
-                else
-                  assign real_img = 'catalog-grooming-glove.webp' | asset_url
-                endif
-
-                assign second_img = ''
-                if product.images.size > 1
-                  assign second_img = product.images[1] | image_url: width: 640
-                endif
-
-                assign primary_cat = product.type
-                if primary_cat == blank
-                  assign primary_cat = product.collections.first.title | default: 'Grooming'
-                endif
-
-                assign promo_tags = ''
-                if product.compare_at_price > product.price
-                  assign promo_tags = 'sale'
-                endif
-                for tag in product.tags
-                  assign down_tag = tag | downcase
-                  if down_tag contains 'new'
-                    assign promo_tags = 'new'
-                  elsif down_tag contains 'bestseller'
-                    assign promo_tags = 'bestseller'
-                  endif
-                endfor
-
-                assign real_rating = product.metafields.reviews.rating.value
-                assign real_reviews = product.metafields.reviews.rating_count.value | default: 0
-                assign real_stock = product.selected_or_first_available_variant.inventory_quantity | default: 1
-                assign unique_prod_id = product.selected_or_first_available_variant.id | default: product.id
-                assign clean_card_desc = product.description | strip_html | truncate: 110
-              -%}
-              {% render 'collection-product-card',
-                card_id: unique_prod_id,
-                card_title: product.title,
-                card_url: product.url,
-                card_category: primary_cat,
-                card_price_inr: real_price_inr,
-                card_compare_inr: real_compare_inr,
-                card_rating: real_rating,
-                card_reviews: real_reviews,
-                card_image: real_img,
-                card_hover_image: second_img,
-                card_badge_promo: promo_tags,
-                card_stock: real_stock,
-                card_desc: clean_card_desc
-              %}
-              {%- assign rendered_cs = rendered_cs | plus: 1 -%}
-            {%- endfor -%}
-          </div>
-        </section>
-      {%- endif -%}
     </div>
 
     {%- comment -%} =======================================================
@@ -215,27 +53,6 @@
       {% render 'cart-empty-state' %}
     </div>
   </div>
-
-  {%- comment -%} Undo Toast Notification {%- endcomment -%}
-  <div class="wm-cart-toast" data-cart-undo-toast role="status" aria-live="polite">
-    <span class="wm-cart-toast__text" data-cart-toast-msg>Item removed from cart</span>
-    <button type="button" class="wm-cart-toast__undo" data-cart-toast-undo>Undo</button>
-  </div>
-
-  {%- comment -%} Mobile Sticky Bottom Checkout Bar (<=768px when cart has items) {%- endcomment -%}
-  <div class="wm-cart-mobile-bar{% if has_items %} is-visible{% endif %}" data-cart-mobile-bar>
-    <div class="wm-cart-mobile-bar__inner">
-      <div class="wm-cart-mobile-bar__price-col">
-        <span class="wm-cart-mobile-bar__label">Total (<span data-mobile-item-count>{{ cart.item_count }}</span> items)</span>
-        <span class="wm-cart-mobile-bar__total" data-mobile-total>&#8377;{{ cart.total_price | divided_by: 100.0 | round }}</span>
-        <span class="wm-cart-mobile-bar__sub">Inclusive of all taxes</span>
-      </div>
-      <button type="submit" name="checkout" form="wm-cart-form" class="wm-cart-mobile-bar__btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span>CHECKOUT</span>
-      </button>
-    </div>
-  </div>
 </div>
 
 <script src="{{ 'cart.js' | asset_url }}" defer></script>
@@ -243,13 +60,6 @@
 {% schema %}
 {
   "name": "Main Cart",
-  "settings": [
-    {
-      "type": "number",
-      "id": "free_shipping_threshold",
-      "label": "Free shipping threshold (INR)",
-      "default": 499
-    }
-  ]
+  "settings": []
 }
 {% endschema %}
