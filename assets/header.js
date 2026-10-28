@@ -633,14 +633,14 @@
                     <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </div>
-                <div class="wm-card__img-qv-wrap absolute inset-x-3 bottom-3 z-20 transition-all duration-300 ease-out opacity-100 translate-y-0 lg:opacity-0 lg:translate-y-2 lg:group-hover:opacity-100 lg:group-hover:translate-y-0">
-                  <button type="button" class="wm-card__img-add-btn w-full py-2.5 px-4 rounded-full bg-white text-neutral-900 text-[13px] font-semibold tracking-wide shadow-[0_6px_20px_rgba(0,0,0,0.10)] hover:bg-neutral-900 hover:text-white transition-colors duration-200 flex items-center justify-center cursor-pointer" data-add-to-cart="${esc(prodId)}" data-product-id="${esc(prodId)}" aria-label="Add ${esc(p.title)} to bag">
-                    <span data-add-label>Add To Bag</span>
+                <div class="wm-card__img-qv-wrap absolute inset-x-2.5 bottom-2.5 sm:bottom-3 z-20 flex justify-center pointer-events-none">
+                  <button type="button" class="wm-card__img-qv-btn pointer-events-auto flex items-center justify-center gap-1.5 w-full h-7 sm:h-7.5 px-3 rounded-full bg-white/95 hover:bg-white text-neutral-900 text-[10.5px] sm:text-[11px] font-semibold shadow-md backdrop-blur-xs transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer whitespace-nowrap" data-add-to-cart aria-label="Add ${esc(p.title)} to Bag">
+                    <span>Add To Bag</span>
                   </button>
-                  <div class="wm-card__img-stepper hidden w-full py-1.5 px-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-semibold shadow-[0_6px_20px_rgba(0,0,0,0.16)] items-center justify-between" data-card-stepper="${esc(prodId)}">
-                    <button type="button" class="wm-card__step-btn w-6 h-6 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer" data-card-step-minus="${esc(prodId)}" aria-label="Decrease quantity">&minus;</button>
-                    <span class="wm-card__step-qty text-[13px] font-semibold tabular-nums px-2" data-card-step-qty="${esc(prodId)}">1</span>
-                    <button type="button" class="wm-card__step-btn w-6 h-6 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer" data-card-step-plus="${esc(prodId)}" aria-label="Increase quantity">&#43;</button>
+                  <div class="hidden pointer-events-auto w-full" data-card-stepper>
+                    <button type="button" data-card-stepper-btn data-delta="-1" aria-label="Decrease quantity"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+                    <span data-card-qty>1</span>
+                    <button type="button" data-card-stepper-btn data-delta="1" aria-label="Increase quantity"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
                   </div>
                 </div>
               </div>

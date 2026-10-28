@@ -20,7 +20,7 @@
   }
 
   function normalizeLayout(mode) {
-    if (typeof window !== 'undefined' && window.innerWidth < 768) return 'grid';
+    // Allow both grid and list on mobile and desktop
     if (mode === 'list') return 'list';
     return 'grid';
   }
@@ -128,13 +128,13 @@
       savedSidebar = localStorage.getItem(STORAGE_SIDEBAR_KEY) || 'open';
     } catch (e) {}
     if (window.innerWidth < 768) {
-      savedLayout = 'grid';
+      // Mobile supports both grid (2-col) and list (1-col)
     }
     applyLayout(savedLayout, savedSidebar, false);
 
     window.addEventListener('resize', function () {
       if (window.innerWidth < 768 && workspace && workspace.getAttribute('data-layout') !== 'grid') {
-        workspace.setAttribute('data-layout', 'grid');
+        // Keep current layout on resize
       }
     });
 
@@ -630,17 +630,22 @@
     function openMobileSortDrawer() {
       if (!mobileSortDrawer) return;
       mobileSortDrawer.hidden = false;
-      var toolbarWrap = pageEl.querySelector('[data-plp-toolbar-wrap]');
-      if (toolbarWrap) toolbarWrap.style.zIndex = '9999';
-      document.body.style.overflow = 'hidden';
+      if (mobileSortTrigger) mobileSortTrigger.setAttribute('aria-expanded', 'true');
     }
 
     function closeMobileSortDrawer() {
       if (!mobileSortDrawer) return;
       mobileSortDrawer.hidden = true;
-      var toolbarWrap = pageEl.querySelector('[data-plp-toolbar-wrap]');
-      if (toolbarWrap) toolbarWrap.style.zIndex = '';
-      document.body.style.overflow = '';
+      if (mobileSortTrigger) mobileSortTrigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggleMobileSortDrawer() {
+      if (!mobileSortDrawer) return;
+      if (mobileSortDrawer.hidden) {
+        openMobileSortDrawer();
+      } else {
+        closeMobileSortDrawer();
+      }
     }
 
     function selectSortOption(sortVal, optionLabel) {
@@ -656,6 +661,9 @@
       syncSortUI();
       closeCustomSortMenu();
       closeMobileSortDrawer();
+      if (window.innerWidth < 768) {
+        closeMobileFilterDrawer();
+      }
       triggerFilterUpdate();
     }
 
@@ -710,7 +718,8 @@
     if (mobileSortTrigger) {
       mobileSortTrigger.addEventListener('click', function (e) {
         e.preventDefault();
-        openMobileSortDrawer();
+        e.stopPropagation();
+        toggleMobileSortDrawer();
       });
     }
 
@@ -723,6 +732,10 @@
     document.addEventListener('click', function (e) {
       if (customSort && !customSort.contains(e.target)) {
         closeCustomSortMenu();
+      }
+      var mobileSortWrap = pageEl.querySelector('[data-plp-mobile-sort-wrap], .wm-plp-mobile-bar__sort-wrap');
+      if (mobileSortWrap && !mobileSortWrap.contains(e.target)) {
+        closeMobileSortDrawer();
       }
     });
 

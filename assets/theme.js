@@ -568,11 +568,19 @@
         if (addBtn && stepper) {
           if (qty > 0) {
             addBtn.classList.add('hidden');
+            addBtn.hidden = true;
+            addBtn.style.setProperty('display', 'none', 'important');
             stepper.classList.remove('hidden');
+            stepper.hidden = false;
+            stepper.style.removeProperty('display');
             if (qtyDisplay) qtyDisplay.textContent = qty;
           } else {
             addBtn.classList.remove('hidden');
+            addBtn.hidden = false;
+            addBtn.style.removeProperty('display');
             stepper.classList.add('hidden');
+            stepper.hidden = true;
+            stepper.style.setProperty('display', 'none', 'important');
           }
         }
       });
@@ -2432,11 +2440,17 @@
           const qtyDisplay = card.querySelector('[data-card-qty]');
           const qvBtn = card.querySelector('.wm-card__btn-qv');
           addBtn.classList.add('hidden');
+          addBtn.hidden = true;
+          addBtn.style.setProperty('display', 'none', 'important');
           if (qvBtn) qvBtn.classList.add('hidden');
-          if (stepper) stepper.classList.remove('hidden');
+          if (stepper) {
+            stepper.classList.remove('hidden');
+            stepper.hidden = false;
+            stepper.style.removeProperty('display');
+          }
           if (qtyDisplay) qtyDisplay.textContent = '1';
 
-          Cart.add(id, 1, true, { name, title: name, price, compare_at_price, vendor, image, url });
+          Cart.add(id, 1, false, { name, title: name, price, compare_at_price, vendor, image, url });
         }
         return;
       }
@@ -2467,8 +2481,16 @@
 
           if (newQty <= 0) {
             // Remove item from cart and immediately revert card to Add to Cart button
-            if (stepper) stepper.classList.add('hidden');
-            if (addBtn) addBtn.classList.remove('hidden');
+            if (stepper) {
+              stepper.classList.add('hidden');
+              stepper.hidden = true;
+              stepper.style.setProperty('display', 'none', 'important');
+            }
+            if (addBtn) {
+              addBtn.classList.remove('hidden');
+              addBtn.hidden = false;
+              addBtn.style.removeProperty('display');
+            }
             if (qvBtn) qvBtn.classList.remove('hidden');
             if (qtyDisplay) qtyDisplay.textContent = '1';
             Cart.update(currentItem?.key || id, 0);

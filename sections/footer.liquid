@@ -90,7 +90,6 @@
 
   .wm-site-cta__grid {
     background-color: #F7F5EE;
-    border: 1px solid #E5E0D3;
     border-radius: 18px;
     padding: 28px 20px;
     display: flex;
@@ -344,6 +343,7 @@
     font-family: inherit;
     position: relative;
     width: 100%;
+    box-sizing: border-box;
     padding-top: clamp(48px, 6vw, 84px);
     padding-bottom: 32px;
     border-top: 1px solid #eae5d9;
@@ -357,6 +357,8 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 clamp(16px, 4vw, 56px);
+    width: 100%;
+    box-sizing: border-box;
   }
 
   /* Editorial 2-Part Grid */
@@ -364,16 +366,19 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 40px;
+    width: 100%;
+    box-sizing: border-box;
   }
   @media (min-width: 1024px) {
     .wm-site-footer__main-grid {
-      grid-template-columns: 38% 62%;
-      gap: clamp(40px, 5vw, 68px);
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      gap: clamp(32px, 3.5vw, 56px);
     }
   }
   @media (min-width: 1280px) {
     .wm-site-footer__main-grid {
-      grid-template-columns: 40% 60%;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: clamp(36px, 4vw, 64px);
     }
   }
 
@@ -461,14 +466,19 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 32px 20px;
+    width: 100%;
+    box-sizing: border-box;
   }
   .wm-footer-col--contact {
     grid-column: span 2;
   }
+  .wm-footer-nav-grid > div {
+    min-width: 0;
+  }
   @media (min-width: 768px) {
     .wm-footer-nav-grid {
-      grid-template-columns: 1fr 1fr 1.25fr;
-      gap: 32px clamp(16px, 3vw, 40px);
+      grid-template-columns: minmax(100px, 0.9fr) minmax(130px, 1fr) minmax(220px, 1.6fr);
+      gap: 32px clamp(16px, 2.5vw, 36px);
     }
     .wm-footer-col--contact {
       grid-column: auto;
@@ -515,16 +525,25 @@
     font-size: 13.5px;
     line-height: 1.55;
     color: #44564c;
+    width: 100%;
   }
   .wm-footer-contact-row {
     display: flex;
     align-items: flex-start;
     gap: 10px;
+    min-width: 0;
+    width: 100%;
   }
   .wm-footer-contact-row--address {
     color: #44564c;
-    max-width: 340px;
+    max-width: 100%;
     line-height: 1.55;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+  .wm-footer-contact-row--address span {
+    flex: 1;
+    min-width: 0;
   }
   .wm-footer-contact-icon {
     width: 16px;
@@ -557,6 +576,8 @@
     text-align: center;
     font-size: 12.5px;
     color: #717d75;
+    width: 100%;
+    box-sizing: border-box;
   }
   @media (min-width: 768px) {
     .wm-footer-bottom {

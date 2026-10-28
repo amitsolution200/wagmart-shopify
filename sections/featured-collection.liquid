@@ -182,7 +182,7 @@
     }
   }
 
-  #shop [data-product-card] .wm-card__img-qv-btn {
+  #shop [data-product-card] .wm-card__img-qv-btn:not(.hidden):not([hidden]) {
     width: 100% !important;
     height: 36px !important;
     background-color: rgba(255, 255, 255, 0.96) !important;
@@ -229,7 +229,7 @@
   }
 
   /* Active Quantity Stepper styling inside Card Image */
-  #shop [data-product-card] [data-card-stepper] {
+  #shop [data-product-card] [data-card-stepper]:not(.hidden):not([hidden]) {
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
@@ -251,7 +251,13 @@
     box-sizing: border-box !important;
   }
 
-  #shop [data-product-card] [data-card-stepper].hidden {
+  #shop [data-product-card] .wm-card__img-qv-btn.hidden,
+  #shop [data-product-card] .wm-card__img-qv-btn[hidden],
+  #shop [data-product-card] [data-add-to-cart].hidden,
+  #shop [data-product-card] [data-add-to-cart][hidden],
+  #shop [data-product-card] .wm-card__img-qv-wrap:has([data-card-stepper]:not(.hidden)) [data-add-to-cart],
+  #shop [data-product-card] [data-card-stepper].hidden,
+  #shop [data-product-card] [data-card-stepper][hidden] {
     display: none !important;
   }
 

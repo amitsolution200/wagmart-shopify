@@ -125,22 +125,28 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
 }
 
 /* Product Card Stepper */
-[data-card-stepper] {
+[data-card-stepper]:not(.hidden):not([hidden]) {
   display: inline-flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
-[data-card-stepper].hidden {
+[data-card-stepper].hidden,
+[data-card-stepper][hidden] {
   display: none !important;
 }
 
-[data-add-to-cart].hidden {
+[data-add-to-cart].hidden,
+[data-add-to-cart][hidden],
+.wm-card__img-qv-btn.hidden,
+.wm-card__img-qv-btn[hidden],
+.wm-card__img-qv-wrap:has([data-card-stepper]:not(.hidden)) [data-add-to-cart],
+.wm-card__img-qv-wrap:has([data-card-stepper]:not(.hidden)) .wm-card__img-qv-btn {
   display: none !important;
 }
 
-[data-add-to-cart]:not(.hidden) {
+[data-add-to-cart]:not(.hidden):not([hidden]) {
   display: inline-flex !important;
 }
 
@@ -235,7 +241,7 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   scroll-margin-top: 140px !important;
 }
 
-.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add) {
+.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden):not([hidden]) {
   width: 100% !important;
   height: 40px !important;
   background-color: #FFFFFF !important;
@@ -290,7 +296,7 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
 }
 
 /* Quantity Stepper when item is in cart */
-.wm-react-card [data-card-stepper]:not(.wm-card__stepper) {
+.wm-react-card [data-card-stepper]:not(.wm-card__stepper):not(.hidden):not([hidden]) {
   width: 100% !important;
   height: 32px !important;
   background-color: #111827 !important;
@@ -312,11 +318,13 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   display: flex !important;
 }
 
-.wm-react-card [data-card-stepper]:not(.wm-card__stepper).hidden {
+.wm-react-card [data-card-stepper]:not(.wm-card__stepper).hidden,
+.wm-react-card [data-card-stepper]:not(.wm-card__stepper)[hidden] {
   display: none !important;
 }
 
-.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add).hidden {
+.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add).hidden,
+.wm-react-card [data-add-to-cart]:not(.wm-card__btn-add)[hidden] {
   display: none !important;
 }
 
@@ -613,8 +621,8 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   }
 }
 
-[data-product-card] .wm-card__img-qv-btn,
-.wm-unified-card .wm-card__img-qv-btn {
+[data-product-card] .wm-card__img-qv-btn:not(.hidden):not([hidden]),
+.wm-unified-card .wm-card__img-qv-btn:not(.hidden):not([hidden]) {
   width: 100% !important;
   height: 36px !important;
   background-color: rgba(255, 255, 255, 0.96) !important;
@@ -664,8 +672,8 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
 }
 
 /* 4. Active Quantity Stepper (- 1 +) Inside Image */
-[data-product-card] [data-card-stepper],
-.wm-unified-card [data-card-stepper] {
+[data-product-card] [data-card-stepper]:not(.hidden):not([hidden]),
+.wm-unified-card [data-card-stepper]:not(.hidden):not([hidden]) {
   width: 100% !important;
   min-width: 100% !important;
   max-width: 100% !important;

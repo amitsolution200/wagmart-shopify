@@ -9,34 +9,7 @@
 
 {{ 'collection.css' | asset_url | stylesheet_tag }}
 
-{%- liquid
-  assign raw_title = collection.title | default: 'Shop by Collection'
-  if raw_title == 'Products' or raw_title == 'All'
-    assign display_title = 'All Pet Supplies'
-  else
-    assign display_title = raw_title
-  endif
 
-  if collection.description != blank
-    assign display_desc = collection.description | strip_html
-  elsif raw_title == 'Products' or raw_title == 'All'
-    assign display_desc = 'Explore our complete range of vet-approved pet food, grooming essentials, interactive toys, and comfort gear for happier, healthier pets.'
-  else
-    assign display_desc = 'Explore our wide range of pet products crafted with wholesome ingredients and pet-safe materials for a happier, healthier life.'
-  endif
-
-  assign fallback_img = 'catalog-bath-massage-brush.webp' | asset_url
-  assign img_kibble_1 = 'kibble-bulldog-adult.jpg' | asset_url
-  assign img_kibble_2 = 'kibble-bulldog-puppy.jpg' | asset_url
-  assign img_kibble_3 = 'kibble-queen-adult.jpg' | asset_url
-  assign img_brush = 'catalog-bath-massage-brush.webp' | asset_url
-  assign img_bowl = 'catalog-slow-feeder-bowl.webp' | asset_url
-  assign img_rope = 'catalog-rope-leash.webp' | asset_url
-  assign img_paw = 'paw-cleaner-kit.webp' | asset_url
-  assign img_bed = 'catalog-orthopedic-bed.webp' | asset_url
-
-  assign total_count = collection.products_count | default: collection.products.size | default: 0
--%}
 
 {%- comment -%} JSON-LD CollectionPage & ItemList Schema for SEO {%- endcomment -%}
 <script type="application/ld+json">
@@ -83,19 +56,7 @@
       </ol>
     </nav>
 
-    {%- comment -%} 2c. Compact Collection Hero Banner {%- endcomment -%}
-    <header class="wm-plp-hero">
-      <div class="wm-plp-hero__decor wm-plp-hero__decor--left" aria-hidden="true">
-        <svg viewBox="0 0 120 120" width="96" height="96" fill="currentColor" opacity="0.06"><circle cx="35" cy="35" r="14"/><circle cx="65" cy="25" r="12"/><circle cx="90" cy="40" r="13"/><circle cx="25" cy="65" r="12"/><path d="M40 85c-10 0-18-8-15-18 3-9 14-14 25-14s22 5 25 14c3 10-5 18-15 18-6 0-10-3-10-3s-4 3-10 3z"/></svg>
-      </div>
-      <div class="wm-plp-hero__content">
-        <h1 class="wm-plp-hero__title" data-plp-hero-title>{{ display_title }}</h1>
-        <p class="wm-plp-hero__desc" data-plp-hero-desc>{{ display_desc }}</p>
-      </div>
-      <div class="wm-plp-hero__decor wm-plp-hero__decor--right" aria-hidden="true">
-        <svg viewBox="0 0 120 120" width="96" height="96" fill="currentColor" opacity="0.06"><circle cx="35" cy="35" r="14"/><circle cx="65" cy="25" r="12"/><circle cx="90" cy="40" r="13"/><circle cx="25" cy="65" r="12"/><path d="M40 85c-10 0-18-8-15-18 3-9 14-14 25-14s22 5 25 14c3 10-5 18-15 18-6 0-10-3-10-3s-4 3-10 3z"/></svg>
-      </div>
-    </header>
+    
 
     {%- comment -%} 2d. Category / Collection Sub-Navigation Circles {%- endcomment -%}
     <section class="wm-plp-subnav" data-plp-subnav aria-label="Shop by category">
@@ -135,8 +96,15 @@
               <span class="wm-plp-subnav__ring">
                 <img src="{{ col_img_url }}" alt="{{ col.title | escape }}" width="280" height="280" loading="eager">
               </span>
-              <span class="wm-plp-subnav__label">{{ col.title }}</span>
-              <span class="wm-plp-subnav__count">{{ col_count }} {% if col_count == 1 %}item{% else %}items{% endif %}</span>
+              {%- liquid
+                assign formatted_col_title = col.title | escape
+                if formatted_col_title contains ',' and formatted_col_title contains ' &amp; '
+                  assign formatted_col_title = formatted_col_title | replace: ' &amp; ', '<br>&amp; '
+                elsif formatted_col_title contains ' &amp; '
+                  assign formatted_col_title = formatted_col_title | replace: ' &amp; ', ' &amp;<br>'
+                endif
+              -%}
+              <span class="wm-plp-subnav__label">{{ formatted_col_title }}</span>
             </a>
           {%- endunless -%}
         {%- endfor -%}
@@ -148,7 +116,6 @@
               <img src="{{ img_bed }}" alt="Beds" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Beds</span>
-            <span class="wm-plp-subnav__count">11 items</span>
           </a>
 
           <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
@@ -156,7 +123,6 @@
               <img src="{{ img_bowl }}" alt="Bowls &amp; Feeders" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Bowls &amp; Feeders</span>
-            <span class="wm-plp-subnav__count">6 items</span>
           </a>
 
           <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
@@ -164,7 +130,6 @@
               <img src="{{ img_kibble_2 }}" alt="Dog Food &amp; Treats" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Dog Food &amp; Treats</span>
-            <span class="wm-plp-subnav__count">4 items</span>
           </a>
 
           <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
@@ -172,7 +137,6 @@
               <img src="{{ img_brush }}" alt="Grooming" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Grooming</span>
-            <span class="wm-plp-subnav__count">8 items</span>
           </a>
 
           <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
@@ -180,7 +144,6 @@
               <img src="{{ img_kibble_3 }}" alt="Cat Food &amp; Treats" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Cat Food &amp; Treats</span>
-            <span class="wm-plp-subnav__count">6 items</span>
           </a>
 
           <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
@@ -188,7 +151,6 @@
               <img src="{{ img_rope }}" alt="Collars, Leashes &amp; Harnesses" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Collars, Leashes &amp; Harnesses</span>
-            <span class="wm-plp-subnav__count">7 items</span>
           </a>
 
           <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
@@ -196,7 +158,6 @@
               <img src="{{ img_paw }}" alt="Hygiene &amp; Cleaning" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Hygiene &amp; Cleaning</span>
-            <span class="wm-plp-subnav__count">5 items</span>
           </a>
 
           <a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-plp-subnav__item" role="tab" aria-selected="false">
@@ -204,7 +165,6 @@
               <img src="{{ img_kibble_1 }}" alt="Health &amp; Wellness" width="280" height="280" loading="eager">
             </span>
             <span class="wm-plp-subnav__label">Health &amp; Wellness</span>
-            <span class="wm-plp-subnav__count">3 items</span>
           </a>
         {%- endif -%}
       </div>
