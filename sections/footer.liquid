@@ -42,13 +42,6 @@
   assign phone_num = section.settings.phone | default: '+91 77779 85896'
   assign email_addr = section.settings.email | default: 'support@wagmart.com'
   assign about_copy = section.settings.about_text | default: 'Everything your furry friends need, from everyday essentials to thoughtful pet-care products. Making life happier for pets and easier for pet parents.'
-
-  assign footer_about_url = '/pages/about-us'
-  if pages.about.id != blank
-    assign footer_about_url = pages.about.url
-  elsif pages['about-us'].id != blank
-    assign footer_about_url = pages['about-us'].url
-  endif
 -%}
 
 <style>
@@ -817,13 +810,15 @@
               {%- assign f_menu_1 = section.settings.footer_menu_1 -%}
               {%- if linklists[f_menu_1].links.size > 0 -%}
                 {%- for link in linklists[f_menu_1].links -%}
-                  <li>
-                    <a href="{{ link.url }}" class="wm-footer-col__link">{{ link.title }}</a>
-                  </li>
+                  {%- assign link_title_down = link.title | downcase | strip -%}
+                  {%- unless link_title_down == 'about us' or link_title_down == 'about' -%}
+                    <li>
+                      <a href="{{ link.url }}" class="wm-footer-col__link">{{ link.title }}</a>
+                    </li>
+                  {%- endunless -%}
                 {%- endfor -%}
               {%- else -%}
                 <li><a href="{{ routes.root_url }}" class="wm-footer-col__link">Home</a></li>
-                <li><a href="{{ footer_about_url }}" class="wm-footer-col__link">About Us</a></li>
                 <li><a href="{{ routes.all_products_collection_url | default: '/collections/all' }}" class="wm-footer-col__link">Collections</a></li>
                 <li><a href="/blogs/news" class="wm-footer-col__link">Blog</a></li>
                 <li><a href="{{ pages['contact'].url | default: '/pages/contact' }}" class="wm-footer-col__link">Contact</a></li>
