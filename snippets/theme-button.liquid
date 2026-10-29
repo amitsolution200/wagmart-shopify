@@ -11,7 +11,7 @@
 {% endcomment %}
 
 {%- liquid
-  assign button_classes = "group relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#7a46e5] via-[#8451ed] to-[#9361fa] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer overflow-hidden border border-white/25 select-none shadow-[0_10px_25px_-5px_rgba(122,70,229,0.38),0_2px_8px_rgba(122,70,229,0.18)] hover:shadow-[0_16px_32px_-4px_rgba(122,70,229,0.52)] px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm gap-2"
+  assign button_classes = "group relative inline-flex items-center justify-center rounded-full bg-black hover:bg-[#222222] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer overflow-hidden border border-black select-none shadow-[0_4px_16px_rgba(0,0,0,0.22)] hover:shadow-[0_6px_22px_rgba(0,0,0,0.32)] px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm gap-2"
   if full_width
     assign button_classes = button_classes | append: " w-full"
   endif

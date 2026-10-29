@@ -1960,7 +1960,7 @@ body.collection-page-body {
   position: absolute;
   top: 4px;
   right: 4px;
-  background-color: var(--wm-forest-green);
+  background-color: #000000;
   color: #FFFFFF;
   font-size: 10px;
   font-weight: 700;

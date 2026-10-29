@@ -262,7 +262,7 @@
   height: 20px;
   padding: 0 4.5px;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #7A46E5 0%, #D926A9 100%);
+  background: #000000;
   color: #FFFFFF;
   font-family: var(--wm-font, system-ui, -apple-system, sans-serif);
   font-size: 11px;
@@ -272,7 +272,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(122, 70, 229, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   pointer-events: none;
   z-index: 10;
   animation: wm-pop var(--wm-med) var(--wm-ease);
@@ -1027,7 +1027,7 @@ shopify-account.wm-account__component::part(signed-out-avatar):hover {
   min-height: 46px;
   padding: 0 18px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 9999px;
   font: 600 14.5px/1 var(--wm-font);
   text-decoration: none;
   cursor: pointer;
@@ -1039,8 +1039,8 @@ shopify-account.wm-account__component::part(signed-out-avatar):hover {
     box-shadow var(--wm-fast) ease;
 }
 .wm-btn:active { transform: scale(0.985); }
-.wm-btn--primary { background: var(--wm-purple); color: var(--wm-white); }
-.wm-btn--primary:hover { background: var(--wm-purple-600); box-shadow: 0 10px 22px -12px rgba(119, 67, 232, 0.8); }
+.wm-btn--primary { background: #000000; color: var(--wm-white); }
+.wm-btn--primary:hover { background: #222222; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22); }
 .wm-btn--outline { background: var(--wm-white); color: var(--wm-text); border-color: var(--wm-border); }
 .wm-btn--outline:hover { border-color: #d6d6dc; background: var(--wm-bg); }
 .wm-btn[disabled],
@@ -1741,7 +1741,7 @@ shopify-account.wm-account__component::part(signed-out-avatar):hover {
   padding: 10px 24px;
   background: #000000;
   color: #ffffff;
-  border-radius: 8px;
+  border-radius: 9999px;
   font-family: 'Kumbh Sans', sans-serif;
   font-size: 14px;
   line-height: 20px;
@@ -1962,7 +1962,7 @@ a.wm-line__title:hover {
   background: #ffffff;
   color: #000000;
   border: 1.5px solid #000000;
-  border-radius: 12px;
+  border-radius: 9999px;
   padding: 12px 10px;
   font-family: 'Kumbh Sans', sans-serif;
   font-size: 14px;
@@ -1990,7 +1990,7 @@ a.wm-line__title:hover {
   background: #000000;
   color: #ffffff;
   border: 1.5px solid #000000;
-  border-radius: 12px;
+  border-radius: 9999px;
   padding: 12px 10px;
   font-family: 'Kumbh Sans', sans-serif;
   font-size: 14px;
@@ -2068,7 +2068,7 @@ a.wm-line__title:hover {
 }
 /* Tablet: roomier drawer, more cards per view */
 @media (min-width: 600px) and (max-width: 1099px) {
-  .wm-drawer__panel { width: min(460px, 70vw); }
+  .wm-drawer__panel { width: min(400px, 70vw); }
   .wm-drawer .wm-best__track { --wm-cols: 2.6; --wm-gap: 14px; }
   .wm-drawer .wm-card__title { font-size: 13.5px; }
 }
@@ -2538,7 +2538,7 @@ a.wm-line__title:hover {
   width: 100%;
   height: 44px;
   border: 1px solid #DFDBD2;
-  border-radius: 8px;
+  border-radius: 9999px;
   background-color: #FFFFFF;
   padding: 0 4px;
   box-sizing: border-box;
@@ -2578,7 +2578,7 @@ a.wm-line__title:hover {
   width: 100%;
   height: 44px;
   min-height: 44px;
-  border-radius: 8px;
+  border-radius: 9999px;
   border: 1px solid #E2D9C5;
   background-color: #EAE3D2;
   color: #1F1916;
@@ -2599,7 +2599,7 @@ a.wm-line__title:hover {
   width: 100%;
   height: 44px;
   min-height: 44px;
-  border-radius: 8px;
+  border-radius: 9999px;
   border: none;
   background-color: #4E8C45;
   color: #FFFFFF;

@@ -24,7 +24,7 @@
 <style>
   .wm-pdp-featured {
     padding: 40px 16px 64px;
-    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans, 'Nunito', system-ui, -apple-system, sans-serif);
     position: relative;
   }
   @media (min-width: 1024px) {
@@ -189,6 +189,19 @@
     stroke-width: 2 !important;
   }
 
+  .wm-pdp-featured .wm-react-card__wishlist.is-wishlisted,
+  .wm-pdp-featured .wm-react-card__wishlist.is-active {
+    color: #EF4444 !important;
+    background-color: #FEF2F2 !important;
+  }
+
+  .wm-pdp-featured .wm-react-card__wishlist.is-wishlisted svg,
+  .wm-pdp-featured .wm-react-card__wishlist.is-active svg {
+    fill: #EF4444 !important;
+    stroke: #EF4444 !important;
+    color: #EF4444 !important;
+  }
+
   /* Bottom Inside Image: White Pill "Add To Bag" Button */
   .wm-pdp-featured .wm-card__img-qv-wrap {
     display: flex !important;
@@ -219,9 +232,10 @@
   .wm-pdp-featured .wm-card__img-qv-btn:not(.hidden):not([hidden]) {
     background-color: rgba(255, 255, 255, 0.96) !important;
     color: #111827 !important;
-    font-size: 11px !important;
+    font-size: 13px !important;
     font-weight: 600 !important;
-    height: 30px !important;
+    height: 40px !important;
+    min-height: 40px !important;
     border-radius: 9999px !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     border: 1px solid rgba(229, 231, 235, 0.5) !important;
@@ -230,7 +244,7 @@
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 5px !important;
+    gap: 7px !important;
     width: 100% !important;
     cursor: pointer !important;
     transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important;
@@ -243,8 +257,8 @@
   }
 
   .wm-pdp-featured .wm-card__img-qv-btn svg {
-    width: 13px !important;
-    height: 13px !important;
+    width: 14px !important;
+    height: 14px !important;
     stroke: currentColor !important;
     stroke-width: 2 !important;
   }
@@ -252,7 +266,8 @@
   /* Stepper inside image for related cards */
   .wm-pdp-featured [data-card-stepper]:not(.hidden):not([hidden]) {
     width: 100% !important;
-    height: 30px !important;
+    height: 40px !important;
+    min-height: 40px !important;
     background-color: #111827 !important;
     color: #ffffff !important;
     border-radius: 9999px !important;
@@ -260,7 +275,7 @@
     align-items: center !important;
     justify-content: space-between !important;
     padding: 0 6px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
   }
 
   .wm-pdp-featured .wm-card__img-qv-btn.hidden,
@@ -291,48 +306,50 @@
     .wm-pdp-featured .wm-react-card .wm-card__img-qv-btn[data-add-to-cart]:not(.wm-card__btn-add),
     .wm-pdp-featured [data-product-card] .wm-card__img-qv-btn,
     .wm-pdp-featured .wm-unified-card .wm-card__img-qv-btn {
-      height: 28px !important;
-      min-height: 28px !important;
-      padding: 0 9px !important;
-      font-size: 10.5px !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      padding: 0 10px !important;
+      font-size: 11px !important;
       gap: 4px !important;
     }
 
     .wm-pdp-featured .wm-react-card .wm-card__img-qv-btn[data-add-to-cart] svg,
     .wm-pdp-featured [data-product-card] .wm-card__img-qv-btn svg,
     .wm-pdp-featured .wm-unified-card .wm-card__img-qv-btn svg {
-      width: 11px !important;
-      height: 11px !important;
+      width: 11.5px !important;
+      height: 11.5px !important;
     }
 
     .wm-pdp-featured .wm-react-card .wm-card__img-qv-wrap [data-card-stepper]:not(.wm-card__stepper),
     .wm-pdp-featured [data-product-card] .wm-card__img-qv-wrap [data-card-stepper],
     .wm-pdp-featured .wm-unified-card .wm-card__img-qv-wrap [data-card-stepper] {
-      height: 28px !important;
-      min-height: 28px !important;
-      padding: 0 5px !important;
-      font-size: 10.5px !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      padding: 0 4px !important;
+      font-size: 11.5px !important;
     }
 
     .wm-pdp-featured .wm-react-card [data-card-stepper] [data-card-stepper-btn],
     .wm-pdp-featured [data-product-card] [data-card-stepper-btn],
     .wm-pdp-featured .wm-unified-card [data-card-stepper-btn] {
-      width: 18px !important;
-      height: 18px !important;
+      width: 21px !important;
+      height: 21px !important;
+      min-width: 21px !important;
+      min-height: 21px !important;
     }
 
     .wm-pdp-featured .wm-react-card [data-card-stepper] [data-card-stepper-btn] svg,
     .wm-pdp-featured [data-product-card] [data-card-stepper-btn] svg,
     .wm-pdp-featured .wm-unified-card [data-card-stepper-btn] svg {
-      width: 8px !important;
-      height: 8px !important;
+      width: 10.5px !important;
+      height: 10.5px !important;
     }
 
     .wm-pdp-featured .wm-react-card [data-card-stepper] [data-card-qty],
     .wm-pdp-featured [data-product-card] [data-card-qty],
     .wm-pdp-featured .wm-unified-card [data-card-qty] {
-      font-size: 10.5px !important;
-      min-width: 12px !important;
+      font-size: 11.5px !important;
+      min-width: 14px !important;
     }
   }
 </style>

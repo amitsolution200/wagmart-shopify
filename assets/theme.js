@@ -649,15 +649,47 @@
       document.querySelectorAll('[data-product-card]').forEach((card) => {
         const prodId = card.getAttribute('data-product-id');
         const isWishlisted = WagmartState.wishlist.some((p) => p.id == prodId);
-        const heartSvg = card.querySelector('[data-wishlist-btn] svg');
+        const wishBtn = card.querySelector('[data-wishlist-btn], [data-wishlist-toggle]');
+        const heartSvg = wishBtn ? wishBtn.querySelector('svg') : null;
+        if (wishBtn) {
+          wishBtn.classList.toggle('is-wishlisted', isWishlisted);
+          wishBtn.classList.toggle('is-active', isWishlisted);
+        }
         if (heartSvg) {
           if (isWishlisted) {
-            heartSvg.classList.add('fill-[#E11D48]', 'text-[#E11D48]', 'scale-105');
+            heartSvg.classList.add('fill-[#EF4444]', 'text-[#EF4444]', 'scale-105');
+            heartSvg.setAttribute('fill', '#EF4444');
+            heartSvg.setAttribute('stroke', '#EF4444');
+            heartSvg.style.fill = '#EF4444';
+            heartSvg.style.stroke = '#EF4444';
+            heartSvg.style.color = '#EF4444';
             heartSvg.classList.remove('text-neutral-700');
           } else {
-            heartSvg.classList.remove('fill-[#E11D48]', 'text-[#E11D48]', 'scale-105');
+            heartSvg.classList.remove('fill-[#EF4444]', 'fill-[#E11D48]', 'text-[#EF4444]', 'text-[#E11D48]', 'scale-105');
+            heartSvg.setAttribute('fill', 'none');
+            heartSvg.setAttribute('stroke', 'currentColor');
+            heartSvg.style.fill = 'none';
+            heartSvg.style.stroke = '';
+            heartSvg.style.color = '';
             heartSvg.classList.add('text-neutral-700');
           }
+        }
+      });
+
+      // Also sync PDP wishlist buttons
+      document.querySelectorAll('[data-pdp-wishlist]').forEach((btn) => {
+        const pdpRoot = btn.closest('[data-product-id]') || document.querySelector('[data-pdp-product-id]');
+        const prodId = pdpRoot ? pdpRoot.getAttribute('data-product-id') : 'pet-grooming-glove';
+        const isWishlisted = WagmartState.wishlist.some((p) => String(p.id) === String(prodId));
+        btn.classList.toggle('is-active', isWishlisted);
+        btn.classList.toggle('is-wishlisted', isWishlisted);
+        const heartSvg = btn.querySelector('svg');
+        if (heartSvg) {
+          heartSvg.setAttribute('fill', isWishlisted ? '#EF4444' : 'none');
+          heartSvg.setAttribute('stroke', isWishlisted ? '#EF4444' : '#000000');
+          heartSvg.style.fill = isWishlisted ? '#EF4444' : 'none';
+          heartSvg.style.stroke = isWishlisted ? '#EF4444' : '#000000';
+          heartSvg.style.color = isWishlisted ? '#EF4444' : '#000000';
         }
       });
 
@@ -684,7 +716,7 @@
                 <h4 class="font-bold text-sm text-[#111827] truncate">${prod.name}</h4>
                 <p class="text-xs text-[#7a46e5] font-semibold">${prod.priceDisplay || '₹' + prod.price}</p>
                 <div class="mt-2">
-                  <button type="button" class="px-3 py-1.5 bg-[#7a46e5] hover:bg-[#6835d6] text-white text-xs font-semibold rounded-full flex items-center gap-1.5 cursor-pointer" data-wishlist-add-cart="${prod.id}">
+                  <button type="button" class="px-3 py-1.5 bg-black hover:bg-[#222222] text-white text-xs font-semibold rounded-full flex items-center gap-1.5 cursor-pointer" data-wishlist-add-cart="${prod.id}">
                     <span>Move to Cart</span>
                   </button>
                 </div>
@@ -1644,10 +1676,10 @@
 
       dots.forEach((dot, i) => {
         if (i === currentSlide) {
-          dot.classList.add('w-5', 'sm:w-6', 'bg-[#7a46e5]', 'shadow-xs');
+          dot.classList.add('w-5', 'sm:w-6', 'bg-black', 'shadow-xs');
           dot.classList.remove('w-2', 'sm:w-2', 'bg-black/25');
         } else {
-          dot.classList.remove('w-5', 'sm:w-6', 'bg-[#7a46e5]', 'shadow-xs');
+          dot.classList.remove('w-5', 'sm:w-6', 'bg-black', 'shadow-xs');
           dot.classList.add('w-2', 'sm:w-2', 'bg-black/25');
         }
       });

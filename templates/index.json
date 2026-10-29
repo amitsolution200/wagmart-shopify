@@ -20,7 +20,7 @@
             "title_accent": "Happier Days",
             "subtitle": "Wagmart Neem & Aloevera Shampoo keeps your pet’s coat clean, soft, fresh and naturally healthy.",
             "button_text": "Shop Now",
-            "button_link": "#shop"
+            "button_link": "/collections/pet-grooming-care"
           }
         },
         "slide_3": {
@@ -31,7 +31,7 @@
             "title_accent": "A Happier Pet",
             "subtitle": "Easily remove loose pet hair from your pet, sofa, bed, clothes and more.",
             "button_text": "Shop Now",
-            "button_link": "#shop"
+            "button_link": "/collections/pet-hygiene-cleaning"
           }
         },
         "slide_4": {
@@ -42,7 +42,7 @@
             "title_accent": "for a Happier Cat",
             "subtitle": "Remove loose hair and make grooming a relaxing part of your cat’s day.",
             "button_text": "Shop Now",
-            "button_link": "#shop"
+            "button_link": "/collections/pet-grooming-care"
           }
         },
         "slide_5": {
@@ -53,7 +53,7 @@
             "title_accent": "Happy Pets",
             "subtitle": "Make every mealtime easier with a feeding station designed for daily comfort.",
             "button_text": "Shop Now",
-            "button_link": "#shop"
+            "button_link": "/collections/pet-feeding-watering"
           }
         }
       },
@@ -204,21 +204,76 @@
     },
     "testimonials": {
       "type": "testimonials",
+      "blocks": {
+        "rev_1": {
+          "type": "quote_card",
+          "settings": {
+            "quote": "Wagmart made switching to natural grooming effortless. The neem & aloevera wash calmed Bruno's sensitive skin, and meal times are so much calmer with the slow feeder bowl. Highly recommend!",
+            "stars": 5,
+            "author_name": "Aarav Sharma",
+            "author_role": "Dog Parent • Golden Retriever"
+          }
+        },
+        "rev_2": {
+          "type": "quote_card",
+          "settings": {
+            "quote": "From the first order to fast delivery, Wagmart was on point. The nylon rope leash is rock-solid and the silicone paw cleaner is a total lifesaver after rainy park walks. Zero hassle!",
+            "stars": 5,
+            "author_name": "Priya Patel",
+            "author_role": "Dog Parent • Indie Rescue"
+          }
+        },
+        "rev_3": {
+          "type": "quote_card",
+          "settings": {
+            "quote": "The self-cleaning grooming brush is fantastic for my long-haired Persian cat. It removes loose fur effortlessly without pulling, and cleanup takes just one click. My cat actually purrs during brushing now!",
+            "stars": 5,
+            "author_name": "Ananya Deshmukh",
+            "author_role": "Cat Parent • Persian Cat"
+          }
+        },
+        "rev_4": {
+          "type": "quote_card",
+          "settings": {
+            "quote": "Milo is an active chewer and used to destroy toys in minutes. Wagmart's interactive rubber chew ball has survived weeks of vigorous fetching and tugging without a mark. Truly durable pet gear!",
+            "stars": 5,
+            "author_name": "Rohan & Milo",
+            "author_role": "Dog Parent • Beagle"
+          }
+        },
+        "rev_5": {
+          "type": "quote_card",
+          "settings": {
+            "quote": "We needed travel-safe gear for our weekend road trips with two active Labradors. Wagmart's waterproof back-seat hammock and travel carrier made our trips smooth, safe, and fur-free!",
+            "stars": 5,
+            "author_name": "Sneha Kapur",
+            "author_role": "Pet Parent • Twin Labradors"
+          }
+        },
+        "rev_6": {
+          "type": "quote_card",
+          "settings": {
+            "quote": "The orthopedic memory foam pet bed has relieved my senior dog's hip stiffness visibly within weeks. The quality of materials and attention to pet ergonomics is unmatched. Wagmart knows pets!",
+            "stars": 5,
+            "author_name": "Vikram Malhotra",
+            "author_role": "Senior Dog Parent • German Shepherd"
+          }
+        }
+      },
+      "block_order": [
+        "rev_1",
+        "rev_2",
+        "rev_3",
+        "rev_4",
+        "rev_5",
+        "rev_6"
+      ],
       "settings": {
-        "badge_label": "Customer Reviews",
-        "title": "The reviews say it all",
-        "subtitle": "Our rating truly speaks for itself — but the words behind it speak even louder and clearer, expressing our commitment.",
-        "rev1_quote": "I was kinda nervous about taking Luna for grooming, but Petocare totally relaxed her and made the experience enjoyable.",
-        "rev1_name": "David Chen",
-        "rev1_role": "Dog Owner",
-        "rev2_quote": "Petocare truly transformed my golden retriever, Maxi! He looked amazing, was happy the whole time, and their exceptional care and professionalism far surpass any other groomers I have tried.",
-        "rev2_name": "James Thornton",
-        "rev2_role": "Cat Owner",
-        "rev3_quote": "As someone who owns three dogs I need a groomer I can fully trust.",
-        "rev3_name": "Marcus Williams",
-        "rev3_role": "Cat Owner",
-        "rating_score": "4.96/5",
-        "reviews_count": "5-Star Reviews: 500+"
+        "eyebrow": "TESTIMONIALS",
+        "title": "Reviews from our clients",
+        "show_trust_badges": false,
+        "trustpilot_score": "4.8",
+        "google_score": "4.8"
       }
     },
     "blog_section": {

@@ -1,201 +1,575 @@
 {% comment %}
-  Wagmart "The reviews say it all" Customer Testimonials Section
+  Wagmart "Reviews from our clients" Bento Testimonials Section
+  - Ported from React component (solvance-energy-hub) with Wagmart pet care context
+  - Dual trust badges: Trustpilot (4.8) & Google Rating (4.8)
+  - 3x2 Asymmetric Bento Grid:
+    * Row 1: Quote 1, Quote 2, Video 1 (Top-Right)
+    * Row 2: Video 2 (Bottom-Left), Quote 3, Quote 4
+  - Fully responsive across desktop (3-col), tablet (2-col), and mobile (1-col)
 {% endcomment %}
 
-<section id="reviews" class="py-16 sm:py-20 lg:py-24 bg-white overflow-hidden">
-  <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
-    
-    {% comment %} Section Header {% endcomment %}
-    <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-12 lg:mb-16">
-      {%- assign badge_label = section.settings.badge_label | default: 'Customer Reviews' -%}
-      {% render 'section-badge', label: badge_label, class: 'mb-4' %}
-      <h2 class="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#1C1814] tracking-tight leading-tight">
-        {{ section.settings.title | default: 'The reviews say it all' }}
-      </h2>
-      <p class="text-xs sm:text-sm md:text-[15px] text-[#6B635B] mt-3 sm:mt-4 leading-relaxed font-normal">
-        {{ section.settings.subtitle | default: 'Our rating truly speaks for itself — but the words behind it speak even louder and clearer, expressing our commitment.' }}
-      </p>
+{%- liquid
+  assign eyebrow = section.settings.eyebrow | default: 'TESTIMONIALS'
+  assign title = section.settings.title | default: 'Reviews from our clients'
+  assign show_trust = section.settings.show_trust_badges
+  assign tp_score = section.settings.trustpilot_score | default: '4.8'
+  assign g_score = section.settings.google_score | default: '4.8'
+-%}
+
+<style>
+  .wm-testimonials-section {
+    background-color: #FFFFFF;
+    padding: clamp(48px, 6vw, 88px) 0;
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1F2937;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wm-testimonials-wrap {
+    max-width: 1460px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 2.5vw, 36px);
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* Header: Centered on all devices */
+  .wm-testimonials-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto clamp(32px, 4vw, 48px) auto;
+    width: 100%;
+  }
+
+  .wm-testimonials-header [class*="section-badge"],
+  .wm-testimonials-header .rounded-full {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background-color: rgba(122, 70, 229, 0.1);
+    margin-bottom: 12px;
+  }
+  .wm-testimonials-header .rounded-full span {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #7A46E5;
+  }
+  .wm-testimonials-header .rounded-full svg {
+    width: 14px;
+    height: 14px;
+    color: #7A46E5;
+  }
+
+  .wm-testimonials-title {
+    font-size: clamp(26px, 3.2vw, 40px);
+    font-weight: 800;
+    line-height: 1.18;
+    color: #111827;
+    letter-spacing: -0.025em;
+    text-align: center;
+    margin: 0;
+  }
+
+  /* Trust Badges Container */
+  .wm-trust-badges-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .wm-trust-badge {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .wm-trust-badge--trustpilot .tp-star {
+    width: 20px;
+    height: 20px;
+    background-color: #00B67A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    color: #FFFFFF;
+    font-size: 13px;
+  }
+
+  .wm-trust-badge--google .g-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+
+  /* Bento 3-Column Grid */
+  .wm-testimonials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  @media (min-width: 640px) {
+    .wm-testimonials-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wm-testimonials-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+  }
+
+  /* Card Base */
+  .wm-testimonial-card {
+    border-radius: 20px;
+    min-height: 330px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+  }
+  .wm-testimonial-card:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Written Quote Card */
+  .wm-testimonial-card--quote {
+    background-color: #FFFFFF;
+    border: 1px solid #ECE8E1;
+    padding: 28px 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  }
+  .wm-testimonial-card--quote:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    border-color: #183B2B;
+  }
+
+  .wm-quote-mark {
+    font-size: 38px;
+    line-height: 1;
+    color: #111827;
+    margin-bottom: 12px;
+    user-select: none;
+  }
+
+  .wm-quote-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #374151;
+    font-weight: 500;
+    margin: 0 0 16px 0;
+    flex-grow: 1;
+  }
+
+  /* Star Rating */
+  .wm-star-rating {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 18px;
+  }
+  .wm-star-icon {
+    width: 16px;
+    height: 16px;
+    fill: #F59E0B;
+    color: #F59E0B;
+  }
+
+  /* Author Row */
+  .wm-author-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+  }
+  .wm-author-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+    background-color: #F3F4F6;
+    flex-shrink: 0;
+  }
+  .wm-author-info {
+    min-width: 0;
+  }
+  .wm-author-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wm-author-role {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #6B7280;
+    margin: 2px 0 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Video Testimonial Card */
+  .wm-testimonial-card--video {
+    background-color: #111827;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  .wm-testimonial-card--video:hover {
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+  }
+
+  .wm-video-thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.5s ease;
+  }
+  .wm-testimonial-card--video:hover .wm-video-thumb {
+    transform: scale(1.04);
+  }
+
+  .wm-video-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 55%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
+  }
+
+  .wm-video-overlay-content {
+    position: relative;
+    z-index: 10;
+    padding: 24px;
+    margin-top: auto;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .wm-video-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .wm-video-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wm-video-role {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 2px 0 0 0;
+  }
+
+  /* Play Button */
+  .wm-video-play-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+  }
+  .wm-video-play-btn:hover {
+    background: #FFFFFF;
+    color: #111827;
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+  .wm-video-play-btn svg {
+    margin-left: 2px;
+  }
+</style>
+
+<section id="reviews" class="wm-testimonials-section" aria-label="Customer Reviews">
+  <div class="wm-testimonials-wrap">
+
+    {% comment %} Section Header: Centered on all devices with section-badge component {% endcomment %}
+    <div class="wm-testimonials-header">
+      {%- if eyebrow != blank -%}
+        {% render 'section-badge', label: eyebrow, class: 'mb-3' %}
+      {%- endif -%}
+      <h2 class="wm-testimonials-title">{{ title }}</h2>
+
+      {%- if show_trust -%}
+        <div class="wm-trust-badges-row">
+          {% comment %} Trustpilot Badge {% endcomment %}
+          <div class="wm-trust-badge wm-trust-badge--trustpilot">
+            <span class="tp-star">★</span>
+            <div>
+              <div style="font-size: 12.5px; font-weight: 800; line-height: 1; letter-spacing: -0.01em;">Trustpilot</div>
+              <div style="font-size: 10px; font-weight: 700; color: #4B5563; margin-top: 2px;">{{ tp_score }} RATING</div>
+            </div>
+          </div>
+
+          {% comment %} Google Rating Badge {% endcomment %}
+          <div class="wm-trust-badge wm-trust-badge--google">
+            <svg class="g-icon" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <div>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 11px; font-weight: 700;">Google Rating</span>
+                <span style="font-size: 11px; font-weight: 800; color: #111827;">{{ g_score }}</span>
+                <span style="color: #F59E0B; font-size: 11px;">★★★★★</span>
+              </div>
+              <div style="font-size: 9.5px; color: #6B7280;">Based on customer reviews</div>
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
     </div>
 
-    {% comment %} 3-Column Masonry Layout {% endcomment %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
-      
-      {% comment %} LEFT COLUMN {% endcomment %}
-      <div class="flex flex-col gap-6 lg:gap-7">
-        {% comment %} Card 1: Review 1 {% endcomment %}
-        <div class="bg-[#7a46e5]/10 rounded-2xl sm:rounded-3xl p-7 sm:p-8 lg:p-9 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between flex-1 min-h-[300px] sm:min-h-[330px]">
-          <div>
-            <div class="flex items-center gap-1 mb-5 sm:mb-6">
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
-            </div>
-            <p class="text-base sm:text-[17px] lg:text-[18.5px] text-[#2A241E] leading-[1.75] font-normal">
-              &ldquo;{{ section.settings.rev1_quote | default: 'I was kinda nervous about taking Luna for grooming, but Petocare totally relaxed her and made the experience enjoyable.' }}&rdquo;
-            </p>
+    {% comment %} 3x2 Bento Grid {% endcomment %}
+    <div class="wm-testimonials-grid">
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'quote_card' -%}
+              <div class="wm-testimonial-card wm-testimonial-card--quote" {{ block.shopify_attributes }}>
+                <svg class="wm-quote-svg" width="28" height="20" viewBox="0 0 32 24" fill="#111827" style="margin-bottom: 12px; flex-shrink: 0;" aria-hidden="true">
+                  <path d="M0 13.714C0 6.137 4.97 1.486 12.086 0l2.257 3.771C9.657 5.086 7.6 7.6 7.2 10.114H13.714V24H0V13.714zm18.286 0C18.286 6.137 23.257 1.486 30.371 0l2.258 3.771c-4.686 1.315-6.743 3.829-7.143 6.343H32V24H18.286V13.714z"/>
+                </svg>
+                <p class="wm-quote-text">{{ block.settings.quote }}</p>
+                <div class="wm-star-rating">
+                  {%- assign stars_count = block.settings.stars | default: 5 -%}
+                  {%- for i in (1..stars_count) -%}
+                    <svg class="wm-star-icon" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  {%- endfor -%}
+                </div>
+                <div class="wm-author-row">
+                  {%- if block.settings.author_image != blank -%}
+                    {{ block.settings.author_image | image_url: width: 90 | image_tag: class: 'wm-author-avatar', alt: block.settings.author_name }}
+                  {%- else -%}
+                    {%- liquid
+                      case forloop.index
+                        when 1
+                          assign default_avatar = 'avatar-aarav.jpg' | asset_url
+                        when 2
+                          assign default_avatar = 'avatar-priya.jpg' | asset_url
+                        when 3
+                          assign default_avatar = 'avatar-ananya.jpg' | asset_url
+                        when 4
+                          assign default_avatar = 'avatar-rohan.jpg' | asset_url
+                        when 5
+                          assign default_avatar = 'avatar-sneha.jpg' | asset_url
+                        when 6
+                          assign default_avatar = 'avatar-vikram.jpg' | asset_url
+                        else
+                          assign default_avatar = 'avatar-aarav.jpg' | asset_url
+                      endcase
+                    -%}
+                    <img src="{{ default_avatar }}" alt="{{ block.settings.author_name }}" class="wm-author-avatar" width="44" height="44" loading="lazy">
+                  {%- endif -%}
+                  <div class="wm-author-info">
+                    <h3 class="wm-author-name">{{ block.settings.author_name }}</h3>
+                    <p class="wm-author-role">{{ block.settings.author_role }}</p>
+                  </div>
+                </div>
+              </div>
+
+            {%- when 'video_card' -%}
+              <div class="wm-testimonial-card wm-testimonial-card--video" {{ block.shopify_attributes }}>
+                {%- if block.settings.thumbnail_image != blank -%}
+                  {{ block.settings.thumbnail_image | image_url: width: 800 | image_tag: class: 'wm-video-thumb', alt: block.settings.author_name }}
+                {%- else -%}
+                  {%- liquid
+                    if forloop.index == 3 or block.settings.author_role contains 'Cat'
+                      assign default_vthumb = 'cat-relaxing.webp' | asset_url
+                    else
+                      assign default_vthumb = 'dog-owner-happy.webp' | asset_url
+                    endif
+                  -%}
+                  <img src="{{ default_vthumb }}" alt="{{ block.settings.author_name }}" class="wm-video-thumb" width="400" height="330" loading="lazy">
+                {%- endif -%}
+                <div class="wm-video-gradient"></div>
+                <div class="wm-video-overlay-content">
+                  <div class="wm-video-meta">
+                    <div class="wm-star-rating" style="margin-bottom: 6px;">
+                      {%- for i in (1..5) -%}
+                        <svg class="wm-star-icon" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      {%- endfor -%}
+                    </div>
+                    <h3 class="wm-video-name">{{ block.settings.author_name }}</h3>
+                    <p class="wm-video-role">{{ block.settings.author_role }}</p>
+                  </div>
+                  <button
+                    type="button"
+                    class="wm-video-play-btn"
+                    data-testimonial-video-btn
+                    data-video-id="{{ block.settings.youtube_id | default: 'LB8Qfa9tTsU' }}"
+                    data-author-name="{{ block.settings.author_name | escape }}"
+                    data-author-role="{{ block.settings.author_role | escape }}"
+                    aria-label="Play video testimonial from {{ block.settings.author_name }}"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      {%- else -%}
+        {% comment %} Fallback Default 6-Card Bento {% endcomment %}
+        <!-- Card 1 (Quote) -->
+        <div class="wm-testimonial-card wm-testimonial-card--quote">
+          <svg class="wm-quote-svg" width="28" height="20" viewBox="0 0 32 24" fill="#111827" style="margin-bottom: 12px; flex-shrink: 0;" aria-hidden="true">
+            <path d="M0 13.714C0 6.137 4.97 1.486 12.086 0l2.257 3.771C9.657 5.086 7.6 7.6 7.2 10.114H13.714V24H0V13.714zm18.286 0C18.286 6.137 23.257 1.486 30.371 0l2.258 3.771c-4.686 1.315-6.743 3.829-7.143 6.343H32V24H18.286V13.714z"/>
+          </svg>
+          <p class="wm-quote-text">&ldquo;Wagmart made switching to natural grooming effortless. The neem &amp; aloe coat wash calmed Bruno's sensitive skin, and meal times are so much calmer with the slow feeder bowl. Highly recommend!&rdquo;</p>
+          <div class="wm-star-rating">
+            {%- for i in (1..5) -%}<svg class="wm-star-icon" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>{%- endfor -%}
           </div>
-          <div class="flex items-center gap-3.5 mt-8 sm:mt-10">
-            {%- if section.settings.rev1_image != blank -%}
-              {{ section.settings.rev1_image | image_url: width: 120 | image_tag:
-                class: 'w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10',
-                widths: '56, 112',
-                alt: section.settings.rev1_name
-              }}
-            {%- else -%}
-              <img
-                src="{{ 'image_copy_2.png' | asset_url }}"
-                alt="{{ section.settings.rev1_name | default: 'David Chen' }}"
-                class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10"
-                width="56"
-                height="56"
-              >
-            {%- endif -%}
-            <div>
-              <h4 class="font-bold text-sm sm:text-base text-[#1C1814]">
-                {{ section.settings.rev1_name | default: 'David Chen' }}
-              </h4>
-              <p class="text-xs sm:text-sm text-[#7A7269] font-normal mt-0.5">
-                {{ section.settings.rev1_role | default: 'Dog Owner' }}
-              </p>
+          <div class="wm-author-row">
+            <img src="{{ 'avatar-aarav.jpg' | asset_url }}" alt="Aarav Sharma" class="wm-author-avatar" width="44" height="44" loading="lazy">
+            <div class="wm-author-info">
+              <h3 class="wm-author-name">Aarav Sharma</h3>
+              <p class="wm-author-role">Dog Parent &bull; Golden Retriever</p>
             </div>
           </div>
         </div>
 
-        {% comment %} Card 2: 4.96/5 Rating Badge Card {% endcomment %}
-        <div class="bg-[#7a46e5]/80 rounded-2xl sm:rounded-3xl p-7 sm:p-8 shadow-[0_6px_25px_rgba(167,94,60,0.16)] flex flex-col items-center justify-center text-center min-h-[200px] sm:min-h-[220px]">
-          <span class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-tight leading-none">
-            {{ section.settings.rating_score | default: '4.96/5' }}
-          </span>
-          <div class="flex items-center gap-1.5 sm:gap-2 my-3.5 sm:my-4">
-            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
-            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
-            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
-            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
-            {% render 'icon-star', class: 'w-5 h-5 sm:w-6 sm:h-6 fill-white text-white' %}
+        <!-- Card 2 (Quote) -->
+        <div class="wm-testimonial-card wm-testimonial-card--quote">
+          <svg class="wm-quote-svg" width="28" height="20" viewBox="0 0 32 24" fill="#111827" style="margin-bottom: 12px; flex-shrink: 0;" aria-hidden="true">
+            <path d="M0 13.714C0 6.137 4.97 1.486 12.086 0l2.257 3.771C9.657 5.086 7.6 7.6 7.2 10.114H13.714V24H0V13.714zm18.286 0C18.286 6.137 23.257 1.486 30.371 0l2.258 3.771c-4.686 1.315-6.743 3.829-7.143 6.343H32V24H18.286V13.714z"/>
+          </svg>
+          <p class="wm-quote-text">&ldquo;From the first order to fast delivery, Wagmart was on point. The nylon rope leash is rock-solid and the silicone paw cleaner is a total lifesaver after rainy park walks. Zero hassle!&rdquo;</p>
+          <div class="wm-star-rating">
+            {%- for i in (1..5) -%}<svg class="wm-star-icon" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>{%- endfor -%}
           </div>
-          <span class="text-xs sm:text-sm text-white/95 font-medium tracking-wide">
-            {{ section.settings.reviews_count | default: '5-Star Reviews: 500+' }}
-          </span>
-        </div>
-      </div>
-
-      {% comment %} CENTER COLUMN: Tall Testimonial Card 2 {% endcomment %}
-      <div class="flex flex-col">
-        <div class="bg-[#7a46e5]/10 rounded-2xl sm:rounded-3xl p-7 sm:p-8 lg:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between h-full min-h-[540px] sm:min-h-[580px]">
-          <div>
-            <div class="flex items-center gap-1 mb-5 sm:mb-6">
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
-            </div>
-            <p class="text-base sm:text-[17px] lg:text-[18.5px] text-[#2A241E] leading-[1.75] font-normal">
-              &ldquo;{{ section.settings.rev2_quote | default: 'Petocare truly transformed my golden retriever, Maxi! He looked amazing, was happy the whole time, and their exceptional care and professionalism far surpass any other groomers I have tried.' }}&rdquo;
-            </p>
-          </div>
-          <div class="flex items-center gap-3.5 mt-10 sm:mt-14">
-            {%- if section.settings.rev2_image != blank -%}
-              {{ section.settings.rev2_image | image_url: width: 120 | image_tag:
-                class: 'w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10',
-                widths: '56, 112',
-                alt: section.settings.rev2_name
-              }}
-            {%- else -%}
-              <img
-                src="{{ 'image_copy.png' | asset_url }}"
-                alt="{{ section.settings.rev2_name | default: 'James Thornton' }}"
-                class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10"
-                width="56"
-                height="56"
-              >
-            {%- endif -%}
-            <div>
-              <h4 class="font-bold text-sm sm:text-base text-[#1C1814]">
-                {{ section.settings.rev2_name | default: 'James Thornton' }}
-              </h4>
-              <p class="text-xs sm:text-sm text-[#7A7269] font-normal mt-0.5">
-                {{ section.settings.rev2_role | default: 'Cat Owner' }}
-              </p>
+          <div class="wm-author-row">
+            <img src="{{ 'avatar-priya.jpg' | asset_url }}" alt="Priya Patel" class="wm-author-avatar" width="44" height="44" loading="lazy">
+            <div class="wm-author-info">
+              <h3 class="wm-author-name">Priya Patel</h3>
+              <p class="wm-author-role">Dog Parent &bull; Indie Rescue</p>
             </div>
           </div>
         </div>
-      </div>
 
-      {% comment %} RIGHT COLUMN: 1200+ Image Card + Testimonial Card 3 {% endcomment %}
-      <div class="flex flex-col md:flex-row lg:flex-col gap-6 lg:gap-7 md:col-span-2 lg:col-span-1">
-        <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden min-h-[210px] sm:min-h-[235px] md:flex-1 lg:flex-initial flex flex-col items-center justify-center text-center p-7 sm:p-8 shadow-sm">
-          {%- if section.settings.highlight_image != blank -%}
-            {{ section.settings.highlight_image | image_url: width: 800 | image_tag:
-              class: 'absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none',
-              loading: 'lazy',
-              widths: '400, 800',
-              alt: 'Happy pets'
-            }}
-          {%- else -%}
-            <img
-              src="{{ 'image_copy_3.png' | asset_url }}"
-              alt="Happy pets"
-              class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
-              loading="lazy"
-              width="400"
-              height="235"
-            >
-          {%- endif -%}
-          <div class="absolute inset-0 bg-black/45"></div>
-          <div class="relative z-10 flex flex-col items-center">
-            <span class="text-2xl sm:text-3xl font-semibold text-white tracking-tight mt-2.5">
-              1200+
-            </span>
-            <span class="text-xs sm:text-lg text-white/90 font-medium mt-1">
-              Happy Pets Delivered Quarterly
-            </span>
+        <!-- Card 3 (Quote) -->
+        <div class="wm-testimonial-card wm-testimonial-card--quote">
+          <svg class="wm-quote-svg" width="28" height="20" viewBox="0 0 32 24" fill="#111827" style="margin-bottom: 12px; flex-shrink: 0;" aria-hidden="true">
+            <path d="M0 13.714C0 6.137 4.97 1.486 12.086 0l2.257 3.771C9.657 5.086 7.6 7.6 7.2 10.114H13.714V24H0V13.714zm18.286 0C18.286 6.137 23.257 1.486 30.371 0l2.258 3.771c-4.686 1.315-6.743 3.829-7.143 6.343H32V24H18.286V13.714z"/>
+          </svg>
+          <p class="wm-quote-text">&ldquo;The self-cleaning grooming brush is fantastic for my long-haired Persian cat. It removes loose fur effortlessly without pulling, and cleanup takes just one click. My cat actually purrs during brushing now!&rdquo;</p>
+          <div class="wm-star-rating">
+            {%- for i in (1..5) -%}<svg class="wm-star-icon" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>{%- endfor -%}
           </div>
-        </div>
-
-        <div class="bg-[#7a46e5]/10 rounded-2xl sm:rounded-3xl p-7 sm:p-8 lg:p-9 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between flex-1 md:flex-1 min-h-[300px] sm:min-h-[330px]">
-          <div>
-            <div class="flex items-center gap-1 mb-5 sm:mb-6">
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5] text-[#7a46e5]' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
-              {% render 'icon-star', class: 'w-5 h-5 fill-[#7a46e5]/20 text-[#7a46e5]/25' %}
-            </div>
-            <p class="text-base sm:text-[17px] lg:text-[18.5px] text-[#2A241E] leading-[1.75] font-normal">
-              &ldquo;{{ section.settings.rev3_quote | default: 'As someone who owns three dogs I need a groomer I can fully trust.' }}&rdquo;
-            </p>
-          </div>
-          <div class="flex items-center gap-3.5 mt-8 sm:mt-10">
-            {%- if section.settings.rev3_image != blank -%}
-              {{ section.settings.rev3_image | image_url: width: 120 | image_tag:
-                class: 'w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10',
-                widths: '56, 112',
-                alt: section.settings.rev3_name
-              }}
-            {%- else -%}
-              <img
-                src="{{ 'image.png' | asset_url }}"
-                alt="{{ section.settings.rev3_name | default: 'Marcus Williams' }}"
-                class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover shrink-0 bg-[#7a46e5]/10"
-                width="56"
-                height="56"
-              >
-            {%- endif -%}
-            <div>
-              <h4 class="font-bold text-sm sm:text-base text-[#1C1814]">
-                {{ section.settings.rev3_name | default: 'Marcus Williams' }}
-              </h4>
-              <p class="text-xs sm:text-sm text-[#7A7269] font-normal mt-0.5">
-                {{ section.settings.rev3_role | default: 'Cat Owner' }}
-              </p>
+          <div class="wm-author-row">
+            <img src="{{ 'avatar-ananya.jpg' | asset_url }}" alt="Ananya Deshmukh" class="wm-author-avatar" width="44" height="44" loading="lazy">
+            <div class="wm-author-info">
+              <h3 class="wm-author-name">Ananya Deshmukh</h3>
+              <p class="wm-author-role">Cat Parent &bull; Persian Cat</p>
             </div>
           </div>
         </div>
-      </div>
 
+        <!-- Card 4 (Quote) -->
+        <div class="wm-testimonial-card wm-testimonial-card--quote">
+          <svg class="wm-quote-svg" width="28" height="20" viewBox="0 0 32 24" fill="#111827" style="margin-bottom: 12px; flex-shrink: 0;" aria-hidden="true">
+            <path d="M0 13.714C0 6.137 4.97 1.486 12.086 0l2.257 3.771C9.657 5.086 7.6 7.6 7.2 10.114H13.714V24H0V13.714zm18.286 0C18.286 6.137 23.257 1.486 30.371 0l2.258 3.771c-4.686 1.315-6.743 3.829-7.143 6.343H32V24H18.286V13.714z"/>
+          </svg>
+          <p class="wm-quote-text">&ldquo;Milo is an active chewer and used to destroy toys in minutes. Wagmart's interactive rubber chew ball has survived weeks of vigorous fetching and tugging without a mark. Truly durable pet gear!&rdquo;</p>
+          <div class="wm-star-rating">
+            {%- for i in (1..5) -%}<svg class="wm-star-icon" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>{%- endfor -%}
+          </div>
+          <div class="wm-author-row">
+            <img src="{{ 'avatar-rohan.jpg' | asset_url }}" alt="Rohan &amp; Milo" class="wm-author-avatar" width="44" height="44" loading="lazy">
+            <div class="wm-author-info">
+              <h3 class="wm-author-name">Rohan &amp; Milo</h3>
+              <p class="wm-author-role">Dog Parent &bull; Beagle</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 (Quote) -->
+        <div class="wm-testimonial-card wm-testimonial-card--quote">
+          <svg class="wm-quote-svg" width="28" height="20" viewBox="0 0 32 24" fill="#111827" style="margin-bottom: 12px; flex-shrink: 0;" aria-hidden="true">
+            <path d="M0 13.714C0 6.137 4.97 1.486 12.086 0l2.257 3.771C9.657 5.086 7.6 7.6 7.2 10.114H13.714V24H0V13.714zm18.286 0C18.286 6.137 23.257 1.486 30.371 0l2.258 3.771c-4.686 1.315-6.743 3.829-7.143 6.343H32V24H18.286V13.714z"/>
+          </svg>
+          <p class="wm-quote-text">&ldquo;We needed travel-safe gear for our weekend road trips with two active Labradors. Wagmart's waterproof back-seat hammock and travel carrier made our trips smooth, safe, and fur-free!&rdquo;</p>
+          <div class="wm-star-rating">
+            {%- for i in (1..5) -%}<svg class="wm-star-icon" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>{%- endfor -%}
+          </div>
+          <div class="wm-author-row">
+            <img src="{{ 'avatar-sneha.jpg' | asset_url }}" alt="Sneha Kapur" class="wm-author-avatar" width="44" height="44" loading="lazy">
+            <div class="wm-author-info">
+              <h3 class="wm-author-name">Sneha Kapur</h3>
+              <p class="wm-author-role">Pet Parent &bull; Twin Labradors</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6 (Quote) -->
+        <div class="wm-testimonial-card wm-testimonial-card--quote">
+          <svg class="wm-quote-svg" width="28" height="20" viewBox="0 0 32 24" fill="#111827" style="margin-bottom: 12px; flex-shrink: 0;" aria-hidden="true">
+            <path d="M0 13.714C0 6.137 4.97 1.486 12.086 0l2.257 3.771C9.657 5.086 7.6 7.6 7.2 10.114H13.714V24H0V13.714zm18.286 0C18.286 6.137 23.257 1.486 30.371 0l2.258 3.771c-4.686 1.315-6.743 3.829-7.143 6.343H32V24H18.286V13.714z"/>
+          </svg>
+          <p class="wm-quote-text">&ldquo;The orthopedic memory foam pet bed has relieved my senior dog's hip stiffness visibly within weeks. The quality of materials and attention to pet ergonomics is unmatched. Wagmart knows pets!&rdquo;</p>
+          <div class="wm-star-rating">
+            {%- for i in (1..5) -%}<svg class="wm-star-icon" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>{%- endfor -%}
+          </div>
+          <div class="wm-author-row">
+            <img src="{{ 'avatar-vikram.jpg' | asset_url }}" alt="Vikram Malhotra" class="wm-author-avatar" width="44" height="44" loading="lazy">
+            <div class="wm-author-info">
+              <h3 class="wm-author-name">Vikram Malhotra</h3>
+              <p class="wm-author-role">Senior Dog Parent &bull; German Shepherd</p>
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
     </div>
 
   </div>
@@ -203,116 +577,164 @@
 
 {% schema %}
 {
-  "name": "Customer Testimonials",
+  "name": "Bento Reviews & Videos",
+  "tag": "section",
+  "class": "section-testimonials",
   "settings": [
     {
       "type": "text",
-      "id": "badge_label",
-      "label": "Badge label",
-      "default": "Customer Reviews"
+      "id": "eyebrow",
+      "label": "Eyebrow Badge",
+      "default": "TESTIMONIALS"
     },
     {
       "type": "text",
       "id": "title",
-      "label": "Title",
-      "default": "The reviews say it all"
+      "label": "Heading",
+      "default": "Reviews from our clients"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "Show Trustpilot & Google Badges",
+      "default": false
     },
     {
       "type": "text",
-      "id": "subtitle",
-      "label": "Subtitle",
-      "default": "Our rating truly speaks for itself — but the words behind it speak even louder and clearer, expressing our commitment."
-    },
-    {
-      "type": "image_picker",
-      "id": "rev1_image",
-      "label": "Review 1 Author Photo"
-    },
-    {
-      "type": "textarea",
-      "id": "rev1_quote",
-      "label": "Review 1 Quote",
-      "default": "I was kinda nervous about taking Luna for grooming, but Petocare totally relaxed her and made the experience enjoyable."
+      "id": "trustpilot_score",
+      "label": "Trustpilot Rating",
+      "default": "4.8"
     },
     {
       "type": "text",
-      "id": "rev1_name",
-      "label": "Review 1 Author",
-      "default": "David Chen"
+      "id": "google_score",
+      "label": "Google Rating",
+      "default": "4.8"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "quote_card",
+      "name": "Written Review Card",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Review Quote",
+          "default": "Wagmart made switching to natural grooming effortless. Highly recommended!"
+        },
+        {
+          "type": "range",
+          "id": "stars",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Star Rating",
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "Customer Name",
+          "default": "Aarav Sharma"
+        },
+        {
+          "type": "text",
+          "id": "author_role",
+          "label": "Pet & Parent Tag",
+          "default": "Dog Parent • Golden Retriever"
+        },
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "Customer Avatar"
+        }
+      ]
     },
     {
-      "type": "text",
-      "id": "rev1_role",
-      "label": "Review 1 Role",
-      "default": "Dog Owner"
-    },
-    {
-      "type": "image_picker",
-      "id": "rev2_image",
-      "label": "Review 2 Author Photo"
-    },
-    {
-      "type": "textarea",
-      "id": "rev2_quote",
-      "label": "Review 2 Quote",
-      "default": "Petocare truly transformed my golden retriever, Maxi! He looked amazing, was happy the whole time, and their exceptional care and professionalism far surpass any other groomers I have tried."
-    },
-    {
-      "type": "text",
-      "id": "rev2_name",
-      "label": "Review 2 Author",
-      "default": "James Thornton"
-    },
-    {
-      "type": "text",
-      "id": "rev2_role",
-      "label": "Review 2 Role",
-      "default": "Cat Owner"
-    },
-    {
-      "type": "image_picker",
-      "id": "highlight_image",
-      "label": "Quarterly Banner Background Photo"
-    },
-    {
-      "type": "image_picker",
-      "id": "rev3_image",
-      "label": "Review 3 Author Photo"
-    },
-    {
-      "type": "textarea",
-      "id": "rev3_quote",
-      "label": "Review 3 Quote",
-      "default": "As someone who owns three dogs I need a groomer I can fully trust."
-    },
-    {
-      "type": "text",
-      "id": "rev3_name",
-      "label": "Review 3 Author",
-      "default": "Marcus Williams"
-    },
-    {
-      "type": "text",
-      "id": "rev3_role",
-      "label": "Review 3 Role",
-      "default": "Cat Owner"
-    },
-    {
-      "type": "text",
-      "id": "rating_score",
-      "label": "Rating score",
-      "default": "4.96/5"
-    },
-    {
-      "type": "text",
-      "id": "reviews_count",
-      "label": "Reviews count text",
-      "default": "5-Star Reviews: 500+"
+      "type": "video_card",
+      "name": "Video Testimonial Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "thumbnail_image",
+          "label": "Video Thumbnail Image"
+        },
+        {
+          "type": "text",
+          "id": "youtube_id",
+          "label": "YouTube Video ID",
+          "default": "LB8Qfa9tTsU",
+          "info": "Example: LB8Qfa9tTsU"
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "Customer Name",
+          "default": "Ananya Deshmukh"
+        },
+        {
+          "type": "text",
+          "id": "author_role",
+          "label": "Pet & Parent Tag",
+          "default": "Cat Parent • Persian Cat"
+        }
+      ]
     }
   ],
   "presets": [
     {
-      "name": "Customer Testimonials"
+      "name": "Bento Reviews & Videos",
+      "blocks": [
+        {
+          "type": "quote_card",
+          "settings": {
+            "author_name": "Aarav Sharma",
+            "author_role": "Dog Parent • Golden Retriever",
+            "quote": "Wagmart made switching to natural grooming effortless. The neem & aloevera wash calmed Bruno's sensitive skin, and meal times are so much calmer with the slow feeder bowl. Highly recommend!"
+          }
+        },
+        {
+          "type": "quote_card",
+          "settings": {
+            "author_name": "Priya Patel",
+            "author_role": "Dog Parent • Indie Rescue",
+            "quote": "From the first order to fast delivery, Wagmart was on point. The nylon rope leash is rock-solid and the silicone paw cleaner is a total lifesaver after rainy park walks. Zero hassle!"
+          }
+        },
+        {
+          "type": "quote_card",
+          "settings": {
+            "author_name": "Ananya Deshmukh",
+            "author_role": "Cat Parent • Persian Cat",
+            "quote": "The self-cleaning grooming brush is fantastic for my long-haired Persian cat. It removes loose fur effortlessly without pulling, and cleanup takes just one click. My cat actually purrs during brushing now!"
+          }
+        },
+        {
+          "type": "quote_card",
+          "settings": {
+            "author_name": "Rohan & Milo",
+            "author_role": "Dog Parent • Beagle",
+            "quote": "Milo is an active chewer and used to destroy toys in minutes. Wagmart's interactive rubber chew ball has survived weeks of vigorous fetching and tugging without a mark. Truly durable pet gear!"
+          }
+        },
+        {
+          "type": "quote_card",
+          "settings": {
+            "author_name": "Sneha Kapur",
+            "author_role": "Pet Parent • Twin Labradors",
+            "quote": "We needed travel-safe gear for our weekend road trips with two active Labradors. Wagmart's waterproof back-seat hammock and travel carrier made our trips smooth, safe, and fur-free!"
+          }
+        },
+        {
+          "type": "quote_card",
+          "settings": {
+            "author_name": "Vikram Malhotra",
+            "author_role": "Senior Dog Parent • German Shepherd",
+            "quote": "The orthopedic memory foam pet bed has relieved my senior dog's hip stiffness visibly within weeks. The quality of materials and attention to pet ergonomics is unmatched. Wagmart knows pets!"
+          }
+        }
+      ]
     }
   ]
 }

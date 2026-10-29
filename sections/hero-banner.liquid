@@ -1,5 +1,8 @@
 {% comment %}
   Wagmart Hero Carousel Section
+  - 4 Unique Hero Slider Designs with dedicated Desktop (16:9) & Mobile (9:16) compositions
+  - Desktop/Laptop: Left 45% sunlit negative space for headline, subtitle & CTA button
+  - Mobile (<768px): Top 45% sunlit negative space for centered headline, subtitle & CTA button, with full pet & product visible in the lower 55%
 {% endcomment %}
 
 <style>
@@ -8,7 +11,7 @@
     --hero-offset: var(--wm-header-total, 68px);
     height: 100vh;                 /* fallback */
     height: 100svh;                /* stable on mobile (address bar visible) */
-    min-height: 480px;             /* safety for very short landscape screens */
+    min-height: 540px;             /* safety for short screens */
     margin-top: calc(-1 * var(--hero-offset));
   }
   /* Keep slide content optically centred in the visible area below the navbar */
@@ -20,27 +23,27 @@
     top: calc(50% + (var(--hero-offset) / 2));
   }
 
-  /* Overlay: Mobile & Tablet for ALL sliders */
+  /* Overlay: Mobile (<768px) subtle top-only readability gradient in the top 45% negative space */
   .wm-hero-overlay-mobile {
     display: block;
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.55) 45%, rgba(255, 255, 255, 0.12) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.32) 38%, rgba(255, 255, 255, 0) 54%);
     pointer-events: none;
     z-index: 2;
   }
 
-  /* Overlay: Laptop (Slides 2 to 5 / layout-left) */
+  /* Overlay: Laptop & Desktop (layout-left) */
   .wm-hero-overlay-laptop-left {
     display: none;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
-    width: 58%;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.72) 55%, rgba(255, 255, 255, 0) 100%);
+    width: 52%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.45) 55%, rgba(255, 255, 255, 0) 100%);
     pointer-events: none;
     z-index: 2;
   }
@@ -55,8 +58,8 @@
     height: 100%;
   }
 
-  /* Mobile and Tablet rules (< 1024px) */
-  @media (max-width: 1023px) {
+  /* Mobile rules (< 768px): Dedicated 9:16 portrait banners with top 45% negative space for text */
+  @media (max-width: 767px) {
     .wm-hero-overlay-mobile {
       display: block !important;
     }
@@ -64,17 +67,21 @@
       display: none !important;
     }
     .wm-hero-slide-flex {
+      align-items: flex-start !important;
       justify-content: center !important;
-      padding-left: 2.75rem !important;
-      padding-right: 2.75rem !important;
-      padding-bottom: 2rem !important;
+      padding-top: calc(var(--hero-offset) + 1.35rem) !important;
+      padding-left: 1.5rem !important;
+      padding-right: 1.5rem !important;
+      padding-bottom: 1.5rem !important;
     }
     .wm-hero-content-box {
       text-align: center !important;
       margin-left: auto !important;
       margin-right: auto !important;
       width: 100% !important;
-      max-width: 460px !important;
+      max-width: 400px !important;
+      padding-top: 0.25rem !important;
+      padding-bottom: 0.25rem !important;
     }
     .wm-hero-content-box .wm-hero-desc {
       margin-left: auto !important;
@@ -85,9 +92,68 @@
       display: flex !important;
       justify-content: center !important;
       width: 100% !important;
+      margin-top: 1rem !important;
     }
     .wm-hero-slide-img {
-      object-position: center !important;
+      object-position: center bottom !important;
+    }
+  }
+
+  /* Tablet rules (768px to 1023px): Proportional 16:9 height and safe left/right margins for text */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .wm-hero-full {
+      height: calc(56.25vw + var(--hero-offset, 68px)) !important;
+      min-height: 450px !important;
+      max-height: 620px !important;
+    }
+    .wm-hero-full [data-hero-prev] {
+      left: 0.75rem !important;
+      width: 2.25rem !important;
+      height: 2.25rem !important;
+    }
+    .wm-hero-full [data-hero-next] {
+      right: 0.75rem !important;
+      width: 2.25rem !important;
+      height: 2.25rem !important;
+    }
+    .wm-hero-overlay-mobile {
+      display: none !important;
+    }
+    .wm-hero-overlay-laptop-left {
+      display: block !important;
+      width: 50% !important;
+    }
+    .wm-hero-slide-flex {
+      justify-content: flex-start !important;
+      padding-left: 4.25rem !important;
+      padding-right: 2rem !important;
+      padding-bottom: 0 !important;
+    }
+    .wm-hero-content-box {
+      text-align: left !important;
+      margin-left: 0 !important;
+      margin-right: auto !important;
+      max-width: 285px !important;
+    }
+    .wm-hero-content-box h1 {
+      font-size: clamp(1.6rem, 2.85vw, 2.05rem) !important;
+      line-height: 1.15 !important;
+    }
+    .wm-hero-content-box .wm-hero-desc {
+      margin-left: 0 !important;
+      margin-right: auto !important;
+      text-align: left !important;
+      font-size: 0.85rem !important;
+      line-height: 1.5 !important;
+      max-width: 265px !important;
+    }
+    .wm-hero-content-box .wm-hero-btn-wrap {
+      display: flex !important;
+      justify-content: flex-start !important;
+      margin-top: 1.15rem !important;
+    }
+    .wm-hero-slide-img {
+      object-position: center center !important;
     }
   }
 
@@ -100,7 +166,7 @@
       display: block !important;
     }
 
-    /* Layout Center (Slide 1) */
+    /* Layout Center */
     .wm-hero-slide-flex.layout-center {
       justify-content: center !important;
       padding-left: 2rem !important;
@@ -126,7 +192,7 @@
       object-position: center !important;
     }
 
-    /* Layout Left (Slides 2 to 5) */
+    /* Layout Left (Slides 1 to 4) */
     .wm-hero-slide-flex.layout-left {
       justify-content: flex-start !important;
       padding-left: 4.5rem !important;
@@ -149,7 +215,7 @@
       justify-content: flex-start !important;
     }
     .wm-hero-slide-img.layout-left {
-      object-position: right center !important;
+      object-position: center center !important;
     }
   }
 </style>
@@ -162,40 +228,47 @@
   {% comment %} Slides Container {% endcomment %}
   {%- if section.blocks.size > 0 -%}
     {%- for block in section.blocks -%}
+      {%- liquid
+        assign slide_num = forloop.index
+        if slide_num > 4
+          assign slide_num = 4
+        endif
+        assign fallback_desktop = 'hero-slide-' | append: slide_num | append: '-desktop.jpg' | asset_url
+        assign fallback_mobile = 'hero-slide-' | append: slide_num | append: '-mobile.jpg' | asset_url
+
+        if block.settings.image != blank
+          assign desktop_src = block.settings.image | image_url: width: 1920
+        else
+          assign desktop_src = fallback_desktop
+        endif
+
+        if block.settings.mobile_image != blank
+          assign mobile_src = block.settings.mobile_image | image_url: width: 1080
+        else
+          assign mobile_src = fallback_mobile
+        endif
+      -%}
       <div
         class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none {% if forloop.first %}opacity-100 z-10{% else %}opacity-0 pointer-events-none -z-10{% endif %}"
         data-hero-slide
         {{ block.shopify_attributes }}
       >
-        {%- if block.settings.image != blank -%}
+        <picture class="absolute inset-0 w-full h-full block select-none pointer-events-none">
+          <source media="(max-width: 767px)" srcset="{{ mobile_src }}">
           <img
-            src="{{ block.settings.image | image_url: width: 1920 }}"
-            alt="{{ block.settings.title | escape }}"
-            class="wm-hero-slide-img layout-{{ block.settings.layout }} absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-            {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
-            width="{{ block.settings.image.width }}"
-            height="{{ block.settings.image.height }}"
-          >
-        {%- else -%}
-          {%- assign default_img_index = forloop.index -%}
-          {%- if section.blocks.size == 4 -%}
-            {%- assign default_img_index = forloop.index | plus: 1 -%}
-          {%- endif -%}
-          {%- assign default_img = 'hero-banner-' | append: default_img_index | append: '.webp' -%}
-          <img
-            src="{{ default_img | asset_url }}"
-            alt="{{ block.settings.title | escape }}"
-            class="wm-hero-slide-img layout-{{ block.settings.layout }} absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-            {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
+            src="{{ desktop_src }}"
+            alt="{{ block.settings.title | append: ' ' | append: block.settings.title_accent | strip | escape }}"
+            class="wm-hero-slide-img layout-{{ block.settings.layout }}{% if forloop.first %} wm-hero-slide-img--first{% endif %} absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+            {% if forloop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}
             width="1920"
-            height="700"
+            height="1080"
           >
-        {%- endif -%}
+        </picture>
 
-        {% comment %} Mobile & Tablet gentle readability overlay for ALL slides {% endcomment %}
+        {% comment %} Mobile gentle readability overlay in top 45% negative space {% endcomment %}
         <div class="wm-hero-overlay-mobile"></div>
 
-        {% comment %} Left-side gradient overlay for slides 2 to 5 on Laptop {% endcomment %}
+        {% comment %} Left-side gradient overlay for slides on Tablet/Laptop/Desktop {% endcomment %}
         {%- if block.settings.layout == 'left' -%}
           <div class="wm-hero-overlay-laptop-left"></div>
         {%- endif -%}
@@ -211,7 +284,14 @@
               {{ block.settings.subtitle }}
             </p>
             <div class="wm-hero-btn-wrap mt-6 sm:mt-7 select-none">
-              {%- assign btn_href = block.settings.button_link | default: '#shop' -%}
+              {%- assign btn_href = block.settings.button_link -%}
+              {%- if btn_href == blank or btn_href == '#shop' or btn_href == '#' -%}
+                {%- if block.settings.collection != blank -%}
+                  {%- assign btn_href = block.settings.collection.url -%}
+                {%- else -%}
+                  {%- assign btn_href = '/collections/all' -%}
+                {%- endif -%}
+              {%- endif -%}
               {% render 'theme-button', text: block.settings.button_text, href: btn_href %}
             </div>
           </div>
@@ -219,10 +299,13 @@
       </div>
     {%- endfor -%}
   {%- else -%}
-    {% comment %} Default Fallback: 4 Left-aligned Slides {% endcomment %}
+    {% comment %} Default Fallback: 4 Left-aligned Slides with Desktop (16:9) & Mobile (9:16) Art Direction {% endcomment %}
     {% comment %} Slide 1: Clean Pets {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-100 z-10" data-hero-slide>
-      <img src="{{ 'hero-banner-2.webp' | asset_url }}" alt="Hero banner 2" class="wm-hero-slide-img layout-left absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="eager" width="1920" height="700">
+      <picture class="absolute inset-0 w-full h-full block select-none pointer-events-none">
+        <source media="(max-width: 767px)" srcset="{{ 'hero-slide-1-mobile.jpg' | asset_url }}">
+        <img src="{{ 'hero-slide-1-desktop.jpg' | asset_url }}" alt="Clean Pets, Happier Days" class="wm-hero-slide-img layout-left wm-hero-slide-img--first absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="eager" fetchpriority="high" width="1920" height="1080">
+      </picture>
       <div class="wm-hero-overlay-mobile"></div>
       <div class="wm-hero-overlay-laptop-left"></div>
       <div class="hero-slide-content wm-hero-slide-flex layout-left max-w-7xl mx-auto select-text">
@@ -235,7 +318,7 @@
             Wagmart Neem & Aloevera Shampoo keeps your pet’s coat clean, soft, fresh and naturally healthy.
           </p>
           <div class="wm-hero-btn-wrap mt-6 sm:mt-7 select-none">
-            {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            {% render 'theme-button', text: 'Shop Now', href: '/collections/pet-grooming-care' %}
           </div>
         </div>
       </div>
@@ -243,7 +326,10 @@
 
     {% comment %} Slide 2: A Cleaner Home {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-0 pointer-events-none -z-10" data-hero-slide>
-      <img src="{{ 'hero-banner-3.webp' | asset_url }}" alt="Hero banner 3" class="wm-hero-slide-img layout-left absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="lazy" width="1920" height="700">
+      <picture class="absolute inset-0 w-full h-full block select-none pointer-events-none">
+        <source media="(max-width: 767px)" srcset="{{ 'hero-slide-2-mobile.jpg' | asset_url }}">
+        <img src="{{ 'hero-slide-2-desktop.jpg' | asset_url }}" alt="A Cleaner Home, A Happier Pet" class="wm-hero-slide-img layout-left absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="lazy" width="1920" height="1080">
+      </picture>
       <div class="wm-hero-overlay-mobile"></div>
       <div class="wm-hero-overlay-laptop-left"></div>
       <div class="hero-slide-content wm-hero-slide-flex layout-left max-w-7xl mx-auto select-text">
@@ -256,7 +342,7 @@
             Easily remove loose pet hair from your pet, sofa, bed, clothes and more.
           </p>
           <div class="wm-hero-btn-wrap mt-6 sm:mt-7 select-none">
-            {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            {% render 'theme-button', text: 'Shop Now', href: '/collections/pet-hygiene-cleaning' %}
           </div>
         </div>
       </div>
@@ -264,7 +350,10 @@
 
     {% comment %} Slide 3: Gentle Grooming {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-0 pointer-events-none -z-10" data-hero-slide>
-      <img src="{{ 'hero-banner-4.webp' | asset_url }}" alt="Hero banner 4" class="wm-hero-slide-img layout-left absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="lazy" width="1920" height="700">
+      <picture class="absolute inset-0 w-full h-full block select-none pointer-events-none">
+        <source media="(max-width: 767px)" srcset="{{ 'hero-slide-3-mobile.jpg' | asset_url }}">
+        <img src="{{ 'hero-slide-3-desktop.jpg' | asset_url }}" alt="Gentle Grooming for a Happier Cat" class="wm-hero-slide-img layout-left absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="lazy" width="1920" height="1080">
+      </picture>
       <div class="wm-hero-overlay-mobile"></div>
       <div class="wm-hero-overlay-laptop-left"></div>
       <div class="hero-slide-content wm-hero-slide-flex layout-left max-w-7xl mx-auto select-text">
@@ -277,7 +366,7 @@
             Remove loose hair and make grooming a relaxing part of your cat’s day.
           </p>
           <div class="wm-hero-btn-wrap mt-6 sm:mt-7 select-none">
-            {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            {% render 'theme-button', text: 'Shop Now', href: '/collections/pet-grooming-care' %}
           </div>
         </div>
       </div>
@@ -285,7 +374,10 @@
 
     {% comment %} Slide 4: Fresh Water {% endcomment %}
     <div class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out select-none opacity-0 pointer-events-none -z-10" data-hero-slide>
-      <img src="{{ 'hero-banner-5.webp' | asset_url }}" alt="Hero banner 5" class="wm-hero-slide-img layout-left absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="lazy" width="1920" height="700">
+      <picture class="absolute inset-0 w-full h-full block select-none pointer-events-none">
+        <source media="(max-width: 767px)" srcset="{{ 'hero-slide-4-mobile.jpg' | asset_url }}">
+        <img src="{{ 'hero-slide-4-desktop.jpg' | asset_url }}" alt="Fresh Water, Happy Pets" class="wm-hero-slide-img layout-left absolute inset-0 w-full h-full object-cover select-none pointer-events-none" loading="lazy" width="1920" height="1080">
+      </picture>
       <div class="wm-hero-overlay-mobile"></div>
       <div class="wm-hero-overlay-laptop-left"></div>
       <div class="hero-slide-content wm-hero-slide-flex layout-left max-w-7xl mx-auto select-text">
@@ -298,7 +390,7 @@
             Make every mealtime easier with a feeding station designed for daily comfort.
           </p>
           <div class="wm-hero-btn-wrap mt-6 sm:mt-7 select-none">
-            {% render 'theme-button', text: 'Shop Now', href: '#shop' %}
+            {% render 'theme-button', text: 'Shop Now', href: '/collections/pet-feeding-watering' %}
           </div>
         </div>
       </div>
@@ -329,10 +421,10 @@
   <nav aria-label="Banner pagination" class="absolute bottom-4 sm:bottom-6 md:bottom-7 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 transition-all">
     {%- if section.blocks.size > 0 -%}
       {%- for block in section.blocks -%}
-        <button type="button" data-hero-dot="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}" class="transition-all duration-300 rounded-full cursor-pointer {% if forloop.first %}w-5 sm:w-6 h-2 sm:h-2 bg-[#7a46e5] shadow-xs{% else %}w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45{% endif %}"></button>
+        <button type="button" data-hero-dot="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}" class="transition-all duration-300 rounded-full cursor-pointer {% if forloop.first %}w-5 sm:w-6 h-2 sm:h-2 bg-black shadow-xs{% else %}w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45{% endif %}"></button>
       {%- endfor -%}
     {%- else -%}
-      <button type="button" data-hero-dot="0" aria-label="Go to slide 1" class="transition-all duration-300 rounded-full cursor-pointer w-5 sm:w-6 h-2 sm:h-2 bg-[#7a46e5] shadow-xs"></button>
+      <button type="button" data-hero-dot="0" aria-label="Go to slide 1" class="transition-all duration-300 rounded-full cursor-pointer w-5 sm:w-6 h-2 sm:h-2 bg-black shadow-xs"></button>
       <button type="button" data-hero-dot="1" aria-label="Go to slide 2" class="transition-all duration-300 rounded-full cursor-pointer w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45"></button>
       <button type="button" data-hero-dot="2" aria-label="Go to slide 3" class="transition-all duration-300 rounded-full cursor-pointer w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45"></button>
       <button type="button" data-hero-dot="3" aria-label="Go to slide 4" class="transition-all duration-300 rounded-full cursor-pointer w-2 sm:w-2 h-2 sm:h-2 bg-black/25 hover:bg-black/45"></button>
@@ -352,7 +444,12 @@
         {
           "type": "image_picker",
           "id": "image",
-          "label": "Banner image"
+          "label": "Desktop banner image (16:9)"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile banner image (9:16)"
         },
         {
           "type": "select",
@@ -362,7 +459,7 @@
             { "value": "center", "label": "Center" },
             { "value": "left", "label": "Left" }
           ],
-          "default": "center"
+          "default": "left"
         },
         {
           "type": "text",
@@ -392,6 +489,11 @@
           "type": "url",
           "id": "button_link",
           "label": "Button URL"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Related collection (optional)"
         }
       ]
     }
@@ -407,7 +509,8 @@
             "title": "Clean Pets,",
             "title_accent": "Happier Days",
             "subtitle": "Wagmart Neem & Aloevera Shampoo keeps your pet's coat clean, soft, fresh and naturally healthy.",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "button_link": "/collections/pet-grooming-care"
           }
         },
         {
@@ -417,7 +520,8 @@
             "title": "A Cleaner Home,",
             "title_accent": "A Happier Pet",
             "subtitle": "Easily remove loose pet hair from your pet, sofa, bed, clothes and more.",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "button_link": "/collections/pet-hygiene-cleaning"
           }
         },
         {
@@ -427,7 +531,8 @@
             "title": "Gentle Grooming",
             "title_accent": "for a Happier Cat",
             "subtitle": "Remove loose hair and make grooming a relaxing part of your cat's day.",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "button_link": "/collections/pet-grooming-care"
           }
         },
         {
@@ -437,7 +542,8 @@
             "title": "Fresh Water,",
             "title_accent": "Happy Pets",
             "subtitle": "Make every mealtime easier with a feeding station designed for daily comfort.",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "button_link": "/collections/pet-feeding-watering"
           }
         }
       ]

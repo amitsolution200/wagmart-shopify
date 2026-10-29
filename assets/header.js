@@ -638,9 +638,9 @@
                     <span>Add To Bag</span>
                   </button>
                   <div class="hidden pointer-events-auto w-full" data-card-stepper>
-                    <button type="button" data-card-stepper-btn data-delta="-1" aria-label="Decrease quantity"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+                    <button type="button" data-card-stepper-btn data-delta="-1" aria-label="Decrease quantity"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
                     <span data-card-qty>1</span>
-                    <button type="button" data-card-stepper-btn data-delta="1" aria-label="Increase quantity"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+                    <button type="button" data-card-stepper-btn data-delta="1" aria-label="Increase quantity"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
                   </div>
                 </div>
               </div>

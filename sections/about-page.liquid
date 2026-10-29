@@ -101,10 +101,10 @@
   {{ s }} .ab-btn svg { width: 18px; height: 18px; transition: transform 240ms var(--ab-ease); }
   {{ s }} .ab-btn:hover svg { transform: translateX(4px); }
   {{ s }} .ab-btn--primary {
-    color: #fff; background: linear-gradient(135deg, var(--ab-primary), var(--ab-secondary));
-    box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--ab-primary) 70%, transparent);
+    color: #fff; background: #000000;
+    box-shadow: 0 10px 24px -10px rgba(0,0,0,0.3);
   }
-  {{ s }} .ab-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 20px 36px -14px color-mix(in srgb, var(--ab-primary) 80%, transparent); }
+  {{ s }} .ab-btn--primary:hover { transform: translateY(-2px); background: #222222; box-shadow: 0 16px 30px -10px rgba(0,0,0,0.4); }
   {{ s }} .ab-btn--light { color: var(--ab-text); background: #fff; }
   {{ s }} .ab-btn--light:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -16px rgba(0,0,0,.45); }
   {{ s }} .ab-btn:focus-visible { outline: 3px solid var(--ab-secondary); outline-offset: 3px; }

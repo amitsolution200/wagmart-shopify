@@ -1,0 +1,119 @@
+{% comment %}
+  Wagmart Testimonial Video Modal
+  Lightweight, accessible video player modal for video customer testimonials
+{% endcomment %}
+
+<div
+  id="testimonial-video-modal"
+  class="hidden fixed inset-0 z-50 overflow-y-auto p-4 flex items-center justify-center"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Pet Parent Video Testimonial"
+>
+  {% comment %} Backdrop {% endcomment %}
+  <div
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+    data-close-testimonial-modal
+  ></div>
+
+  {% comment %} Modal Dialog Box {% endcomment %}
+  <div class="relative w-full max-w-sm sm:max-w-md bg-neutral-950 rounded-3xl overflow-hidden shadow-2xl z-10 text-white border border-neutral-800 flex flex-col">
+    {% comment %} Close Button {% endcomment %}
+    <button
+      type="button"
+      class="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition cursor-pointer border border-white/20 shadow-lg"
+      data-close-testimonial-modal
+      data-close-testimonial-btn
+      aria-label="Close video testimonial"
+    >
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    {% comment %} Video Embed Container (9:14 ratio) {% endcomment %}
+    <div class="relative aspect-[9/14] w-full bg-black overflow-hidden flex items-center justify-center">
+      <iframe
+        id="testimonial-modal-iframe"
+        src=""
+        title="Pet Parent Story"
+        class="w-full h-full border-0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    {% comment %} Footer Details {% endcomment %}
+    <div class="p-5 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between gap-3">
+      <div class="space-y-0.5">
+        <h4 id="testimonial-modal-author" class="font-bold text-sm text-white">Pet Parent</h4>
+        <p id="testimonial-modal-role" class="text-xs text-neutral-400">Verified Wagmart Customer</p>
+      </div>
+      <a
+        href="{{ routes.all_products_collection_url | default: '/collections/all' }}"
+        class="px-4 py-2 bg-white text-neutral-900 text-xs font-bold rounded-full hover:bg-neutral-100 transition shadow-sm"
+      >
+        Shop Essentials
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    function initTestimonialModal() {
+      const modal = document.getElementById('testimonial-video-modal');
+      const iframe = document.getElementById('testimonial-modal-iframe');
+      const authorEl = document.getElementById('testimonial-modal-author');
+      const roleEl = document.getElementById('testimonial-modal-role');
+      if (!modal || !iframe) return;
+
+      function openModal(btn) {
+        const ytId = btn.getAttribute('data-video-id') || 'LB8Qfa9tTsU';
+        const name = btn.getAttribute('data-author-name') || 'Pet Parent';
+        const role = btn.getAttribute('data-author-role') || 'Verified Buyer';
+
+        if (authorEl) authorEl.textContent = name;
+        if (roleEl) roleEl.textContent = role;
+        
+        iframe.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&rel=0&playsinline=1';
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        iframe.src = '';
+        document.body.style.overflow = '';
+      }
+
+      document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-testimonial-video-btn]');
+        if (btn) {
+          e.preventDefault();
+          openModal(btn);
+          return;
+        }
+
+        const closeBtn = e.target.closest('[data-close-testimonial-modal]');
+        if (closeBtn) {
+          e.preventDefault();
+          closeModal();
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTestimonialModal);
+    } else {
+      initTestimonialModal();
+    }
+  })();
+</script>

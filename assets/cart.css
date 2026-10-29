@@ -519,7 +519,7 @@
   background-color: #000000;
   color: #FFFFFF;
   border: none;
-  border-radius: 6px;
+  border-radius: 9999px;
   padding: 10px 22px;
   font-family: inherit;
   font-size: 13.5px;
@@ -621,7 +621,7 @@
   background-color: #000000;
   color: #FFFFFF;
   border: none;
-  border-radius: 8px;
+  border-radius: 9999px;
   font-family: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -723,7 +723,7 @@
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 9999px;
   text-decoration: none;
   transition: background-color 0.2s ease;
 }

@@ -5,11 +5,13 @@
 <style>
   /*
     Category cards layout
-    - Mobile  (<640px)     : Horizontal scroll, 1 card per view + pagination dots
-    - Tablet  (640-1023px) : Horizontal scroll, 2 cards per view + pagination dots
-    - Laptop & Desktop (>=1024px) : Reverted to exact original 5-card row (no scroll, no dots)
+    - Mobile  (< 540px)          : Horizontal scroll, 1 card per view + pagination dots
+    - Small Tablet (540-767px)   : Horizontal scroll, 2 cards per view + pagination dots
+    - Tablet  (768-1023px)       : Horizontal scroll, 3 cards per view + pagination dots
+    - Laptop  (1024-1279px)      : Horizontal scroll, 4 cards per view + pagination dots
+    - Desktop (>= 1280px)        : 5-column grid row (no scroll, no dots)
   */
-  @media (max-width: 1023px) {
+  @media (max-width: 1279px) {
     .wm-cat-grid {
       --gap: 16px;
       display: flex;
@@ -21,6 +23,7 @@
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-x: contain;
       scrollbar-width: none;
+      -ms-overflow-style: none;
       gap: var(--gap);
       padding: 6px 2px 14px 2px;
     }
@@ -29,29 +32,86 @@
     }
     .wm-cat-grid > a {
       flex: 0 0 100%;
+      width: 100%;
       max-width: 100%;
       min-width: 0;
       scroll-snap-align: start;
+      box-sizing: border-box;
     }
   }
 
-  @media (min-width: 640px) and (max-width: 1023px) {
+  /* Large Mobile / Small Tablet (540px - 767px): 2 cards per view */
+  @media (min-width: 540px) and (max-width: 767px) {
     .wm-cat-grid > a {
       flex: 0 0 calc((100% - var(--gap)) / 2);
+      width: calc((100% - var(--gap)) / 2);
       max-width: calc((100% - var(--gap)) / 2);
+      min-height: 360px !important;
+      padding: 18px !important;
     }
   }
 
-  /* Laptop & Desktop (>= 1024px): Reverted to original 5-column layout */
-  @media (min-width: 1024px) {
+  /* Tablet View (768px - 1023px): 3 cards per view */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .wm-cat-grid {
+      --gap: 16px;
+    }
+    .wm-cat-grid > a {
+      flex: 0 0 calc((100% - (2 * var(--gap))) / 3);
+      width: calc((100% - (2 * var(--gap))) / 3);
+      max-width: calc((100% - (2 * var(--gap))) / 3);
+      min-height: 350px !important;
+      padding: 18px !important;
+    }
+    .wm-cat-grid > a h3 {
+      font-size: 20px !important;
+      line-height: 1.2 !important;
+    }
+    .wm-cat-grid > a p {
+      font-size: 13px !important;
+      line-height: 1.45 !important;
+    }
+    .wm-cat-grid > a img {
+      max-height: 175px !important;
+    }
+  }
+
+  /* Laptop View (1024px - 1279px): 4 cards per view */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .wm-cat-grid {
+      --gap: 16px;
+    }
+    .wm-cat-grid > a {
+      flex: 0 0 calc((100% - (3 * var(--gap))) / 4);
+      width: calc((100% - (3 * var(--gap))) / 4);
+      max-width: calc((100% - (3 * var(--gap))) / 4);
+      min-height: 390px !important;
+      padding: 20px !important;
+    }
+    .wm-cat-grid > a h3 {
+      font-size: 22px !important;
+      line-height: 1.2 !important;
+    }
+    .wm-cat-grid > a p {
+      font-size: 13.5px !important;
+      line-height: 1.5 !important;
+    }
+    .wm-cat-grid > a img {
+      max-height: 195px !important;
+    }
+  }
+
+  /* Desktop View (>= 1280px): 5-column grid layout */
+  @media (min-width: 1280px) {
     .wm-cat-grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 16px;
+      gap: 18px;
       overflow: visible;
     }
     .wm-cat-grid > a {
       flex: none;
+      width: auto;
       max-width: none;
       min-width: 0;
     }
@@ -170,7 +230,7 @@
     outline: 2px solid #7a46e5;
     outline-offset: 3px;
   }
-  @media (min-width: 1024px) {
+  @media (min-width: 1280px) {
     .wm-cat-dots { display: none !important; }
   }
 
@@ -439,7 +499,7 @@
     var ticking = false;
 
     function isCarousel() {
-      return window.innerWidth < 1024 && track.scrollWidth > track.clientWidth + 1;
+      return window.innerWidth < 1280 && track.scrollWidth > track.clientWidth + 1;
     }
     function step() {
       if (cards.length < 2) return track.clientWidth;

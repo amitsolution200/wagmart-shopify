@@ -280,7 +280,7 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   }
 
   .wm-react-card:hover [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden),
-  .wm-react-card:focus-within [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden) {
+  .wm-react-card [data-add-to-cart]:not(.wm-card__btn-add):not(.hidden):focus-visible {
     opacity: 1 !important;
     transform: translateY(0) !important;
     pointer-events: auto !important;
@@ -298,7 +298,7 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
 /* Quantity Stepper when item is in cart */
 .wm-react-card [data-card-stepper]:not(.wm-card__stepper):not(.hidden):not([hidden]) {
   width: 100% !important;
-  height: 32px !important;
+  height: 40px !important;
   background-color: #111827 !important;
   color: #FFFFFF !important;
   border-radius: 9999px !important;
@@ -578,6 +578,31 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   stroke-width: 2 !important;
 }
 
+[data-product-card] .wm-react-card__wishlist.is-wishlisted,
+[data-product-card] .wm-react-card__wishlist.is-active,
+.wm-unified-card .wm-react-card__wishlist.is-wishlisted,
+.wm-unified-card .wm-react-card__wishlist.is-active,
+.wm-react-card__wishlist.is-wishlisted,
+.wm-react-card__wishlist.is-active,
+[data-wishlist-btn].is-wishlisted,
+[data-wishlist-btn].is-active {
+  color: #EF4444 !important;
+  background-color: #FEF2F2 !important;
+}
+
+[data-product-card] .wm-react-card__wishlist.is-wishlisted svg,
+[data-product-card] .wm-react-card__wishlist.is-active svg,
+.wm-unified-card .wm-react-card__wishlist.is-wishlisted svg,
+.wm-unified-card .wm-react-card__wishlist.is-active svg,
+.wm-react-card__wishlist.is-wishlisted svg,
+.wm-react-card__wishlist.is-active svg,
+[data-wishlist-btn].is-wishlisted svg,
+[data-wishlist-btn].is-active svg {
+  fill: #EF4444 !important;
+  stroke: #EF4444 !important;
+  color: #EF4444 !important;
+}
+
 /* 3. Bottom Inside Image: White Pill "Add To Bag" Button & Active Stepper */
 [data-product-card] .wm-card__img-qv-wrap,
 .wm-unified-card .wm-card__img-qv-wrap {
@@ -601,11 +626,7 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   }
 
   [data-product-card]:hover .wm-card__img-qv-wrap,
-  [data-product-card]:focus-within .wm-card__img-qv-wrap,
-  [data-product-card]:has([data-card-stepper]:not(.hidden)) .wm-card__img-qv-wrap,
-  .wm-unified-card:hover .wm-card__img-qv-wrap,
-  .wm-unified-card:focus-within .wm-card__img-qv-wrap,
-  .wm-unified-card:has([data-card-stepper]:not(.hidden)) .wm-card__img-qv-wrap {
+  .wm-unified-card:hover .wm-card__img-qv-wrap {
     opacity: 1 !important;
     transform: translateY(0) !important;
     pointer-events: auto !important;
@@ -624,20 +645,21 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
 [data-product-card] .wm-card__img-qv-btn:not(.hidden):not([hidden]),
 .wm-unified-card .wm-card__img-qv-btn:not(.hidden):not([hidden]) {
   width: 100% !important;
-  height: 36px !important;
+  height: 40px !important;
+  min-height: 40px !important;
   background-color: rgba(255, 255, 255, 0.96) !important;
   color: #111827 !important;
   border: 1px solid rgba(229, 231, 235, 0.5) !important;
   border-radius: 9999px !important;
-  padding: 0 12px !important;
-  font-size: 12px !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
   line-height: 1 !important;
   letter-spacing: 0.01em !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
+  gap: 7px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   backdrop-filter: blur(6px) !important;
   -webkit-backdrop-filter: blur(6px) !important;
@@ -651,8 +673,8 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
 
 [data-product-card] .wm-card__img-qv-btn svg,
 .wm-unified-card .wm-card__img-qv-btn svg {
-  width: 13px !important;
-  height: 13px !important;
+  width: 14px !important;
+  height: 14px !important;
   stroke: currentColor !important;
   stroke-width: 2 !important;
   flex-shrink: 0 !important;
@@ -677,18 +699,19 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   width: 100% !important;
   min-width: 100% !important;
   max-width: 100% !important;
-  height: 36px !important;
+  height: 40px !important;
+  min-height: 40px !important;
   background-color: #111827 !important;
   color: #ffffff !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
   border-radius: 9999px !important;
   padding: 0 6px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 4px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  gap: 6px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
   opacity: 1 !important;
   transform: none !important;
   pointer-events: auto !important;
@@ -702,10 +725,12 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
 
 [data-product-card] [data-card-stepper-btn],
 .wm-unified-card [data-card-stepper-btn] {
-  width: 21px !important;
-  height: 21px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
   border-radius: 9999px !important;
-  background-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.22) !important;
   color: #ffffff !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -717,25 +742,33 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   transition: background-color 0.15s ease, transform 0.1s ease !important;
 }
 
+[data-product-card] [data-card-stepper-btn] svg,
+.wm-unified-card [data-card-stepper-btn] svg {
+  width: 13px !important;
+  height: 13px !important;
+  stroke-width: 2.5 !important;
+}
+
 [data-product-card] [data-card-stepper-btn]:hover,
 .wm-unified-card [data-card-stepper-btn]:hover {
-  background-color: rgba(255, 255, 255, 0.35) !important;
+  background-color: rgba(255, 255, 255, 0.36) !important;
 }
 
 [data-product-card] [data-card-stepper-btn]:active,
 .wm-unified-card [data-card-stepper-btn]:active {
-  transform: scale(0.9) !important;
+  transform: scale(0.92) !important;
 }
 
 [data-product-card] [data-card-qty],
 .wm-unified-card [data-card-qty] {
-  font-size: 11px !important;
+  font-size: 13.5px !important;
   font-weight: 700 !important;
   color: #ffffff !important;
-  min-width: 14px !important;
+  min-width: 18px !important;
   text-align: center !important;
   user-select: none !important;
   padding: 0 2px !important;
+  line-height: 1 !important;
 }
 
 [data-product-card] .wm-card__action-wrap,
@@ -787,48 +820,50 @@ header.wm-header.is-hidden:not(.shopify-section-header header) {
   .wm-react-card .wm-card__img-qv-btn[data-add-to-cart]:not(.wm-card__btn-add),
   [data-product-card] .wm-card__img-qv-btn,
   .wm-unified-card .wm-card__img-qv-btn {
-    height: 28px !important;
-    min-height: 28px !important;
-    padding: 0 9px !important;
-    font-size: 10.5px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
     gap: 4px !important;
   }
 
   .wm-react-card .wm-card__img-qv-btn[data-add-to-cart] svg,
   [data-product-card] .wm-card__img-qv-btn svg,
   .wm-unified-card .wm-card__img-qv-btn svg {
-    width: 11px !important;
-    height: 11px !important;
+    width: 11.5px !important;
+    height: 11.5px !important;
   }
 
   .wm-react-card .wm-card__img-qv-wrap [data-card-stepper]:not(.wm-card__stepper),
   [data-product-card] .wm-card__img-qv-wrap [data-card-stepper],
   .wm-unified-card .wm-card__img-qv-wrap [data-card-stepper] {
-    height: 28px !important;
-    min-height: 28px !important;
-    padding: 0 5px !important;
-    font-size: 10.5px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 4px !important;
+    font-size: 11.5px !important;
   }
 
   .wm-react-card [data-card-stepper] [data-card-stepper-btn],
   [data-product-card] [data-card-stepper-btn],
   .wm-unified-card [data-card-stepper-btn] {
-    width: 18px !important;
-    height: 18px !important;
+    width: 21px !important;
+    height: 21px !important;
+    min-width: 21px !important;
+    min-height: 21px !important;
   }
 
   .wm-react-card [data-card-stepper] [data-card-stepper-btn] svg,
   [data-product-card] [data-card-stepper-btn] svg,
   .wm-unified-card [data-card-stepper-btn] svg {
-    width: 8px !important;
-    height: 8px !important;
+    width: 10.5px !important;
+    height: 10.5px !important;
   }
 
   .wm-react-card [data-card-stepper] [data-card-qty],
   [data-product-card] [data-card-qty],
   .wm-unified-card [data-card-qty] {
-    font-size: 10.5px !important;
-    min-width: 12px !important;
+    font-size: 11.5px !important;
+    min-width: 14px !important;
   }
 }
 
