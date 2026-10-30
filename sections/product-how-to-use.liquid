@@ -1,0 +1,135 @@
+{%- comment -%}
+  Wagmart Product How-To-Use Section (sections/product-how-to-use.liquid)
+  3-step visual sequence with images. Reads from product.metafields.custom.how_to_steps.value
+  (metaobject list: title, text, image) with fallback to section blocks.
+{%- endcomment -%}
+
+{%- liquid
+  assign steps_meta = product.metafields.custom.how_to_steps.value
+  assign fallback_img_1 = 'catalog-grooming-glove.webp' | asset_url
+  assign fallback_img_2 = 'dog-groomed.webp' | asset_url
+  assign fallback_img_3 = 'cat-relaxing.webp' | asset_url
+-%}
+
+<section
+  class="wm-section wm-how-to"
+  id="ProductHowToUse-{{ section.id }}"
+  aria-labelledby="HowToHeading-{{ section.id }}"
+>
+  <div class="wm-container">
+    <div class="wm-how-to__header">
+      <h2 class="wm-section__heading" id="HowToHeading-{{ section.id }}">
+        {{ section.settings.heading | default: 'Three minutes from loose shed to a clean coat.' }}
+      </h2>
+      {%- if section.settings.subheading != blank -%}
+        <p class="wm-section__subcopy">
+          {{ section.settings.subheading }}
+        </p>
+      {%- endif -%}
+    </div>
+
+    <ol class="wm-how-to__grid">
+      {%- if steps_meta != blank and steps_meta.size > 0 -%}
+        {%- for step in steps_meta -%}
+          <li class="wm-how-to__step">
+            <div class="wm-how-to__body">
+              <span class="wm-how-to__num" aria-hidden="true">{{ forloop.index }}</span>
+              <div class="wm-how-to__content">
+                <h3 class="wm-how-to__title">{{ step.title }}</h3>
+                <p class="wm-how-to__text">{{ step.text }}</p>
+              </div>
+            </div>
+          </li>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          <li class="wm-how-to__step" {{ block.shopify_attributes }}>
+            <div class="wm-how-to__body">
+              <span class="wm-how-to__num" aria-hidden="true">{{ forloop.index }}</span>
+              <div class="wm-how-to__content">
+                <h3 class="wm-how-to__title">{{ block.settings.title }}</h3>
+                <p class="wm-how-to__text">{{ block.settings.text }}</p>
+              </div>
+            </div>
+          </li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ol>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product How To Use",
+  "tag": "section",
+  "class": "section-product-how-to-use",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Three minutes from loose shed to a clean coat."
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Supporting copy",
+      "default": "Use on a dry coat in the living room or with shampoo during a warm bath."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Step image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Step title",
+          "default": "Slip On & Secure the Strap"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Step description",
+          "default": "Slide your hand into the breathable mesh glove and fasten the adjustable wrist strap so the palm sits flat."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product How To Use",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "title": "Slip On & Adjust the Wrist",
+            "text": "Slide your hand into the breathable air-mesh glove and fasten the hook-and-loop wrist strap for a snug, comfortable fit."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Stroke Along the Coat",
+            "text": "Pet your dog or cat in calm, natural strokes from neck to tail. The 255 flexible silicone tips gather loose undercoat hair as you massage."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Peel Off & Rinse Clean",
+            "text": "Once a layer of shed collects across the palm, lift one edge to peel the entire fur sheet away and rinse the glove under tap water."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

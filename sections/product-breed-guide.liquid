@@ -1,0 +1,242 @@
+{%- comment -%}
+  Wagmart Product Coat & Breed Guide Section (sections/product-breed-guide.liquid)
+  Compact, scannable specification table with segmented filter control.
+  Reads from product.metafields.custom.breed_guide.value (metaobject list: coat_type, breeds, frequency, tip)
+  with fallback to section blocks.
+{%- endcomment -%}
+
+{%- liquid
+  assign breed_meta = product.metafields.custom.breed_guide.value
+-%}
+
+<section
+  class="wm-section wm-breed-guide"
+  id="ProductBreedGuide-{{ section.id }}"
+  aria-labelledby="BreedGuideHeading-{{ section.id }}"
+  data-breed-guide-section
+>
+  <div class="wm-container">
+    <div class="wm-breed-guide__top">
+      <div class="wm-breed-guide__title-group">
+        <h2 class="wm-section__heading" id="BreedGuideHeading-{{ section.id }}">
+          {{ section.settings.heading | default: 'Coat & breed guide' }}
+        </h2>
+        {%- if section.settings.subheading != blank -%}
+          <p class="wm-section__subcopy">
+            {{ section.settings.subheading }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Segmented Filter Control {%- endcomment -%}
+      <div class="wm-segmented" role="tablist" aria-label="Filter by coat type" data-breed-filter-group>
+        <button
+          type="button"
+          role="tab"
+          aria-selected="true"
+          class="wm-segmented__btn is-active"
+          data-breed-filter="all"
+        >
+          All Coats
+        </button>
+        {%- if breed_meta != blank and breed_meta.size > 0 -%}
+          {%- for entry in breed_meta -%}
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              class="wm-segmented__btn"
+              data-breed-filter="coat-{{ forloop.index }}"
+            >
+              {{ entry.coat_type }}
+            </button>
+          {%- endfor -%}
+        {%- else -%}
+          {%- for block in section.blocks -%}
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              class="wm-segmented__btn"
+              data-breed-filter="coat-{{ forloop.index }}"
+            >
+              {{ block.settings.coat_type }}
+            </button>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="wm-breed-guide__table-wrap">
+      <table class="wm-breed-table" aria-labelledby="BreedGuideHeading-{{ section.id }}">
+        <thead>
+          <tr>
+            <th scope="col">{{ section.settings.col_coat | default: 'Coat Type' }}</th>
+            <th scope="col">{{ section.settings.col_breeds | default: 'Breeds' }}</th>
+            <th scope="col">{{ section.settings.col_frequency | default: 'Frequency' }}</th>
+            <th scope="col">{{ section.settings.col_notes | default: 'Best Technique' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- if breed_meta != blank and breed_meta.size > 0 -%}
+            {%- for entry in breed_meta -%}
+              <tr data-breed-row="coat-{{ forloop.index }}">
+                <th scope="row" data-label="{{ section.settings.col_coat | default: 'Coat Type' }}">
+                  {{ entry.coat_type }}
+                </th>
+                <td data-label="{{ section.settings.col_breeds | default: 'Breeds' }}">
+                  {{ entry.breeds }}
+                </td>
+                <td data-label="{{ section.settings.col_frequency | default: 'Frequency' }}">
+                  <span class="wm-breed-table__freq">{{ entry.frequency }}</span>
+                </td>
+                <td data-label="{{ section.settings.col_notes | default: 'Best Technique' }}">
+                  {{ entry.tip | default: 'Use long, gentle strokes in the direction of hair growth.' }}
+                </td>
+              </tr>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for block in section.blocks -%}
+              <tr data-breed-row="coat-{{ forloop.index }}" {{ block.shopify_attributes }}>
+                <th scope="row" data-label="{{ section.settings.col_coat | default: 'Coat Type' }}">
+                  {{ block.settings.coat_type }}
+                </th>
+                <td data-label="{{ section.settings.col_breeds | default: 'Breeds' }}">
+                  {{ block.settings.breeds }}
+                </td>
+                <td data-label="{{ section.settings.col_frequency | default: 'Frequency' }}">
+                  <span class="wm-breed-table__freq">{{ block.settings.frequency }}</span>
+                </td>
+                <td data-label="{{ section.settings.col_notes | default: 'Best Technique' }}">
+                  {{ block.settings.tip }}
+                </td>
+              </tr>
+            {%- endfor -%}
+          {%- endif -%}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Breed Guide",
+  "tag": "section",
+  "class": "section-product-breed-guide",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Coat & breed guide"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Supporting copy",
+      "default": "Tailored grooming frequency for common Indian dog and cat coats, from humid coastal summers to heavy seasonal shedding."
+    },
+    {
+      "type": "text",
+      "id": "col_coat",
+      "label": "Column 1 heading",
+      "default": "Coat Type"
+    },
+    {
+      "type": "text",
+      "id": "col_breeds",
+      "label": "Column 2 heading",
+      "default": "Common Breeds"
+    },
+    {
+      "type": "text",
+      "id": "col_frequency",
+      "label": "Column 3 heading",
+      "default": "Routine"
+    },
+    {
+      "type": "text",
+      "id": "col_notes",
+      "label": "Column 4 heading",
+      "default": "Technique"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "coat_row",
+      "name": "Coat type row",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "coat_type",
+          "label": "Coat type",
+          "default": "Short & Smooth"
+        },
+        {
+          "type": "text",
+          "id": "breeds",
+          "label": "Breeds",
+          "default": "Indian Pariah (Indie), Labrador, Beagle, Pug, Boxer, Dachshund"
+        },
+        {
+          "type": "text",
+          "id": "frequency",
+          "label": "Frequency",
+          "default": "2–3 times / week"
+        },
+        {
+          "type": "text",
+          "id": "tip",
+          "label": "Technique note",
+          "default": "Light dry strokes along the back and flanks lift fine surface dander and spread natural skin oils."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Breed Guide",
+      "blocks": [
+        {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Short & Smooth",
+            "breeds": "Indian Pariah (Indie), Labrador, Beagle, Pug, Boxer, Doberman",
+            "frequency": "2–3 times / week",
+            "tip": "Light dry strokes along the spine and chest sweep away loose surface shed without irritating thin skin."
+          }
+        },
+        {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Double & Dense",
+            "breeds": "Golden Retriever, German Shepherd, Siberian Husky, Pomeranian, Indian Spitz",
+            "frequency": "Daily in shedding season",
+            "tip": "Part dense fur around the collar and hindquarters; also use with shampoo during bath time to loosen undercoat."
+          }
+        },
+        {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Silky & Long",
+            "breeds": "Shih Tzu, Lhasa Apso, Cocker Spaniel, Maltese",
+            "frequency": "3–4 times / week",
+            "tip": "Work gently behind the ears and under the legs with individual fingers to prevent friction knots."
+          }
+        },
+        {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Cats & Kittens",
+            "breeds": "Indie Cat, Persian, British Shorthair, Siamese, Maine Coon",
+            "frequency": "3 times / week",
+            "tip": "Let your cat rub their cheek against the silicone palm first, then stroke slowly from shoulders to tail."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

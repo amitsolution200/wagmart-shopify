@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Wagmart Premium Pet Store",
-    "theme_version": "1.0.0",
+    "theme_version": "2.0.0",
     "theme_author": "Wagmart",
     "theme_documentation_url": "https://wagmart.com",
     "theme_support_url": "https://wagmart.com"
@@ -14,25 +14,70 @@
         "type": "color",
         "id": "color_primary",
         "label": "Primary brand color",
-        "default": "#7a46e5"
+        "default": "#000000"
       },
       {
         "type": "color",
         "id": "color_background",
-        "label": "Page background",
+        "label": "Background color",
         "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_alt",
+        "label": "Secondary warm surface",
+        "default": "#F7F5EE"
       },
       {
         "type": "color",
         "id": "color_text",
         "label": "Text color",
-        "default": "#1F2937"
+        "default": "#111827"
+      },
+      {
+        "type": "color",
+        "id": "color_text_muted",
+        "label": "Muted text color (WCAG AA)",
+        "default": "#555555"
       },
       {
         "type": "color",
         "id": "color_accent",
-        "label": "Accent color (Coral/Pink)",
-        "default": "#FF5376"
+        "label": "Sale / Accent color",
+        "default": "#991B1B"
+      },
+      {
+        "type": "color",
+        "id": "color_border",
+        "label": "Border / Divider color",
+        "default": "#EAE5D9"
+      }
+    ]
+  },
+  {
+    "name": "Typography & Shape",
+    "settings": [
+      {
+        "type": "text",
+        "id": "font_heading_family",
+        "label": "Heading font family",
+        "default": "Playfair Display"
+      },
+      {
+        "type": "text",
+        "id": "font_body_family",
+        "label": "Body font family",
+        "default": "Inter"
+      },
+      {
+        "type": "range",
+        "id": "corner_radius",
+        "min": 0,
+        "max": 20,
+        "step": 2,
+        "unit": "px",
+        "label": "Global corner radius",
+        "default": 12
       }
     ]
   },
@@ -72,6 +117,17 @@
         "id": "social_youtube_link",
         "label": "YouTube",
         "default": "https://youtube.com"
+      }
+    ]
+  },
+  {
+    "name": "Cart & Free Shipping",
+    "settings": [
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping minimum order amount (INR)",
+        "default": 1000
       }
     ]
   }

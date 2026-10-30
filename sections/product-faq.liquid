@@ -1,0 +1,190 @@
+{%- comment -%}
+  Wagmart Product FAQ Section (sections/product-faq.liquid)
+  Accessible accordion built on native <details>/<summary> with the first item open by default,
+  two-column layout from 768px up, reading from product.metafields.custom.faqs.value
+  (metaobject list: question, answer) with block fallbacks, and outputting FAQPage JSON-LD.
+{%- endcomment -%}
+
+{%- liquid
+  assign faqs_meta = product.metafields.custom.faqs.value
+-%}
+
+{%- comment -%} FAQPage JSON-LD Structured Data {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {%- if faqs_meta != blank and faqs_meta.size > 0 -%}
+      {%- for item in faqs_meta -%}
+        {
+          "@type": "Question",
+          "name": {{ item.question | strip_html | json }},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {{ item.answer | strip_html | json }}
+          }
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    {%- else -%}
+      {%- for block in section.blocks -%}
+        {
+          "@type": "Question",
+          "name": {{ block.settings.question | strip_html | json }},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {{ block.settings.answer | strip_html | json }}
+          }
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    {%- endif -%}
+  ]
+}
+</script>
+
+<section
+  class="wm-section wm-faq"
+  id="ProductFaq-{{ section.id }}"
+  aria-labelledby="FaqHeading-{{ section.id }}"
+>
+  <div class="wm-container">
+    <div class="wm-faq__grid">
+      <div class="wm-faq__intro">
+        <h2 class="wm-section__heading" id="FaqHeading-{{ section.id }}">
+          {{ section.settings.heading | default: 'Frequently asked questions' }}
+        </h2>
+        <p class="wm-section__subcopy">
+          {{ section.settings.subheading | default: 'Practical answers on sizing, coat compatibility, bath-time use, and Indian shipping.' }}
+        </p>
+        {%- if section.settings.support_note != blank -%}
+          <p class="wm-faq__support">
+            {{ section.settings.support_note }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      <div class="wm-faq__list" data-faq-accordion>
+        {%- if faqs_meta != blank and faqs_meta.size > 0 -%}
+          {%- for item in faqs_meta -%}
+            <details class="wm-faq__item" {% if forloop.first %}open{% endif %}>
+              <summary class="wm-faq__summary">
+                <span class="wm-faq__question">{{ item.question }}</span>
+                <span class="wm-faq__chevron" aria-hidden="true">
+                  {% render 'icon', name: 'chevron-down', size: 18 %}
+                </span>
+              </summary>
+              <div class="wm-faq__answer">
+                <p>{{ item.answer }}</p>
+              </div>
+            </details>
+          {%- endfor -%}
+        {%- else -%}
+          {%- for block in section.blocks -%}
+            <details class="wm-faq__item" {% if forloop.first %}open{% endif %} {{ block.shopify_attributes }}>
+              <summary class="wm-faq__summary">
+                <span class="wm-faq__question">{{ block.settings.question }}</span>
+                <span class="wm-faq__chevron" aria-hidden="true">
+                  {% render 'icon', name: 'chevron-down', size: 18 %}
+                </span>
+              </summary>
+              <div class="wm-faq__answer">
+                <p>{{ block.settings.answer }}</p>
+              </div>
+            </details>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product FAQ",
+  "tag": "section",
+  "class": "section-product-faq",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently asked questions"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Supporting copy",
+      "default": "Practical answers on sizing, coat compatibility, bath-time use, and Indian shipping."
+    },
+    {
+      "type": "text",
+      "id": "support_note",
+      "label": "Support contact note",
+      "default": "Still unsure if it suits your pet? Reach our care team any day from 9 AM to 8 PM IST."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ item",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Will the silicone tips scratch my puppy's or kitten's sensitive skin?"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "Not at all. Unlike wire slicker brushes, the Pet Grooming Glove uses 255 soft, flexible food-grade silicone tips that bend gently over bone and skin folds without scratching."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product FAQ",
+      "blocks": [
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Will the silicone tips scratch my puppy's or kitten's sensitive skin?",
+            "answer": "Not at all. Unlike wire slicker brushes, the Pet Grooming Glove uses 255 soft, flexible food-grade silicone tips that bend gently over bone and skin folds without scratching."
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I remove the collected hair from the glove?",
+            "answer": "As you stroke your pet's coat, static friction gathers loose fur into a flat mat across the silicone palm. Simply pinch one corner of the fur layer and peel the entire sheet off in one motion."
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Can I use the Pet Grooming Glove with shampoo during bath time?",
+            "answer": "Yes. Both the silicone palm and the 3D air-mesh back are 100% water-safe. Use it during baths to work shampoo down to the skin, then rinse under running tap water and hang to air dry."
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Does the glove fit all hand sizes?",
+            "answer": "Yes. The flexible mesh cuff opens wide and secures with an adjustable hook-and-loop wrist strap, fitting both small and large adult hands comfortably."
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How long does delivery take across India, and is COD available?",
+            "answer": "Orders dispatch within 24 hours and arrive within 2–4 business days across metro cities and 3–6 days across tier-2/3 pincodes. Both UPI and Cash on Delivery (COD) are supported, backed by our 30-Day Wagmart Guarantee."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

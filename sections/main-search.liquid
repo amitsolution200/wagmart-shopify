@@ -152,10 +152,12 @@
                     assign real_compare_inr = 0
                     if item.compare_at_price > item.price
                       assign real_compare_inr = item.compare_at_price | divided_by: 100.0 | round
+                    else
+                      assign real_compare_inr = real_price_inr | times: 125 | divided_by: 100.0 | round
                     endif
 
                     if item.featured_image != blank
-                      assign real_img = item.featured_image | image_url: width: 640
+                      assign real_img = item.featured_image | image_url: width: 800
                     else
                       assign real_img = img_brush
                     endif

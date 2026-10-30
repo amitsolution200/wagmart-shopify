@@ -1,8 +1,10 @@
 {%- comment -%}
   WAGMART Cart Drawer
-  - Modern minimalist design matching Kumbh Sans / React reference design
-  - Default store currency (INR / Rupees)
-  - All-device responsive (full screen mobile, max 500px desktop)
+  - Clean modern line-item layout matching reference card drawer design:
+    * Framed rounded thumbnail on the left
+    * Bold 2-line product title on top right
+    * Bottom row with circular (-) qty (+) buttons on the left, strikethrough compare price + bold final price + trash icon on the right
+  - Related Products ("CUSTOMERS ALSO BOUGHT") horizontal upsell carousel inside the Cart Drawer
 {%- endcomment -%}
 
 <div class="wm-cart" id="cart-drawer" aria-hidden="true" data-cart-drawer data-fallback-image="{{ 'catalog-grooming-glove.webp' | asset_url }}">
@@ -24,6 +26,34 @@
       </button>
     </div>
 
+    {%- comment -%} ── Free Shipping Progress Bar (Real-time progress matching reference screenshot) ── {%- endcomment -%}
+    {%- liquid
+      assign drawer_sub_inr = cart.total_price | default: 0 | divided_by: 100.0 | round
+      assign drawer_ship_threshold = settings.free_shipping_threshold | default: 1000 | plus: 0
+      if drawer_ship_threshold <= 0
+        assign drawer_ship_threshold = 1000
+      endif
+      assign drawer_rem_inr = drawer_ship_threshold | minus: drawer_sub_inr
+      assign drawer_ship_pct = drawer_sub_inr | times: 100 | divided_by: drawer_ship_threshold
+      if drawer_ship_pct > 100
+        assign drawer_ship_pct = 100
+      elsif drawer_ship_pct < 0
+        assign drawer_ship_pct = 0
+      endif
+    -%}
+    <div id="cart-drawer-shipping-bar" class="wm-cart__shipping{% if cart.item_count == 0 %} hidden{% endif %}" data-cart-drawer-shipping data-free-shipping-threshold="{{ drawer_ship_threshold }}">
+      <p class="wm-cart__shipping-text" data-cart-drawer-shipping-text aria-live="polite">
+        {%- if drawer_rem_inr <= 0 -%}
+          Congratulations! You qualify for Free Shipping
+        {%- else -%}
+          Spend <strong>&#8377;{{ drawer_rem_inr }}</strong> more to qualify for Free Shipping
+        {%- endif -%}
+      </p>
+      <div class="wm-cart__shipping-track" role="progressbar" aria-valuenow="{{ drawer_ship_pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="Free shipping progress">
+        <div class="wm-cart__shipping-fill" data-cart-drawer-shipping-fill style="width: {{ drawer_ship_pct }}%;"></div>
+      </div>
+    </div>
+
     <div class="wm-cart__progress" aria-hidden="true"></div>
 
     {%- comment -%} ── Items Scroll Area ── {%- endcomment -%}
@@ -39,32 +69,55 @@
       </div>
 
       {%- comment -%} Line items list ── {%- endcomment -%}
+      {%- assign cart_total_price_inr = 0 -%}
+      {%- assign cart_total_comp_inr = 0 -%}
       <ul id="cart-drawer-items" class="wm-cart__items{% if cart.item_count == 0 %} hidden{% endif %}" aria-label="Cart items">
         {%- for item in cart.items -%}
-          <li class="wm-line" data-cart-item-id="{{ item.key }}">
-            <!-- Left: Rounded 12px product image (w-20 h-20) -->
+          {%- liquid
+            assign unit_price_inr = item.final_price | divided_by: 100.0 | round
+            if item.variant.compare_at_price > item.final_price
+              assign unit_comp_inr = item.variant.compare_at_price | divided_by: 100.0 | round
+            elsif item.original_price > item.final_price
+              assign unit_comp_inr = item.original_price | divided_by: 100.0 | round
+            else
+              assign unit_comp_inr = unit_price_inr | times: 125 | divided_by: 100.0 | round
+            endif
+            assign line_price_inr = unit_price_inr | times: item.quantity
+            assign line_comp_inr = unit_comp_inr | times: item.quantity
+            assign cart_total_price_inr = cart_total_price_inr | plus: line_price_inr
+            assign cart_total_comp_inr = cart_total_comp_inr | plus: line_comp_inr
+            if item.variant.inventory_management == 'shopify' and item.variant.inventory_policy == 'deny'
+              assign item_max_qty = item.variant.inventory_quantity | default: 99
+            else
+              assign item_max_qty = 99
+            endif
+          -%}
+          <li class="wm-line" data-cart-item-id="{{ item.key }}" data-max-qty="{{ item_max_qty }}">
+            <!-- Left: Framed rounded product image -->
             <a class="wm-line__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
               {%- if item.image -%}
-                <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.product.title | escape }}" width="80" height="80" loading="eager" onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';">
+                <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.product.title | escape }}" width="72" height="72" loading="eager" onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';">
               {%- else -%}
-                <img src="{{ 'catalog-grooming-glove.webp' | asset_url }}" alt="{{ item.product.title | escape }}" width="80" height="80" loading="eager">
+                <img src="{{ 'catalog-grooming-glove.webp' | asset_url }}" alt="{{ item.product.title | escape }}" width="72" height="72" loading="eager">
               {%- endif -%}
             </a>
 
-            <!-- Middle: Details (title + variant + stepper/remove row) -->
+            <!-- Right: Title + Bottom Controls Row -->
             <div class="wm-line__details">
-              <a class="wm-line__title" href="{{ item.url }}">{{ item.product.title | escape }}</a>
-              {%- unless item.product.has_only_default_variant -%}
-                <p class="wm-line__variant">{{ item.variant.title | escape }}</p>
-              {%- endunless -%}
-              {%- for property in item.properties -%}
-                {%- assign first_char = property.first | slice: 0 -%}
-                {%- if property.last != blank and first_char != '_' -%}
-                  <p class="wm-line__variant">{{ property.first | escape }}: {{ property.last | escape }}</p>
-                {%- endif -%}
-              {%- endfor -%}
+              <div class="wm-line__top">
+                <a class="wm-line__title" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+                {%- unless item.product.has_only_default_variant -%}
+                  <p class="wm-line__variant">{{ item.variant.title | escape }}</p>
+                {%- endunless -%}
+                {%- for property in item.properties -%}
+                  {%- assign first_char = property.first | slice: 0 -%}
+                  {%- if property.last != blank and first_char != '_' -%}
+                    <p class="wm-line__variant">{{ property.first | escape }}: {{ property.last | escape }}</p>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
 
-              <!-- Stepper + Remove trigger row -->
+              <!-- Bottom row: Circular Stepper on left | Price + Trash icon on right -->
               <div class="wm-line__actions-row">
                 <div class="wm-line__stepper">
                   <button type="button" class="wm-line__stepper-btn" data-cart-qty-btn="-1" data-key="{{ item.key }}" aria-label="Decrease quantity">
@@ -73,26 +126,122 @@
                     </svg>
                   </button>
                   <output class="wm-line__qty-val" aria-live="polite">{{ item.quantity }}</output>
-                  <button type="button" class="wm-line__stepper-btn" data-cart-qty-btn="1" data-key="{{ item.key }}" aria-label="Increase quantity">
+                  <button type="button" class="wm-line__stepper-btn" data-cart-qty-btn="1" data-key="{{ item.key }}" aria-label="Increase quantity" {% if item.quantity >= item_max_qty %}disabled{% endif %}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <line x1="12" y1="5" x2="12" y2="19"></line>
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
                   </button>
                 </div>
-                <button type="button" class="wm-line__remove-btn" data-cart-remove="{{ item.key }}" aria-label="Remove {{ item.product.title | escape }}">
-                  Remove
-                </button>
-              </div>
-            </div>
 
-            <!-- Right: Line Price -->
-            <div class="wm-line__price">
-              {{ item.final_line_price | money }}
+                <div class="wm-line__right-group">
+                  <div class="wm-line__price-group">
+                    <span class="wm-line__price">₹{{ line_price_inr }}</span>
+                    <s class="wm-line__compare-price">₹{{ line_comp_inr }}</s>
+                  </div>
+
+                  <button type="button" class="wm-line__remove-btn" data-cart-remove="{{ item.key }}" aria-label="Remove {{ item.product.title | escape }}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </li>
         {%- endfor -%}
       </ul>
+
+      {%- comment -%} ── Related Products / Customers Also Bought Carousel ── {%- endcomment -%}
+      {%- assign upsell_pool = collections['all'].products -%}
+      {%- if upsell_pool.size > 0 -%}
+        <script type="application/json" id="cart-drawer-stock-map">
+          {
+            {%- assign first_stock_entry = true -%}
+            {%- for sp in upsell_pool limit: 50 -%}
+              {%- for sv in sp.variants -%}
+                {%- unless first_stock_entry -%},{%- endunless -%}
+                {%- assign first_stock_entry = false -%}
+                {%- if sv.available == false -%}
+                  "{{ sv.id }}": 0
+                {%- elsif sv.inventory_management == 'shopify' and sv.inventory_policy == 'deny' -%}
+                  "{{ sv.id }}": {{ sv.inventory_quantity | default: 0 }}
+                {%- else -%}
+                  "{{ sv.id }}": 99
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          }
+        </script>
+        <div id="cart-drawer-upsell" class="wm-cart-upsell{% if cart.item_count == 0 %} hidden{% endif %}" data-cart-upsell>
+          <p class="wm-cart-upsell__heading">CUSTOMERS ALSO BOUGHT</p>
+          <div class="wm-cart-upsell__track" role="list" aria-label="Customers also bought">
+            {%- for rel_prod in upsell_pool limit: 8 -%}
+              {%- assign rel_var = rel_prod.selected_or_first_available_variant -%}
+              {%- if rel_var.available -%}
+                {%- if rel_prod.featured_image != blank -%}
+                  {%- assign rel_img = rel_prod.featured_image | image_url: width: 200 -%}
+                {%- else -%}
+                  {%- assign rel_img = 'catalog-grooming-glove.webp' | asset_url -%}
+                {%- endif -%}
+                <div
+                  class="wm-cart-upsell__card"
+                  role="listitem"
+                  data-upsell-card
+                  data-upsell-product-id="{{ rel_prod.id }}"
+                  data-upsell-variant-id="{{ rel_var.id }}"
+                >
+                  <a class="wm-cart-upsell__media" href="{{ rel_prod.url }}" tabindex="-1" aria-hidden="true">
+                    <img
+                      src="{{ rel_img }}"
+                      alt="{{ rel_prod.title | escape }}"
+                      width="64"
+                      height="64"
+                      loading="lazy"
+                      onerror="this.onerror=null;this.src='{{ 'catalog-grooming-glove.webp' | asset_url }}';"
+                    >
+                  </a>
+
+                  {%- liquid
+                    assign rel_price_inr = rel_var.price | divided_by: 100.0 | round
+                    if rel_var.compare_at_price > rel_var.price
+                      assign rel_comp_inr = rel_var.compare_at_price | divided_by: 100.0 | round
+                    else
+                      assign rel_comp_inr = rel_price_inr | times: 125 | divided_by: 100.0 | round
+                    endif
+                  -%}
+                  <div class="wm-cart-upsell__info">
+                    <a class="wm-cart-upsell__title" href="{{ rel_prod.url }}">{{ rel_prod.title | escape }}</a>
+                    <div class="wm-cart-upsell__price-row">
+                      <span class="wm-cart-upsell__price">₹{{ rel_price_inr }}</span>
+                      <s class="wm-cart-upsell__compare">₹{{ rel_comp_inr }}</s>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="wm-cart-upsell__btn"
+                    data-cart-upsell-add
+                    data-variant-id="{{ rel_var.id }}"
+                    data-product-id="{{ rel_prod.id }}"
+                    data-product-title="{{ rel_prod.title | escape }}"
+                    data-product-price="{{ rel_var.price }}"
+                    data-product-compare-price="{{ rel_var.compare_at_price | default: 0 }}"
+                    data-product-image="{{ rel_img }}"
+                    data-product-url="{{ rel_prod.url }}"
+                    aria-label="Add {{ rel_prod.title | escape }} to cart"
+                  >
+                    ADD
+                  </button>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
     </div>
 
     {%- comment -%} ── Footer: Subtotal + Two Buttons (View Cart & Checkout) ── {%- endcomment -%}
@@ -100,13 +249,20 @@
       <!-- Subtotal row -->
       <div class="wm-cart__subtotal-row">
         <span class="wm-cart__subtotal-label">Subtotal</span>
-        <span class="wm-cart__subtotal-val" id="cart-drawer-subtotal">{{ cart.total_price | money }}</span>
+        <span class="wm-cart__subtotal-val" id="cart-drawer-subtotal">
+          <span class="wm-cart__subtotal-price">₹{{ cart_total_price_inr }}</span>
+          <s class="wm-cart__subtotal-compare">₹{{ cart_total_comp_inr }}</s>
+        </span>
       </div>
 
-      <!-- Two buttons: View Cart (redirects to cart page) + Checkout -->
+      <!-- Two buttons: View Cart icon button (left) + Checkout button (right) -->
       <form action="{{ routes.cart_url }}" method="post" id="cart-drawer-form" class="wm-cart__actions">
-        <a href="{{ routes.cart_url | default: '/cart' }}" class="wm-cart__view-btn">
-          View Cart
+        <a href="{{ routes.cart_url | default: '/cart' }}" class="wm-cart__view-btn" aria-label="View Cart" title="View Cart">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="8" cy="21" r="1"/>
+            <circle cx="19" cy="21" r="1"/>
+            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+          </svg>
         </a>
         <button type="submit" name="checkout" class="wm-cart__checkout-btn">
           Checkout

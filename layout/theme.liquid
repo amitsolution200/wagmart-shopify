@@ -23,13 +23,13 @@
   {% if page_description %}
     <meta name="description" content="{{ page_description | escape }}">
   {% else %}
-    <meta name="description" content="Wagmart offers curated, high-quality pet supplies for dogs and cats: grooming brushes, feeding bowls, collars, leashes, travel essentials, and hygiene products.">
+    <meta name="description" content="Wagmart offers curated, high-quality pet supplies for dogs and cats: grooming gloves, feeding bowls, collars, leashes, travel essentials, and hygiene products.">
   {% endif %}
 
   {% comment %} Open Graph & Social Sharing Meta Tags {% endcomment %}
-  <meta property="og:site_name" content="{{ shop.name | default: 'Wagmart Pet Supplies' | escape }}">
+  <meta property="og:site_name" content="{{ shop.name | default: 'Wagmart' | escape }}">
   <meta property="og:url" content="{{ canonical_url }}">
-  <meta property="og:title" content="{{ page_title | default: 'Wagmart Pet Supplies' | escape }}">
+  <meta property="og:title" content="{{ page_title | default: 'Wagmart' | escape }}">
   <meta property="og:type" content="{% if template.name == 'product' %}product{% else %}website{% endif %}">
   <meta property="og:description" content="{{ page_description | default: 'Curated, vet-tested pet supplies for happier, healthier dogs and cats.' | escape }}">
   {%- if template.name == 'product' and product.featured_image -%}
@@ -38,12 +38,27 @@
     <meta property="product:price:currency" content="INR">
   {%- endif -%}
 
-  {% comment %} Google Fonts {% endcomment %}
+  {% comment %} Google Fonts (with font-display: swap) {% endcomment %}
   {%- # theme-check-disable RemoteAsset -%}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kumbh+Sans:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..600&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400&family=Inter:wght@400;500;600;700&family=Kumbh+Sans:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
   {%- # theme-check-enable RemoteAsset -%}
+
+  <style>
+    :root {
+      --wm-color-brand: {{ settings.color_primary | default: '#000000' }};
+      --wm-color-surface: {{ settings.color_background | default: '#FFFFFF' }};
+      --wm-color-surface-alt: {{ settings.color_surface_alt | default: '#F7F5EE' }};
+      --wm-color-ink: {{ settings.color_text | default: '#111827' }};
+      --wm-color-ink-muted: {{ settings.color_text_muted | default: '#555555' }};
+      --wm-color-accent: {{ settings.color_accent | default: '#991B1B' }};
+      --wm-color-border: {{ settings.color_border | default: '#EAE5D9' }};
+      --wm-font-heading: {{ settings.font_heading_family | default: 'Nunito' | json }}, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --wm-font-body: {{ settings.font_body_family | default: 'Nunito' | json }}, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --wm-radius: {{ settings.corner_radius | default: 12 }}px;
+    }
+  </style>
 
   {% comment %} Compiled Theme CSS with Tailwind utilities {% endcomment %}
   {{ 'theme.css' | asset_url | stylesheet_tag }}
@@ -58,8 +73,6 @@
 </head>
 
 <body class="bg-white text-[#1F2937] antialiased selection:bg-[#7a46e5]/20 selection:text-[#7a46e5] overflow-x-clip min-h-screen flex flex-col font-sans" style="background-color: #ffffff !important;">
- 
-
   {% section 'header' %}
 
   <main id="MainContent" role="main" class="flex-1">

@@ -13,9 +13,35 @@
   assign c = cart_obj | default: cart
   assign final_cents = c.total_price | default: 0
   assign subtotal_inr = final_cents | divided_by: 100.0 | round
+  assign compare_subtotal_inr = subtotal_inr | times: 125 | divided_by: 100.0 | round
+  assign free_ship_threshold = settings.free_shipping_threshold | default: 1000 | plus: 0
+  if free_ship_threshold <= 0
+    assign free_ship_threshold = 1000
+  endif
+  assign remaining_ship_inr = free_ship_threshold | minus: subtotal_inr
+  assign ship_pct = subtotal_inr | times: 100 | divided_by: free_ship_threshold
+  if ship_pct > 100
+    assign ship_pct = 100
+  elsif ship_pct < 0
+    assign ship_pct = 0
+  endif
 -%}
 
 <aside class="wm-cart-summary" aria-label="Cart summary" data-cart-summary>
+
+  {%- comment -%} 0. Free Shipping Progress Bar (Above Cart Note per reference) {%- endcomment -%}
+  <div class="wm-free-shipping" data-free-shipping-box data-free-shipping-threshold="{{ free_ship_threshold }}">
+    <p class="wm-free-shipping__text" data-free-shipping-text aria-live="polite">
+      {%- if remaining_ship_inr <= 0 -%}
+        Congratulations! You qualify for Free Shipping
+      {%- else -%}
+        Spend <strong>&#8377;{{ remaining_ship_inr }}</strong> more to qualify for Free Shipping
+      {%- endif -%}
+    </p>
+    <div class="wm-free-shipping__track" role="progressbar" aria-valuenow="{{ ship_pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="Free shipping progress">
+      <div class="wm-free-shipping__fill" data-free-shipping-fill style="width: {{ ship_pct }}%;"></div>
+    </div>
+  </div>
 
   {%- comment -%} 1. Cart Note Accordion {%- endcomment -%}
   <div class="wm-cart-acc" data-summary-acc="note">
@@ -73,7 +99,7 @@
         <p class="wm-cart-coupon__feedback" data-coupon-feedback aria-live="polite"></p>
         <div class="wm-cart-coupon__chip-wrap" data-coupon-chip-wrap hidden>
           <span class="wm-cart-coupon__chip">
-            <span class="wm-cart-coupon__chip-code" data-coupon-code-text>WAGMART10</span>
+            <span class="wm-cart-coupon__chip-code" data-coupon-code-text></span>
             <button type="button" class="wm-cart-coupon__chip-remove" data-coupon-remove aria-label="Remove discount code">&times;</button>
           </span>
         </div>
@@ -117,7 +143,7 @@
   <div class="wm-cart-summary__totals">
     <div class="wm-cart-summary__total-row">
       <span class="wm-cart-summary__total-label">Total</span>
-      <span class="wm-cart-summary__total-val" data-summary-total>&#8377;{{ subtotal_inr }}.00</span>
+      <span class="wm-cart-summary__total-val" data-summary-total>&#8377;{{ subtotal_inr }} <s style="color:#9ca3af;font-weight:500;font-size:0.82em;margin-left:5px;">&#8377;{{ compare_subtotal_inr }}</s></span>
     </div>
     <p class="wm-cart-summary__tax-note">
       Tax included and shipping calculated at checkout
@@ -135,54 +161,17 @@
     Checkout
   </button>
 
-  {%- comment -%} 6. Payment Icons Row (Visa, Mastercard, Amex, PayPal, Diners, Discover) {%- endcomment -%}
+  {%- comment -%} 6. Payment Icons Row (Exact match to Footer payment badges) {%- endcomment -%}
   <div class="wm-cart-summary__payments" aria-label="Accepted payment methods">
-    <!-- Visa -->
-    <span class="wm-pay-badge" title="Visa">
-      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Visa">
-        <rect width="38" height="24" rx="3" fill="#1434CB"/>
-        <text x="19" y="15.5" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-weight="900" font-style="italic" font-size="10.5" letter-spacing="0.5">VISA</text>
-      </svg>
-    </span>
-    <!-- Mastercard -->
-    <span class="wm-pay-badge" title="Mastercard">
-      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Mastercard">
-        <rect width="38" height="24" rx="3" fill="#1F1F1F"/>
-        <circle cx="15" cy="12" r="6.5" fill="#EB001B"/>
-        <circle cx="23" cy="12" r="6.5" fill="#F79E1B" fill-opacity="0.9"/>
-      </svg>
-    </span>
-    <!-- American Express -->
-    <span class="wm-pay-badge" title="American Express">
-      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="American Express">
-        <rect width="38" height="24" rx="3" fill="#016FD0"/>
-        <text x="19" y="11.5" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-weight="800" font-size="6.5">AM</text>
-        <text x="19" y="18" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-weight="800" font-size="6.5">EX</text>
-      </svg>
-    </span>
-    <!-- PayPal -->
-    <span class="wm-pay-badge" title="PayPal">
-      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="PayPal">
-        <rect x="0.5" y="0.5" width="37" height="23" rx="2.5" fill="#FFFFFF" stroke="#E0E0E0"/>
-        <path d="M16.2 7h4.2c2.1 0 3.2 1 3 2.8-.3 2.2-1.8 3.4-4 3.4h-1.4l-.6 3.8h-2.3L16.2 7z" fill="#003087"/>
-        <path d="M17.8 9.2h3.3c1.6 0 2.5.8 2.3 2.3-.2 1.8-1.4 2.8-3.2 2.8h-1.1l-.5 3.2h-1.8l1-8.3z" fill="#0070BA" opacity="0.85"/>
-      </svg>
-    </span>
-    <!-- Diners Club -->
-    <span class="wm-pay-badge" title="Diners Club">
-      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Diners Club">
-        <rect x="0.5" y="0.5" width="37" height="23" rx="2.5" fill="#FFFFFF" stroke="#E0E0E0"/>
-        <circle cx="19" cy="12" r="6.5" fill="#0079BE"/>
-        <path d="M17.8 8.3a3.7 3.7 0 0 0 0 7.4V8.3zm2.4 0v7.4a3.7 3.7 0 0 0 0-7.4z" fill="#FFFFFF"/>
-      </svg>
-    </span>
-    <!-- Discover -->
-    <span class="wm-pay-badge" title="Discover">
-      <svg viewBox="0 0 38 24" width="38" height="24" role="img" aria-label="Discover">
-        <rect x="0.5" y="0.5" width="37" height="23" rx="2.5" fill="#FFFFFF" stroke="#E0E0E0"/>
-        <text x="18" y="13.5" text-anchor="middle" fill="#111111" font-family="Arial, sans-serif" font-weight="800" font-size="5.6">DISCOVER</text>
-        <path d="M22 23.5h13a2.5 2.5 0 0 0 2.5-2.5v-4.5L22 23.5z" fill="#F47216"/>
-      </svg>
-    </span>
+    {%- assign default_payments = 'visa,mastercard,american_express,paypal,diners_club,discover' | split: ',' -%}
+    {%- if shop.enabled_payment_types.size > 0 -%}
+      {%- for type in shop.enabled_payment_types -%}
+        <span class="wm-pay-badge">{{ type | payment_type_svg_tag: class: 'h-6 w-auto rounded-[4px]' }}</span>
+      {%- endfor -%}
+    {%- else -%}
+      {%- for type in default_payments -%}
+        <span class="wm-pay-badge">{{ type | payment_type_svg_tag: class: 'h-6 w-auto rounded-[4px]' }}</span>
+      {%- endfor -%}
+    {%- endif -%}
   </div>
 </aside>

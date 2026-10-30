@@ -606,15 +606,136 @@
       transform: none !important;
     }
   }
+  /* 0. 4-Item Service Guarantees Strip (Above CTA Section) */
+  .wm-trust-strip {
+    background-color: #FFFFFF;
+    padding: 36px 0 20px;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  @media (min-width: 768px) {
+    .wm-trust-strip {
+      padding: 48px 0 24px;
+    }
+  }
+  .wm-trust-strip__wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+  @media (min-width: 1024px) {
+    .wm-trust-strip__wrap {
+      padding: 0 32px;
+    }
+  }
+  /* Mobile: 2x2 grid */
+  .wm-trust-strip__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+    align-items: start;
+  }
+  /* Tablet & Laptop/Desktop: 4-column grid */
+  @media (min-width: 768px) {
+    .wm-trust-strip__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px;
+    }
+  }
+  .wm-trust-strip__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+  }
+  .wm-trust-strip__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 14px;
+    color: #1A1A1A;
+  }
+  .wm-trust-strip__title {
+    margin: 0 0 6px;
+    font-size: 14.5px;
+    line-height: 1.35;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
+  .wm-trust-strip__subtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    font-weight: 400;
+    color: #52525B;
+  }
 </style>
 
 <footer id="contact" class="wm-site-footer-wrapper scroll-mt-24" role="contentinfo" aria-label="Wagmart Site Footer">
   {% comment %}
     =========================================================
-    TOP CTA BANNER (Home, Product Details & Supported Pages)
+    TOP SERVICE GUARANTEES STRIP + CTA BANNER
     =========================================================
   {% endcomment %}
   {%- if show_cta and template.name != 'cart' and template.name != 'collection' -%}
+    <section class="wm-trust-strip" aria-label="Store guarantees">
+      <div class="wm-trust-strip__wrap">
+        <div class="wm-trust-strip__grid">
+          <!-- 1. Free shipping -->
+          <div class="wm-trust-strip__item">
+            <span class="wm-trust-strip__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="13" height="11" rx="1"></rect>
+                <path d="M15 9h4l3 3v4h-7V9z"></path>
+                <circle cx="6.5" cy="17.5" r="2"></circle>
+                <circle cx="17.5" cy="17.5" r="2"></circle>
+              </svg>
+            </span>
+            <h3 class="wm-trust-strip__title">Free shipping</h3>
+            <p class="wm-trust-strip__subtitle">Order today, receive tomorrow</p>
+          </div>
+
+          <!-- 2. Price-match guarantee -->
+          <div class="wm-trust-strip__item">
+            <span class="wm-trust-strip__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3.41 13.41l7.17 7.17a2 2 0 0 0 2.83 0L22 12V2H12L3.41 10.59a2 2 0 0 0 0 2.82z"></path>
+                <circle cx="17" cy="7" r="1.25"></circle>
+              </svg>
+            </span>
+            <h3 class="wm-trust-strip__title">Price-match guarantee</h3>
+            <p class="wm-trust-strip__subtitle">Safe money when ordering with us</p>
+          </div>
+
+          <!-- 3. Hassle-free exchange -->
+          <div class="wm-trust-strip__item">
+            <span class="wm-trust-strip__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l-4 4 4 4"></path>
+                <path d="M5 15h10a4.5 4.5 0 0 0 0-9h-3"></path>
+              </svg>
+            </span>
+            <h3 class="wm-trust-strip__title">Hassle-free exchange</h3>
+            <p class="wm-trust-strip__subtitle">Receive a slip for exchanges</p>
+          </div>
+
+          <!-- 4. 5.0 Google Reviews -->
+          <div class="wm-trust-strip__item">
+            <span class="wm-trust-strip__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </span>
+            <h3 class="wm-trust-strip__title">5.0 Google Reviews</h3>
+            <p class="wm-trust-strip__subtitle">Customer satisfaction #1 priority</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="wm-site-cta" aria-labelledby="wm-site-cta-title">
       <div class="wm-site-cta__wrap">
         <div class="wm-site-cta__grid">

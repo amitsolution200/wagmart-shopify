@@ -302,11 +302,11 @@
               {%- endif -%}
 
               <div class="wm-account-pop__grid">
-                <a class="wm-btn wm-btn--outline" href="{{ routes.account_url }}">
+                <a class="wm-btn wm-btn--outline" href="{% if customer %}{{ routes.account_url }}#orders{% else %}{{ routes.root_url }}?view=profile#orders{% endif %}">
                   {% render 'wm-icon', name: 'package', class: 'wm-icon wm-icon--sm' %}
                   <span class="wm-btn__label">Orders</span>
                 </a>
-                <a class="wm-btn wm-btn--outline" href="{% if accounts_legacy %}{{ routes.account_addresses_url }}{% else %}{{ routes.account_url }}{% endif %}">
+                <a class="wm-btn wm-btn--outline" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.root_url }}?view=profile{% endif %}">
                   {% render 'wm-icon', name: 'user-circle', class: 'wm-icon wm-icon--sm' %}
                   <span class="wm-btn__label">Profile</span>
                 </a>
@@ -467,7 +467,7 @@
           {%- endif -%}
           {%- if shop.customer_accounts_enabled -%}
             <li>
-              <a class="wm-mnav__link" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}">
+              <a class="wm-mnav__link" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.root_url }}?view=profile{% endif %}">
                 <span>{% if customer %}My Account{% else %}My Account · Sign in{% endif %}</span>
                 {% render 'wm-icon', name: 'user', class: 'wm-icon wm-icon--sm' %}
               </a>

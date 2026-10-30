@@ -1,0 +1,61 @@
+{%- comment -%}
+  Wagmart Gallery Thumbnail Snippet (snippets/gallery-thumb.liquid)
+  Renders a single accessible thumbnail button for product.media (image, video, external_video, model).
+  Accepts:
+  - media: {Object} Shopify media object
+  - index: {Number} 0-based index
+  - is_active: {Boolean} Whether this thumb is active initially
+  - product_title: {String} Fallback alt text
+  - fallback_src: {String} Optional asset URL when media is nil
+{%- endcomment -%}
+{%- liquid
+  assign thumb_index = index | default: 0
+  assign step_num = thumb_index | plus: 1
+  assign thumb_alt = media.alt | default: product_title | escape
+  assign preview_img = media.preview_image | default: media
+-%}
+<button
+  type="button"
+  role="tab"
+  id="wm-gallery-thumb-{{ section.id }}-{{ thumb_index }}"
+  aria-controls="wm-gallery-slide-{{ section.id }}-{{ thumb_index }}"
+  aria-selected="{% if is_active %}true{% else %}false{% endif %}"
+  aria-label="{{ 'products.product.media.load_image' | t: index: step_num }}"
+  class="wm-gallery__thumb{% if is_active %} is-active{% endif %}"
+  data-gallery-thumb="{{ thumb_index }}"
+  data-media-id="{{ media.id | default: thumb_index }}"
+>
+  {%- if preview_img != blank and preview_img.width != blank -%}
+    {{
+      preview_img
+      | image_url: width: 240
+      | image_tag:
+        widths: '120, 180, 240',
+        sizes: '72px',
+        loading: 'lazy',
+        width: preview_img.width,
+        height: preview_img.height,
+        alt: thumb_alt,
+        class: 'wm-gallery__thumb-img'
+    }}
+  {%- elsif fallback_src != blank -%}
+    <img
+      src="{{ fallback_src }}"
+      alt="{{ thumb_alt }}"
+      width="120"
+      height="120"
+      loading="lazy"
+      class="wm-gallery__thumb-img"
+    >
+  {%- endif -%}
+
+  {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+    <span class="wm-gallery__thumb-badge" aria-hidden="true">
+      {% render 'icon', name: 'play', size: 12 %}
+    </span>
+  {%- elsif media.media_type == 'model' -%}
+    <span class="wm-gallery__thumb-badge" aria-hidden="true">
+      {% render 'icon', name: 'box', size: 12 %}
+    </span>
+  {%- endif -%}
+</button>

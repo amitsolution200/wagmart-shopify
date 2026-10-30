@@ -1,0 +1,138 @@
+{%- comment -%}
+  Wagmart Product Recommendations Section (sections/product-recommendations.liquid)
+  Horizontally scrollable carousel loaded lazily via Shopify's /recommendations/products endpoint
+  using <product-recommendations> custom element, with collection fallback for instant preview.
+{%- endcomment -%}
+
+{%- liquid
+  assign limit_count = section.settings.products_to_show | default: 4
+  assign current_id = product.id
+-%}
+
+<product-recommendations
+  class="wm-section wm-recommendations"
+  id="ProductRecommendations-{{ section.id }}"
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ limit_count }}&intent=related"
+  data-recommendations-performed="{% if recommendations.performed and recommendations.products_count > 0 %}true{% else %}false{% endif %}"
+  aria-labelledby="RecommendationsHeading-{{ section.id }}"
+>
+  <div class="wm-container">
+    <div class="wm-recommendations__header">
+      <h2 class="wm-section__heading" id="RecommendationsHeading-{{ section.id }}">
+        {{ section.settings.heading | default: 'You may also like' }}
+      </h2>
+
+      <div class="wm-recommendations__nav">
+        <button
+          type="button"
+          class="wm-recommendations__arrow"
+          data-carousel-prev
+          aria-label="{{ 'products.recommendations.previous' | t }}"
+        >
+          {% render 'icon', name: 'chevron-left', size: 18 %}
+        </button>
+        <button
+          type="button"
+          class="wm-recommendations__arrow"
+          data-carousel-next
+          aria-label="{{ 'products.recommendations.next' | t }}"
+        >
+          {% render 'icon', name: 'chevron-right', size: 18 %}
+        </button>
+      </div>
+    </div>
+
+    <div class="wm-recommendations__track" data-carousel-track role="list">
+      {%- assign rendered_count = 0 -%}
+      {%- assign seen_ids = current_id | append: ',' -%}
+
+      {%- if recommendations.performed and recommendations.products_count > 0 -%}
+        {%- for rec_product in recommendations.products limit: limit_count -%}
+          {%- assign rec_id_token = rec_product.id | append: ',' -%}
+          {%- unless seen_ids contains rec_id_token -%}
+            <div class="wm-recommendations__slide" role="listitem">
+              {% render 'product-card', product: rec_product, is_related: true %}
+            </div>
+            {%- assign rendered_count = rendered_count | plus: 1 -%}
+            {%- assign seen_ids = seen_ids | append: rec_id_token -%}
+          {%- endunless -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- if rendered_count < limit_count -%}
+        {%- assign fallback_collection = product.collections.first | default: collections['all'] -%}
+        {%- if fallback_collection != blank and fallback_collection.products.size > 0 -%}
+          {%- for item_prod in fallback_collection.products -%}
+            {%- assign item_id_token = item_prod.id | append: ',' -%}
+            {%- if rendered_count < limit_count -%}
+              {%- unless seen_ids contains item_id_token -%}
+                <div class="wm-recommendations__slide" role="listitem">
+                  {% render 'product-card', product: item_prod, is_related: true %}
+                </div>
+                {%- assign rendered_count = rendered_count | plus: 1 -%}
+                {%- assign seen_ids = seen_ids | append: item_id_token -%}
+              {%- endunless -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+
+        {%- if rendered_count < limit_count and collections['all'].products.size > 0 -%}
+          {%- for item_prod in collections['all'].products -%}
+            {%- assign item_id_token = item_prod.id | append: ',' -%}
+            {%- if rendered_count < limit_count -%}
+              {%- unless seen_ids contains item_id_token -%}
+                <div class="wm-recommendations__slide" role="listitem">
+                  {% render 'product-card', product: item_prod, is_related: true %}
+                </div>
+                {%- assign rendered_count = rendered_count | plus: 1 -%}
+                {%- assign seen_ids = seen_ids | append: item_id_token -%}
+              {%- endunless -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  </div>
+</product-recommendations>
+
+{% schema %}
+{
+  "name": "Product Recommendations",
+  "tag": "section",
+  "class": "section-product-recommendations",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4,
+      "label": "Maximum products to show"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show product vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_add",
+      "label": "Show quick add button",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Recommendations"
+    }
+  ]
+}
+{% endschema %}

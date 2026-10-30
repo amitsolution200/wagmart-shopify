@@ -1,454 +1,1254 @@
-{% comment %}
-  Wagmart Classic Customer Account Dashboard Section
-  Matches Wagmart design tokens: #7A46E5 primary, #F5F2EF cream, Lucide icons
-{% endcomment %}
+{%- comment -%}
+  Wagmart Customer Profile & Account Dashboard (sections/main-account.liquid)
+  - Supports Shopify logged-in Customer objects (customer.name, customer.email, customer.orders, customer.addresses)
+  - Also supports storefront Profile view (/?view=profile or /pages/profile) with Personal Info, Pet Profile, Wishlist & Address Book
+  - Fully responsive across Mobile (<768px), Tablet (768px-1023px), Laptop (1024px-1439px) & Desktop (>=1440px)
+{%- endcomment -%}
 
 <style>
-  .wm-account-page {
-    background-color: #FBF9F7;
-    min-height: calc(100vh - 200px);
-    padding: 48px 20px 80px;
-    font-family: inherit;
+  .wm-profile-page {
+    background-color: #F7F5EE;
+    min-height: calc(100vh - 160px);
+    padding: clamp(28px, 4vw, 56px) 0 clamp(56px, 6vw, 88px);
+    color: #141918;
+    font-family: var(--wm-font-body, 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif);
   }
 
-  .wm-account-container {
-    max-width: 1140px;
+  .wm-profile-container {
+    max-width: 1280px;
     margin: 0 auto;
+    padding: 0 clamp(16px, 3vw, 36px);
+    box-sizing: border-box;
   }
 
-  .wm-account-hero {
-    background: #FFFFFF;
+  /* Breadcrumb */
+  .wm-profile-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #6B665E;
+    margin-bottom: 20px;
+  }
+
+  .wm-profile-breadcrumb a {
+    color: #6B665E;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .wm-profile-breadcrumb a:hover {
+    color: #141918;
+    text-decoration: underline;
+  }
+
+  .wm-profile-breadcrumb__current {
+    color: #141918;
+    font-weight: 600;
+  }
+
+  /* Hero Banner */
+  .wm-profile-hero {
+    background-color: #FFFFFF;
+    border: 1px solid #EAE5D9;
     border-radius: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 32px 36px;
-    margin-bottom: 32px;
+    padding: clamp(20px, 3vw, 32px);
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    margin-bottom: 20px;
   }
 
-  @media (max-width: 768px) {
-    .wm-account-hero {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 24px;
-    }
-  }
-
-  .wm-account-greeting {
+  .wm-profile-hero__identity {
     display: flex;
     align-items: center;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .wm-profile-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 9999px;
+    background-color: #141918;
+    color: #FFFFFF;
+    font-family: var(--wm-font-heading, 'Fraunces', Georgia, serif);
+    font-size: 26px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 3px solid #EAE5D9;
+  }
+
+  .wm-profile-hero__meta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .wm-profile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    background-color: #F7F5EE;
+    border: 1px solid #E5DFD2;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #5C5346;
+    letter-spacing: 0.02em;
+  }
+
+  .wm-profile-badge__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background-color: #16A34A;
+  }
+
+  .wm-profile-hero__name {
+    margin: 0;
+    font-family: var(--wm-font-heading, 'Fraunces', Georgia, serif);
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 500;
+    color: #141918;
+    line-height: 1.2;
+  }
+
+  .wm-profile-hero__sub {
+    margin: 0;
+    font-size: 14px;
+    color: #6B665E;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .wm-profile-hero__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Buttons */
+  .wm-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 9999px;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+
+  .wm-profile-btn--primary {
+    background-color: #000000;
+    color: #FFFFFF;
+    border: 1px solid #000000;
+  }
+
+  .wm-profile-btn--primary:hover {
+    background-color: #222222;
+    border-color: #222222;
+  }
+
+  .wm-profile-btn--secondary {
+    background-color: #FFFFFF;
+    color: #000000;
+    border: 1px solid #000000;
+  }
+
+  .wm-profile-btn--secondary:hover {
+    background-color: #000000;
+    color: #FFFFFF;
+  }
+
+  .wm-profile-btn--danger {
+    background-color: #FFF1F2;
+    color: #BE123C;
+    border: 1px solid #FECDD3;
+  }
+
+  .wm-profile-btn--danger:hover {
+    background-color: #FFE4E6;
+  }
+
+  /* 4-Card Stats Row */
+  .wm-profile-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .wm-profile-stat-card {
+    background-color: #FFFFFF;
+    border: 1px solid #EAE5D9;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .wm-profile-stat-card__label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #6B665E;
+    margin: 0 0 4px;
+  }
+
+  .wm-profile-stat-card__value {
+    font-family: var(--wm-font-heading, 'Fraunces', Georgia, serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: #141918;
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  .wm-profile-stat-card__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background-color: #F7F5EE;
+    border: 1px solid #EAE5D9;
+    color: #141918;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Main 2-Column Layout */
+  .wm-profile-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Left Navigation Card */
+  .wm-profile-nav {
+    background-color: #FFFFFF;
+    border: 1px solid #EAE5D9;
+    border-radius: 18px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: sticky;
+    top: 96px;
+  }
+
+  .wm-profile-nav__btn {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: #4B463F;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .wm-profile-nav__btn-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wm-profile-nav__btn:hover {
+    background-color: #F7F5EE;
+    color: #141918;
+  }
+
+  .wm-profile-nav__btn.is-active {
+    background-color: #000000;
+    color: #FFFFFF;
+  }
+
+  .wm-profile-nav__count {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background-color: #F7F5EE;
+    color: #141918;
+  }
+
+  .wm-profile-nav__btn.is-active .wm-profile-nav__count {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+  }
+
+  /* Content Panels */
+  .wm-profile-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .wm-profile-panel[hidden] {
+    display: none !important;
+  }
+
+  .wm-profile-card {
+    background-color: #FFFFFF;
+    border: 1px solid #EAE5D9;
+    border-radius: 20px;
+    padding: clamp(20px, 3vw, 30px);
+  }
+
+  .wm-profile-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #EAE5D9;
+  }
+
+  .wm-profile-card__title {
+    margin: 0;
+    font-family: var(--wm-font-heading, 'Fraunces', Georgia, serif);
+    font-size: 20px;
+    font-weight: 500;
+    color: #141918;
+  }
+
+  .wm-profile-card__subtitle {
+    margin: 4px 0 0;
+    font-size: 13.5px;
+    color: #6B665E;
+  }
+
+  /* Forms */
+  .wm-profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
 
-  .wm-account-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background-color: #F5F2EF;
-    color: #7A46E5;
+  .wm-profile-field {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 800;
-    flex-shrink: 0;
-    border: 2px solid rgba(122, 70, 229, 0.15);
+    flex-direction: column;
+    gap: 6px;
   }
 
-  .wm-account-hero-title {
-    font-size: 24px;
-    font-weight: 800;
-    color: #18181B;
-    margin: 0 0 4px;
-    letter-spacing: -0.01em;
+  .wm-profile-field--full {
+    grid-column: 1 / -1;
   }
 
-  .wm-account-hero-email {
+  .wm-profile-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #141918;
+  }
+
+  .wm-profile-input,
+  .wm-profile-select,
+  .wm-profile-textarea {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #D6D0C2;
+    background-color: #FFFFFF;
+    color: #141918;
+    font-family: inherit;
     font-size: 14px;
-    color: #71717A;
-    margin: 0;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
-  .wm-account-hero-actions {
+  .wm-profile-textarea {
+    min-height: 88px;
+    resize: vertical;
+  }
+
+  .wm-profile-input:focus,
+  .wm-profile-select:focus,
+  .wm-profile-textarea:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  }
+
+  .wm-profile-form-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #EAE5D9;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
     flex-wrap: wrap;
+    gap: 12px;
   }
 
-  .wm-account-btn {
+  .wm-profile-toast {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: 12px;
+    gap: 6px;
     font-size: 13.5px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    font-family: inherit;
+    font-weight: 600;
+    color: #15803D;
+    background-color: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    padding: 8px 14px;
+    border-radius: 9999px;
   }
 
-  .wm-account-btn--secondary {
-    background: #F4F4F5;
-    color: #27272A;
-    border: 1px solid #E4E4E7;
-  }
-
-  .wm-account-btn--secondary:hover {
-    background: #E4E4E7;
-    color: #09090B;
-  }
-
-  .wm-account-btn--danger {
-    background: #FFF1F2;
-    color: #E11D48;
-    border: 1px solid #FFE4E6;
-  }
-
-  .wm-account-btn--danger:hover {
-    background: #FFE4E6;
-    color: #BE123C;
-  }
-
-  .wm-account-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 32px;
-  }
-
-  @media (max-width: 900px) {
-    .wm-account-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .wm-account-card {
-    background: #FFFFFF;
-    border-radius: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 32px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-  }
-
-  .wm-account-card-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #18181B;
-    margin: 0 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    letter-spacing: -0.01em;
-  }
-
-  .wm-account-card-title svg {
-    color: #7A46E5;
+  .wm-profile-toast[hidden] {
+    display: none !important;
   }
 
   /* Orders Table */
-  .wm-orders-table-wrap {
+  .wm-profile-table-wrap {
     overflow-x: auto;
   }
 
-  .wm-orders-table {
+  .wm-profile-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
     text-align: left;
   }
 
-  .wm-orders-table th {
+  .wm-profile-table th {
     padding: 12px 14px;
+    font-size: 12px;
     font-weight: 700;
-    color: #71717A;
-    font-size: 12.5px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    border-bottom: 1.5px solid #F4F4F5;
+    color: #6B665E;
+    border-bottom: 1px solid #EAE5D9;
   }
 
-  .wm-orders-table td {
+  .wm-profile-table td {
     padding: 16px 14px;
-    border-bottom: 1px solid #F4F4F5;
-    color: #27272A;
+    border-bottom: 1px solid #F2EFE7;
+    color: #141918;
     vertical-align: middle;
   }
 
-  .wm-order-link {
-    color: #7A46E5;
+  .wm-profile-order-link {
     font-weight: 700;
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-
-  .wm-order-link:hover {
-    color: #5B21B6;
+    color: #141918;
     text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
-  .wm-status-pill {
+  .wm-profile-status {
     display: inline-flex;
     align-items: center;
     padding: 4px 10px;
     border-radius: 9999px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
+    background-color: #F7F5EE;
+    color: #141918;
   }
 
-  .wm-status-pill--paid,
-  .wm-status-pill--fulfilled {
-    background-color: #ECFDF5;
-    color: #065F46;
+  /* Wishlist Grid in Profile */
+  .wm-profile-wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
   }
 
-  .wm-status-pill--pending,
-  .wm-status-pill--unfulfilled {
-    background-color: #FFFBEB;
-    color: #92400E;
+  .wm-profile-wish-item {
+    border: 1px solid #EAE5D9;
+    border-radius: 14px;
+    padding: 12px;
+    background-color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .wm-empty-orders {
-    text-align: center;
-    padding: 48px 20px;
+  .wm-profile-wish-item__img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 10px;
+    background-color: #F7F5EE;
   }
 
-  .wm-empty-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background-color: #F5F2EF;
-    color: #7A46E5;
+  .wm-profile-wish-item__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #141918;
+    text-decoration: none;
+  }
+
+  /* Addresses Grid */
+  .wm-profile-addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .wm-profile-address-card {
+    border: 1px solid #EAE5D9;
+    border-radius: 16px;
+    padding: 18px;
+    background-color: #FBF9F5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #3F3A34;
+  }
+
+  .wm-profile-address-card__badge {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
+    width: fit-content;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    background-color: #000000;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
   }
 
-  .wm-empty-title {
+  .wm-profile-empty {
+    text-align: center;
+    padding: 36px 20px;
+    background-color: #FBF9F5;
+    border: 1px dashed #DED8C8;
+    border-radius: 16px;
+  }
+
+  .wm-profile-empty__title {
+    font-family: var(--wm-font-heading, 'Fraunces', Georgia, serif);
     font-size: 18px;
-    font-weight: 800;
-    color: #18181B;
+    font-weight: 500;
+    color: #141918;
     margin: 0 0 6px;
   }
 
-  .wm-empty-desc {
-    font-size: 14px;
-    color: #71717A;
-    margin: 0 0 20px;
+  .wm-profile-empty__text {
+    font-size: 13.5px;
+    color: #6B665E;
+    margin: 0 0 18px;
   }
 
-  .wm-empty-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background-color: #7A46E5;
-    color: #FFFFFF;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+  /* Responsive Breakpoints */
+  @media (max-width: 1023px) {
+    .wm-profile-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .wm-profile-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .wm-profile-nav {
+      position: static;
+      flex-direction: row;
+      overflow-x: auto;
+      padding: 8px;
+      gap: 6px;
+    }
+
+    .wm-profile-nav__btn {
+      width: auto;
+      flex-shrink: 0;
+    }
   }
 
-  .wm-empty-btn:hover {
-    background-color: #6938CE;
-    transform: translateY(-1px);
-  }
+  @media (max-width: 639px) {
+    .wm-profile-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
 
-  /* Address Card */
-  .wm-address-box {
-    background: #FAFAFA;
-    border-radius: 14px;
-    border: 1px solid #F4F4F5;
-    padding: 20px;
-    font-size: 14px;
-    color: #3F3F46;
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
+    .wm-profile-form-grid {
+      grid-template-columns: 1fr;
+    }
 
-  .wm-address-box p {
-    margin: 0 0 4px;
-  }
+    .wm-profile-hero {
+      flex-direction: column;
+      align-items: flex-start;
+    }
 
-  .wm-address-manage-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #7A46E5;
-    font-weight: 700;
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.15s ease;
-  }
+    .wm-profile-hero__actions {
+      width: 100%;
+    }
 
-  .wm-address-manage-link:hover {
-    color: #5B21B6;
-    text-decoration: underline;
+    .wm-profile-hero__actions .wm-profile-btn {
+      flex: 1;
+    }
   }
 </style>
 
-<div class="wm-account-page">
-  <div class="wm-account-container">
+<section class="wm-profile-page" data-profile-page>
+  <div class="wm-profile-container">
+    <!-- Breadcrumb -->
+    <nav class="wm-profile-breadcrumb" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a>
+      <span aria-hidden="true">/</span>
+      <span class="wm-profile-breadcrumb__current">My Profile</span>
+    </nav>
 
-    {% comment %} Header Card {% endcomment %}
-    <div class="wm-account-hero">
-      <div class="wm-account-greeting">
-        <div class="wm-account-avatar" aria-hidden="true">
-          {{ customer.first_name | slice: 0, 1 | default: 'U' | upcase }}
+    <!-- Profile Hero Header -->
+    <div class="wm-profile-hero">
+      <div class="wm-profile-hero__identity">
+        <div class="wm-profile-avatar" data-profile-avatar aria-hidden="true">
+          {{ customer.first_name | slice: 0, 1 | default: 'W' | upcase }}
         </div>
-        <div>
-          <h1 class="wm-account-hero-title">Welcome back, {{ customer.first_name | default: 'Pet Parent' }}!</h1>
-          <p class="wm-account-hero-email">{{ customer.email }}</p>
+        <div class="wm-profile-hero__meta">
+          <span class="wm-profile-badge">
+            <span class="wm-profile-badge__dot" aria-hidden="true"></span>
+            <span>{% if customer %}Verified Pet Parent{% else %}Wagmart Member Profile{% endif %}</span>
+          </span>
+          <h1 class="wm-profile-hero__name" data-profile-display-name>
+            {{ customer.name | default: 'Wagmart Pet Parent' }}
+          </h1>
+          <p class="wm-profile-hero__sub">
+            <span data-profile-display-email>{{ customer.email | default: 'Add your email & pet details below' }}</span>
+            {%- assign cust_phone = customer.phone | default: customer.default_address.phone -%}
+            <span data-profile-display-phone>{% if cust_phone != blank %}· {{ cust_phone }}{% endif %}</span>
+          </p>
         </div>
       </div>
 
-      <div class="wm-account-hero-actions">
-        <a href="{{ routes.account_addresses_url }}" class="wm-account-btn wm-account-btn--secondary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
-          </svg>
-          <span>Addresses ({{ customer.addresses_count }})</span>
+      <div class="wm-profile-hero__actions">
+        <a href="{{ routes.all_products_collection_url }}" class="wm-profile-btn wm-profile-btn--secondary">
+          <span>Continue Shopping</span>
         </a>
-
-        <a href="{{ routes.account_logout_url }}" class="wm-account-btn wm-account-btn--danger">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-          <span>Sign Out</span>
-        </a>
+        {%- if customer -%}
+          <a href="{{ routes.account_logout_url }}" class="wm-profile-btn wm-profile-btn--danger">
+            <span>Sign Out</span>
+          </a>
+        {%- else -%}
+          <a href="{{ routes.account_login_url }}" class="wm-profile-btn wm-profile-btn--primary">
+            <span>Shopify Sign In</span>
+          </a>
+        {%- endif -%}
       </div>
     </div>
 
-    {% comment %} 2-Column Split: Orders & Profile {% endcomment %}
-    <div class="wm-account-grid">
+    <!-- 4-Card Quick Stats Strip -->
+    <div class="wm-profile-stats">
+      <div class="wm-profile-stat-card">
+        <div>
+          <p class="wm-profile-stat-card__label">Total Orders</p>
+          <p class="wm-profile-stat-card__value">{{ customer.orders_count | default: 0 }}</p>
+        </div>
+        <span class="wm-profile-stat-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        </span>
+      </div>
 
-      {% comment %} Left: Orders History {% endcomment %}
-      <div class="wm-account-card">
-        <h2 class="wm-account-card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
-          </svg>
-          <span>Your Orders</span>
-        </h2>
+      <div class="wm-profile-stat-card">
+        <div>
+          <p class="wm-profile-stat-card__label">Saved Wishlist</p>
+          <p class="wm-profile-stat-card__value" data-profile-wishlist-stat>0</p>
+        </div>
+        <span class="wm-profile-stat-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        </span>
+      </div>
 
-        {%- paginate customer.orders by 20 -%}
-          {%- if customer.orders.size > 0 -%}
-            <div class="wm-orders-table-wrap">
-              <table class="wm-orders-table">
-                <thead>
-                  <tr>
-                    <th>Order</th>
-                    <th>Date</th>
-                    <th>Payment</th>
-                    <th>Fulfillment</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {%- for order in customer.orders -%}
-                    <tr>
-                      <td>
-                        <a href="{{ order.customer_url }}" class="wm-order-link">{{ order.name }}</a>
-                      </td>
-                      <td>{{ order.created_at | time_tag: format: 'date' }}</td>
-                      <td>
-                        <span class="wm-status-pill wm-status-pill--{{ order.financial_status }}">
-                          {{ order.financial_status_label }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="wm-status-pill wm-status-pill--{{ order.fulfillment_status }}">
-                          {{ order.fulfillment_status_label }}
-                        </span>
-                      </td>
-                      <td style="font-weight: 700;">{{ order.total_price | money }}</td>
-                    </tr>
-                  {%- endfor -%}
-                </tbody>
-              </table>
+      <div class="wm-profile-stat-card">
+        <div>
+          <p class="wm-profile-stat-card__label">Saved Addresses</p>
+          <p class="wm-profile-stat-card__value" data-profile-addresses-stat>{{ customer.addresses_count | default: 0 }}</p>
+        </div>
+        <span class="wm-profile-stat-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
+      </div>
+
+      <div class="wm-profile-stat-card">
+        <div>
+          <p class="wm-profile-stat-card__label">Total Spent</p>
+          <p class="wm-profile-stat-card__value">{{ customer.total_spent | default: 0 | money }}</p>
+        </div>
+        <span class="wm-profile-stat-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Main 2-Column Layout -->
+    <div class="wm-profile-layout">
+      <!-- Left Sidebar Tabs -->
+      <aside class="wm-profile-nav" role="tablist" aria-label="Profile sections">
+        <button
+          type="button"
+          role="tab"
+          aria-selected="true"
+          class="wm-profile-nav__btn is-active"
+          data-profile-tab="overview"
+        >
+          <span class="wm-profile-nav__btn-left">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profile &amp; Pet Info</span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected="false"
+          class="wm-profile-nav__btn"
+          data-profile-tab="orders"
+        >
+          <span class="wm-profile-nav__btn-left">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            <span>My Orders</span>
+          </span>
+          <span class="wm-profile-nav__count">{{ customer.orders_count | default: 0 }}</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected="false"
+          class="wm-profile-nav__btn"
+          data-profile-tab="wishlist"
+        >
+          <span class="wm-profile-nav__btn-left">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            <span>Saved Wishlist</span>
+          </span>
+          <span class="wm-profile-nav__count" data-profile-wishlist-count>0</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected="false"
+          class="wm-profile-nav__btn"
+          data-profile-tab="addresses"
+        >
+          <span class="wm-profile-nav__btn-left">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Shipping Addresses</span>
+          </span>
+          <span class="wm-profile-nav__count" data-profile-addresses-count>{{ customer.addresses_count | default: 0 }}</span>
+        </button>
+      </aside>
+
+      <!-- Right Content Panels -->
+      <div class="wm-profile-panels">
+        <!-- PANEL 1: PERSONAL & PET PROFILE -->
+        <div class="wm-profile-panel" data-profile-panel="overview" role="tabpanel">
+          <div class="wm-profile-card">
+            <div class="wm-profile-card__header">
+              <div>
+                <h2 class="wm-profile-card__title">Personal &amp; Pet Profile</h2>
+                <p class="wm-profile-card__subtitle">Manage your contact details and customize recommendations for your dog or cat.</p>
+              </div>
             </div>
 
-            {%- if paginate.pages > 1 -%}
-              <div style="margin-top: 24px;">
-                {{ paginate | default_pagination }}
+            <form data-profile-form novalidate>
+              <div class="wm-profile-form-grid">
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfileFullName">Full Name</label>
+                  <input
+                    id="ProfileFullName"
+                    type="text"
+                    class="wm-profile-input"
+                    name="fullName"
+                    value="{{ customer.name | escape }}"
+                    placeholder="e.g. Ananya Rao"
+                    required
+                  >
+                </div>
+
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfileEmail">Email Address</label>
+                  <input
+                    id="ProfileEmail"
+                    type="email"
+                    class="wm-profile-input"
+                    name="email"
+                    value="{{ customer.email | escape }}"
+                    placeholder="e.g. ananya@example.com"
+                    required
+                  >
+                </div>
+
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfilePhone">Mobile Number</label>
+                  <input
+                    id="ProfilePhone"
+                    type="tel"
+                    class="wm-profile-input"
+                    name="phone"
+                    value="{{ customer.phone | default: customer.default_address.phone | escape }}"
+                    placeholder="e.g. +91 98765 43210"
+                  >
+                </div>
+
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfileCity">City &amp; Pincode</label>
+                  <input
+                    id="ProfileCity"
+                    type="text"
+                    class="wm-profile-input"
+                    name="city"
+                    value="{% if customer.default_address %}{{ customer.default_address.city }} {{ customer.default_address.zip }}{% endif %}"
+                    placeholder="e.g. Bengaluru · 560001"
+                  >
+                </div>
+
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfilePetName">Pet's Name</label>
+                  <input
+                    id="ProfilePetName"
+                    type="text"
+                    class="wm-profile-input"
+                    name="petName"
+                    placeholder="e.g. Bruno"
+                  >
+                </div>
+
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfilePetType">Pet Type</label>
+                  <select id="ProfilePetType" name="petType" class="wm-profile-select">
+                    <option value="Dog">Dog</option>
+                    <option value="Cat">Cat</option>
+                    <option value="Both Dog & Cat">Both Dog &amp; Cat</option>
+                  </select>
+                </div>
+
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfilePetBreed">Pet Breed &amp; Coat Type</label>
+                  <input
+                    id="ProfilePetBreed"
+                    type="text"
+                    class="wm-profile-input"
+                    name="petBreed"
+                    placeholder="e.g. Golden Retriever · Double Coat"
+                  >
+                </div>
+
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="ProfilePetAge">Pet Age / Weight</label>
+                  <input
+                    id="ProfilePetAge"
+                    type="text"
+                    class="wm-profile-input"
+                    name="petAge"
+                    placeholder="e.g. 2 Years · 24 kg"
+                  >
+                </div>
+              </div>
+
+              <div class="wm-profile-form-footer">
+                <button type="submit" class="wm-profile-btn wm-profile-btn--primary">
+                  <span>Save Profile Changes</span>
+                </button>
+                <span class="wm-profile-toast" data-profile-toast hidden>
+                  Profile saved successfully ✓
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- PANEL 2: ORDERS HISTORY -->
+        <div class="wm-profile-panel" data-profile-panel="orders" role="tabpanel" hidden>
+          <div class="wm-profile-card">
+            <div class="wm-profile-card__header">
+              <div>
+                <h2 class="wm-profile-card__title">Order History</h2>
+                <p class="wm-profile-card__subtitle">Track current shipments, view past invoices, or reorder your pet's favorites.</p>
+              </div>
+            </div>
+
+            {%- if customer and customer.orders.size > 0 -%}
+              {%- paginate customer.orders by 20 -%}
+                <div class="wm-profile-table-wrap">
+                  <table class="wm-profile-table">
+                    <thead>
+                      <tr>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Payment</th>
+                        <th>Fulfillment</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {%- for order in customer.orders -%}
+                        <tr>
+                          <td>
+                            <a href="{{ order.customer_url }}" class="wm-profile-order-link">{{ order.name }}</a>
+                          </td>
+                          <td>{{ order.created_at | time_tag: format: 'date' }}</td>
+                          <td>
+                            <span class="wm-profile-status">{{ order.financial_status_label }}</span>
+                          </td>
+                          <td>
+                            <span class="wm-profile-status">{{ order.fulfillment_status_label }}</span>
+                          </td>
+                          <td><strong>{{ order.total_price | money }}</strong></td>
+                        </tr>
+                      {%- endfor -%}
+                    </tbody>
+                  </table>
+                </div>
+              {%- endpaginate -%}
+            {%- else -%}
+              <div class="wm-profile-empty">
+                <h3 class="wm-profile-empty__title">No orders placed yet</h3>
+                <p class="wm-profile-empty__text">Once you place an order on Wagmart, your live order status and tracking details will appear here.</p>
+                <a href="{{ routes.all_products_collection_url }}" class="wm-profile-btn wm-profile-btn--primary">
+                  <span>Explore Pet Essentials</span>
+                </a>
               </div>
             {%- endif -%}
-
-          {%- else -%}
-            <div class="wm-empty-orders">
-              <div class="wm-empty-icon">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
-                </svg>
-              </div>
-              <h3 class="wm-empty-title">No orders placed yet</h3>
-              <p class="wm-empty-desc">Your order history will appear here once you make your first purchase.</p>
-              <a href="{{ routes.all_products_collection_url }}" class="wm-empty-btn">
-                <span>Start Shopping</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-                </svg>
-              </a>
-            </div>
-          {%- endif -%}
-        {%- endpaginate -%}
-
-      </div>
-
-      {% comment %} Right: Account Details & Default Address {% endcomment %}
-      <div class="wm-account-card">
-        <h2 class="wm-account-card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-          <span>Account Details</span>
-        </h2>
-
-        <div class="wm-address-box">
-          <p style="font-weight: 700; color: #18181B; margin-bottom: 6px;">{{ customer.name }}</p>
-          <p>{{ customer.email }}</p>
-          {%- assign customer_phone = customer.phone | default: customer.default_address.phone -%}
-          {%- if customer_phone != blank -%}
-            <p>{{ customer_phone }}</p>
-          {%- endif -%}
-          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E4E4E7; display: flex; justify-content: space-between; gap: 12px; font-size: 13px;">
-            <span><strong>Orders:</strong> {{ customer.orders_count }}</span>
-            <span><strong>Total Spent:</strong> {{ customer.total_spent | money }}</span>
           </div>
-          {%- if customer.default_address -%}
-            <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E4E4E7;">
-              <p style="font-size: 12px; font-weight: 700; color: #71717A; text-transform: uppercase; margin-bottom: 6px;">Default Shipping Address</p>
-              {{ customer.default_address | format_address }}
-            </div>
-          {%- else -%}
-            <p style="color: #71717A; font-size: 13px; margin-top: 10px;">No default address saved.</p>
-          {%- endif -%}
         </div>
 
-        <a href="{{ routes.account_addresses_url }}" class="wm-address-manage-link">
-          <span>Manage Saved Addresses ({{ customer.addresses_count }})</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-          </svg>
-        </a>
+        <!-- PANEL 3: SAVED WISHLIST -->
+        <div class="wm-profile-panel" data-profile-panel="wishlist" role="tabpanel" hidden>
+          <div class="wm-profile-card">
+            <div class="wm-profile-card__header">
+              <div>
+                <h2 class="wm-profile-card__title">Saved Wishlist</h2>
+                <p class="wm-profile-card__subtitle">Products you've bookmarked across the Wagmart store.</p>
+              </div>
+            </div>
 
+            <div class="wm-profile-wishlist-grid" data-profile-wishlist-grid></div>
+
+            <div class="wm-profile-empty" data-profile-wishlist-empty hidden>
+              <h3 class="wm-profile-empty__title">Your wishlist is empty</h3>
+              <p class="wm-profile-empty__text">Tap the heart icon on any product to save it here for quick access later.</p>
+              <a href="{{ routes.all_products_collection_url }}" class="wm-profile-btn wm-profile-btn--primary">
+                <span>Browse Products</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 4: SHIPPING ADDRESSES -->
+        <div class="wm-profile-panel" data-profile-panel="addresses" role="tabpanel" hidden>
+          <div class="wm-profile-card">
+            <div class="wm-profile-card__header">
+              <div>
+                <h2 class="wm-profile-card__title">Saved Shipping Addresses</h2>
+                <p class="wm-profile-card__subtitle">Manage your delivery addresses for faster checkout across India.</p>
+              </div>
+              <button type="button" class="wm-profile-btn wm-profile-btn--secondary" data-profile-toggle-address-form>
+                <span>+ Add New Address</span>
+              </button>
+            </div>
+
+            <div class="wm-profile-addresses-grid" data-profile-addresses-list>
+              {%- if customer and customer.addresses.size > 0 -%}
+                {%- for address in customer.addresses -%}
+                  <div class="wm-profile-address-card">
+                    <div>
+                      {%- if address == customer.default_address -%}
+                        <span class="wm-profile-address-card__badge">Default Address</span>
+                      {%- endif -%}
+                      {{ address | format_address }}
+                    </div>
+                  </div>
+                {%- endfor -%}
+              {%- endif -%}
+            </div>
+
+            <div class="wm-profile-empty" data-profile-addresses-empty {% if customer and customer.addresses.size > 0 %}hidden{% endif %}>
+              <h3 class="wm-profile-empty__title">No saved addresses yet</h3>
+              <p class="wm-profile-empty__text">Add your home or office delivery address below for faster checkout.</p>
+            </div>
+
+            <!-- Add Address Form -->
+            <form data-profile-address-form hidden style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #EAE5D9;">
+              <h3 class="wm-profile-card__title" style="margin-bottom: 16px; font-size: 18px;">Add New Delivery Address</h3>
+              <div class="wm-profile-form-grid">
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="AddrName">Recipient Name</label>
+                  <input id="AddrName" name="name" type="text" class="wm-profile-input" placeholder="e.g. Ananya Rao" required>
+                </div>
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="AddrPhone">Phone Number</label>
+                  <input id="AddrPhone" name="phone" type="tel" class="wm-profile-input" placeholder="e.g. +91 98765 43210" required>
+                </div>
+                <div class="wm-profile-field wm-profile-field--full">
+                  <label class="wm-profile-label" for="AddrLine1">Street Address / Flat / Building</label>
+                  <input id="AddrLine1" name="address1" type="text" class="wm-profile-input" placeholder="House/Flat No., Building Name, Street" required>
+                </div>
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="AddrCity">City</label>
+                  <input id="AddrCity" name="city" type="text" class="wm-profile-input" placeholder="e.g. Bengaluru" required>
+                </div>
+                <div class="wm-profile-field">
+                  <label class="wm-profile-label" for="AddrZip">Pincode</label>
+                  <input id="AddrZip" name="zip" type="text" maxlength="6" class="wm-profile-input" placeholder="e.g. 560001" required>
+                </div>
+              </div>
+              <div class="wm-profile-form-footer">
+                <button type="submit" class="wm-profile-btn wm-profile-btn--primary">
+                  <span>Save Address</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-
     </div>
-
   </div>
-</div>
+</section>
+
+<script>
+  (function () {
+    const root = document.querySelector('[data-profile-page]');
+    if (!root) return;
+
+    const PROFILE_KEY = 'wagmart_customer_profile';
+    const ADDRESS_KEY = 'wagmart_customer_addresses';
+    const WISHLIST_KEY = 'wagmart_wishlist';
+
+    // 1. Tab switching
+    const tabs = root.querySelectorAll('[data-profile-tab]');
+    const panels = root.querySelectorAll('[data-profile-panel]');
+
+    const activateTab = (tabName) => {
+      tabs.forEach((btn) => {
+        const active = btn.dataset.profileTab === tabName;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-selected', String(active));
+      });
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.profilePanel !== tabName;
+      });
+    };
+
+    tabs.forEach((btn) => {
+      btn.addEventListener('click', () => activateTab(btn.dataset.profileTab));
+    });
+
+    if (window.location.hash) {
+      const h = window.location.hash.replace('#', '');
+      if (['overview', 'orders', 'wishlist', 'addresses'].includes(h)) {
+        activateTab(h);
+      }
+    }
+
+    // 2. Load & Save Personal + Pet Profile
+    const profileForm = root.querySelector('[data-profile-form]');
+    const toast = root.querySelector('[data-profile-toast]');
+    const nameEl = root.querySelector('[data-profile-display-name]');
+    const emailEl = root.querySelector('[data-profile-display-email]');
+    const phoneEl = root.querySelector('[data-profile-display-phone]');
+    const avatarEl = root.querySelector('[data-profile-avatar]');
+
+    const syncProfileUI = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+        if (!profileForm) return;
+        ['fullName', 'email', 'phone', 'city', 'petName', 'petType', 'petBreed', 'petAge'].forEach((key) => {
+          const input = profileForm.elements[key];
+          if (input && saved[key] && !input.value) {
+            input.value = saved[key];
+          } else if (input && saved[key] && ['petName', 'petType', 'petBreed', 'petAge', 'city'].includes(key)) {
+            input.value = saved[key];
+          }
+        });
+        if (saved.fullName && nameEl) nameEl.textContent = saved.fullName;
+        if (saved.fullName && avatarEl) avatarEl.textContent = saved.fullName.trim().charAt(0).toUpperCase();
+        if (saved.email && emailEl) emailEl.textContent = saved.email;
+        if (saved.phone && phoneEl) phoneEl.textContent = '· ' + saved.phone;
+      } catch (e) {}
+    };
+
+    syncProfileUI();
+
+    if (profileForm) {
+      profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {};
+        ['fullName', 'email', 'phone', 'city', 'petName', 'petType', 'petBreed', 'petAge'].forEach((key) => {
+          if (profileForm.elements[key]) {
+            data[key] = profileForm.elements[key].value.trim();
+          }
+        });
+        try {
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
+        } catch (err) {}
+        syncProfileUI();
+        if (toast) {
+          toast.hidden = false;
+          setTimeout(() => {
+            toast.hidden = true;
+          }, 2600);
+        }
+      });
+    }
+
+    // 3. Render Saved Wishlist
+    const wishlistGrid = root.querySelector('[data-profile-wishlist-grid]');
+    const wishlistEmpty = root.querySelector('[data-profile-wishlist-empty]');
+    const wishlistCounts = root.querySelectorAll('[data-profile-wishlist-count], [data-profile-wishlist-stat]');
+
+    const renderWishlist = () => {
+      let items = [];
+      try {
+        items = JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]');
+      } catch (e) {}
+      const validItems = Array.isArray(items) ? items : [];
+      wishlistCounts.forEach((el) => {
+        el.textContent = String(validItems.length);
+      });
+
+      if (!wishlistGrid || !wishlistEmpty) return;
+      if (validItems.length === 0) {
+        wishlistGrid.innerHTML = '';
+        wishlistEmpty.hidden = false;
+        return;
+      }
+      wishlistEmpty.hidden = true;
+      wishlistGrid.innerHTML = validItems
+        .map((item, idx) => {
+          const obj = typeof item === 'object' && item !== null ? item : { id: item, name: 'Saved Pet Product' };
+          const title = obj.name || obj.title || 'Wagmart Pet Essential';
+          const img = obj.image || '/cdn/shop/files/collar-black.webp?width=400';
+          const url = obj.url || '/collections/all';
+          return `
+            <div class="wm-profile-wish-item">
+              <a href="${url}">
+                <img src="${img}" alt="${title}" class="wm-profile-wish-item__img" loading="lazy">
+              </a>
+              <a href="${url}" class="wm-profile-wish-item__title">${title}</a>
+              <button type="button" class="wm-profile-btn wm-profile-btn--secondary" data-remove-wish="${idx}" style="min-height: 36px; font-size: 12.5px;">
+                Remove
+              </button>
+            </div>
+          `;
+        })
+        .join('');
+    };
+
+    renderWishlist();
+
+    if (wishlistGrid) {
+      wishlistGrid.addEventListener('click', (e) => {
+        const rmBtn = e.target.closest('[data-remove-wish]');
+        if (!rmBtn) return;
+        const idx = parseInt(rmBtn.dataset.removeWish, 10);
+        try {
+          const list = JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]');
+          list.splice(idx, 1);
+          localStorage.setItem(WISHLIST_KEY, JSON.stringify(list));
+          renderWishlist();
+        } catch (err) {}
+      });
+    }
+
+    // 4. Saved Addresses Book
+    const addrToggle = root.querySelector('[data-profile-toggle-address-form]');
+    const addrForm = root.querySelector('[data-profile-address-form]');
+    const addrList = root.querySelector('[data-profile-addresses-list]');
+    const addrEmpty = root.querySelector('[data-profile-addresses-empty]');
+    const addrCounts = root.querySelectorAll('[data-profile-addresses-count], [data-profile-addresses-stat]');
+
+    if (addrToggle && addrForm) {
+      addrToggle.addEventListener('click', () => {
+        addrForm.hidden = !addrForm.hidden;
+      });
+    }
+
+    const renderLocalAddresses = () => {
+      let savedAddrs = [];
+      try {
+        savedAddrs = JSON.parse(localStorage.getItem(ADDRESS_KEY) || '[]');
+      } catch (e) {}
+      if (!addrList) return;
+      root.querySelectorAll('[data-local-addr]').forEach((el) => el.remove());
+      savedAddrs.forEach((a, i) => {
+        const card = document.createElement('div');
+        card.className = 'wm-profile-address-card';
+        card.setAttribute('data-local-addr', String(i));
+        card.innerHTML = `
+          <div>
+            ${i === 0 ? '<span class="wm-profile-address-card__badge">Default Address</span>' : ''}
+            <p style="margin:0 0 4px;font-weight:700;color:#141918;">${a.name}</p>
+            <p style="margin:0;">${a.address1}</p>
+            <p style="margin:0;">${a.city} - ${a.zip}</p>
+            <p style="margin:4px 0 0;color:#6B665E;">Phone: ${a.phone}</p>
+          </div>
+        `;
+        addrList.appendChild(card);
+      });
+      const totalCards = addrList.querySelectorAll('.wm-profile-address-card').length;
+      if (addrEmpty) addrEmpty.hidden = totalCards > 0;
+      addrCounts.forEach((el) => {
+        el.textContent = String(totalCards);
+      });
+    };
+
+    renderLocalAddresses();
+
+    if (addrForm) {
+      addrForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const entry = {
+          name: addrForm.elements.name.value.trim(),
+          phone: addrForm.elements.phone.value.trim(),
+          address1: addrForm.elements.address1.value.trim(),
+          city: addrForm.elements.city.value.trim(),
+          zip: addrForm.elements.zip.value.trim(),
+        };
+        if (!entry.name || !entry.address1) return;
+        try {
+          const list = JSON.parse(localStorage.getItem(ADDRESS_KEY) || '[]');
+          list.unshift(entry);
+          localStorage.setItem(ADDRESS_KEY, JSON.stringify(list));
+        } catch (err) {}
+        addrForm.reset();
+        addrForm.hidden = true;
+        renderLocalAddresses();
+      });
+    }
+  })();
+</script>
 
 {% schema %}
 {
-  "name": "Customer Account",
+  "name": "Customer Profile",
   "settings": []
 }
 {% endschema %}

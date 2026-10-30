@@ -53,6 +53,25 @@
       {% render 'cart-empty-state' %}
     </div>
   </div>
+  <script>
+    (function () {
+      try {
+        var page = document.querySelector('[data-cart-page]');
+        if (!page) return;
+        var filled = page.querySelector('[data-cart-filled-view]');
+        var empty = page.querySelector('[data-cart-empty-container]');
+        var initEl = document.getElementById('wm-cart-initial-json');
+        var serverCart = initEl ? JSON.parse(initEl.textContent || 'null') : null;
+        var localCart = JSON.parse(localStorage.getItem('wagmart_local_cart') || 'null');
+        var hasServerItems = serverCart && Array.isArray(serverCart.items) && serverCart.items.length > 0;
+        var hasLocalItems = localCart && Array.isArray(localCart.items) && localCart.items.some(function (i) { return (Number(i && i.quantity) || 0) > 0; });
+        if (hasServerItems || hasLocalItems) {
+          if (filled) filled.hidden = false;
+          if (empty) empty.hidden = true;
+        }
+      } catch (e) {}
+    })();
+  </script>
 </div>
 
 <script src="{{ 'cart.js' | asset_url }}" defer></script>

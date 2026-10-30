@@ -1,0 +1,148 @@
+{%- comment -%}
+  Wagmart Product Key Benefits Section (sections/product-benefits.liquid)
+  Reads from product.metafields.custom.key_benefits.value (metaobject list: icon, title, text)
+  with fallback to section blocks. Uses open hairline dividers (no beige cards, no uppercase micro-labels).
+{%- endcomment -%}
+
+{%- liquid
+  assign benefits_meta = product.metafields.custom.key_benefits.value
+-%}
+
+<section
+  class="wm-section wm-benefits"
+  id="ProductBenefits-{{ section.id }}"
+  aria-labelledby="BenefitsHeading-{{ section.id }}"
+>
+  <div class="wm-container">
+    <div class="wm-benefits__header">
+      <h2 class="wm-section__heading" id="BenefitsHeading-{{ section.id }}">
+        {{ section.settings.heading | default: 'Grooming that feels like a belly rub.' }}
+      </h2>
+      {%- if section.settings.subheading != blank -%}
+        <p class="wm-section__subcopy">
+          {{ section.settings.subheading }}
+        </p>
+      {%- endif -%}
+    </div>
+
+    <div class="wm-benefits__grid" role="list">
+      {%- if benefits_meta != blank and benefits_meta.size > 0 -%}
+        {%- for item in benefits_meta -%}
+          {%- assign item_icon = item.icon | default: 'hand' -%}
+          <div class="wm-benefits__item" role="listitem">
+            <div class="wm-benefits__icon-wrap">
+              {% render 'icon', name: item_icon, size: 22 %}
+            </div>
+            <h3 class="wm-benefits__title">{{ item.title }}</h3>
+            <p class="wm-benefits__text">{{ item.text }}</p>
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          <div class="wm-benefits__item" role="listitem" {{ block.shopify_attributes }}>
+            <div class="wm-benefits__icon-wrap">
+              {% render 'icon', name: block.settings.icon, size: 22 %}
+            </div>
+            <h3 class="wm-benefits__title">{{ block.settings.title }}</h3>
+            <p class="wm-benefits__text">{{ block.settings.text }}</p>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Key Benefits",
+  "tag": "section",
+  "class": "section-product-benefits",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Grooming that feels like a belly rub."
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Supporting copy",
+      "default": "Most dogs and cats run from metal wire brushes. The Pet Grooming Glove turns daily deshedding into calm, five-finger physical contact."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefit item",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "hand", "label": "Five-finger glove" },
+            { "value": "sparkles", "label": "Fur release" },
+            { "value": "heart-handshake", "label": "Gentle care" },
+            { "value": "droplets", "label": "Waterproof rinse" },
+            { "value": "shield-check", "label": "Skin safe" }
+          ],
+          "default": "hand"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Benefit title",
+          "default": "Fits Every Curve"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Benefit description",
+          "default": "Five flexible fingers reach behind ears, under legs, and along the tail where rigid slicker brushes never fit."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Key Benefits",
+      "blocks": [
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "hand",
+            "title": "Reaches Every Curve",
+            "text": "Five flexible fingers contour around joints, behind ears, and along the tail where stiff paddle brushes cannot reach."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Peels Off in One Sheet",
+            "text": "255 soft silicone tips trap loose undercoat fur by gentle static grip so you can peel the hair off in one clean layer."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "heart-handshake",
+            "title": "Calms Brush-Shy Pets",
+            "text": "Feels like your own hand petting their coat—no sharp steel pins, no tugging on knots, and no anxiety for puppies or cats."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "droplets",
+            "title": "Works Dry or in the Bath",
+            "text": "Works shampoo deep into dense double coats during bath time, then rinses clean under running tap water in seconds."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

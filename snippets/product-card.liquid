@@ -15,6 +15,14 @@
     assign prod_id = product.selected_or_first_available_variant.id | default: product.variants.first.id | default: product.id
     assign prod_handle = product.handle
     assign prod_sku = product.selected_or_first_available_variant.sku | default: ''
+    assign prod_sel_var = product.selected_or_first_available_variant | default: product.variants.first
+    if prod_sel_var.available == false
+      assign prod_max_qty = 0
+    elsif prod_sel_var.inventory_management == 'shopify' and prod_sel_var.inventory_policy == 'deny'
+      assign prod_max_qty = prod_sel_var.inventory_quantity | default: 0
+    else
+      assign prod_max_qty = 99
+    endif
     assign prod_available = true
     assign prod_title = product.title
     assign prod_url = product.url
@@ -35,7 +43,7 @@
     endif
 
     if product.featured_image != blank
-      assign prod_image = product.featured_image | image_url: width: 700
+      assign prod_image = product.featured_image | image_url: width: 800
     else
       assign prod_image = fallback_asset_img
     endif
@@ -136,6 +144,8 @@
   data-category="{{ prod_category | split: ',' | first | default: 'Grooming' | escape }}"
   data-price="{{ prod_price_num | default: 330 }}"
   data-compare-price="{{ prod_comp_num | default: 0 }}"
+  data-max-qty="{{ prod_max_qty | default: 99 }}"
+  data-stock="{{ prod_max_qty | default: 99 }}"
   data-image="{{ prod_image }}"
   data-url="{{ prod_url }}"
   data-desc="{{ prod_desc | escape }}"

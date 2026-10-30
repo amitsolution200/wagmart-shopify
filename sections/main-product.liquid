@@ -1,672 +1,1418 @@
-{% comment %}
-  Wagmart Shopify Product Details Page (sections/main-product.liquid)
-  Converted from React ProductDetailsPage component & fully responsive across all devices:
-  - Mobile / Tablet (< 1024px): Infinity loop touch/drag image slider with pill/dot indicators
-  - Laptop / Desktop (>= 1024px): Vertically stacked square rounded-[20px] images on left, sticky info panel on right
-  - Category, Title + Wishlist Heart button, Price in Rupees (₹), Short Description
-  - NO Size / Material dropdowns
-  - Only Two Buttons:
-    1) "Add to Cart" button -> clicking transforms into [- qty +] stepper synced with Shopify Cart
-    2) "Buy Now" button below -> redirects to /checkout
-  - Three Accordions:
-    1) Product Description (open by default)
-    2) Specifications
-    3) Benefits (text only, no icons)
-{% endcomment %}
+{%- comment -%}
+  Wagmart Editorial Product Hero Section (sections/main-product.liquid)
+  Online Store 2.0 Dawn-compatible section:
+  - Breadcrumb navigation
+  - Two-column 12-grid hero:
+    - Left: Main media stage (image, video, external_video, model) + vertical thumbnail rail on desktop / horizontal rail on mobile + swipe/pinch-zoom + accessible <dialog> lightbox
+    - Right: Sticky buy box with block architecture (@app support, title, rating, price, description, variant picker, quantity + AJAX Add to Cart + dynamic Buy Now, trust points, Indian pincode checker)
+  - Mobile sticky bottom bar driven by IntersectionObserver
+{%- endcomment -%}
 
 {{ 'product.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
-  assign prod_title = product.title | default: 'Pet Grooming Glove'
-  assign prod_category = product.type
-  if prod_category == blank and product.collections.first != blank
-    assign prod_category = product.collections.first.title
-  endif
-  if prod_category == blank
-    assign prod_category = 'Pet Care'
-  endif
-
   assign current_variant = product.selected_or_first_available_variant | default: product.variants.first
-  assign prod_id = current_variant.id | default: product.id | default: 'pet-grooming-glove'
-  assign price_rupees = product.price | default: 33000 | divided_by: 100
-  assign compare_rupees = product.compare_at_price | default: 0 | divided_by: 100
-  assign is_available = current_variant.available | default: product.available | default: true
-
-  assign inv_mgmt = current_variant.inventory_management
-  assign inv_policy = current_variant.inventory_policy
-  assign inv_qty = current_variant.inventory_quantity
-
-  if inv_mgmt == blank
-    assign track_stock = false
-    assign real_stock = 999
-  else
-    assign track_stock = true
-    assign real_stock = inv_qty
+  assign product_form_id = 'product-form-' | append: section.id
+  assign prod_title = product.title
+  assign is_available = current_variant.available | default: true
+  if current_variant != blank and current_variant.available == false
+    assign is_available = false
   endif
 
-  assign fallback_img_1 = 'catalog-bath-massage-brush.webp' | asset_url
+  assign rating_val = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | plus: 0
+  assign rating_count = product.metafields.reviews.rating_count.value | default: product.metafields.reviews.rating_count | plus: 0
 
-  if product.featured_image != blank
-    assign schema_img = product.featured_image | image_url: width: 1000
-  else
-    assign schema_img = fallback_img_1
-  endif
+  assign current_sku = current_variant.sku | strip
 
-  # IN-CART QUANTITY DETECTION:
-  assign in_cart_qty = 0
-  for item in cart.items
-    assign item_prod_id = item.product_id | default: item.product.id
-    assign item_var_id = item.variant_id | default: item.variant.id | default: item.id
-    if item_var_id == current_variant.id or item_var_id == prod_id or item_prod_id == product.id or item.handle == product.handle
-      assign in_cart_qty = in_cart_qty | plus: item.quantity
-    endif
-  endfor
-
-  assign short_desc = product.metafields.custom.short_description | default: product.description | strip_html | truncatewords: 28
-  if short_desc == blank
-    assign short_desc = 'Thoughtfully crafted with pet-safe materials for everyday comfort, gentle care, and lasting durability.'
-  endif
+  assign fallback_glove_img = 'catalog-grooming-glove.webp' | asset_url
+  assign filter_unrelated = section.settings.filter_unrelated_media | default: false
 -%}
 
-{%- comment -%} JSON-LD Structured Data for SEO {%- endcomment -%}
+{%- comment -%} Product JSON-LD Structured Data {%- endcomment -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org/",
   "@type": "Product",
   "name": {{ prod_title | json }},
-  "image": [{{ schema_img | json }}],
+  "url": {{ shop.url | append: product.url | json }},
+  {%- if product.featured_media != blank -%}
+  "image": [
+    {{ product.featured_media | image_url: width: 1200 | prepend: 'https:' | json }}
+  ],
+  {%- endif -%}
   "description": {{ product.description | strip_html | default: prod_title | json }},
+  "sku": {{ current_sku | json }},
   "brand": {
     "@type": "Brand",
-    "name": {{ product.vendor | default: shop.name | json }}
+    "name": {{ product.vendor | default: 'Wagmart' | json }}
   },
+  {%- if rating_count > 0 and rating_val > 0 -%}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": {{ rating_val | json }},
+    "reviewCount": {{ rating_count | json }}
+  },
+  {%- endif -%}
   "offers": {
     "@type": "Offer",
-    "url": "{{ shop.url }}{{ product.url }}",
-    "priceCurrency": "INR",
-    "price": "{{ price_rupees }}",
+    "url": {{ shop.url | append: current_variant.url | default: product.url | json }},
+    "priceCurrency": {{ cart.currency.iso_code | default: 'INR' | json }},
+    "price": {{ current_variant.price | default: 33000 | divided_by: 100.0 | json }},
     "availability": "https://schema.org/{% if is_available %}InStock{% else %}OutOfStock{% endif %}",
     "itemCondition": "https://schema.org/NewCondition"
   }
 }
 </script>
 
-<section
-  class="wm-pdp-react px-4 lg:px-8 pt-8 lg:pt-16 pb-16"
-  data-wm-pdp
-  data-product-id="{{ prod_id }}"
-  data-shopify-product-id="{{ product.id }}"
-  data-handle="{{ product.handle }}"
-  data-product-title="{{ prod_title | escape }}"
-  data-base-price="{{ price_rupees }}"
-  data-compare-price="{{ compare_rupees }}"
-  data-max-stock="{% if track_stock %}{{ real_stock }}{% else %}99{% endif %}"
-  data-inventory-tracked="{{ track_stock }}"
-  data-in-cart-qty="{{ in_cart_qty }}"
+<product-page
+  class="wm-pdp"
+  id="MainProduct-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  data-product-handle="{{ product.handle | default: 'pet-grooming-glove' }}"
+  data-product-url="{{ product.url }}"
+  data-update-url="true"
 >
-  <div class="wm-pdp-react__container max-w-[1250px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+  <div class="wm-container">
+    {%- comment -%} 1. Breadcrumb Navigation {%- endcomment -%}
+    {%- if section.settings.show_breadcrumb -%}
+      <nav class="wm-breadcrumb" aria-label="{{ 'general.breadcrumbs.label' | t }}">
+        <ol class="wm-breadcrumb__list">
+          <li class="wm-breadcrumb__item">
+            <a href="{{ routes.root_url }}" class="wm-breadcrumb__link">{{ 'general.breadcrumbs.home' | t }}</a>
+          </li>
+          {%- if collection != blank -%}
+            <li class="wm-breadcrumb__item">
+              <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
+              <a href="{{ collection.url }}" class="wm-breadcrumb__link">{{ collection.title }}</a>
+            </li>
+          {%- elsif product.collections.first != blank -%}
+            <li class="wm-breadcrumb__item">
+              <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
+              <a href="{{ product.collections.first.url }}" class="wm-breadcrumb__link">{{ product.collections.first.title }}</a>
+            </li>
+          {%- else -%}
+            <li class="wm-breadcrumb__item">
+              <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
+              <a href="{{ routes.all_products_collection_url }}" class="wm-breadcrumb__link">{{ 'general.breadcrumbs.collections' | t }}</a>
+            </li>
+          {%- endif -%}
+          <li class="wm-breadcrumb__item" aria-current="page">
+            <span class="wm-breadcrumb__sep" aria-hidden="true">/</span>
+            <span class="wm-breadcrumb__current">{{ prod_title }}</span>
+          </li>
+        </ol>
+      </nav>
+    {%- endif -%}
 
-    {%- comment -%} =========================================================
-       LEFT COLUMN:
-       - Mobile/Tablet view (< 1024px): Infinity loop slider with pill/dot indicators + thumbnail gallery below
-       - Laptop/Desktop view (>= 1024px): Stacked rounded-[20px] images
-       ========================================================= {%- endcomment -%}
-    <div class="wm-pdp-react__media-col">
+    {%- comment -%} 2. Two-Column Product Hero (12-Column Grid) {%- endcomment -%}
+    <div class="wm-pdp__grid">
+      {%- comment -%} LEFT COLUMN: Media Gallery + Thumbnail Rail {%- endcomment -%}
+      <div class="wm-pdp__gallery-col">
+        {%- liquid
+          assign valid_media_count = 0
+          for media in product.media
+            assign m_src = media.preview_image.src | default: '' | downcase
+            assign m_alt = media.alt | default: '' | downcase
+            assign is_unrelated = false
+            if filter_unrelated
+              if m_src contains 'leash' or m_src contains 'ball' or m_src contains 'collar' or m_src contains 'hammock' or m_src contains 'bowl' or m_src contains 'image_copy' or m_alt contains 'leash' or m_alt contains 'collar'
+                assign is_unrelated = true
+              endif
+            endif
+            unless is_unrelated
+              assign valid_media_count = valid_media_count | plus: 1
+            endunless
+          endfor
+        -%}
 
-      {%- comment -%} Mobile/Tablet view: Infinity loop slider + Gallery Thumbnails below {%- endcomment -%}
-      <div class="wm-pdp-react__mobile-slider block lg:hidden relative" data-pdp-slider>
-        <div class="wm-pdp-react__slider-stage relative">
-          <div class="wm-pdp-react__slider-viewport overflow-hidden rounded-[20px]" data-pdp-slider-viewport>
-            <div class="wm-pdp-react__slider-track flex" data-pdp-slider-track>
-              {%- if product.images.size > 0 -%}
-                {%- for image in product.images -%}
-                  {%- assign img_url = image | image_url: width: 1000 -%}
-                  <div class="wm-pdp-react__slide min-w-0 shrink-0 basis-full relative" data-pdp-slide="{{ forloop.index0 }}">
-                    <div class="wm-pdp-react__image-card relative bg-[#FBFBF7] overflow-hidden rounded-[20px]">
+        <div
+          class="wm-gallery{% if valid_media_count <= 1 and product.media.size > 0 %} wm-gallery--single{% endif %}"
+          data-product-gallery
+          aria-label="{{ 'products.product.media.gallery_label' | t }}"
+        >
+          {%- comment -%} Thumbnail Rail (Vertical on Desktop >=1024px, Horizontal below main image on Mobile/Tablet) {%- endcomment -%}
+          <div
+            class="wm-gallery__thumbs"
+            role="tablist"
+            aria-label="{{ 'products.product.media.thumbnails_label' | t }}"
+            data-gallery-thumbs
+          >
+            {%- if valid_media_count > 0 -%}
+              {%- assign render_idx = 0 -%}
+              {%- for media in product.media -%}
+                {%- liquid
+                  assign m_src = media.preview_image.src | default: '' | downcase
+                  assign m_alt = media.alt | default: '' | downcase
+                  assign is_unrelated = false
+                  if filter_unrelated
+                    if m_src contains 'leash' or m_src contains 'ball' or m_src contains 'collar' or m_src contains 'hammock' or m_src contains 'bowl' or m_src contains 'image_copy' or m_alt contains 'leash' or m_alt contains 'collar'
+                      assign is_unrelated = true
+                    endif
+                  endif
+                -%}
+                {%- unless is_unrelated -%}
+                  {%- assign is_first_thumb = false -%}
+                  {%- if render_idx == 0 -%}
+                    {%- assign is_first_thumb = true -%}
+                  {%- endif -%}
+                  {% render 'gallery-thumb',
+                    media: media,
+                    index: render_idx,
+                    is_active: is_first_thumb,
+                    product_title: prod_title
+                  %}
+                  {%- assign render_idx = render_idx | plus: 1 -%}
+                {%- endunless -%}
+              {%- endfor -%}
+            {%- else -%}
+              {% render 'gallery-thumb',
+                media: product.featured_media,
+                index: 0,
+                is_active: true,
+                product_title: prod_title,
+                fallback_src: fallback_glove_img
+              %}
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Main Media Stage {%- endcomment -%}
+          <div class="wm-gallery__stage">
+            <div class="wm-gallery__viewport" data-gallery-viewport>
+              <div class="wm-gallery__track" data-gallery-track>
+                {%- if valid_media_count > 0 -%}
+                  {%- assign slide_idx = 0 -%}
+                  {%- for media in product.media -%}
+                    {%- liquid
+                      assign m_src = media.preview_image.src | default: '' | downcase
+                      assign m_alt = media.alt | default: '' | downcase
+                      assign is_unrelated = false
+                      if filter_unrelated
+                        if m_src contains 'leash' or m_src contains 'ball' or m_src contains 'collar' or m_src contains 'hammock' or m_src contains 'bowl' or m_src contains 'image_copy' or m_alt contains 'leash' or m_alt contains 'collar'
+                          assign is_unrelated = true
+                        endif
+                      endif
+                    -%}
+                    {%- unless is_unrelated -%}
+                      {%- liquid
+                        assign is_first_slide = false
+                        assign img_loading = 'lazy'
+                        assign img_priority = 'auto'
+                        if slide_idx == 0
+                          assign is_first_slide = true
+                          assign img_loading = 'eager'
+                          assign img_priority = 'high'
+                        endif
+                        assign media_alt = media.alt | default: prod_title | escape
+                      -%}
+                      <div
+                        id="wm-gallery-slide-{{ section.id }}-{{ slide_idx }}"
+                        role="tabpanel"
+                        aria-labelledby="wm-gallery-thumb-{{ section.id }}-{{ slide_idx }}"
+                        class="wm-gallery__slide{% if is_first_slide %} is-active{% endif %}"
+                        data-gallery-slide="{{ slide_idx }}"
+                        data-media-id="{{ media.id }}"
+                        data-zoom-src="{{ media.preview_image | image_url: width: 2000 }}"
+                      >
+                        {%- case media.media_type -%}
+                          {%- when 'image' -%}
+                            <div class="wm-gallery__zoom-wrap" data-zoom-container>
+                              {{
+                                media
+                                | image_url: width: 1600
+                                | image_tag:
+                                  widths: '360, 540, 720, 960, 1200, 1600',
+                                  sizes: '(min-width: 1280px) 620px, (min-width: 1024px) 50vw, (min-width: 768px) 52vw, 100vw',
+                                  loading: img_loading,
+                                  fetchpriority: img_priority,
+                                  width: media.width,
+                                  height: media.height,
+                                  alt: media_alt,
+                                  class: 'wm-gallery__img'
+                              }}
+                            </div>
+                          {%- when 'video' -%}
+                            <div class="wm-gallery__video-wrap">
+                              {{
+                                media
+                                | video_tag:
+                                  image_size: '1200x',
+                                  controls: true,
+                                  muted: false,
+                                  loop: section.settings.enable_video_looping,
+                                  preload: 'metadata',
+                                  class: 'wm-gallery__video'
+                              }}
+                            </div>
+                          {%- when 'external_video' -%}
+                            <div class="wm-gallery__video-wrap">
+                              {{
+                                media
+                                | external_video_tag:
+                                  class: 'wm-gallery__external-video',
+                                  loading: 'lazy'
+                              }}
+                            </div>
+                          {%- when 'model' -%}
+                            <div class="wm-gallery__model-wrap">
+                              {{
+                                media
+                                | model_viewer_tag:
+                                  image_size: '1200x',
+                                  reveal: 'interaction',
+                                  toggleable: true,
+                                  class: 'wm-gallery__model'
+                              }}
+                            </div>
+                        {%- endcase -%}
+                      </div>
+                      {%- assign slide_idx = slide_idx | plus: 1 -%}
+                    {%- endunless -%}
+                  {%- endfor -%}
+                {%- else -%}
+                  <div
+                    id="wm-gallery-slide-{{ section.id }}-0"
+                    role="tabpanel"
+                    aria-labelledby="wm-gallery-thumb-{{ section.id }}-0"
+                    class="wm-gallery__slide is-active"
+                    data-gallery-slide="0"
+                    data-zoom-src="{{ fallback_glove_img }}"
+                  >
+                    <div class="wm-gallery__zoom-wrap" data-zoom-container>
                       <img
-                        src="{{ img_url }}"
-                        alt="{{ image.alt | default: prod_title | escape }} {{ forloop.index }}"
-                        class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
-                        width="800"
+                        src="{{ fallback_glove_img }}"
+                        alt="{{ prod_title | escape }}"
+                        width="1000"
                         height="1000"
-                        {% if forloop.first %}id="wm-main-product-image" fetchpriority="high"{% else %}loading="eager"{% endif %}
-                        onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
+                        loading="eager"
+                        fetchpriority="high"
+                        class="wm-gallery__img"
                       >
                     </div>
                   </div>
-                {%- endfor -%}
-              {%- else -%}
-                <div class="wm-pdp-react__slide min-w-0 shrink-0 basis-full relative" data-pdp-slide="0">
-                  <div class="wm-pdp-react__image-card relative bg-[#FBFBF7] overflow-hidden rounded-[20px]">
-                    <img
-                      src="{{ schema_img }}"
-                      alt="{{ prod_title | escape }}"
-                      id="wm-main-product-image"
-                      class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
-                      width="800"
-                      height="1000"
-                      fetchpriority="high"
-                      onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
-                    >
-                  </div>
-                </div>
-              {%- endif -%}
-            </div>
-          </div>
+                  {%- assign slide_idx = 1 -%}
+                {%- endif -%}
+              </div>
 
-          {%- comment -%} Properly centered Dot/pill indicators (only shown if multiple images exist) {%- endcomment -%}
-          {%- if product.images.size > 1 -%}
-            <div class="wm-pdp-react__dots" data-pdp-dots>
-              {%- for image in product.images -%}
-                <button
-                  type="button"
-                  data-pdp-dot="{{ forloop.index0 }}"
-                  class="wm-pdp-react__dot h-1.5 rounded-full transition-all duration-300 cursor-pointer{% if forloop.first %} is-active w-6 bg-black{% else %} w-1.5 bg-black/25{% endif %}"
-                  aria-label="Go to slide {{ forloop.index }}"
-                ></button>
-              {%- endfor -%}
-            </div>
-          {%- endif -%}
-        </div>
-
-        {%- comment -%} Gallery thumbnails below main image (only shown if multiple images exist) {%- endcomment -%}
-        {%- if product.images.size > 1 -%}
-          <div class="wm-pdp-react__thumbs" data-pdp-thumbs role="tablist" aria-label="Product gallery thumbnails">
-            {%- for image in product.images -%}
-              {%- assign thumb_url = image | image_url: width: 320 -%}
+              {%- comment -%} Top-Right Wishlist Heart Button {%- endcomment -%}
               <button
                 type="button"
-                class="wm-pdp-react__thumb{% if forloop.first %} is-active{% endif %}"
-                data-pdp-thumb="{{ forloop.index0 }}"
-                aria-label="View image {{ forloop.index }}"
-                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                class="wm-gallery__wishlist-btn"
+                data-pdp-wishlist
+                data-wishlist-btn
+                data-product-id="{{ current_variant.id | default: product.id }}"
+                aria-label="{{ 'products.wishlist.add' | t }}"
+                aria-pressed="false"
               >
-                <img
-                  src="{{ thumb_url }}"
-                  alt="{{ image.alt | default: prod_title | escape }} thumbnail {{ forloop.index }}"
-                  class="wm-pdp-react__thumb-img"
-                  width="160"
-                  height="160"
-                  loading="eager"
-                  onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
-                >
+                {% render 'icon', name: 'heart', size: 17, filled: true %}
               </button>
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
-      </div>
 
-      {%- comment -%} Laptop/Desktop view: Stacked images {%- endcomment -%}
-      <div class="wm-pdp-react__desktop-stack hidden lg:block space-y-4" data-pdp-desktop-stack>
-        {%- if product.images.size > 0 -%}
-          {%- for image in product.images -%}
-            {%- assign img_url = image | image_url: width: 1000 -%}
-            <div class="wm-pdp-react__stack-card relative aspect-4/4 rounded-[20px] bg-[#FBFBF7] overflow-hidden">
-              <img
-                src="{{ img_url }}"
-                alt="{{ image.alt | default: prod_title | escape }} {{ forloop.index }}"
-                class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
-                width="900"
-                height="900"
-                {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
+              {%- comment -%} Lightbox Expand Trigger {%- endcomment -%}
+              <button
+                type="button"
+                class="wm-gallery__lightbox-btn"
+                data-lightbox-open
+                aria-label="{{ 'products.product.media.open_lightbox' | t }}"
               >
+                {% render 'icon', name: 'zoom-in', size: 18 %}
+              </button>
             </div>
-          {%- endfor -%}
-        {%- else -%}
-          <div class="wm-pdp-react__stack-card relative aspect-4/4 rounded-[20px] bg-[#FBFBF7] overflow-hidden">
-            <img
-              src="{{ schema_img }}"
-              alt="{{ prod_title | escape }}"
-              class="wm-pdp-react__img absolute inset-0 w-full h-full object-cover"
-              width="900"
-              height="900"
-              fetchpriority="high"
-              onerror="this.onerror=null;this.src='{{ fallback_img_1 }}';"
-            >
+
+            {%- comment -%} Mobile Dot Indicators (360-767px) {%- endcomment -%}
+            {%- if slide_idx > 1 -%}
+              <div class="wm-gallery__dots" data-gallery-dots role="tablist" aria-label="{{ 'products.product.media.gallery_label' | t }}">
+                {%- for i in (1..slide_idx) -%}
+                  {%- assign dot_idx = i | minus: 1 -%}
+                  <button
+                    type="button"
+                    role="tab"
+                    class="wm-gallery__dot{% if forloop.first %} is-active{% endif %}"
+                    data-gallery-dot="{{ dot_idx }}"
+                    aria-label="{{ 'products.product.media.load_image' | t: index: i }}"
+                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                  >
+                    <span class="wm-gallery__dot-pip"></span>
+                  </button>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
           </div>
-        {%- endif -%}
+        </div>
       </div>
 
+      {%- comment -%} RIGHT COLUMN: Sticky Buy Box {%- endcomment -%}
+      <div class="wm-pdp__info-col">
+        <div class="wm-buy-box" data-buy-box>
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when '@app' -%}
+                  <div class="wm-buy-box__app-block" {{ block.shopify_attributes }}>
+                    {% render block %}
+                  </div>
+
+                {%- when 'title' -%}
+                  <div class="wm-buy-box__title-group" {{ block.shopify_attributes }}>
+                    <div class="wm-buy-box__title-row">
+                      <h1 class="wm-buy-box__title">{{ prod_title }}</h1>
+                    </div>
+                    {%- if section.settings.show_sku != false -%}
+                      <div class="wm-buy-box__sku" data-sku-wrapper {% if current_sku == blank %}hidden{% endif %}>
+                        <span class="wm-buy-box__sku-label">{{ 'products.product.sku' | t }}:</span>
+                        <span class="wm-buy-box__sku-value" data-product-sku>{{ current_sku }}</span>
+                      </div>
+                    {%- endif -%}
+                  </div>
+
+                {%- when 'rating' -%}
+                  <div class="wm-buy-box__rating" {{ block.shopify_attributes }}>
+                    <a
+                      href="#product-tabs-reviews"
+                      class="wm-rating-link"
+                      data-review-anchor
+                      {% if rating_count > 0 %}
+                        aria-label="{{ 'products.product.reviews.rating_aria' | t: rating: rating_val, count: rating_count }}"
+                      {% endif %}
+                    >
+                      <span class="wm-rating-link__stars" aria-hidden="true">
+                        {%- for i in (1..5) -%}
+                          {%- if rating_count > 0 and i > rating_val -%}
+                            {% render 'icon', name: 'star-empty', size: 16 %}
+                          {%- else -%}
+                            {% render 'icon', name: 'star', size: 16, filled: true %}
+                          {%- endif -%}
+                        {%- endfor -%}
+                      </span>
+                      {%- if rating_count > 0 -%}
+                        <span class="wm-rating-link__score">{{ rating_val | round: 1 }}</span>
+                        <span class="wm-rating-link__count" data-pdp-rating-count>
+                          {{ 'products.product.reviews.count_label' | t: count: rating_count }}
+                        </span>
+                      {%- else -%}
+                        <span class="wm-rating-link__empty" data-pdp-rating-count>No reviews yet</span>
+                      {%- endif -%}
+                    </a>
+                  </div>
+
+                {%- when 'price' -%}
+                  <div class="wm-buy-box__price" {{ block.shopify_attributes }}>
+                    {% render 'price',
+                      product: product,
+                      variant: current_variant,
+                      show_badges: true,
+                      show_tax_note: true
+                    %}
+                  </div>
+
+                {%- when 'inventory_status' -%}
+                  {%- liquid
+                    assign low_threshold = block.settings.low_stock_threshold | default: 10
+                    assign show_qty = block.settings.show_inventory_quantity
+                    assign inv_qty = current_variant.inventory_quantity | default: 0
+                    assign inv_mgmt = current_variant.inventory_management
+                    assign inv_state = 'in-stock'
+
+                    if is_available == false
+                      assign inv_state = 'out-of-stock'
+                      assign inv_label = block.settings.out_of_stock_label | default: 'Out of stock' | replace: ' — ', ', '
+                    elsif inv_mgmt == 'shopify' and inv_qty > 0 and inv_qty <= low_threshold
+                      assign inv_state = 'low-stock'
+                      if show_qty
+                        assign inv_label = 'Only ' | append: inv_qty | append: ' left in stock - order soon'
+                      else
+                        assign inv_label = block.settings.low_stock_label | default: 'Low stock - order soon' | replace: ' — ', ' - '
+                      endif
+                    else
+                      assign inv_state = 'in-stock'
+                      if inv_mgmt == 'shopify' and inv_qty > 0 and show_qty
+                        assign inv_label = 'In stock (' | append: inv_qty | append: ' available), ready to ship'
+                      else
+                        assign inv_label = block.settings.in_stock_label | default: 'In stock, ready to ship' | replace: ' — ', ', '
+                      endif
+                    endif
+                  -%}
+                  <div
+                    class="wm-stock-indicator is-{{ inv_state }}"
+                    data-stock-indicator
+                    data-low-threshold="{{ low_threshold }}"
+                    data-show-qty="{{ show_qty }}"
+                    data-label-in-stock="{{ block.settings.in_stock_label | default: 'In stock, ready to ship' | replace: ' — ', ', ' | escape }}"
+                    data-label-low-stock="{{ block.settings.low_stock_label | default: 'Low stock - order soon' | replace: ' — ', ' - ' | escape }}"
+                    data-label-out-of-stock="{{ block.settings.out_of_stock_label | default: 'Out of stock' | replace: ' — ', ', ' | escape }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    <div class="wm-stock-indicator__row">
+                      <span class="wm-stock-indicator__dot" aria-hidden="true"></span>
+                      <span class="wm-stock-indicator__text" data-stock-text>{{ inv_label }}</span>
+                    </div>
+                    <script type="application/json" data-variant-inventory>
+                      {
+                        {%- for v in product.variants -%}
+                          "{{ v.id }}": {
+                            "available": {{ v.available | json }},
+                            "quantity": {{ v.inventory_quantity | default: 0 | json }},
+                            "management": {{ v.inventory_management | json }},
+                            "policy": {{ v.inventory_policy | json }}
+                          }{% unless forloop.last %},{% endunless %}
+                        {%- endfor -%}
+                      }
+                    </script>
+                  </div>
+
+                {%- when 'description' -%}
+                  {%- assign admin_short_desc = product.metafields.custom.short_description.value | default: product.metafields.custom.short_description | default: product.description | strip_html | strip -%}
+                  {%- if admin_short_desc != blank -%}
+                    <div class="wm-buy-box__lead-wrap" {{ block.shopify_attributes }}>
+                      <p class="wm-buy-box__lead">
+                        {{ admin_short_desc }}
+                      </p>
+                      <a
+                        href="#ProductTabs-{{ section.id }}"
+                        class="wm-buy-box__view-more"
+                        data-description-anchor
+                      >
+                        View more
+                      </a>
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'variant_picker' -%}
+                  {%- unless product.has_only_default_variant -%}
+                    <div class="wm-variants" data-variant-picker {{ block.shopify_attributes }}>
+                      {%- for option in product.options_with_values -%}
+                        <fieldset class="wm-variants__fieldset" data-option-position="{{ option.position }}">
+                          <div class="wm-variants__legend-row">
+                            <legend class="wm-variants__legend">
+                              {{ option.name }}:
+                              <span class="wm-variants__selected" data-option-selected-value>{{ option.selected_value }}</span>
+                            </legend>
+                          </div>
+                          <div class="wm-variants__options">
+                            {%- for value in option.values -%}
+                              {%- liquid
+                                assign option_disabled = true
+                                for variant in product.variants
+                                  case option.position
+                                    when 1
+                                      if variant.option1 == value and variant.available
+                                        assign option_disabled = false
+                                      endif
+                                    when 2
+                                      if variant.option1 == current_variant.option1 and variant.option2 == value and variant.available
+                                        assign option_disabled = false
+                                      endif
+                                    when 3
+                                      if variant.option1 == current_variant.option1 and variant.option2 == current_variant.option2 and variant.option3 == value and variant.available
+                                        assign option_disabled = false
+                                      endif
+                                  endcase
+                                endfor
+                              -%}
+                              <label
+                                class="wm-variants__pill{% if option.selected_value == value %} is-selected{% endif %}{% if option_disabled %} is-unavailable{% endif %}"
+                              >
+                                <input
+                                  type="radio"
+                                  class="wm-sr-only"
+                                  name="option-{{ section.id }}-{{ option.position }}"
+                                  value="{{ value | escape }}"
+                                  {% if option.selected_value == value %}checked{% endif %}
+                                  data-variant-option-input
+                                  data-option-index="{{ forloop.parentloop.index0 }}"
+                                >
+                                <span class="wm-variants__pill-text">{{ value }}</span>
+                              </label>
+                            {%- endfor -%}
+                          </div>
+                        </fieldset>
+                      {%- endfor -%}
+
+                      <script type="application/json" data-product-variants>
+                        {{ product.variants | json }}
+                      </script>
+                    </div>
+                  {%- endunless -%}
+
+                {%- when 'buy_buttons' -%}
+                  <div class="wm-buy-box__actions" {{ block.shopify_attributes }}>
+                    {%- form 'product', product, id: product_form_id, class: 'wm-pdp-form', novalidate: 'novalidate', data-product-form: '' -%}
+                      <input
+                        type="hidden"
+                        name="id"
+                        value="{{ current_variant.id }}"
+                        data-variant-id-input
+                      >
+                      <input
+                        type="hidden"
+                        id="Quantity-{{ section.id }}"
+                        name="quantity"
+                        value="1"
+                        data-qty-input
+                      >
+
+                      {%- comment -%} 2-Column CTA Grid (Mobile, Tablet & Laptop): [Add to Cart / - 1 + Stepper] | [Buy it now] {%- endcomment -%}
+                      <div class="wm-pdp-form__cta-grid">
+                        <div class="wm-pdp-form__atc-cell">
+                          {%- comment -%} Primary Add to Cart Button {%- endcomment -%}
+                          <button
+                            type="submit"
+                            name="add"
+                            id="ProductSubmitButton-{{ section.id }}"
+                            class="wm-btn wm-btn--primary wm-pdp-form__submit"
+                            data-atc-button
+                            data-text-default="{{ 'products.product.add_to_cart' | t | escape }}"
+                            data-text-adding="{{ 'products.product.adding' | t | escape }}"
+                            data-text-added="{{ 'products.product.added' | t | escape }}"
+                            data-text-sold-out="{{ 'products.product.sold_out' | t | escape }}"
+                            data-text-unavailable="{{ 'products.product.unavailable' | t | escape }}"
+                            {% unless is_available %}disabled{% endunless %}
+                          >
+                            {% render 'icon', name: 'bag', size: 18 %}
+                            <span data-atc-text>
+                              {%- if is_available -%}
+                                {{ 'products.product.add_to_cart' | t }}
+                              {%- else -%}
+                                {{ 'products.product.sold_out' | t }}
+                              {%- endif -%}
+                            </span>
+                            <span class="wm-btn__spinner" data-atc-spinner hidden aria-hidden="true"></span>
+                          </button>
+
+                          {%- comment -%} Active Cart Quantity Stepper (- / qty / +) replacing Add to Cart when clicked {%- endcomment -%}
+                          <div class="wm-pdp-atc-stepper" data-pdp-atc-stepper hidden>
+                            <button
+                              type="button"
+                              class="wm-pdp-atc-stepper__btn"
+                              data-pdp-atc-delta="-1"
+                              aria-label="{{ 'products.product.quantity.decrease' | t }}"
+                            >
+                              {% render 'icon', name: 'minus', size: 16 %}
+                            </button>
+                            <span class="wm-pdp-atc-stepper__val" data-pdp-atc-qty>1</span>
+                            <button
+                              type="button"
+                              class="wm-pdp-atc-stepper__btn"
+                              data-pdp-atc-delta="1"
+                              aria-label="{{ 'products.product.quantity.increase' | t }}"
+                            >
+                              {% render 'icon', name: 'plus', size: 16 %}
+                            </button>
+                          </div>
+                        </div>
+
+                        {%- comment -%} Buy Now (Direct Checkout Button) {%- endcomment -%}
+                        {%- if block.settings.show_dynamic_checkout -%}
+                          <div class="wm-pdp-form__dynamic-checkout" data-buy-now-wrap {% unless is_available %}hidden{% endunless %}>
+                            <button
+                              type="button"
+                              class="wm-btn wm-btn--primary wm-pdp-form__buy-now-fallback"
+                              data-buy-now-button
+                            >
+                              <span>{{ 'products.product.buy_now' | t }}</span>
+                            </button>
+                          </div>
+                        {%- endif -%}
+                      </div>
+
+                      <div
+                        class="wm-pdp-form__error"
+                        role="alert"
+                        data-form-error
+                        hidden
+                      >
+                        {% render 'icon', name: 'alert-circle', size: 16 %}
+                        <span data-form-error-text></span>
+                      </div>
+                    {%- endform -%}
+                  </div>
+
+                {%- when 'trust_points' -%}
+                  {%- comment -%} Trust points list removed per merchant request {%- endcomment -%}
+
+                {%- when 'pincode_checker' -%}
+                  {%- comment -%} Pincode checker hidden per merchant request {%- endcomment -%}
+
+                {%- when 'cross_sell' -%}
+                  {%- liquid
+                    assign cs_heading = block.settings.heading | default: 'Popular Add-Ons & Related Products'
+                    assign cs_limit = block.settings.products_to_show | default: 3
+                    assign cs_rendered = 0
+                    assign cs_seen_ids = product.id | append: ','
+                    assign cs_complementary = product.metafields.shopify--discovery--product_recommendation.complementary_products.value | default: product.metafields.custom.cross_sell_products.value
+                    assign cs_collection = product.collections.first | default: collections['all']
+                  -%}
+                  <div class="wm-cross-sell" {{ block.shopify_attributes }} data-cross-sell>
+                    <div class="wm-cross-sell__header">
+                      <h2 class="wm-cross-sell__heading">{{ cs_heading }}</h2>
+                      {%- if block.settings.subheading != blank -%}
+                        <span class="wm-cross-sell__subheading">{{ block.settings.subheading }}</span>
+                      {%- endif -%}
+                    </div>
+
+                    <div class="wm-cross-sell__list" role="list">
+                      {%- liquid
+                        assign cs_pools = ''
+                      -%}
+                      {%- if cs_complementary != blank -%}
+                        {%- for cs_prod in cs_complementary -%}
+                          {%- assign cs_token = cs_prod.id | append: ',' -%}
+                          {%- if cs_rendered < cs_limit and cs_prod.id != blank -%}
+                            {%- unless cs_seen_ids contains cs_token -%}
+                              {%- liquid
+                                assign cs_var = cs_prod.selected_or_first_available_variant | default: cs_prod.variants.first
+                                assign cs_img = cs_prod.featured_image | image_url: width: 240 | default: fallback_glove_img
+                                assign cs_p_raw = cs_var.price | default: cs_prod.price | default: 29900
+                                assign cs_p_inr = cs_p_raw | divided_by: 100.0 | round
+                                if cs_var.compare_at_price > cs_p_raw
+                                  assign cs_c_inr = cs_var.compare_at_price | divided_by: 100.0 | round
+                                else
+                                  assign cs_c_inr = cs_p_inr | times: 125 | divided_by: 100.0 | round
+                                endif
+                                assign cs_inv_qty = cs_var.inventory_quantity | default: 0
+                                assign cs_inv_mgmt = cs_var.inventory_management
+                                assign cs_inv_policy = cs_var.inventory_policy | default: 'deny'
+                                assign cs_is_avail = cs_prod.available
+                                if cs_var.available == false
+                                  assign cs_is_avail = false
+                                endif
+                                if cs_inv_mgmt == 'shopify' and cs_inv_policy == 'deny' and cs_inv_qty <= 0
+                                  assign cs_is_avail = false
+                                endif
+                                if cs_is_avail == false
+                                  assign cs_max_qty = 0
+                                  assign cs_stock_text = 'Out of stock'
+                                elsif cs_inv_mgmt == 'shopify' and cs_inv_policy == 'deny'
+                                  assign cs_max_qty = cs_inv_qty
+                                  assign cs_stock_text = 'Only ' | append: cs_inv_qty | append: ' left'
+                                elsif cs_inv_qty > 0
+                                  assign cs_max_qty = cs_inv_qty
+                                  assign cs_stock_text = 'Only ' | append: cs_inv_qty | append: ' left'
+                                else
+                                  assign cs_max_qty = 99
+                                  assign cs_stock_text = ''
+                                endif
+                              -%}
+                              <div class="wm-cross-sell__item" role="listitem" data-max-qty="{{ cs_max_qty }}">
+                                <label class="wm-cross-sell__check-label" aria-label="Select {{ cs_prod.title | escape }} add-on">
+                                  <input
+                                    type="checkbox"
+                                    class="wm-cross-sell__checkbox"
+                                    data-addon-checkbox
+                                    value="{{ cs_var.id }}"
+                                    data-addon-price="{{ cs_var.price | default: cs_prod.price }}"
+                                    data-max-qty="{{ cs_max_qty }}"
+                                    {% unless cs_is_avail %}disabled{% endunless %}
+                                  >
+                                </label>
+                                <a href="{{ cs_prod.url }}" class="wm-cross-sell__media" tabindex="-1" aria-hidden="true">
+                                  <img
+                                    src="{{ cs_img }}"
+                                    alt="{{ cs_prod.title | escape }}"
+                                    width="64"
+                                    height="64"
+                                    loading="lazy"
+                                    class="wm-cross-sell__img"
+                                  >
+                                </a>
+                                <div class="wm-cross-sell__info">
+                                  <a href="{{ cs_prod.url }}" class="wm-cross-sell__title">{{ cs_prod.title }}</a>
+                                  <div class="wm-cross-sell__price-row">
+                                    <span class="wm-cross-sell__price">₹{{ cs_p_inr }}</span>
+                                    <s class="wm-cross-sell__compare">₹{{ cs_c_inr }}</s>
+                                    {%- if cs_stock_text != blank -%}
+                                      <span class="wm-cross-sell__stock{% unless cs_is_avail %} is-out{% endunless %}">{{ cs_stock_text }}</span>
+                                    {%- endif -%}
+                                  </div>
+                                </div>
+                                <div class="wm-cross-sell__action" data-max-qty="{{ cs_max_qty }}">
+                                  <button
+                                    type="button"
+                                    class="wm-cross-sell__btn"
+                                    data-cross-sell-add
+                                    data-variant-id="{{ cs_var.id }}"
+                                    data-max-qty="{{ cs_max_qty }}"
+                                    data-text-default="+ Add"
+                                    data-text-adding="Adding..."
+                                    data-text-added="Added ✓"
+                                    {% unless cs_is_avail %}disabled{% endunless %}
+                                    aria-label="Add {{ cs_prod.title | escape }} to cart"
+                                  >
+                                    <span data-cross-sell-btn-text>
+                                      {%- if cs_is_avail -%}+ Add{%- else -%}Sold out{%- endif -%}
+                                    </span>
+                                  </button>
+                                  <div class="wm-cross-sell__stepper" data-cross-sell-stepper data-variant-id="{{ cs_var.id }}" data-max-qty="{{ cs_max_qty }}" hidden>
+                                    <button type="button" class="wm-cross-sell__stepper-btn" data-cross-sell-qty-delta="-1" data-variant-id="{{ cs_var.id }}" aria-label="Decrease quantity">−</button>
+                                    <span class="wm-cross-sell__stepper-val" data-cross-sell-qty-val>1</span>
+                                    <button type="button" class="wm-cross-sell__stepper-btn" data-cross-sell-qty-delta="1" data-variant-id="{{ cs_var.id }}" aria-label="Increase quantity" {% if cs_max_qty <= 1 %}disabled{% endif %}>+</button>
+                                  </div>
+                                </div>
+                              </div>
+                              {%- assign cs_rendered = cs_rendered | plus: 1 -%}
+                              {%- assign cs_seen_ids = cs_seen_ids | append: cs_token -%}
+                            {%- endunless -%}
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endif -%}
+
+                      {%- if cs_rendered < cs_limit and cs_collection != blank and cs_collection.products.size > 0 -%}
+                        {%- for cs_prod in cs_collection.products -%}
+                          {%- assign cs_token = cs_prod.id | append: ',' -%}
+                          {%- if cs_rendered < cs_limit -%}
+                            {%- unless cs_seen_ids contains cs_token -%}
+                              {%- liquid
+                                assign cs_var = cs_prod.selected_or_first_available_variant | default: cs_prod.variants.first
+                                assign cs_img = cs_prod.featured_image | image_url: width: 240 | default: fallback_glove_img
+                                assign cs_p_raw = cs_var.price | default: cs_prod.price | default: 29900
+                                assign cs_p_inr = cs_p_raw | divided_by: 100.0 | round
+                                if cs_var.compare_at_price > cs_p_raw
+                                  assign cs_c_inr = cs_var.compare_at_price | divided_by: 100.0 | round
+                                else
+                                  assign cs_c_inr = cs_p_inr | times: 125 | divided_by: 100.0 | round
+                                endif
+                                assign cs_inv_qty = cs_var.inventory_quantity | default: 0
+                                assign cs_inv_mgmt = cs_var.inventory_management
+                                assign cs_inv_policy = cs_var.inventory_policy | default: 'deny'
+                                assign cs_is_avail = cs_prod.available
+                                if cs_var.available == false
+                                  assign cs_is_avail = false
+                                endif
+                                if cs_inv_mgmt == 'shopify' and cs_inv_policy == 'deny' and cs_inv_qty <= 0
+                                  assign cs_is_avail = false
+                                endif
+                                if cs_is_avail == false
+                                  assign cs_max_qty = 0
+                                  assign cs_stock_text = 'Out of stock'
+                                elsif cs_inv_mgmt == 'shopify' and cs_inv_policy == 'deny'
+                                  assign cs_max_qty = cs_inv_qty
+                                  assign cs_stock_text = 'Only ' | append: cs_inv_qty | append: ' left'
+                                elsif cs_inv_qty > 0
+                                  assign cs_max_qty = cs_inv_qty
+                                  assign cs_stock_text = 'Only ' | append: cs_inv_qty | append: ' left'
+                                else
+                                  assign cs_max_qty = 99
+                                  assign cs_stock_text = ''
+                                endif
+                              -%}
+                              <div class="wm-cross-sell__item" role="listitem" data-max-qty="{{ cs_max_qty }}">
+                                <label class="wm-cross-sell__check-label" aria-label="Select {{ cs_prod.title | escape }} add-on">
+                                  <input
+                                    type="checkbox"
+                                    class="wm-cross-sell__checkbox"
+                                    data-addon-checkbox
+                                    value="{{ cs_var.id }}"
+                                    data-addon-price="{{ cs_var.price | default: cs_prod.price }}"
+                                    data-max-qty="{{ cs_max_qty }}"
+                                    {% unless cs_is_avail %}disabled{% endunless %}
+                                  >
+                                </label>
+                                <a href="{{ cs_prod.url }}" class="wm-cross-sell__media" tabindex="-1" aria-hidden="true">
+                                  <img
+                                    src="{{ cs_img }}"
+                                    alt="{{ cs_prod.title | escape }}"
+                                    width="64"
+                                    height="64"
+                                    loading="lazy"
+                                    class="wm-cross-sell__img"
+                                  >
+                                </a>
+                                <div class="wm-cross-sell__info">
+                                  <a href="{{ cs_prod.url }}" class="wm-cross-sell__title">{{ cs_prod.title }}</a>
+                                  <div class="wm-cross-sell__price-row">
+                                    <span class="wm-cross-sell__price">₹{{ cs_p_inr }}</span>
+                                    <s class="wm-cross-sell__compare">₹{{ cs_c_inr }}</s>
+                                    {%- if cs_stock_text != blank -%}
+                                      <span class="wm-cross-sell__stock{% unless cs_is_avail %} is-out{% endunless %}">{{ cs_stock_text }}</span>
+                                    {%- endif -%}
+                                  </div>
+                                </div>
+                                <div class="wm-cross-sell__action" data-max-qty="{{ cs_max_qty }}">
+                                  <button
+                                    type="button"
+                                    class="wm-cross-sell__btn"
+                                    data-cross-sell-add
+                                    data-variant-id="{{ cs_var.id }}"
+                                    data-max-qty="{{ cs_max_qty }}"
+                                    data-text-default="+ Add"
+                                    data-text-adding="Adding..."
+                                    data-text-added="Added ✓"
+                                    {% unless cs_is_avail %}disabled{% endunless %}
+                                    aria-label="Add {{ cs_prod.title | escape }} to cart"
+                                  >
+                                    <span data-cross-sell-btn-text>
+                                      {%- if cs_is_avail -%}+ Add{%- else -%}Sold out{%- endif -%}
+                                    </span>
+                                  </button>
+                                  <div class="wm-cross-sell__stepper" data-cross-sell-stepper data-variant-id="{{ cs_var.id }}" data-max-qty="{{ cs_max_qty }}" hidden>
+                                    <button type="button" class="wm-cross-sell__stepper-btn" data-cross-sell-qty-delta="-1" data-variant-id="{{ cs_var.id }}" aria-label="Decrease quantity">−</button>
+                                    <span class="wm-cross-sell__stepper-val" data-cross-sell-qty-val>1</span>
+                                    <button type="button" class="wm-cross-sell__stepper-btn" data-cross-sell-qty-delta="1" data-variant-id="{{ cs_var.id }}" aria-label="Increase quantity" {% if cs_max_qty <= 1 %}disabled{% endif %}>+</button>
+                                  </div>
+                                </div>
+                              </div>
+                              {%- assign cs_rendered = cs_rendered | plus: 1 -%}
+                              {%- assign cs_seen_ids = cs_seen_ids | append: cs_token -%}
+                            {%- endunless -%}
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endif -%}
+
+                      {%- if cs_rendered < cs_limit and collections['all'].products.size > 0 -%}
+                        {%- for cs_prod in collections['all'].products -%}
+                          {%- assign cs_token = cs_prod.id | append: ',' -%}
+                          {%- if cs_rendered < cs_limit -%}
+                            {%- unless cs_seen_ids contains cs_token -%}
+                              {%- liquid
+                                assign cs_var = cs_prod.selected_or_first_available_variant | default: cs_prod.variants.first
+                                assign cs_img = cs_prod.featured_image | image_url: width: 240 | default: fallback_glove_img
+                                assign cs_p_raw = cs_var.price | default: cs_prod.price | default: 29900
+                                assign cs_p_inr = cs_p_raw | divided_by: 100.0 | round
+                                if cs_var.compare_at_price > cs_p_raw
+                                  assign cs_c_inr = cs_var.compare_at_price | divided_by: 100.0 | round
+                                else
+                                  assign cs_c_inr = cs_p_inr | times: 125 | divided_by: 100.0 | round
+                                endif
+                                assign cs_inv_qty = cs_var.inventory_quantity | default: 0
+                                assign cs_inv_mgmt = cs_var.inventory_management
+                                assign cs_inv_policy = cs_var.inventory_policy | default: 'deny'
+                                assign cs_is_avail = cs_prod.available
+                                if cs_var.available == false
+                                  assign cs_is_avail = false
+                                endif
+                                if cs_inv_mgmt == 'shopify' and cs_inv_policy == 'deny' and cs_inv_qty <= 0
+                                  assign cs_is_avail = false
+                                endif
+                                if cs_is_avail == false
+                                  assign cs_max_qty = 0
+                                  assign cs_stock_text = 'Out of stock'
+                                elsif cs_inv_mgmt == 'shopify' and cs_inv_policy == 'deny'
+                                  assign cs_max_qty = cs_inv_qty
+                                  assign cs_stock_text = 'Only ' | append: cs_inv_qty | append: ' left'
+                                elsif cs_inv_qty > 0
+                                  assign cs_max_qty = cs_inv_qty
+                                  assign cs_stock_text = 'Only ' | append: cs_inv_qty | append: ' left'
+                                else
+                                  assign cs_max_qty = 99
+                                  assign cs_stock_text = ''
+                                endif
+                              -%}
+                              <div class="wm-cross-sell__item" role="listitem" data-max-qty="{{ cs_max_qty }}">
+                                <label class="wm-cross-sell__check-label" aria-label="Select {{ cs_prod.title | escape }} add-on">
+                                  <input
+                                    type="checkbox"
+                                    class="wm-cross-sell__checkbox"
+                                    data-addon-checkbox
+                                    value="{{ cs_var.id }}"
+                                    data-addon-price="{{ cs_var.price | default: cs_prod.price }}"
+                                    data-max-qty="{{ cs_max_qty }}"
+                                    {% unless cs_is_avail %}disabled{% endunless %}
+                                  >
+                                </label>
+                                <a href="{{ cs_prod.url }}" class="wm-cross-sell__media" tabindex="-1" aria-hidden="true">
+                                  <img
+                                    src="{{ cs_img }}"
+                                    alt="{{ cs_prod.title | escape }}"
+                                    width="64"
+                                    height="64"
+                                    loading="lazy"
+                                    class="wm-cross-sell__img"
+                                  >
+                                </a>
+                                <div class="wm-cross-sell__info">
+                                  <a href="{{ cs_prod.url }}" class="wm-cross-sell__title">{{ cs_prod.title }}</a>
+                                  <div class="wm-cross-sell__price-row">
+                                    <span class="wm-cross-sell__price">₹{{ cs_p_inr }}</span>
+                                    <s class="wm-cross-sell__compare">₹{{ cs_c_inr }}</s>
+                                    {%- if cs_stock_text != blank -%}
+                                      <span class="wm-cross-sell__stock{% unless cs_is_avail %} is-out{% endunless %}">{{ cs_stock_text }}</span>
+                                    {%- endif -%}
+                                  </div>
+                                </div>
+                                <div class="wm-cross-sell__action" data-max-qty="{{ cs_max_qty }}">
+                                  <button
+                                    type="button"
+                                    class="wm-cross-sell__btn"
+                                    data-cross-sell-add
+                                    data-variant-id="{{ cs_var.id }}"
+                                    data-max-qty="{{ cs_max_qty }}"
+                                    data-text-default="+ Add"
+                                    data-text-adding="Adding..."
+                                    data-text-added="Added ✓"
+                                    {% unless cs_is_avail %}disabled{% endunless %}
+                                    aria-label="Add {{ cs_prod.title | escape }} to cart"
+                                  >
+                                    <span data-cross-sell-btn-text>
+                                      {%- if cs_is_avail -%}+ Add{%- else -%}Sold out{%- endif -%}
+                                    </span>
+                                  </button>
+                                  <div class="wm-cross-sell__stepper" data-cross-sell-stepper data-variant-id="{{ cs_var.id }}" data-max-qty="{{ cs_max_qty }}" hidden>
+                                    <button type="button" class="wm-cross-sell__stepper-btn" data-cross-sell-qty-delta="-1" data-variant-id="{{ cs_var.id }}" aria-label="Decrease quantity">−</button>
+                                    <span class="wm-cross-sell__stepper-val" data-cross-sell-qty-val>1</span>
+                                    <button type="button" class="wm-cross-sell__stepper-btn" data-cross-sell-qty-delta="1" data-variant-id="{{ cs_var.id }}" aria-label="Increase quantity" {% if cs_max_qty <= 1 %}disabled{% endif %}>+</button>
+                                  </div>
+                                </div>
+                              </div>
+                              {%- assign cs_rendered = cs_rendered | plus: 1 -%}
+                              {%- assign cs_seen_ids = cs_seen_ids | append: cs_token -%}
+                            {%- endunless -%}
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endif -%}
+                    </div>
+
+                    <button
+                      type="button"
+                      class="wm-btn wm-btn--secondary wm-cross-sell__bundle-btn"
+                      data-addon-bundle-btn
+                      hidden
+                    >
+                      <span data-addon-bundle-text>Add Selected Add-Ons to Cart</span>
+                    </button>
+                  </div>
+
+                {%- when 'shipping_info' -%}
+                  <div class="wm-shipping-info" {{ block.shopify_attributes }} data-shipping-info>
+                    <h2 class="wm-shipping-info__heading">
+                      {% render 'icon', name: 'truck', size: 18, class: 'wm-shipping-info__heading-icon' %}
+                      <span>{{ block.settings.heading | default: 'Shipping & Delivery Information' }}</span>
+                    </h2>
+                    <div class="wm-shipping-info__grid">
+                      <div class="wm-shipping-info__row">
+                        <span class="wm-shipping-info__label">Dispatch &amp; Delivery</span>
+                        <span class="wm-shipping-info__value">{{ block.settings.delivery_time | default: 'Dispatched within 24 hours · Delivered in 3–5 business days across India' }}</span>
+                      </div>
+                      <div class="wm-shipping-info__row">
+                        <span class="wm-shipping-info__label">Shipping Charges</span>
+                        <span class="wm-shipping-info__value">{{ block.settings.shipping_cost | default: 'Free Express Shipping on all orders' }}</span>
+                      </div>
+                      <div class="wm-shipping-info__row">
+                        <span class="wm-shipping-info__label">Payment Methods</span>
+                        <span class="wm-shipping-info__value">{{ block.settings.payment_info | default: 'Cash on Delivery (COD), UPI, Cards & NetBanking accepted' }}</span>
+                      </div>
+                      <div class="wm-shipping-info__row">
+                        <span class="wm-shipping-info__label">Returns &amp; Exchange</span>
+                        <span class="wm-shipping-info__value">{{ block.settings.return_policy | default: 'Easy 30-day returns & hassle-free replacement guarantee' }}</span>
+                      </div>
+                    </div>
+                  </div>
+              {%- endcase -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
     </div>
+  </div>
 
-    {%- comment -%} =========================================================
-       RIGHT COLUMN: Sticky Product Info, Actions & Accordions
-       ========================================================= {%- endcomment -%}
-    <div class="wm-pdp-react__info lg:sticky lg:top-28 self-start">
-
-      {%- comment -%} Category {%- endcomment -%}
-      <div class="wm-pdp-react__category text-[12px] text-meta tracking-wider uppercase mb-2">
-        {{ prod_category }}
-      </div>
-
-      {%- comment -%} Title + Wishlist Heart Button {%- endcomment -%}
-      <div class="wm-pdp-react__title-row flex items-start justify-between gap-4">
-        <h1 class="wm-pdp-react__title text-[28px] md:text-[36px] leading-tight text-black">
-          {{ prod_title }}
-        </h1>
+  {%- comment -%} Full-Screen Accessible Lightbox (<dialog>) {%- endcomment -%}
+  <dialog
+    class="wm-lightbox"
+    id="ProductLightbox-{{ section.id }}"
+    aria-label="{{ 'products.product.media.gallery_label' | t }}"
+    data-gallery-lightbox
+  >
+    <div class="wm-lightbox__inner">
+      <div class="wm-lightbox__topbar">
+        <span class="wm-lightbox__counter" data-lightbox-counter>1 / {{ slide_idx | default: 1 }}</span>
         <button
           type="button"
-          data-pdp-wishlist
-          data-wishlist-btn
-          data-product-id="{{ prod_id }}"
-          aria-label="Favorite"
-          aria-pressed="false"
-          class="wm-pdp-react__fav-btn w-10 h-10 cursor-pointer flex items-center justify-center shrink-0"
+          class="wm-lightbox__close"
+          data-lightbox-close
+          aria-label="{{ 'products.product.media.close_lightbox' | t }}"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="wm-pdp-react__heart-svg text-black"
-            aria-hidden="true"
-          >
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-          </svg>
+          {% render 'icon', name: 'close', size: 22 %}
         </button>
       </div>
 
-      {%- comment -%} Price in Rupees (₹), never USD {%- endcomment -%}
-      <div class="wm-pdp-react__price text-[16px] text-black mt-2" data-pdp-price>
-        ₹{{ price_rupees }}
-      </div>
-
-      {%- comment -%} Short Description {%- endcomment -%}
-      <p class="wm-pdp-react__short-desc mt-4 text-[14px] leading-[24px] text-[#555]">
-        {{ short_desc }}
-      </p>
-
-      {%- comment -%} Purchase Form:
-         - NO Size or Material dropdowns
-         - Button 1: Add to Cart -> transforms into [- qty +] stepper when clicked
-         - Button 2 (Below): Buy Now -> redirects directly to /checkout
-      {%- endcomment -%}
-      {%- form 'product', product, id: 'product-form', class: 'wm-pdp-react__form mt-8' -%}
-        <input type="hidden" name="id" value="{{ prod_id }}" data-product-variant-id>
-        <input
-          type="hidden"
-          id="wm-pdp-qty-input"
-          name="quantity"
-          value="{% if in_cart_qty > 0 %}{{ in_cart_qty }}{% else %}1{% endif %}"
-          data-qty-input
+      <div class="wm-lightbox__stage">
+        <button
+          type="button"
+          class="wm-lightbox__nav wm-lightbox__nav--prev"
+          data-lightbox-prev
+          aria-label="{{ 'products.product.media.previous' | t }}"
         >
+          {% render 'icon', name: 'chevron-left', size: 24 %}
+        </button>
 
-        <div class="wm-pdp-react__buttons flex flex-col md:grid md:grid-cols-2 gap-3">
-          {%- comment -%} Top / Left Slot: Add to Cart Button OR [- qty +] Quantity Stepper {%- endcomment -%}
-          <div class="wm-pdp-react__primary-slot w-full">
-            <button
-              type="button"
-              id="wm-pdp-atc-btn"
-              data-pdp-atc-btn
-              class="wm-pdp-react__atc-btn{% if in_cart_qty > 0 %} hidden{% endif %} w-full cursor-pointer bg-black text-white text-[14px] rounded-[10px] py-3 hover:bg-[#222] transition-colors"
-              {% if track_stock and real_stock <= 0 and inv_policy != 'continue' %}disabled{% endif %}
-            >
-              <span data-atc-text>
-                {%- if track_stock and real_stock <= 0 and inv_policy != 'continue' -%}
-                  Sold Out
-                {%- else -%}
-                  Add to Cart
-                {%- endif -%}
-              </span>
-            </button>
-
-            <div
-              id="wm-pdp-stepper"
-              data-pdp-stepper
-              class="wm-pdp-react__stepper{% if in_cart_qty == 0 %} hidden{% endif %} flex items-center justify-between rounded-[10px] border border-black bg-black text-white w-full text-[14px] transition-colors"
-              role="group"
-              aria-label="Quantity"
-            >
-              <button
-                type="button"
-                data-qty-minus
-                class="wm-pdp-react__stepper-btn px-5 py-3 cursor-pointer flex items-center justify-center text-white"
-                aria-label="Decrease"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-              </button>
-
-              <span class="wm-pdp-react__stepper-qty font-normal select-none" data-pdp-qty-display>
-                {%- if in_cart_qty > 0 -%}{{ in_cart_qty }}{%- else -%}1{%- endif -%}
-              </span>
-
-              <button
-                type="button"
-                data-qty-plus
-                class="wm-pdp-react__stepper-btn px-5 py-3 cursor-pointer flex items-center justify-center text-white"
-                aria-label="Increase"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {%- comment -%} Bottom Slot: Buy Now Button (redirects to checkout) {%- endcomment -%}
-          <button
-            type="button"
-            id="wm-pdp-buy-now-btn"
-            data-pdp-buy-now
-            class="wm-pdp-react__buynow-btn w-full border cursor-pointer border-black text-black text-[14px] rounded-[10px] py-3 text-center hover:bg-black hover:text-white transition-colors"
-            {% if track_stock and real_stock <= 0 and inv_policy != 'continue' %}style="display: none;"{% endif %}
+        <figure class="wm-lightbox__figure">
+          {%- assign lightbox_initial_src = product.featured_media.preview_image | image_url: width: 1600 | default: fallback_glove_img -%}
+          <img
+            src="{{ lightbox_initial_src }}"
+            alt="{{ prod_title | escape }}"
+            width="{{ product.featured_media.preview_image.width | default: 1200 }}"
+            height="{{ product.featured_media.preview_image.height | default: 1200 }}"
+            class="wm-lightbox__img"
+            data-lightbox-img
           >
-            Buy Now
-          </button>
+        </figure>
+
+        <button
+          type="button"
+          class="wm-lightbox__nav wm-lightbox__nav--next"
+          data-lightbox-next
+          aria-label="{{ 'products.product.media.next' | t }}"
+        >
+          {% render 'icon', name: 'chevron-right', size: 24 %}
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  {%- comment -%} 10. Sticky Add to Cart Floating Card (Matches Reference Image 1: Product Title + ₹ Price on left, + Add / - 1 + Stepper on right) {%- endcomment -%}
+  <div
+    class="wm-sticky-bar"
+    id="StickyAtcBar-{{ section.id }}"
+    data-sticky-bar
+    aria-hidden="true"
+  >
+    <div class="wm-sticky-bar__card">
+      {%- liquid
+        assign sticky_raw_price = current_variant.price | default: product.price | default: 33000
+        assign sticky_price_inr = sticky_raw_price | divided_by: 100.0 | round
+        if current_variant.compare_at_price > sticky_raw_price
+          assign sticky_comp_inr = current_variant.compare_at_price | divided_by: 100.0 | round
+        else
+          assign sticky_comp_inr = sticky_price_inr | times: 125 | divided_by: 100.0 | round
+        endif
+      -%}
+      <div class="wm-sticky-bar__meta">
+        <p class="wm-sticky-bar__title">{{ prod_title }}</p>
+        <div class="wm-sticky-bar__price-row" data-sticky-price>
+          <span class="wm-sticky-bar__price" data-price-current>₹{{ sticky_price_inr }}</span>
+          <s class="wm-sticky-bar__compare" data-price-compare>₹{{ sticky_comp_inr }}</s>
         </div>
-      {%- endform -%}
-
-      {%- comment -%} =========================================================
-         THREE ACCORDIONS:
-         1. Product Description (open by default)
-         2. Specifications
-         3. Benefits (no icons)
-         ========================================================= {%- endcomment -%}
-      <div class="wm-pdp-react__accordions mt-10" data-pdp-accordions>
-
-        {%- comment -%} 1. Product Description {%- endcomment -%}
-        <div class="wm-pdp-accordion is-open" id="pdp-description" data-pdp-accordion="description">
-          <button
-            type="button"
-            class="wm-pdp-accordion__trigger"
-            data-pdp-accordion-trigger="description"
-            aria-expanded="true"
-            aria-controls="pdp-accordion-body-description"
-          >
-            <span class="wm-pdp-accordion__title">Product Description</span>
-            <span class="wm-pdp-accordion__icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </span>
-          </button>
-          <div
-            id="pdp-accordion-body-description"
-            class="wm-pdp-accordion__body"
-            data-pdp-accordion-body
-          >
-            <div class="wm-pdp-accordion__content">
-              {%- if product.description != blank -%}
-                {{ product.description | replace: '<img', '<span style="display:none"' | replace: '</img>', '</span>' }}
-              {%- else -%}
-                <p>{{ short_desc }}</p>
-              {%- endif -%}
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} 2. Specifications {%- endcomment -%}
-        <div class="wm-pdp-accordion" id="pdp-specifications" data-pdp-accordion="specifications">
-          <button
-            type="button"
-            class="wm-pdp-accordion__trigger"
-            data-pdp-accordion-trigger="specifications"
-            aria-expanded="false"
-            aria-controls="pdp-accordion-body-specifications"
-          >
-            <span class="wm-pdp-accordion__title">Specifications</span>
-            <span class="wm-pdp-accordion__icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </span>
-          </button>
-          <div
-            id="pdp-accordion-body-specifications"
-            class="wm-pdp-accordion__body"
-            data-pdp-accordion-body
-            hidden
-          >
-            <div class="wm-pdp-accordion__content">
-              <table class="wm-pdp-specs-list" aria-label="Product Specifications">
-                <tbody>
-                  {%- if product.type != blank -%}
-                    <tr>
-                      <th scope="row">Product Type</th>
-                      <td>{{ product.type }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if product.vendor != blank -%}
-                    <tr>
-                      <th scope="row">Brand</th>
-                      <td>{{ product.vendor }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if current_variant.sku != blank -%}
-                    <tr>
-                      <th scope="row">SKU</th>
-                      <td>{{ current_variant.sku }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if product.metafields.custom.material != blank -%}
-                    <tr>
-                      <th scope="row">Material</th>
-                      <td>{{ product.metafields.custom.material }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if product.metafields.custom.suitable_for != blank -%}
-                    <tr>
-                      <th scope="row">Suitable For</th>
-                      <td>{{ product.metafields.custom.suitable_for }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if product.metafields.custom.dimensions != blank -%}
-                    <tr>
-                      <th scope="row">Dimensions</th>
-                      <td>{{ product.metafields.custom.dimensions }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if product.metafields.custom.color != blank -%}
-                    <tr>
-                      <th scope="row">Color</th>
-                      <td>{{ product.metafields.custom.color }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if product.metafields.custom.package_includes != blank -%}
-                    <tr>
-                      <th scope="row">Package Includes</th>
-                      <td>{{ product.metafields.custom.package_includes }}</td>
-                    </tr>
-                  {%- endif -%}
-                  {%- if product.metafields.custom.care_instructions != blank -%}
-                    <tr>
-                      <th scope="row">Care Instructions</th>
-                      <td>{{ product.metafields.custom.care_instructions }}</td>
-                    </tr>
-                  {%- endif -%}
-                  <tr>
-                    <th scope="row">Availability</th>
-                    <td>{% if is_available %}In Stock{% else %}Out of Stock{% endif %}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {%- comment -%} 3. Benefits (NO ICONS per user requirement) {%- endcomment -%}
-        {%- unless section.settings.show_benefits == false -%}
-          <div class="wm-pdp-accordion" id="pdp-benefits" data-pdp-accordion="benefits">
-            <button
-              type="button"
-              class="wm-pdp-accordion__trigger"
-              data-pdp-accordion-trigger="benefits"
-              aria-expanded="false"
-              aria-controls="pdp-accordion-body-benefits"
-            >
-              <span class="wm-pdp-accordion__title">{{ section.settings.benefits_heading | default: 'Benefits' }}</span>
-              <span class="wm-pdp-accordion__icon" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-              </span>
-            </button>
-            <div
-              id="pdp-accordion-body-benefits"
-              class="wm-pdp-accordion__body"
-              data-pdp-accordion-body
-              hidden
-            >
-              <div class="wm-pdp-accordion__content">
-                {%- liquid
-                  assign p_text = product.title | append: ' ' | append: product.type | downcase
-                  assign is_feeding = false
-                  assign is_toy = false
-                  if p_text contains 'bowl' or p_text contains 'feed' or p_text contains 'water' or p_text contains 'dish'
-                    assign is_feeding = true
-                  elsif p_text contains 'ball' or p_text contains 'toy' or p_text contains 'play' or p_text contains 'chew'
-                    assign is_toy = true
-                  endif
-                -%}
-
-                <div class="wm-pdp-benefits-editorial">
-                  {%- if is_feeding -%}
-                    <p class="wm-pdp-benefits-editorial__lead">
-                      Built for clean, steady daily meals. A balanced base helps reduce tipping and spills, while the smooth interior wipes down in seconds after wet or dry food.
-                    </p>
-                    <dl class="wm-pdp-benefits-rows">
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Daily Use</dt>
-                        <dd>Suitable for dry kibble, wet food, and fresh water</dd>
-                      </div>
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Surface Finish</dt>
-                        <dd>Non-porous, odor-resistant interior that rinses clean easily</dd>
-                      </div>
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Stability</dt>
-                        <dd>Low-center profile stays put during enthusiastic mealtime</dd>
-                      </div>
-                    </dl>
-                  {%- elsif is_toy -%}
-                    <p class="wm-pdp-benefits-editorial__lead">
-                      Made for active daily play, indoors or at the park. A textured grip makes it easy for dogs to pick up and carry while remaining gentle on teeth and gums.
-                    </p>
-                    <dl class="wm-pdp-benefits-rows">
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Play Style</dt>
-                        <dd>Ideal for fetch, solo chewing, and interactive training</dd>
-                      </div>
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Mouth Feel</dt>
-                        <dd>Resilient, non-abrasive surface that is easy on gums</dd>
-                      </div>
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Care &amp; Cleaning</dt>
-                        <dd>Rinses clean with water after outdoor sessions</dd>
-                      </div>
-                    </dl>
-                  {%- else -%}
-                    <p class="wm-pdp-benefits-editorial__lead">
-                      Designed for calm, everyday grooming routines, lifting loose undercoat and surface dander without pulling on sensitive skin. Flexible tips follow your pet's natural contours so brushing feels familiar and stress-free.
-                    </p>
-                    <dl class="wm-pdp-benefits-rows">
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Coat Compatibility</dt>
-                        <dd>Works across short, medium, and thick double coats</dd>
-                      </div>
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Skin Comfort</dt>
-                        <dd>Rounded soft-touch tips prevent scratching or irritation</dd>
-                      </div>
-                      <div class="wm-pdp-benefits-row">
-                        <dt>Care &amp; Cleaning</dt>
-                        <dd>Peeled fur lifts off in one piece; rinses clean under water</dd>
-                      </div>
-                    </dl>
-                  {%- endif -%}
-                </div>
-              </div>
-            </div>
-          </div>
-        {%- endunless -%}
-
       </div>
 
+      <div class="wm-sticky-bar__actions">
+        <button
+          type="button"
+          class="wm-sticky-bar__btn"
+          data-sticky-atc-trigger
+          data-text-default="+ Add"
+          data-text-sold-out="{{ 'products.product.sold_out' | t | escape }}"
+          {% unless is_available %}disabled{% endunless %}
+        >
+          <span data-sticky-atc-text>
+            {%- if is_available -%}
+              + Add
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </span>
+        </button>
+
+        <div class="wm-sticky-bar__stepper" data-sticky-atc-stepper hidden>
+          <button
+            type="button"
+            class="wm-sticky-bar__stepper-btn"
+            data-sticky-atc-delta="-1"
+            aria-label="{{ 'products.product.quantity.decrease' | t }}"
+          >
+            −
+          </button>
+          <span class="wm-sticky-bar__stepper-val" data-sticky-atc-qty>1</span>
+          <button
+            type="button"
+            class="wm-sticky-bar__stepper-btn"
+            data-sticky-atc-delta="1"
+            aria-label="{{ 'products.product.quantity.increase' | t }}"
+          >
+            +
+          </button>
+        </div>
+      </div>
     </div>
   </div>
-</section>
+</product-page>
 
 <script src="{{ 'product.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
-  "name": "Product Information",
+  "name": "Main Product",
+  "tag": "section",
+  "class": "section-main-product",
   "settings": [
     {
-      "type": "header",
-      "content": "Product Benefits"
-    },
-    {
       "type": "checkbox",
-      "id": "show_benefits",
-      "label": "Show Benefits Accordion",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb navigation",
       "default": true
     },
     {
-      "type": "text",
-      "id": "benefits_heading",
-      "label": "Benefits Heading",
-      "default": "Benefits"
+      "type": "checkbox",
+      "id": "show_sku",
+      "label": "Show product SKU",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "filter_unrelated_media",
+      "label": "Filter unrelated demo images from gallery",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_looping",
+      "label": "Loop product videos",
+      "default": false
     },
     {
       "type": "text",
-      "id": "b1_title",
-      "label": "Benefit 1 Title",
-      "default": "Removes Loose Fur"
+      "id": "pincode_api_endpoint",
+      "label": "Pincode API endpoint",
+      "info": "Optional Shiprocket, Delhivery, or Shopify App Proxy endpoint"
     },
     {
-      "type": "text",
-      "id": "b1_desc",
-      "label": "Benefit 1 Description",
-      "default": "Effectively lifts loose hair and mats."
+      "type": "range",
+      "id": "default_delivery_days",
+      "min": 1,
+      "max": 7,
+      "step": 1,
+      "default": 3,
+      "label": "Default estimated delivery days"
     },
     {
-      "type": "text",
-      "id": "b2_title",
-      "label": "Benefit 2 Title",
-      "default": "Gentle Massage"
+      "type": "checkbox",
+      "id": "enable_cod_note",
+      "label": "Show Cash on Delivery (COD) availability",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
     },
     {
-      "type": "text",
-      "id": "b2_desc",
-      "label": "Benefit 2 Description",
-      "default": "Soothes your pet and improves circulation."
+      "type": "title",
+      "name": "Product title",
+      "limit": 1
     },
     {
-      "type": "text",
-      "id": "b3_title",
-      "label": "Benefit 3 Title",
-      "default": "Clean & Healthy Coat"
+      "type": "rating",
+      "name": "Rating summary",
+      "limit": 1
     },
     {
-      "type": "text",
-      "id": "b3_desc",
-      "label": "Benefit 3 Description",
-      "default": "Helps keep the coat clean, smooth and tangle-free."
+      "type": "price",
+      "name": "Price & taxes",
+      "limit": 1
     },
     {
-      "type": "text",
-      "id": "b4_title",
-      "label": "Benefit 4 Title",
-      "default": "Suitable for Dogs & Cats"
+      "type": "inventory_status",
+      "name": "Stock indicator",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "low_stock_threshold",
+          "min": 1,
+          "max": 30,
+          "step": 1,
+          "default": 10,
+          "label": "Low stock threshold"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_inventory_quantity",
+          "label": "Show exact inventory quantity when tracked in Shopify",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_progress_bar",
+          "label": "Show stock availability bar",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "in_stock_label",
+          "label": "In stock text",
+          "default": "In stock, ready to ship"
+        },
+        {
+          "type": "text",
+          "id": "low_stock_label",
+          "label": "Low stock text",
+          "default": "Low stock - order soon"
+        },
+        {
+          "type": "text",
+          "id": "out_of_stock_label",
+          "label": "Out of stock text",
+          "default": "Out of stock"
+        }
+      ]
     },
     {
-      "type": "text",
-      "id": "b4_desc",
-      "label": "Benefit 4 Description",
-      "default": "Works on all coat types and sizes."
+      "type": "description",
+      "name": "Short description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "fallback_description",
+          "label": "Fallback short description",
+          "default": "A breathable five-finger glove lined with 255 soft silicone tips. Lifts loose shed while you pet your dog or cat—with zero scratchy wire bristles and zero fur flying around the room."
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant picker",
+      "limit": 1
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Quantity & buy buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Show Buy Now button",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "trust_points",
+      "name": "Trust points",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "point_1",
+          "label": "Trust point 1",
+          "default": "Free express shipping across India"
+        },
+        {
+          "type": "text",
+          "id": "point_2",
+          "label": "Trust point 2",
+          "default": "30-day Wagmart Guarantee"
+        },
+        {
+          "type": "text",
+          "id": "point_3",
+          "label": "Trust point 3",
+          "default": "Cash on Delivery (COD) & UPI"
+        },
+        {
+          "type": "text",
+          "id": "point_4",
+          "label": "Trust point 4",
+          "default": "Skin-safe food-grade silicone"
+        }
+      ]
+    },
+    {
+      "type": "pincode_checker",
+      "name": "Indian pincode checker",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "api_endpoint",
+          "label": "App proxy or courier API URL (optional)"
+        },
+        {
+          "type": "range",
+          "id": "delivery_days",
+          "min": 1,
+          "max": 7,
+          "step": 1,
+          "default": 3,
+          "label": "Estimated delivery days"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_cod",
+          "label": "Cash on Delivery (COD) available",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "cross_sell",
+      "name": "Add-ons & Cross-sell",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Popular Add-Ons & Related Products"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Select add-ons or click + Add"
+        },
+        {
+          "type": "range",
+          "id": "products_to_show",
+          "min": 1,
+          "max": 4,
+          "step": 1,
+          "default": 3,
+          "label": "Products to show"
+        }
+      ]
+    },
+    {
+      "type": "shipping_info",
+      "name": "Shipping information",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Shipping & Delivery Information"
+        },
+        {
+          "type": "text",
+          "id": "delivery_time",
+          "label": "Dispatch & delivery estimate",
+          "default": "Dispatched within 24 hours · Delivered in 3–5 business days across India"
+        },
+        {
+          "type": "text",
+          "id": "shipping_cost",
+          "label": "Shipping charges",
+          "default": "Free Express Shipping on all orders"
+        },
+        {
+          "type": "text",
+          "id": "payment_info",
+          "label": "Payment methods",
+          "default": "Cash on Delivery (COD), UPI, Cards & NetBanking accepted"
+        },
+        {
+          "type": "text",
+          "id": "return_policy",
+          "label": "Return & exchange policy",
+          "default": "Easy 30-day returns & hassle-free replacement guarantee"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main Product",
+      "blocks": [
+        { "type": "title" },
+        { "type": "rating" },
+        { "type": "price" },
+        { "type": "description" },
+        { "type": "variant_picker" },
+        { "type": "buy_buttons" },
+        { "type": "trust_points" },
+        { "type": "cross_sell" },
+        { "type": "shipping_info" },
+        { "type": "pincode_checker" }
+      ]
     }
   ]
 }

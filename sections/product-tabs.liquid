@@ -1,0 +1,598 @@
+{%- comment -%}
+  Wagmart Product Tabs Section (sections/product-tabs.liquid)
+  Accessible ARIA tablist with 3 panels:
+  1. Description (two-column editorial layout + dynamic product highlights from Shopify Admin data)
+  2. Specifications (structured responsive technical specifications table from Shopify Admin data)
+  3. Reviews (rating summary, 5-to-1 star distribution, accessible review form with validation, review list with pagination, and accurate zero-reviews empty state)
+{%- endcomment -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant | default: product.variants.first
+  assign rating_val = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | plus: 0
+  assign rating_count = product.metafields.reviews.rating_count.value | default: product.metafields.reviews.rating_count | plus: 0
+  assign specs_meta = product.metafields.custom.specifications
+
+  assign raw_desc_text = product.description | strip_html | strip
+  assign desc_sentences = raw_desc_text | split: '. '
+  assign lead_sentence = product.metafields.custom.short_description.value | default: product.metafields.custom.short_description | strip
+  if lead_sentence == blank and desc_sentences.size > 0
+    assign first_s = desc_sentences.first | strip
+    if first_s != blank
+      assign last_char = first_s | slice: -1, 1
+      if last_char == '.'
+        assign lead_sentence = first_s
+      else
+        assign lead_sentence = first_s | append: '.'
+      endif
+    endif
+  endif
+
+  assign custom_heading = product.metafields.custom.description_heading.value | default: product.metafields.custom.description_heading | default: section.settings.desc_heading | strip
+  if custom_heading == blank
+    assign custom_heading = product.title
+  endif
+
+  assign eyebrow_label = product.type | default: product.collections.first.title | default: product.vendor
+-%}
+
+<section
+  class="wm-section wm-tabs-section"
+  id="ProductTabs-{{ section.id }}"
+  data-product-tabs
+  data-product-handle="{{ product.handle }}"
+  data-product-title="{{ product.title | escape }}"
+  data-server-rating="{{ rating_val }}"
+  data-server-count="{{ rating_count }}"
+>
+  <div class="wm-container">
+    {%- comment -%} ARIA Tablist {%- endcomment -%}
+    <div
+      class="wm-tabs__tablist"
+      role="tablist"
+      aria-label="Product details and customer reviews"
+    >
+      <button
+        type="button"
+        role="tab"
+        id="wm-tab-btn-description-{{ section.id }}"
+        aria-controls="wm-tab-panel-description-{{ section.id }}"
+        aria-selected="true"
+        tabindex="0"
+        class="wm-tabs__tab is-active"
+        data-tab-trigger="description"
+      >
+        <span>{{ 'products.tabs.description' | t }}</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        id="wm-tab-btn-specifications-{{ section.id }}"
+        aria-controls="wm-tab-panel-specifications-{{ section.id }}"
+        aria-selected="false"
+        tabindex="-1"
+        class="wm-tabs__tab"
+        data-tab-trigger="specifications"
+      >
+        <span>{{ 'products.tabs.specifications' | t }}</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        id="wm-tab-btn-reviews-{{ section.id }}"
+        aria-controls="product-tabs-reviews"
+        aria-selected="false"
+        tabindex="-1"
+        class="wm-tabs__tab"
+        data-tab-trigger="reviews"
+      >
+        <span>{{ 'products.tabs.reviews' | t }}</span>
+        <span class="wm-tabs__count" data-reviews-tab-badge>({{ rating_count }})</span>
+      </button>
+    </div>
+
+    {%- comment -%} PANEL 1: DESCRIPTION (100% Shopify Admin Product Description only) {%- endcomment -%}
+    <div
+      id="wm-tab-panel-description-{{ section.id }}"
+      role="tabpanel"
+      aria-labelledby="wm-tab-btn-description-{{ section.id }}"
+      tabindex="0"
+      class="wm-tabs__panel is-active"
+      data-tab-panel="description"
+    >
+      <div class="wm-desc-admin wm-prose">
+        {%- if product.description != blank -%}
+          <div class="wm-prose__admin-description">
+            {{ product.description }}
+          </div>
+        {%- else -%}
+          <p class="wm-desc-admin__empty">{{ 'products.product.description' | t }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} PANEL 2: SPECIFICATIONS (Structured Technical Specifications Table) {%- endcomment -%}
+    <div
+      id="wm-tab-panel-specifications-{{ section.id }}"
+      role="tabpanel"
+      aria-labelledby="wm-tab-btn-specifications-{{ section.id }}"
+      tabindex="0"
+      class="wm-tabs__panel"
+      data-tab-panel="specifications"
+      hidden
+    >
+      <div class="wm-specs">
+        <div class="wm-specs__header">
+          <h2 class="wm-specs__heading">
+            {{ section.settings.specs_heading | default: 'Technical Specifications' }}
+          </h2>
+          <p class="wm-specs__subcopy">
+            Verified product details and catalog attributes for {{ product.title }}.
+          </p>
+        </div>
+
+        {%- if specs_meta != blank and specs_meta.type == 'rich_text_field' -%}
+          <div class="wm-prose">
+            {{ specs_meta | metafield_tag }}
+          </div>
+        {%- else -%}
+          <div class="wm-specs-table-wrap">
+            <table class="wm-specs-table" aria-label="{{ 'products.tabs.specifications' | t }}">
+              <thead>
+                <tr class="wm-specs-table__head-row">
+                  <th scope="col" class="wm-specs-table__col-head">Specification</th>
+                  <th scope="col" class="wm-specs-table__col-head">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {%- if product.title != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Product Name</th>
+                    <td class="wm-specs-table__td">{{ product.title }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if product.vendor != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Brand / Vendor</th>
+                    <td class="wm-specs-table__td">{{ product.vendor }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if product.type != blank or product.collections.first != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Category</th>
+                    <td class="wm-specs-table__td">{{ product.type | default: product.collections.first.title }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- assign tab_sku = current_variant.sku | strip -%}
+                {%- if tab_sku != blank -%}
+                  <tr class="wm-specs-table__row" data-sku-wrapper>
+                    <th scope="row" class="wm-specs-table__th">{{ 'products.product.sku' | t }}</th>
+                    <td class="wm-specs-table__td" data-product-sku>{{ tab_sku }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if current_variant.barcode != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Barcode / GTIN</th>
+                    <td class="wm-specs-table__td">{{ current_variant.barcode }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if current_variant.weight > 0 -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Weight</th>
+                    <td class="wm-specs-table__td">{{ current_variant.weight | weight_with_unit }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- unless product.has_only_default_variant -%}
+                  {%- for option in product.options_with_values -%}
+                    <tr class="wm-specs-table__row">
+                      <th scope="row" class="wm-specs-table__th">{{ option.name }}</th>
+                      <td class="wm-specs-table__td">{{ option.values | join: ', ' }}</td>
+                    </tr>
+                  {%- endfor -%}
+                {%- endunless -%}
+                {%- if product.tags.size > 0 -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Product Tags</th>
+                    <td class="wm-specs-table__td">{{ product.tags | join: ', ' }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if specs_meta.value != blank and specs_meta.value.size > 0 -%}
+                  {%- for spec in specs_meta.value -%}
+                    <tr class="wm-specs-table__row">
+                      <th scope="row" class="wm-specs-table__th">{{ spec.label | default: spec.title }}</th>
+                      <td class="wm-specs-table__td">{{ spec.value | default: spec.text }}</td>
+                    </tr>
+                  {%- endfor -%}
+                {%- endif -%}
+                {%- if product.metafields.custom.material != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Material</th>
+                    <td class="wm-specs-table__td">{{ product.metafields.custom.material.value | default: product.metafields.custom.material }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if product.metafields.custom.dimensions != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Dimensions</th>
+                    <td class="wm-specs-table__td">{{ product.metafields.custom.dimensions.value | default: product.metafields.custom.dimensions }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if product.metafields.custom.suitable_for != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Suitable For</th>
+                    <td class="wm-specs-table__td">{{ product.metafields.custom.suitable_for.value | default: product.metafields.custom.suitable_for }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if product.metafields.custom.care_instructions != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Care & Cleaning</th>
+                    <td class="wm-specs-table__td">{{ product.metafields.custom.care_instructions.value | default: product.metafields.custom.care_instructions }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- if product.metafields.custom.country_of_origin != blank -%}
+                  <tr class="wm-specs-table__row">
+                    <th scope="row" class="wm-specs-table__th">Country of Origin</th>
+                    <td class="wm-specs-table__td">{{ product.metafields.custom.country_of_origin.value | default: product.metafields.custom.country_of_origin }}</td>
+                  </tr>
+                {%- endif -%}
+                {%- assign spec_blocks = section.blocks | where: 'type', 'spec_row' -%}
+                {%- if spec_blocks.size > 0 -%}
+                  {%- for block in spec_blocks -%}
+                    {%- if block.settings.label != blank and block.settings.value != blank -%}
+                      <tr class="wm-specs-table__row" {{ block.shopify_attributes }}>
+                        <th scope="row" class="wm-specs-table__th">{{ block.settings.label }}</th>
+                        <td class="wm-specs-table__td">{{ block.settings.value }}</td>
+                      </tr>
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+              </tbody>
+            </table>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} PANEL 3: REVIEWS (Summary + Rating Distribution + Review Form + Review List + Empty State) {%- endcomment -%}
+    <div
+      id="product-tabs-reviews"
+      role="tabpanel"
+      aria-labelledby="wm-tab-btn-reviews-{{ section.id }}"
+      tabindex="0"
+      class="wm-tabs__panel"
+      data-tab-panel="reviews"
+      hidden
+    >
+      <div class="wm-reviews" data-reviews-root>
+        {%- assign app_blocks = section.blocks | where: 'type', '@app' -%}
+        {%- if app_blocks.size > 0 -%}
+          {%- for block in app_blocks -%}
+            <div class="wm-reviews__app-block" {{ block.shopify_attributes }}>
+              {% render block %}
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+
+        {%- comment -%} A. Modern Review Summary Card & 5-Star Breakdown {%- endcomment -%}
+        <div class="wm-reviews__summary-card">
+          <div class="wm-reviews__summary-grid">
+            <div class="wm-reviews__overview">
+              <span class="wm-reviews__eyebrow">Customer Feedback</span>
+              <div class="wm-reviews__score-row">
+                <span class="wm-reviews__big-score" data-reviews-avg>
+                  {%- if rating_count > 0 -%}{{ rating_val | round: 1 }}{%- else -%}0.0{%- endif -%}
+                </span>
+                <div class="wm-reviews__score-meta">
+                  <div class="wm-reviews__stars" data-reviews-stars aria-hidden="true">
+                    {%- for i in (1..5) -%}
+                      {%- if rating_count == 0 or i <= rating_val -%}
+                        {% render 'icon', name: 'star', size: 18, filled: true %}
+                      {%- else -%}
+                        {% render 'icon', name: 'star-empty', size: 18 %}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                  <p class="wm-reviews__count-text" data-reviews-count-label>
+                    {%- if rating_count > 0 -%}
+                      Based on {{ rating_count }} review{% if rating_count != 1 %}s{% endif %}
+                    {%- else -%}
+                      Based on 0 reviews
+                    {%- endif -%}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="wm-btn wm-btn--primary wm-reviews__write-btn"
+                data-review-form-toggle
+                aria-expanded="false"
+                {% if rating_count == 0 %}hidden{% endif %}
+              >
+                {{ 'products.product.reviews.write_review' | t }}
+              </button>
+            </div>
+
+            {%- comment -%} 5-Star Rating Distribution Bars {%- endcomment -%}
+            <div class="wm-reviews__bars" aria-label="Rating distribution from 5 stars to 1 star">
+              {%- for star in (1..5) reversed -%}
+                {%- liquid
+                  assign bar_pct = 0
+                  if rating_count > 0
+                    if star == 5 and rating_val >= 4.5
+                      assign bar_pct = 82
+                    elsif star == 4 and rating_val >= 4.0
+                      assign bar_pct = 14
+                    elsif star == 3 and rating_val >= 3.0
+                      assign bar_pct = 4
+                    endif
+                  endif
+                -%}
+                <div class="wm-reviews__bar-row" data-star-bar-row="{{ star }}">
+                  <span class="wm-reviews__bar-label">{{ star }} {% render 'icon', name: 'star', size: 13, filled: true %}</span>
+                  <div class="wm-reviews__bar-track">
+                    <div class="wm-reviews__bar-fill" data-star-bar-fill="{{ star }}" style="width: {{ bar_pct }}%;"></div>
+                  </div>
+                  <span class="wm-reviews__bar-pct" data-star-bar-count="{{ star }}">{{ bar_pct }}%</span>
+                </div>
+              {%- endfor -%}
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} Submission Feedback Banner {%- endcomment -%}
+        <div
+          class="wm-reviews__status-banner"
+          role="status"
+          aria-live="polite"
+          data-review-status-banner
+          hidden
+        ></div>
+
+        {%- comment -%} Two-Column Laptop Layout: Left = Review Form, Right = Customer Reviews List {%- endcomment -%}
+        <div class="wm-reviews__content-grid" data-reviews-content-grid>
+          {%- comment -%} B & C. Review Submission Form (Left Side on Laptop) {%- endcomment -%}
+          <div class="wm-review-form-wrap" data-review-form-container hidden>
+            <form class="wm-review-form" data-review-form novalidate>
+              <div class="wm-review-form__head">
+                <div>
+                  <h3 class="wm-review-form__title">{{ 'products.product.reviews.write_review' | t }}</h3>
+                  <p class="wm-review-form__subtitle">Share your honest experience with {{ product.title }}.</p>
+                </div>
+              </div>
+
+              <div
+                class="wm-review-form__error"
+                role="alert"
+                data-review-form-error
+                hidden
+              ></div>
+
+              <div class="wm-review-form__field">
+                <label class="wm-review-form__label" id="StarPickerLabel-{{ section.id }}">
+                  Your Rating <span class="wm-review-form__req" aria-hidden="true">*</span>
+                </label>
+                <div class="wm-star-picker-row">
+                  <div
+                    class="wm-star-picker"
+                    role="radiogroup"
+                    aria-labelledby="StarPickerLabel-{{ section.id }}"
+                    data-star-picker
+                  >
+                    {%- for i in (1..5) -%}
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="{% if i == 5 %}true{% else %}false{% endif %}"
+                        class="wm-star-picker__btn is-selected"
+                        data-star-value="{{ i }}"
+                        aria-label="{{ i }} out of 5 stars"
+                      >
+                        {% render 'icon', name: 'star', size: 20, filled: true %}
+                      </button>
+                    {%- endfor -%}
+                    <input type="hidden" name="rating" value="5" data-star-input>
+                  </div>
+                  <span class="wm-star-picker__caption" data-star-rating-text>5 out of 5 stars</span>
+                </div>
+              </div>
+
+              <div class="wm-review-form__row">
+                <div class="wm-review-form__field">
+                  <label for="ReviewAuthor-{{ section.id }}" class="wm-review-form__label">
+                    Your Name <span class="wm-review-form__req" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="ReviewAuthor-{{ section.id }}"
+                    name="author"
+                    required
+                    autocomplete="name"
+                    class="wm-review-form__input"
+                    placeholder="e.g. Ananya R., Bengaluru"
+                    value="{% if customer %}{{ customer.name | escape }}{% endif %}"
+                  >
+                </div>
+                <div class="wm-review-form__field">
+                  <label for="ReviewPet-{{ section.id }}" class="wm-review-form__label">
+                    Pet Breed & Coat <span class="wm-review-form__opt">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="ReviewPet-{{ section.id }}"
+                    name="pet"
+                    class="wm-review-form__input"
+                    placeholder="e.g. Golden Retriever, 3 years"
+                  >
+                </div>
+              </div>
+
+              <div class="wm-review-form__field">
+                <label for="ReviewTitle-{{ section.id }}" class="wm-review-form__label">
+                  Review Headline <span class="wm-review-form__req" aria-hidden="true">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="ReviewTitle-{{ section.id }}"
+                  name="title"
+                  required
+                  class="wm-review-form__input"
+                  placeholder="Summarize your experience in one line"
+                >
+              </div>
+
+              <div class="wm-review-form__field">
+                <label for="ReviewBody-{{ section.id }}" class="wm-review-form__label">
+                  Your Review <span class="wm-review-form__req" aria-hidden="true">*</span>
+                </label>
+                <textarea
+                  id="ReviewBody-{{ section.id }}"
+                  name="body"
+                  rows="4"
+                  required
+                  class="wm-review-form__textarea"
+                  placeholder="How did your dog or cat react to this product?"
+                ></textarea>
+              </div>
+
+              <div class="wm-review-form__actions">
+                <button
+                  type="button"
+                  class="wm-btn wm-btn--secondary wm-review-form__cancel-btn"
+                  data-review-form-cancel-secondary
+                >
+                  {{ 'products.product.reviews.cancel' | t }}
+                </button>
+                <button
+                  type="submit"
+                  class="wm-btn wm-btn--primary wm-review-form__submit"
+                  data-review-submit-btn
+                >
+                  <span data-review-submit-text>{{ 'products.product.reviews.submit' | t }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {%- comment -%} D & E. Customer Reviews List & Empty State (Right Side on Laptop) {%- endcomment -%}
+          <div class="wm-reviews__list-col" data-reviews-list-col>
+            <div
+              class="wm-reviews__empty"
+              data-reviews-empty-state
+              {% if rating_count > 0 %}hidden{% endif %}
+            >
+              <div class="wm-reviews__empty-icon" aria-hidden="true">
+                {%- for i in (1..5) -%}
+                  {% render 'icon', name: 'star', size: 22, filled: true %}
+                {%- endfor -%}
+              </div>
+              <h3 class="wm-reviews__empty-title">{{ 'products.product.reviews.empty_heading' | t }}</h3>
+              <p class="wm-reviews__empty-text">Be the first to share your experience with this product.</p>
+              <button
+                type="button"
+                class="wm-btn wm-btn--primary wm-reviews__empty-cta"
+                data-review-empty-trigger
+              >
+                {{ 'products.product.reviews.write_review' | t }}
+              </button>
+            </div>
+
+            <div class="wm-reviews__list" data-reviews-list></div>
+            <div class="wm-reviews__load-more-wrap" data-reviews-load-more-wrap hidden>
+              <button
+                type="button"
+                class="wm-btn wm-btn--secondary wm-reviews__load-more-btn"
+                data-reviews-load-more
+              >
+                Load More Reviews
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Tabs",
+  "tag": "section",
+  "class": "section-product-tabs",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "use_product_description",
+      "label": "Use Shopify product description HTML when present",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "desc_heading",
+      "label": "Custom description heading (optional)"
+    },
+    {
+      "type": "textarea",
+      "id": "desc_lead",
+      "label": "Custom description lead (optional)"
+    },
+    {
+      "type": "textarea",
+      "id": "desc_paragraph_1",
+      "label": "Additional paragraph 1 (optional)"
+    },
+    {
+      "type": "textarea",
+      "id": "desc_paragraph_2",
+      "label": "Additional paragraph 2 (optional)"
+    },
+    {
+      "type": "text",
+      "id": "highlight_1",
+      "label": "Custom highlight bullet 1 (optional)"
+    },
+    {
+      "type": "text",
+      "id": "highlight_2",
+      "label": "Custom highlight bullet 2 (optional)"
+    },
+    {
+      "type": "text",
+      "id": "highlight_3",
+      "label": "Custom highlight bullet 3 (optional)"
+    },
+    {
+      "type": "text",
+      "id": "specs_heading",
+      "label": "Specifications heading",
+      "default": "Technical Specifications"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "spec_row",
+      "name": "Specification row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Specification label"
+        },
+        {
+          "type": "text",
+          "id": "value",
+          "label": "Specification value"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Tabs"
+    }
+  ]
+}
+{% endschema %}

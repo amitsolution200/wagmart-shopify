@@ -1,0 +1,75 @@
+{%- comment -%}
+  Wagmart Product Guarantee Strip (sections/product-guarantee.liquid)
+  One calm, confident horizontal editorial strip—not a big beige box.
+{%- endcomment -%}
+
+<section
+  class="wm-guarantee-strip"
+  id="ProductGuarantee-{{ section.id }}"
+  aria-labelledby="GuaranteeHeading-{{ section.id }}"
+>
+  <div class="wm-container">
+    <div class="wm-guarantee-strip__inner">
+      <div class="wm-guarantee-strip__title-wrap">
+        <span class="wm-guarantee-strip__icon" aria-hidden="true">
+          {% render 'icon', name: 'shield-check', size: 22 %}
+        </span>
+        <h2 class="wm-guarantee-strip__heading" id="GuaranteeHeading-{{ section.id }}">
+          {{ section.settings.heading | default: 'The Wagmart 30-Day Guarantee' }}
+        </h2>
+      </div>
+
+      <p class="wm-guarantee-strip__text">
+        {{ section.settings.body | default: 'Try the Pet Grooming Glove at home for 30 days. If your dog or cat does not relax into the routine, message us on WhatsApp or email for a full refund or free replacement—with doorstep pickup across India.' }}
+      </p>
+
+      {%- if section.settings.link_label != blank -%}
+        <a
+          href="{{ section.settings.link_url | default: '/pages/refund-policy' }}"
+          class="wm-guarantee-strip__link"
+        >
+          <span>{{ section.settings.link_label }}</span>
+          {% render 'icon', name: 'chevron-right', size: 16 %}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Guarantee",
+  "tag": "section",
+  "class": "section-product-guarantee",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Guarantee heading",
+      "default": "The Wagmart 30-Day Guarantee"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Guarantee statement",
+      "default": "Try the Pet Grooming Glove at home for 30 days. If your dog or cat does not relax into the routine, message us on WhatsApp or email for a full refund or free replacement—with doorstep pickup across India."
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Policy link text",
+      "default": "Read return policy"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Policy link URL"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Guarantee"
+    }
+  ]
+}
+{% endschema %}

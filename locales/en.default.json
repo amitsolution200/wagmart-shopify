@@ -1,5 +1,10 @@
 {
   "general": {
+    "breadcrumbs": {
+      "label": "Breadcrumb",
+      "home": "Home",
+      "collections": "Shop All"
+    },
     "search": {
       "search": "Search",
       "no_results": "No products found",
@@ -21,6 +26,73 @@
       "sold_out": "Sold Out",
       "unavailable": "Unavailable",
       "in_stock": "In Stock"
+    }
+  },
+  "products": {
+    "product": {
+      "sku": "SKU",
+      "add_to_cart": "Add to Cart",
+      "adding": "Adding...",
+      "added": "Added to Cart",
+      "buy_now": "Buy it now",
+      "sold_out": "Sold Out",
+      "unavailable": "Unavailable",
+      "in_stock": "In Stock",
+      "include_taxes": "MRP inclusive of all taxes. Free shipping across India.",
+      "price": {
+        "regular_price": "Regular price",
+        "sale_price": "Sale price",
+        "mrp_label": "MRP",
+        "save_percent": "Save {{ percent }}%"
+      },
+      "quantity": {
+        "label": "Quantity",
+        "decrease": "Decrease quantity",
+        "increase": "Increase quantity"
+      },
+      "media": {
+        "gallery_label": "Product media gallery",
+        "thumbnails_label": "Product thumbnails",
+        "load_image": "View media {{ index }}",
+        "open_lightbox": "Expand image in full screen",
+        "close_lightbox": "Close full screen gallery",
+        "previous": "Previous media",
+        "next": "Next media"
+      },
+      "reviews": {
+        "rating_aria": "Rated {{ rating }} out of 5 stars based on {{ count }} reviews",
+        "count_label": "({{ count }} verified reviews)",
+        "no_reviews_link": "No reviews yet",
+        "empty_heading": "No verified reviews yet",
+        "empty_body": "Be the first to share your experience with this product.",
+        "write_review": "Write a Review",
+        "cancel": "Cancel",
+        "submit": "Submit"
+      }
+    },
+    "pincode": {
+      "label": "Check delivery & COD",
+      "dispatch_note": "Dispatches in 24 hrs",
+      "placeholder": "Enter 6-digit pincode (e.g. 560001)",
+      "check_button": "Check",
+      "invalid": "Please enter a valid 6-digit Indian pincode (for example, 400001 or 560001).",
+      "unserviceable": "Express delivery is currently unavailable for this pincode.",
+      "delivery_by": "Estimated delivery by",
+      "cod_available": "Free shipping · Cash on Delivery (COD) & UPI available",
+      "prepaid_only": "Free shipping · UPI, Cards & NetBanking available"
+    },
+    "wishlist": {
+      "add": "Save to wishlist"
+    },
+    "tabs": {
+      "description": "Description",
+      "specifications": "Specifications",
+      "reviews": "Reviews"
+    },
+    "recommendations": {
+      "heading": "You may also like",
+      "previous": "Scroll previous products",
+      "next": "Scroll next products"
     }
   }
 }

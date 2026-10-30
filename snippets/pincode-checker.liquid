@@ -1,0 +1,67 @@
+{%- comment -%}
+  Wagmart Indian Pincode & Serviceability Checker (snippets/pincode-checker.liquid)
+  Custom web component <pincode-checker> that validates a 6-digit Indian pincode,
+  calls a configurable Shiprocket/Delhivery/App Proxy endpoint (with local Indian
+  postal zone fallback), displays loading, success (estimated delivery date + COD/UPI),
+  and error states, and persists the last checked pincode in localStorage.
+{%- endcomment -%}
+{%- liquid
+  assign api_endpoint = endpoint | default: section.settings.pincode_api_endpoint | default: ''
+  assign lead_days = delivery_days | default: section.settings.default_delivery_days | default: 3
+  assign cod_enabled = enable_cod | default: section.settings.enable_cod_note
+  if cod_enabled == nil
+    assign cod_enabled = true
+  endif
+-%}
+
+<pincode-checker
+  class="wm-pincode"
+  data-endpoint="{{ api_endpoint | escape }}"
+  data-lead-days="{{ lead_days }}"
+  data-cod-enabled="{{ cod_enabled }}"
+  data-msg-invalid="{{ 'products.pincode.invalid' | t | escape }}"
+  data-msg-unserviceable="{{ 'products.pincode.unserviceable' | t | escape }}"
+  data-msg-cod-available="{{ 'products.pincode.cod_available' | t | escape }}"
+  data-msg-prepaid-only="{{ 'products.pincode.prepaid_only' | t | escape }}"
+  data-msg-delivery-prefix="{{ 'products.pincode.delivery_by' | t | escape }}"
+>
+  <div class="wm-pincode__header">
+    <label for="wm-pincode-input-{{ section.id }}" class="wm-pincode__label">
+      {% render 'icon', name: 'map-pin', size: 16, class: 'wm-pincode__icon' %}
+      <span>{{ 'products.pincode.label' | t }}</span>
+    </label>
+    <span class="wm-pincode__dispatch">{{ 'products.pincode.dispatch_note' | t }}</span>
+  </div>
+
+  <div class="wm-pincode__controls">
+    <input
+      type="text"
+      id="wm-pincode-input-{{ section.id }}"
+      class="wm-pincode__input"
+      inputmode="numeric"
+      pattern="[1-9][0-9]{5}"
+      maxlength="6"
+      autocomplete="postal-code"
+      placeholder="{{ 'products.pincode.placeholder' | t }}"
+      aria-describedby="wm-pincode-status-{{ section.id }}"
+      data-pincode-input
+    >
+    <button
+      type="button"
+      class="wm-pincode__btn"
+      data-pincode-submit
+    >
+      <span data-pincode-btn-text>{{ 'products.pincode.check_button' | t }}</span>
+      <span class="wm-pincode__spinner" data-pincode-spinner hidden aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div
+    id="wm-pincode-status-{{ section.id }}"
+    class="wm-pincode__status"
+    role="status"
+    aria-live="polite"
+    data-pincode-status
+    hidden
+  ></div>
+</pincode-checker>

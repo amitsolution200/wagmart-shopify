@@ -2,7 +2,323 @@
   "sections": {
     "main": {
       "type": "main-product",
-      "settings": {}
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "rating": {
+          "type": "rating",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "inventory_status": {
+          "type": "inventory_status",
+          "settings": {
+            "low_stock_threshold": 10,
+            "show_inventory_quantity": true,
+            "show_progress_bar": false,
+            "in_stock_label": "In stock, ready to ship",
+            "low_stock_label": "Low stock - order soon",
+            "out_of_stock_label": "Out of stock"
+          }
+        },
+        "description": {
+          "type": "description",
+          "settings": {
+            "fallback_description": ""
+          }
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true
+          }
+        },
+        "trust_points": {
+          "type": "trust_points",
+          "disabled": true,
+          "settings": {
+            "point_1": "Free express shipping across India",
+            "point_2": "30-day Wagmart Guarantee",
+            "point_3": "Cash on Delivery (COD) & UPI",
+            "point_4": "100% Pet-Safe Quality Assured"
+          }
+        },
+        "cross_sell": {
+          "type": "cross_sell",
+          "settings": {
+            "heading": "Popular Add-Ons & Related Products",
+            "subheading": "Select add-ons or click + Add",
+            "products_to_show": 3
+          }
+        },
+        "shipping_info": {
+          "type": "shipping_info",
+          "settings": {
+            "heading": "Shipping & Delivery Information",
+            "delivery_time": "Dispatched within 24 hours · Delivered in 3–5 business days across India",
+            "shipping_cost": "Free Express Shipping on all orders",
+            "payment_info": "Cash on Delivery (COD), UPI, Cards & NetBanking accepted",
+            "return_policy": "Easy 30-day returns & hassle-free replacement guarantee"
+          }
+        },
+        "pincode_checker": {
+          "type": "pincode_checker",
+          "disabled": true,
+          "settings": {
+            "api_endpoint": "",
+            "delivery_days": 3,
+            "enable_cod": true
+          }
+        }
+      },
+      "block_order": [
+        "title",
+        "rating",
+        "price",
+        "inventory_status",
+        "description",
+        "variant_picker",
+        "buy_buttons",
+        "trust_points",
+        "cross_sell",
+        "shipping_info"
+      ],
+      "settings": {
+        "show_breadcrumb": true,
+        "filter_unrelated_media": false,
+        "enable_video_looping": false,
+        "pincode_api_endpoint": "",
+        "default_delivery_days": 3,
+        "enable_cod_note": true
+      }
+    },
+    "benefits": {
+      "type": "product-benefits",
+      "disabled": true,
+      "blocks": {
+        "benefit_1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "hand",
+            "title": "Reaches Every Curve",
+            "text": "Five flexible fingers contour around joints, behind ears, and along the tail where stiff paddle brushes cannot reach."
+          }
+        },
+        "benefit_2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Peels Off in One Sheet",
+            "text": "255 soft silicone tips trap loose undercoat fur by gentle static grip so you can peel the hair off in one clean layer."
+          }
+        },
+        "benefit_3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "heart-handshake",
+            "title": "Calms Brush-Shy Pets",
+            "text": "Feels like your own hand petting their coat—no sharp steel pins, no tugging on knots, and no anxiety for puppies or cats."
+          }
+        },
+        "benefit_4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "droplets",
+            "title": "Works Dry or in the Bath",
+            "text": "Works shampoo deep into dense double coats during bath time, then rinses clean under running tap water in seconds."
+          }
+        }
+      },
+      "block_order": [
+        "benefit_1",
+        "benefit_2",
+        "benefit_3",
+        "benefit_4"
+      ],
+      "settings": {
+        "heading": "Grooming that feels like a belly rub.",
+        "subheading": "Most dogs and cats run from metal wire brushes. The Pet Grooming Glove turns daily deshedding into calm, five-finger physical contact."
+      }
+    },
+    "how_to_use": {
+      "type": "product-how-to-use",
+      "disabled": true,
+      "blocks": {
+        "step_1": {
+          "type": "step",
+          "settings": {
+            "title": "Slip On & Adjust the Wrist",
+            "text": "Slide your hand into the breathable air-mesh glove and fasten the hook-and-loop wrist strap for a snug, comfortable fit."
+          }
+        },
+        "step_2": {
+          "type": "step",
+          "settings": {
+            "title": "Stroke Along the Coat",
+            "text": "Pet your dog or cat in calm, natural strokes from neck to tail. The 255 flexible silicone tips gather loose undercoat hair as you massage."
+          }
+        },
+        "step_3": {
+          "type": "step",
+          "settings": {
+            "title": "Peel Off & Rinse Clean",
+            "text": "Once a layer of shed collects across the palm, lift one edge to peel the entire fur sheet away and rinse the glove under tap water."
+          }
+        }
+      },
+      "block_order": [
+        "step_1",
+        "step_2",
+        "step_3"
+      ],
+      "settings": {
+        "heading": "Three minutes from loose shed to a clean coat.",
+        "subheading": "Use on a dry coat in the living room or with shampoo during a warm bath."
+      }
+    },
+    "breed_guide": {
+      "type": "product-breed-guide",
+      "disabled": true,
+      "blocks": {
+        "coat_1": {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Short & Smooth",
+            "breeds": "Indian Pariah (Indie), Labrador, Beagle, Pug, Boxer, Doberman",
+            "frequency": "2–3 times / week",
+            "tip": "Light dry strokes along the spine and chest sweep away loose surface shed without irritating thin skin."
+          }
+        },
+        "coat_2": {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Double & Dense",
+            "breeds": "Golden Retriever, German Shepherd, Siberian Husky, Pomeranian, Indian Spitz",
+            "frequency": "Daily in shedding season",
+            "tip": "Part dense fur around the collar and hindquarters; also use with shampoo during bath time to loosen undercoat."
+          }
+        },
+        "coat_3": {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Silky & Long",
+            "breeds": "Shih Tzu, Lhasa Apso, Cocker Spaniel, Maltese",
+            "frequency": "3–4 times / week",
+            "tip": "Work gently behind the ears and under the legs with individual fingers to prevent friction knots."
+          }
+        },
+        "coat_4": {
+          "type": "coat_row",
+          "settings": {
+            "coat_type": "Cats & Kittens",
+            "breeds": "Indie Cat, Persian, British Shorthair, Siamese, Maine Coon",
+            "frequency": "3 times / week",
+            "tip": "Let your cat rub their cheek against the silicone palm first, then stroke slowly from shoulders to tail."
+          }
+        }
+      },
+      "block_order": [
+        "coat_1",
+        "coat_2",
+        "coat_3",
+        "coat_4"
+      ],
+      "settings": {
+        "heading": "Coat & breed guide",
+        "subheading": "Tailored grooming frequency for common Indian dog and cat coats, from humid coastal summers to heavy seasonal shedding.",
+        "col_coat": "Coat Type",
+        "col_breeds": "Common Breeds",
+        "col_frequency": "Routine",
+        "col_notes": "Technique"
+      }
+    },
+    "tabs": {
+      "type": "product-tabs",
+      "blocks": {},
+      "block_order": [],
+      "settings": {
+        "use_product_description": true,
+        "desc_heading": "",
+        "desc_lead": "",
+        "desc_paragraph_1": "",
+        "desc_paragraph_2": "",
+        "highlight_1": "",
+        "highlight_2": "",
+        "highlight_3": "",
+        "specs_heading": ""
+      }
+    },
+    "guarantee": {
+      "type": "product-guarantee",
+      "disabled": true,
+      "settings": {
+        "heading": "The Wagmart 30-Day Guarantee",
+        "body": "Try the Pet Grooming Glove at home for 30 days. If your dog or cat does not relax into the routine, message us on WhatsApp or email for a full refund or free replacement—with doorstep pickup across India.",
+        "link_label": "Read return policy",
+        "link_url": "/pages/refund-policy"
+      }
+    },
+    "faq": {
+      "type": "product-faq",
+      "disabled": true,
+      "blocks": {
+        "faq_1": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Will the silicone tips scratch my puppy's or kitten's sensitive skin?",
+            "answer": "Not at all. Unlike wire slicker brushes, the Pet Grooming Glove uses 255 soft, flexible food-grade silicone tips that bend gently over bone and skin folds without scratching."
+          }
+        },
+        "faq_2": {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I remove the collected hair from the glove?",
+            "answer": "As you stroke your pet's coat, static friction gathers loose fur into a flat mat across the silicone palm. Simply pinch one corner of the fur layer and peel the entire sheet off in one motion."
+          }
+        },
+        "faq_3": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Can I use the Pet Grooming Glove with shampoo during bath time?",
+            "answer": "Yes. Both the silicone palm and the 3D air-mesh back are 100% water-safe. Use it during baths to work shampoo down to the skin, then rinse under running tap water and hang to air dry."
+          }
+        },
+        "faq_4": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Does the glove fit all hand sizes?",
+            "answer": "Yes. The flexible mesh cuff opens wide and secures with an adjustable hook-and-loop wrist strap, fitting both small and large adult hands comfortably."
+          }
+        },
+        "faq_5": {
+          "type": "faq_item",
+          "settings": {
+            "question": "How long does delivery take across India, and is COD available?",
+            "answer": "Orders dispatch within 24 hours and arrive within 2–4 business days across metro cities and 3–6 days across tier-2/3 pincodes. Both UPI and Cash on Delivery (COD) are supported, backed by our 30-Day Wagmart Guarantee."
+          }
+        }
+      },
+      "block_order": [
+        "faq_1",
+        "faq_2",
+        "faq_3",
+        "faq_4",
+        "faq_5"
+      ],
+      "settings": {
+        "heading": "Frequently asked questions",
+        "subheading": "Practical answers on sizing, coat compatibility, bath-time use, and Indian shipping.",
+        "support_note": "Still unsure if it suits your pet? Reach our care team any day from 9 AM to 8 PM IST."
+      }
     },
     "related-products": {
       "type": "related-products",
@@ -13,7 +329,12 @@
   },
   "order": [
     "main",
+    "benefits",
+    "how_to_use",
+    "breed_guide",
+    "tabs",
+    "guarantee",
+    "faq",
     "related-products"
   ]
 }
-
