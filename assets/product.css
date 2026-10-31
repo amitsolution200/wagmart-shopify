@@ -2848,6 +2848,8 @@
   line-height: 1.55;
   color: #4B5563;
   margin: 0;
+  white-space: pre-line;
+  word-break: break-word;
 }
 
 /* Load More Reviews Button */

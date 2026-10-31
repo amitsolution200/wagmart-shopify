@@ -1377,7 +1377,10 @@
       // Single-source-of-truth Reviews Controller (Exact Match to Shopify Reference Screenshots)
       const handle = tabsSection.dataset.productHandle || 'product';
       const productId = tabsSection.dataset.productId || '';
-      const shopDomain = tabsSection.dataset.shopDomain || (window.Shopify && window.Shopify.shop) || 'gk2scz-zu.myshopify.com';
+      let shopDomain = tabsSection.dataset.shopDomain || (window.Shopify && window.Shopify.shop) || 'gk2scz-zu.myshopify.com';
+      if (!shopDomain || !shopDomain.includes('myshopify.com')) {
+        shopDomain = 'gk2scz-zu.myshopify.com';
+      }
       const storageKey = `wagmart_verified_reviews_${handle}`;
       const serverCount = parseInt(tabsSection.dataset.serverCount || '0', 10) || 0;
       const serverRating = parseFloat(tabsSection.dataset.serverRating || '0') || 0;
@@ -1388,13 +1391,15 @@
       const fetchJudgemeReviews = async () => {
         if (!shopDomain || !productId) return;
         try {
-          const url = `https://cdn.judge.me/reviews/reviews_for_widget?shop_domain=${encodeURIComponent(shopDomain)}&platform=shopify&product_id=${encodeURIComponent(productId)}&per_page=50`;
+          const url = `https://cdn.judge.me/reviews/reviews_for_widget?shop_domain=${encodeURIComponent(shopDomain)}&platform=shopify&product_id=${encodeURIComponent(productId)}&per_page=20&_t=${Date.now()}`;
           const res = await fetch(url);
           if (!res.ok) return;
           const data = await res.json();
           if (data && Array.isArray(data.reviews)) {
             judgemeReviews = data.reviews.map((r) => {
               const cleanBody = (r.body_html || r.body || '')
+                .replace(/<br\s*[\/]?>/gi, '\n')
+                .replace(/<\/p>/gi, '\n')
                 .replace(/<[^>]+>/g, '')
                 .replace(/&amp;/g, '&')
                 .replace(/&lt;/g, '<')
@@ -1403,8 +1408,11 @@
                 .replace(/&#039;/g, "'")
                 .trim();
 
-              const cleanReply = r.reply_content
-                ? String(r.reply_content)
+              const rawReply = r.reply_content || r.reply || r.shop_reply || '';
+              const cleanReply = rawReply
+                ? String(rawReply)
+                    .replace(/<br\s*[\/]?>/gi, '\n')
+                    .replace(/<\/p>/gi, '\n')
                     .replace(/<[^>]+>/g, '')
                     .replace(/&amp;/g, '&')
                     .replace(/&lt;/g, '<')
@@ -1436,6 +1444,26 @@
                 source: 'judgeme'
               };
             });
+
+            // Sync any newly fetched merchant replies back into localStorage customerList
+            try {
+              const localList = getCustomerReviews();
+              let updatedLocal = false;
+              localList.forEach((locRev) => {
+                const matchingJ = judgemeReviews.find((jr) =>
+                  (jr.author && locRev.author && jr.author.trim().toLowerCase() === locRev.author.trim().toLowerCase()) ||
+                  (jr.title && locRev.title && jr.title.trim().toLowerCase() === locRev.title.trim().toLowerCase())
+                );
+                if (matchingJ && matchingJ.reply_content && locRev.reply_content !== matchingJ.reply_content) {
+                  locRev.reply_content = matchingJ.reply_content;
+                  locRev.shop_reply_name = matchingJ.shop_reply_name;
+                  updatedLocal = true;
+                }
+              });
+              if (updatedLocal) {
+                localStorage.setItem(storageKey, JSON.stringify(localList));
+              }
+            } catch (e) {}
 
             renderReviews();
           }
@@ -1583,7 +1611,9 @@
         judgemeReviews.forEach((rev) => {
           if (!rev || (!rev.author && !rev.title && !rev.body)) return;
           const key = (String(rev.author || '').trim() + '|||' + String(rev.title || '').trim() + '|||' + String(rev.rating)).toLowerCase();
+          const altKey = (String(rev.author || '').trim() + '|||' + String(rev.body || '').trim().slice(0, 30)).toLowerCase();
           seenKeys.add(key);
+          seenKeys.add(altKey);
           seenKeys.add(String(rev.id));
           merged.push(rev);
         });
@@ -1593,8 +1623,10 @@
           if (!rev || (!rev.author && !rev.title && !rev.body)) return;
           if (String(rev.id || '').startsWith('seed_rev_')) return;
           const key = (String(rev.author || '').trim() + '|||' + String(rev.title || '').trim() + '|||' + String(rev.rating)).toLowerCase();
-          if (!seenKeys.has(key) && !seenKeys.has(String(rev.id))) {
+          const altKey = (String(rev.author || '').trim() + '|||' + String(rev.body || '').trim().slice(0, 30)).toLowerCase();
+          if (!seenKeys.has(key) && !seenKeys.has(altKey) && !seenKeys.has(String(rev.id))) {
             seenKeys.add(key);
+            seenKeys.add(altKey);
             seenKeys.add(String(rev.id));
             merged.push({
               ...rev,

@@ -38,7 +38,7 @@
   id="ProductTabs-{{ section.id }}"
   data-product-tabs
   data-product-id="{{ product.id }}"
-  data-shop-domain="{{ shop.permanent_domain }}"
+  data-shop-domain="{{ shop.myshopify_domain | default: shop.permanent_domain | default: 'gk2scz-zu.myshopify.com' }}"
   data-product-handle="{{ product.handle }}"
   data-product-title="{{ product.title | escape }}"
   data-server-rating="{{ rating_val }}"
