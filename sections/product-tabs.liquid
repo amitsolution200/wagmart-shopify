@@ -31,8 +31,6 @@
   if custom_heading == blank
     assign custom_heading = product.title
   endif
-
-  assign eyebrow_label = product.type | default: product.collections.first.title | default: product.vendor
 -%}
 
 <section
@@ -273,74 +271,166 @@
           {%- endfor -%}
         {%- endif -%}
 
-        {%- comment -%} A. Modern Review Summary Card & 5-Star Breakdown {%- endcomment -%}
-        <div class="wm-reviews__summary-card">
-          <div class="wm-reviews__summary-grid">
-            <div class="wm-reviews__overview">
-              <span class="wm-reviews__eyebrow">Customer Feedback</span>
-              <div class="wm-reviews__score-row">
-                <span class="wm-reviews__big-score" data-reviews-avg>
-                  {%- if rating_count > 0 -%}{{ rating_val | round: 1 }}{%- else -%}0.0{%- endif -%}
-                </span>
-                <div class="wm-reviews__score-meta">
-                  <div class="wm-reviews__stars" data-reviews-stars aria-hidden="true">
-                    {%- for i in (1..5) -%}
-                      {%- if rating_count == 0 or i <= rating_val -%}
-                        {% render 'icon', name: 'star', size: 18, filled: true %}
-                      {%- else -%}
-                        {% render 'icon', name: 'star-empty', size: 18 %}
-                      {%- endif -%}
-                    {%- endfor -%}
-                  </div>
-                  <p class="wm-reviews__count-text" data-reviews-count-label>
-                    {%- if rating_count > 0 -%}
-                      Based on {{ rating_count }} review{% if rating_count != 1 %}s{% endif %}
-                    {%- else -%}
-                      Based on 0 reviews
-                    {%- endif -%}
-                  </p>
-                </div>
-              </div>
+        {%- assign admin_review_blocks = section.blocks | where: 'type', 'review' -%}
+        <script type="application/json" data-admin-reviews>
+          [
+            {%- for block in admin_review_blocks -%}
+              {%- unless forloop.first -%},{%- endunless -%}
+              {
+                "id": {{ block.id | json }},
+                "author": {{ block.settings.author | strip | default: 'Customer' | json }},
+                "pet": {{ block.settings.pet | strip | json }},
+                "rating": {{ block.settings.rating | default: 5 }},
+                "date": {{ block.settings.date | strip | json }},
+                "title": {{ block.settings.title | strip | json }},
+                "body": {{ block.settings.body | strip | json }}
+              }
+            {%- endfor -%}
+          ]
+        </script>
+        {%- if product.metafields.custom.reviews != blank -%}
+          <script type="application/json" data-metafield-reviews>
+            {{ product.metafields.custom.reviews.value | default: product.metafields.custom.reviews | json }}
+          </script>
+        {%- endif -%}
 
+        {%- comment -%} Top Header: Reviews (count) + Refine & Sort Controls (Matching Reference Screenshot 1 & 2) {%- endcomment -%}
+        <div class="wm-reviews__header">
+          <h2 class="wm-reviews__heading">
+            Reviews <span class="wm-reviews__heading-count" data-reviews-heading-count>({{ rating_count }})</span>
+          </h2>
+
+          <div class="wm-reviews__controls">
+            <!-- Mobile Popover Backdrop Overlay -->
+            <div class="wm-reviews__popover-backdrop" data-reviews-popover-backdrop hidden></div>
+
+            <!-- Refine Dropdown Popover (Exact Match for Screenshot 2) -->
+            <div class="wm-reviews__ctrl-wrapper" data-refine-dropdown-wrap>
               <button
                 type="button"
-                class="wm-btn wm-btn--primary wm-reviews__write-btn"
-                data-review-form-toggle
+                class="wm-reviews__pill-btn wm-reviews__refine-btn"
+                data-refine-toggle-btn
                 aria-expanded="false"
-                {% if rating_count == 0 %}hidden{% endif %}
+                aria-haspopup="dialog"
+                aria-label="Refine reviews by rating"
               >
-                {{ 'products.product.reviews.write_review' | t }}
+                <svg class="wm-reviews__ctrl-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="3" y1="5" x2="17" y2="5"></line>
+                  <line x1="5" y1="10" x2="15" y2="10"></line>
+                  <line x1="8" y1="15" x2="12" y2="15"></line>
+                </svg>
+                <span>Refine</span>
               </button>
+
+              <!-- Refine Popover Dropdown (Screenshot 2: "By rating", 1..5 stars, Apply button) -->
+              <div
+                class="wm-reviews__popover wm-reviews__popover--refine"
+                data-refine-popover
+                role="dialog"
+                aria-label="Filter reviews by rating"
+                hidden
+              >
+                <div class="wm-reviews__popover-header">
+                  <span>By rating</span>
+                  <button type="button" class="wm-reviews__popover-close-btn" data-reviews-popover-close aria-label="Close">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                      <path d="M12 4L4 12M4 4l8 8"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="wm-reviews__refine-list">
+                  {%- for star in (1..5) -%}
+                    <label class="wm-reviews__refine-item" for="RefineStar-{{ section.id }}-{{ star }}">
+                      <input
+                        type="checkbox"
+                        id="RefineStar-{{ section.id }}-{{ star }}"
+                        class="wm-reviews__refine-checkbox"
+                        value="{{ star }}"
+                        data-refine-checkbox="{{ star }}"
+                      >
+                      <span class="wm-reviews__refine-custom-check" aria-hidden="true">
+                        <svg class="wm-reviews__refine-check-icon" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 8.5 6.5 12 13 4"></polyline>
+                        </svg>
+                      </span>
+                      <span class="wm-reviews__refine-label">
+                        <span class="wm-reviews__refine-star-num">{{ star }}</span>
+                        <span class="wm-reviews__refine-star-icon">★</span>
+                        <span class="wm-reviews__refine-star-count" data-refine-star-count="{{ star }}">(0)</span>
+                      </span>
+                    </label>
+                  {%- endfor -%}
+                </div>
+                <button
+                  type="button"
+                  class="wm-reviews__popover-apply-btn"
+                  data-refine-apply-btn
+                >
+                  Apply
+                </button>
+              </div>
             </div>
 
-            {%- comment -%} 5-Star Rating Distribution Bars {%- endcomment -%}
-            <div class="wm-reviews__bars" aria-label="Rating distribution from 5 stars to 1 star">
-              {%- for star in (1..5) reversed -%}
-                {%- liquid
-                  assign bar_pct = 0
-                  if rating_count > 0
-                    if star == 5 and rating_val >= 4.5
-                      assign bar_pct = 82
-                    elsif star == 4 and rating_val >= 4.0
-                      assign bar_pct = 14
-                    elsif star == 3 and rating_val >= 3.0
-                      assign bar_pct = 4
-                    endif
-                  endif
-                -%}
-                <div class="wm-reviews__bar-row" data-star-bar-row="{{ star }}">
-                  <span class="wm-reviews__bar-label">{{ star }} {% render 'icon', name: 'star', size: 13, filled: true %}</span>
-                  <div class="wm-reviews__bar-track">
-                    <div class="wm-reviews__bar-fill" data-star-bar-fill="{{ star }}" style="width: {{ bar_pct }}%;"></div>
-                  </div>
-                  <span class="wm-reviews__bar-pct" data-star-bar-count="{{ star }}">{{ bar_pct }}%</span>
+            <!-- Sort Dropdown Popover -->
+            <div class="wm-reviews__ctrl-wrapper" data-sort-dropdown-wrap>
+              <button
+                type="button"
+                class="wm-reviews__pill-btn wm-reviews__sort-btn"
+                data-sort-toggle-btn
+                aria-expanded="false"
+                aria-haspopup="dialog"
+                aria-label="Sort reviews"
+              >
+                <svg class="wm-reviews__ctrl-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 4v12M3 8l4-4 4 4M13 16V4M9 12l4 4 4-4"></path>
+                </svg>
+                <span>Sort</span>
+              </button>
+
+              <!-- Sort Popover Dropdown -->
+              <div
+                class="wm-reviews__popover wm-reviews__popover--sort"
+                data-sort-popover
+                role="dialog"
+                aria-label="Sort reviews options"
+                hidden
+              >
+                <div class="wm-reviews__popover-header">
+                  <span>Sort by</span>
+                  <button type="button" class="wm-reviews__popover-close-btn" data-reviews-popover-close aria-label="Close">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                      <path d="M12 4L4 12M4 4l8 8"></path>
+                    </svg>
+                  </button>
                 </div>
-              {%- endfor -%}
+                <div class="wm-reviews__sort-list">
+                  <label class="wm-reviews__sort-item">
+                    <input type="radio" name="review_sort_{{ section.id }}" value="recent" checked class="wm-reviews__sort-radio" data-sort-radio="recent">
+                    <span class="wm-reviews__sort-custom-radio" aria-hidden="true"></span>
+                    <span class="wm-reviews__sort-label">Most recent</span>
+                  </label>
+                  <label class="wm-reviews__sort-item">
+                    <input type="radio" name="review_sort_{{ section.id }}" value="highest" class="wm-reviews__sort-radio" data-sort-radio="highest">
+                    <span class="wm-reviews__sort-custom-radio" aria-hidden="true"></span>
+                    <span class="wm-reviews__sort-label">Highest rating</span>
+                  </label>
+                  <label class="wm-reviews__sort-item">
+                    <input type="radio" name="review_sort_{{ section.id }}" value="lowest" class="wm-reviews__sort-radio" data-sort-radio="lowest">
+                    <span class="wm-reviews__sort-custom-radio" aria-hidden="true"></span>
+                    <span class="wm-reviews__sort-label">Lowest rating</span>
+                  </label>
+                  <label class="wm-reviews__sort-item">
+                    <input type="radio" name="review_sort_{{ section.id }}" value="oldest" class="wm-reviews__sort-radio" data-sort-radio="oldest">
+                    <span class="wm-reviews__sort-custom-radio" aria-hidden="true"></span>
+                    <span class="wm-reviews__sort-label">Oldest</span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {%- comment -%} Submission Feedback Banner {%- endcomment -%}
+        {%- comment -%} Status / Notification Toast Banner {%- endcomment -%}
         <div
           class="wm-reviews__status-banner"
           role="status"
@@ -349,34 +439,140 @@
           hidden
         ></div>
 
-        {%- comment -%} Two-Column Laptop Layout: Left = Review Form, Right = Customer Reviews List {%- endcomment -%}
-        <div class="wm-reviews__content-grid" data-reviews-content-grid>
-          {%- comment -%} B & C. Review Submission Form (Left Side on Laptop) {%- endcomment -%}
-          <div class="wm-review-form-wrap" data-review-form-container hidden>
-            <form class="wm-review-form" data-review-form novalidate>
-              <div class="wm-review-form__head">
-                <div>
-                  <h3 class="wm-review-form__title">{{ 'products.product.reviews.write_review' | t }}</h3>
-                  <p class="wm-review-form__subtitle">Share your honest experience with {{ product.title }}.</p>
+        {%- comment -%} Main Two-Column Layout (Matching Screenshot 1) {%- endcomment -%}
+        <div class="wm-reviews__main-grid">
+          <!-- LEFT COLUMN: Overall rating & 5-Star Distribution -->
+          <div class="wm-reviews__summary-col">
+            <h3 class="wm-reviews__summary-eyebrow">Overall rating</h3>
+            <div class="wm-reviews__score-row">
+              {%- assign half_score = rating_val | times: 2.0 | round | divided_by: 2.0 -%}
+              {%- assign half_mod = half_score | modulo: 1 -%}
+              <span class="wm-reviews__big-score" data-reviews-avg>
+                {%- if rating_count > 0 -%}
+                  {%- if half_mod == 0 -%}{{ half_score | round }}{%- else -%}{{ half_score }}{%- endif -%}
+                {%- else -%}
+                  0
+                {%- endif -%}
+              </span>
+              <div class="wm-reviews__stars-wrap">
+                <div class="wm-reviews__stars" data-reviews-stars aria-hidden="true" aria-label="{% if rating_count > 0 %}{% if half_mod == 0 %}{{ half_score | round }}{% else %}{{ half_score }}{% endif %} out of 5 stars{% else %}0 out of 5 stars{% endif %}">
+                  {%- for i in (1..5) -%}
+                    {%- assign star_diff = half_score | minus: i -%}
+                    <span class="wm-reviews__star-symbol{% if rating_count > 0 and star_diff >= 0 %} is-filled{% elsif rating_count > 0 and star_diff >= -0.5 %} is-half{% else %} is-empty{% endif %}">★</span>
+                  {%- endfor -%}
                 </div>
               </div>
+            </div>
 
-              <div
-                class="wm-review-form__error"
-                role="alert"
-                data-review-form-error
-                hidden
-              ></div>
+            <!-- 5-to-1 Star Distribution Breakdown -->
+            <div class="wm-reviews__bars" aria-label="Rating distribution from 5 stars to 1 star">
+              {%- for star in (1..5) reversed -%}
+                <div class="wm-reviews__bar-row" data-star-bar-row="{{ star }}">
+                  <span class="wm-reviews__bar-label">{{ star }} <span class="wm-reviews__bar-star">★</span></span>
+                  <div class="wm-reviews__bar-track">
+                    <div class="wm-reviews__bar-fill" data-star-bar-fill="{{ star }}" style="width: 0%;"></div>
+                  </div>
+                  <button
+                    type="button"
+                    class="wm-reviews__bar-count"
+                    data-star-bar-count="{{ star }}"
+                    title="Filter by {{ star }} star reviews"
+                  >
+                    0
+                  </button>
+                </div>
+              {%- endfor -%}
+            </div>
 
+            <button
+              type="button"
+              class="wm-reviews__write-btn"
+              data-review-modal-trigger
+              aria-haspopup="dialog"
+            >
+              Write a review
+            </button>
+          </div>
+
+          <!-- RIGHT COLUMN: Customer Reviews List & Empty State -->
+          <div class="wm-reviews__list-col" data-reviews-list-col>
+            <div class="wm-reviews__filter-feedback" data-reviews-filter-feedback hidden>
+              <span data-reviews-filter-feedback-text>Showing filtered reviews</span>
+              <button type="button" class="wm-reviews__clear-filter-btn" data-reviews-clear-filter>Clear filter</button>
+            </div>
+
+            <div
+              class="wm-reviews__empty"
+              data-reviews-empty-state
+              hidden
+            >
+              <h4 class="wm-reviews__empty-title">No reviews found</h4>
+              <p class="wm-reviews__empty-text">Be the first to share your thoughts on this product.</p>
+              <button
+                type="button"
+                class="wm-reviews__empty-cta"
+                data-review-modal-trigger
+              >
+                Write a review
+              </button>
+            </div>
+
+            <div class="wm-reviews__list" data-reviews-list></div>
+
+            <div class="wm-reviews__load-more-wrap" data-reviews-load-more-wrap hidden>
+              <button
+                type="button"
+                class="wm-reviews__load-more-btn"
+                data-reviews-load-more
+              >
+                Show more reviews
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} WRITE A REVIEW POPUP MODAL (User explicit requirement: "write revew click popup modul open okey") {%- endcomment -%}
+        <div
+          class="wm-review-modal"
+          id="wm-review-modal-{{ section.id }}"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ReviewModalTitle-{{ section.id }}"
+          data-review-modal
+          hidden
+        >
+          <div class="wm-review-modal__backdrop" data-review-modal-close tabindex="-1"></div>
+          <div class="wm-review-modal__dialog" role="document">
+            <div class="wm-review-modal__header">
+              <h3 class="wm-review-modal__title" id="ReviewModalTitle-{{ section.id }}" data-review-modal-title>
+                Write a review
+              </h3>
+              <button
+                type="button"
+                class="wm-review-modal__close-btn"
+                aria-label="Close dialog"
+                data-review-modal-close
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <form class="wm-review-form" data-review-form novalidate>
+              <input type="hidden" name="editing_id" data-review-editing-id value="">
+
+              <!-- Rating Selection -->
               <div class="wm-review-form__field">
-                <label class="wm-review-form__label" id="StarPickerLabel-{{ section.id }}">
-                  Your Rating <span class="wm-review-form__req" aria-hidden="true">*</span>
+                <label class="wm-review-form__label" id="ModalStarLabel-{{ section.id }}">
+                  Overall rating <span class="wm-review-form__req" aria-hidden="true">*</span>
                 </label>
                 <div class="wm-star-picker-row">
                   <div
                     class="wm-star-picker"
                     role="radiogroup"
-                    aria-labelledby="StarPickerLabel-{{ section.id }}"
+                    aria-labelledby="ModalStarLabel-{{ section.id }}"
                     data-star-picker
                   >
                     {%- for i in (1..5) -%}
@@ -388,7 +584,9 @@
                         data-star-value="{{ i }}"
                         aria-label="{{ i }} out of 5 stars"
                       >
-                        {% render 'icon', name: 'star', size: 20, filled: true %}
+                        <svg class="wm-star-picker__star-icon" width="24" height="24" viewBox="0 0 24 24" fill="#FFA41C" stroke="none" aria-hidden="true">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
                       </button>
                     {%- endfor -%}
                     <input type="hidden" name="rating" value="5" data-star-input>
@@ -397,116 +595,85 @@
                 </div>
               </div>
 
+              <!-- First Name & Last Name (Removed Pet Breed & Coat as instructed) -->
               <div class="wm-review-form__row">
                 <div class="wm-review-form__field">
-                  <label for="ReviewAuthor-{{ section.id }}" class="wm-review-form__label">
-                    Your Name <span class="wm-review-form__req" aria-hidden="true">*</span>
+                  <label for="ModalFirstName-{{ section.id }}" class="wm-review-form__label">
+                    First Name <span class="wm-review-form__req" aria-hidden="true">*</span>
                   </label>
                   <input
                     type="text"
-                    id="ReviewAuthor-{{ section.id }}"
-                    name="author"
+                    id="ModalFirstName-{{ section.id }}"
+                    name="first_name"
                     required
-                    autocomplete="name"
+                    autocomplete="given-name"
                     class="wm-review-form__input"
-                    placeholder="e.g. Ananya R., Bengaluru"
-                    value="{% if customer %}{{ customer.name | escape }}{% endif %}"
+                    placeholder="e.g. Rahul"
+                    value="{% if customer %}{{ customer.first_name | escape }}{% endif %}"
                   >
+                  <span class="wm-review-form__field-error" data-field-error="first_name" hidden>First name is required</span>
                 </div>
                 <div class="wm-review-form__field">
-                  <label for="ReviewPet-{{ section.id }}" class="wm-review-form__label">
-                    Pet Breed & Coat <span class="wm-review-form__opt">(optional)</span>
+                  <label for="ModalLastName-{{ section.id }}" class="wm-review-form__label">
+                    Last Name <span class="wm-review-form__req" aria-hidden="true">*</span>
                   </label>
                   <input
                     type="text"
-                    id="ReviewPet-{{ section.id }}"
-                    name="pet"
+                    id="ModalLastName-{{ section.id }}"
+                    name="last_name"
+                    required
+                    autocomplete="family-name"
                     class="wm-review-form__input"
-                    placeholder="e.g. Golden Retriever, 3 years"
+                    placeholder="e.g. Sharma"
+                    value="{% if customer %}{{ customer.last_name | escape }}{% endif %}"
                   >
+                  <span class="wm-review-form__field-error" data-field-error="last_name" hidden>Last name is required</span>
                 </div>
               </div>
 
+              <!-- Review Title -->
               <div class="wm-review-form__field">
-                <label for="ReviewTitle-{{ section.id }}" class="wm-review-form__label">
+                <label for="ModalTitle-{{ section.id }}" class="wm-review-form__label">
                   Review Headline <span class="wm-review-form__req" aria-hidden="true">*</span>
                 </label>
                 <input
                   type="text"
-                  id="ReviewTitle-{{ section.id }}"
+                  id="ModalTitle-{{ section.id }}"
                   name="title"
                   required
                   class="wm-review-form__input"
-                  placeholder="Summarize your experience in one line"
+                  placeholder="Give your review a title"
                 >
+                <span class="wm-review-form__field-error" data-field-error="title" hidden>Review headline is required</span>
               </div>
 
+              <!-- Review Body -->
               <div class="wm-review-form__field">
-                <label for="ReviewBody-{{ section.id }}" class="wm-review-form__label">
+                <label for="ModalBody-{{ section.id }}" class="wm-review-form__label">
                   Your Review <span class="wm-review-form__req" aria-hidden="true">*</span>
                 </label>
                 <textarea
-                  id="ReviewBody-{{ section.id }}"
+                  id="ModalBody-{{ section.id }}"
                   name="body"
                   rows="4"
                   required
                   class="wm-review-form__textarea"
-                  placeholder="How did your dog or cat react to this product?"
+                  placeholder="Write your review here... How did your pet react to this product?"
                 ></textarea>
+                <span class="wm-review-form__field-error" data-field-error="body" hidden>Review is required</span>
               </div>
 
+              <!-- Actions -->
               <div class="wm-review-form__actions">
                 <button
-                  type="button"
-                  class="wm-btn wm-btn--secondary wm-review-form__cancel-btn"
-                  data-review-form-cancel-secondary
-                >
-                  {{ 'products.product.reviews.cancel' | t }}
-                </button>
-                <button
                   type="submit"
-                  class="wm-btn wm-btn--primary wm-review-form__submit"
+                  class="wm-review-form__submit-btn"
                   data-review-submit-btn
                 >
-                  <span data-review-submit-text>{{ 'products.product.reviews.submit' | t }}</span>
+                  <span data-review-submit-text>Submit Review</span>
                 </button>
               </div>
             </form>
-          </div>
-
-          {%- comment -%} D & E. Customer Reviews List & Empty State (Right Side on Laptop) {%- endcomment -%}
-          <div class="wm-reviews__list-col" data-reviews-list-col>
-            <div
-              class="wm-reviews__empty"
-              data-reviews-empty-state
-              {% if rating_count > 0 %}hidden{% endif %}
-            >
-              <div class="wm-reviews__empty-icon" aria-hidden="true">
-                {%- for i in (1..5) -%}
-                  {% render 'icon', name: 'star', size: 22, filled: true %}
-                {%- endfor -%}
-              </div>
-              <h3 class="wm-reviews__empty-title">{{ 'products.product.reviews.empty_heading' | t }}</h3>
-              <p class="wm-reviews__empty-text">Be the first to share your experience with this product.</p>
-              <button
-                type="button"
-                class="wm-btn wm-btn--primary wm-reviews__empty-cta"
-                data-review-empty-trigger
-              >
-                {{ 'products.product.reviews.write_review' | t }}
-              </button>
-            </div>
-
-            <div class="wm-reviews__list" data-reviews-list></div>
-            <div class="wm-reviews__load-more-wrap" data-reviews-load-more-wrap hidden>
-              <button
-                type="button"
-                class="wm-btn wm-btn--secondary wm-reviews__load-more-btn"
-                data-reviews-load-more
-              >
-                Load More Reviews
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -585,6 +752,48 @@
           "type": "text",
           "id": "value",
           "label": "Specification value"
+        }
+      ]
+    },
+    {
+      "type": "review",
+      "name": "Customer Review",
+      "settings": [
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Reviewer name",
+          "default": "Customer"
+        },
+        {
+          "type": "text",
+          "id": "pet",
+          "label": "Pet details or buyer badge (optional)",
+          "default": "Verified Buyer"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Rating (stars)",
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "date",
+          "label": "Review date"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Review headline"
+        },
+        {
+          "type": "textarea",
+          "id": "body",
+          "label": "Review body"
         }
       ]
     }

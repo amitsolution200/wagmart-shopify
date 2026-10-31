@@ -38,6 +38,7 @@
       "sold_out": "Sold Out",
       "unavailable": "Unavailable",
       "in_stock": "In Stock",
+      "description": "No description available for this product.",
       "include_taxes": "MRP inclusive of all taxes. Free shipping across India.",
       "price": {
         "regular_price": "Regular price",

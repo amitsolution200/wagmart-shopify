@@ -1374,22 +1374,20 @@
         });
       });
 
-      // Single-source-of-truth Reviews Controller
+      // Single-source-of-truth Reviews Controller (Exact Match to Shopify Reference Screenshots)
       const handle = tabsSection.dataset.productHandle || 'product';
       const storageKey = `wagmart_verified_reviews_${handle}`;
       const serverCount = parseInt(tabsSection.dataset.serverCount || '0', 10) || 0;
       const serverRating = parseFloat(tabsSection.dataset.serverRating || '0') || 0;
 
-      const formToggleBtn = tabsSection.querySelector('[data-review-form-toggle]');
-      const emptyTriggerBtn = tabsSection.querySelector('[data-review-empty-trigger]');
-      const cancelBtn = tabsSection.querySelector('[data-review-form-cancel]');
-      const cancelSecondaryBtn = tabsSection.querySelector('[data-review-form-cancel-secondary]');
-      const formContainer = tabsSection.querySelector('[data-review-form-container]');
+      // DOM Elements
+      const modalEl = tabsSection.querySelector('[data-review-modal]');
+      const modalTitleEl = tabsSection.querySelector('[data-review-modal-title]');
+      const modalOpenBtns = tabsSection.querySelectorAll('[data-review-modal-trigger]');
+      const modalCloseBtns = tabsSection.querySelectorAll('[data-review-modal-close]');
       const reviewForm = tabsSection.querySelector('[data-review-form]');
       const formErrorEl = tabsSection.querySelector('[data-review-form-error]');
-      const formTitleEl = tabsSection.querySelector('[data-review-form-title]');
       const editingIdInput = reviewForm ? reviewForm.querySelector('[data-review-editing-id]') : null;
-      const defaultFormTitle = formTitleEl ? formTitleEl.textContent.trim() : 'Write a Review';
       const statusBannerEl = tabsSection.querySelector('[data-review-status-banner]');
       const submitBtn = tabsSection.querySelector('[data-review-submit-btn]');
       const submitTextEl = tabsSection.querySelector('[data-review-submit-text]');
@@ -1402,173 +1400,154 @@
       const loadMoreBtn = tabsSection.querySelector('[data-reviews-load-more]');
       const avgScoreEl = tabsSection.querySelector('[data-reviews-avg]');
       const starsWrapEl = tabsSection.querySelector('[data-reviews-stars]');
-      const countLabelEl = tabsSection.querySelector('[data-reviews-count-label]');
+      const headingCountEl = tabsSection.querySelector('[data-reviews-heading-count]');
       const tabBadgeEl = tabsSection.querySelector('[data-reviews-tab-badge]');
       const heroCountEl = document.querySelector('[data-pdp-rating-count]');
+      const heroScoreEl = document.querySelector('.wm-rating-link__score');
+      const filterFeedbackEl = tabsSection.querySelector('[data-reviews-filter-feedback]');
+      const filterFeedbackText = tabsSection.querySelector('[data-reviews-filter-feedback-text]');
+      const clearFilterBtn = tabsSection.querySelector('[data-reviews-clear-filter]');
 
+      // Refine Popover Elements (Screenshot 2)
+      const refineWrap = tabsSection.querySelector('[data-refine-dropdown-wrap]');
+      const refineToggleBtn = tabsSection.querySelector('[data-refine-toggle-btn]');
+      const refinePopover = tabsSection.querySelector('[data-refine-popover]');
+      const refineCheckboxes = tabsSection.querySelectorAll('[data-refine-checkbox]');
+      const refineApplyBtn = tabsSection.querySelector('[data-refine-apply-btn]');
+
+      // Sort Popover Elements
+      const sortWrap = tabsSection.querySelector('[data-sort-dropdown-wrap]');
+      const sortToggleBtn = tabsSection.querySelector('[data-sort-toggle-btn]');
+      const sortPopover = tabsSection.querySelector('[data-sort-popover]');
+      const sortRadios = tabsSection.querySelectorAll('[data-sort-radio]');
+
+      // Mobile Popover Backdrop & Close Buttons
+      const popoverBackdrop = tabsSection.querySelector('[data-reviews-popover-backdrop]');
+      const popoverCloseBtns = tabsSection.querySelectorAll('[data-reviews-popover-close]');
+
+      // State Management
+      let selectedFilterStars = []; // Array of star numbers e.g. [5] or [1, 2]
+      let currentSortOption = 'recent'; // 'recent' | 'highest' | 'lowest' | 'oldest'
       let visibleLimit = 5;
+      const expandedReviewIds = new Set();
 
-      const ensureReviewIds = (list) => {
-        let changed = false;
-        list.forEach((r, idx) => {
-          if (!r.id) {
-            r.id = 'rev_' + (Date.now() - idx * 1000) + '_' + Math.random().toString(36).substring(2, 7);
-            changed = true;
+      // Real Customer Reviews (No dummy/seed reviews - configured via Shopify Admin or submitted on store)
+      // 1. Fetch real customer reviews configured in Shopify Admin (Section Blocks)
+      const getAdminReviews = () => {
+        const adminScript = tabsSection.querySelector('script[data-admin-reviews]');
+        if (!adminScript) return [];
+        try {
+          const parsed = JSON.parse(adminScript.textContent || '[]');
+          if (Array.isArray(parsed)) {
+            return parsed.filter((r) => r && (r.author || r.title || r.body));
+          }
+        } catch (e) {}
+        return [];
+      };
+
+      // 2. Fetch real reviews from Shopify Product Metafields (if populated in Shopify Admin)
+      const getMetafieldReviews = () => {
+        const metaScript = tabsSection.querySelector('script[data-metafield-reviews]');
+        if (!metaScript) return [];
+        try {
+          const parsed = JSON.parse(metaScript.textContent || '[]');
+          if (Array.isArray(parsed)) {
+            return parsed.filter((r) => r && (r.author || r.title || r.body));
+          }
+        } catch (e) {}
+        return [];
+      };
+
+      const escapeHTML = (str) => {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      };
+
+      // In-memory fallback cache for customer reviews submitted in this session
+      let inMemoryCustomerReviews = null;
+
+      // 3. Fetch real customer-submitted reviews from store
+      const getCustomerReviews = () => {
+        if (inMemoryCustomerReviews && Array.isArray(inMemoryCustomerReviews)) {
+          return [...inMemoryCustomerReviews];
+        }
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (!raw) {
+            inMemoryCustomerReviews = [];
+            return [];
+          }
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            // Strip any legacy dummy reviews if previously cached in the browser
+            const realReviews = parsed.filter((r) => r && !String(r.id || '').startsWith('seed_rev_'));
+            inMemoryCustomerReviews = [...realReviews];
+            return realReviews;
+          }
+          inMemoryCustomerReviews = [];
+          return [];
+        } catch (e) {
+          return inMemoryCustomerReviews || [];
+        }
+      };
+
+      const saveCustomerReview = (newReview) => {
+        const list = getCustomerReviews();
+        list.unshift(newReview);
+        inMemoryCustomerReviews = [...list];
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(list));
+        } catch (e) {}
+      };
+
+      // 4. Combined real reviews source: Customer Submissions + Shopify Admin Blocks + Metafields
+      const getAllReviews = () => {
+        const customerList = getCustomerReviews();
+        const adminList = getAdminReviews();
+        const metaList = getMetafieldReviews();
+
+        const seenIds = new Set();
+        const merged = [];
+
+        [...customerList, ...adminList, ...metaList].forEach((rev) => {
+          if (!rev || (!rev.author && !rev.title && !rev.body)) return;
+          // Ensure dummy reviews are never included
+          if (String(rev.id || '').startsWith('seed_rev_')) return;
+
+          const uid = String(rev.id || (rev.author + '_' + rev.title + '_' + rev.rating));
+          if (!seenIds.has(uid)) {
+            seenIds.add(uid);
+            merged.push({
+              ...rev,
+              id: uid,
+              rating: Math.min(5, Math.max(1, Number(rev.rating) || 5)),
+              timestamp: Number(rev.timestamp) || (rev.date ? new Date(rev.date).getTime() : 0) || Date.now()
+            });
           }
         });
-        if (changed) {
-          try {
-            localStorage.setItem(storageKey, JSON.stringify(list));
-          } catch (e) {}
-        }
-        return list;
-      };
 
-      const getLocalReviews = () => {
-        try {
-          const raw = JSON.parse(localStorage.getItem(storageKey) || '[]');
-          return ensureReviewIds(raw);
-        } catch (e) {
-          return [];
-        }
-      };
-
-      const resetFormToCreateMode = () => {
-        if (editingIdInput) editingIdInput.value = '';
-        if (formTitleEl) formTitleEl.textContent = defaultFormTitle;
-        if (submitTextEl) submitTextEl.textContent = 'Submit';
-        if (formErrorEl) formErrorEl.hidden = true;
-        if (reviewForm) reviewForm.reset();
-        setStarValue(5);
+        return merged;
       };
 
       const renderStarsHTML = (ratingValue) => {
-        const rounded = Math.round(Number(ratingValue) || 0);
+        const val = Number(ratingValue) || 5;
+        const half = Math.min(5, Math.max(0, Math.round(val * 2) / 2));
         let html = '';
         for (let i = 1; i <= 5; i++) {
-          const isFilled = i <= rounded;
-          html += `<svg class="wm-icon wm-icon--star" width="15" height="15" viewBox="0 0 24 24" fill="${isFilled ? '#FFA41C' : '#E5E7EB'}" stroke="none" aria-hidden="true"><path d="M11.29 3.48Q12 2 12.71 3.48L14.41 7.05Q14.94 8.15 16.16 8.32L20.08 8.83Q21.7 9.05 20.51 10.18L17.65 12.9Q16.76 13.75 16.98 14.95L17.7 18.84Q18 20.45 16.56 19.67L13.08 17.79Q12 17.2 10.92 17.79L7.44 19.67Q6 20.45 6.3 18.84L7.02 14.95Q7.24 13.75 6.35 12.9L3.49 10.18Q2.3 9.05 3.92 8.83L7.84 8.32Q9.06 8.15 9.59 7.05Z" fill="${isFilled ? '#FFA41C' : '#E5E7EB'}" stroke="none"/></svg>`;
+          if (half >= i) {
+            html += '<span class="wm-reviews__star-symbol is-filled" aria-hidden="true">★</span>';
+          } else if (half >= i - 0.5) {
+            html += '<span class="wm-reviews__star-symbol is-half" aria-hidden="true">★</span>';
+          } else {
+            html += '<span class="wm-reviews__star-symbol is-empty" aria-hidden="true">★</span>';
+          }
         }
         return html;
-      };
-
-      const renderReviews = () => {
-        const localReviews = getLocalReviews();
-        const totalCount = serverCount + localReviews.length;
-        const isLaptop = window.innerWidth >= 1024;
-        if (isLaptop && formContainer) {
-          formContainer.hidden = false;
-        }
-        const isFormOpen = formContainer && !formContainer.hidden;
-
-        if (tabBadgeEl) tabBadgeEl.textContent = `(${totalCount})`;
-
-        if (totalCount === 0) {
-          if (emptyState) emptyState.hidden = isFormOpen && !isLaptop;
-          if (formToggleBtn) formToggleBtn.hidden = true;
-          if (reviewsList) reviewsList.innerHTML = '';
-          if (loadMoreWrap) loadMoreWrap.hidden = true;
-          if (avgScoreEl) avgScoreEl.textContent = '0.0';
-          if (countLabelEl) countLabelEl.textContent = 'Based on 0 reviews';
-          if (heroCountEl) heroCountEl.textContent = 'No reviews yet';
-          if (starsWrapEl) {
-            starsWrapEl.querySelectorAll('svg, svg path, svg polygon').forEach((el) => {
-              el.setAttribute('fill', '#FFA41C');
-              el.setAttribute('stroke', 'none');
-            });
-          }
-          for (let s = 1; s <= 5; s++) {
-            const fill = tabsSection.querySelector(`[data-star-bar-fill="${s}"]`);
-            const pctLabel = tabsSection.querySelector(`[data-star-bar-count="${s}"]`);
-            if (fill) fill.style.width = '0%';
-            if (pctLabel) pctLabel.textContent = '0%';
-          }
-          return;
-        }
-
-        if (emptyState) emptyState.hidden = true;
-        if (formToggleBtn) formToggleBtn.hidden = isFormOpen;
-
-        const localSum = localReviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
-        const combinedAvg =
-          (serverRating * serverCount + localSum) / Math.max(1, totalCount);
-        const roundedStars = Math.round(combinedAvg);
-
-        if (avgScoreEl) avgScoreEl.textContent = combinedAvg.toFixed(1);
-        if (starsWrapEl) {
-          starsWrapEl.querySelectorAll('svg').forEach((svg, idx) => {
-            const fillVal = idx < roundedStars ? '#FFA41C' : '#E5E7EB';
-            svg.setAttribute('fill', fillVal);
-            svg.setAttribute('stroke', 'none');
-            const shape = svg.querySelector('path, polygon');
-            if (shape) {
-              shape.setAttribute('fill', fillVal);
-              shape.setAttribute('stroke', 'none');
-            }
-          });
-        }
-        document.querySelectorAll('.wm-rating-link__stars').forEach((wrap) => {
-          wrap.querySelectorAll('svg').forEach((svg, idx) => {
-            const fillVal = idx < roundedStars ? '#FFA41C' : '#E5E7EB';
-            svg.setAttribute('fill', fillVal);
-            svg.setAttribute('stroke', 'none');
-            const shape = svg.querySelector('path, polygon');
-            if (shape) {
-              shape.setAttribute('fill', fillVal);
-              shape.setAttribute('stroke', 'none');
-            }
-          });
-        });
-        if (countLabelEl) {
-          countLabelEl.textContent = `Based on ${totalCount} review${totalCount === 1 ? '' : 's'}`;
-        }
-        if (heroCountEl) {
-          heroCountEl.textContent = `(${totalCount} review${totalCount === 1 ? '' : 's'})`;
-        }
-
-        // Update 5-star summary bars
-        if (localReviews.length > 0) {
-          for (let s = 1; s <= 5; s++) {
-            const matches = localReviews.filter((r) => Number(r.rating) === s).length;
-            const pct = Math.round((matches / localReviews.length) * 100);
-            const fill = tabsSection.querySelector(`[data-star-bar-fill="${s}"]`);
-            const pctLabel = tabsSection.querySelector(`[data-star-bar-count="${s}"]`);
-            if (fill) fill.style.width = `${pct}%`;
-            if (pctLabel) pctLabel.textContent = `${pct}%`;
-          }
-        }
-
-        if (reviewsList) {
-          const slice = localReviews.slice(0, visibleLimit);
-          reviewsList.innerHTML = slice
-            .map((rev) => {
-              const initial = (rev.author || 'C').trim().charAt(0).toUpperCase();
-              return `
-              <article class="wm-review-item" data-review-id="${escapeHTML(rev.id)}">
-                <div class="wm-review-item__top">
-                  <div class="wm-review-item__author-group">
-                    <span class="wm-review-item__avatar" aria-hidden="true">${escapeHTML(initial)}</span>
-                    <div class="wm-review-item__author-info">
-                      <span class="wm-review-item__author">${escapeHTML(rev.author)}</span>
-                      ${rev.pet ? `<span class="wm-review-item__pet">${escapeHTML(rev.pet)}</span>` : ''}
-                    </div>
-                  </div>
-                  <div class="wm-review-item__right">
-                    <span class="wm-review-item__stars" aria-label="${escapeHTML(rev.rating)} out of 5 stars">${renderStarsHTML(rev.rating)}</span>
-                    <span class="wm-review-item__date">${escapeHTML(rev.date)}</span>
-                  </div>
-                </div>
-                <h4 class="wm-review-item__title">${escapeHTML(rev.title)}</h4>
-                <p class="wm-review-item__body">${escapeHTML(rev.body)}</p>
-              </article>
-            `;
-            })
-            .join('');
-        }
-
-        if (loadMoreWrap) {
-          loadMoreWrap.hidden = localReviews.length <= visibleLimit;
-        }
       };
 
       const setStarValue = (val) => {
@@ -1576,124 +1555,362 @@
         const clamped = Math.min(5, Math.max(1, Number(val) || 5));
         starInput.value = String(clamped);
         if (starCaption) {
-          starCaption.textContent = `${clamped} out of 5 star${clamped === 1 ? '' : 's'}`;
+          starCaption.textContent = `${clamped} out of 5 stars`;
         }
         const starBtns = Array.from(starPicker.querySelectorAll('[data-star-value]'));
         starBtns.forEach((b) => {
           const bVal = Number(b.dataset.starValue);
-          const selected = bVal <= clamped;
-          b.classList.toggle('is-selected', selected);
+          const isSelected = bVal <= clamped;
+          b.classList.toggle('is-selected', isSelected);
           b.setAttribute('aria-checked', String(bVal === clamped));
-          const svg = b.querySelector('svg');
-          const shape = b.querySelector('path, polygon');
-          const fillVal = selected ? '#FFA41C' : '#E5E7EB';
-          if (svg) {
-            svg.setAttribute('fill', fillVal);
-            svg.setAttribute('stroke', 'none');
-          }
-          if (shape) {
-            shape.setAttribute('fill', fillVal);
-            shape.setAttribute('stroke', 'none');
+          const starIcon = b.querySelector('.wm-star-picker__star-icon');
+          if (starIcon) {
+            starIcon.style.fill = isSelected ? '#FFA41C' : '#D1D5DB';
           }
         });
       };
 
-      const toggleForm = (show) => {
-        if (!formContainer) return;
-        const isLaptop = window.innerWidth >= 1024;
-        formContainer.hidden = isLaptop ? false : !show;
+      const resetForm = () => {
+        if (editingIdInput) editingIdInput.value = '';
+        if (modalTitleEl) modalTitleEl.textContent = 'Write a review';
+        if (submitTextEl) submitTextEl.textContent = 'Submit Review';
         if (formErrorEl) formErrorEl.hidden = true;
-        if (formToggleBtn) formToggleBtn.setAttribute('aria-expanded', String(isLaptop ? true : show));
-        renderReviews();
-        if (show) {
-          formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          const firstInput = formContainer.querySelector('input[name="author"]');
-          if (firstInput) setTimeout(() => firstInput.focus({ preventScroll: true }), 150);
+        if (reviewForm) {
+          reviewForm.reset();
+          reviewForm.querySelectorAll('.has-error').forEach((el) => {
+            el.classList.remove('has-error');
+            el.removeAttribute('aria-invalid');
+          });
+          reviewForm.querySelectorAll('[data-field-error]').forEach((el) => {
+            el.hidden = true;
+          });
+        }
+        setStarValue(5);
+      };
+
+      const openModal = () => {
+        if (!modalEl) return;
+        resetForm();
+        modalEl.hidden = false;
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('is-reviews-popover-open');
+        const firstInput = modalEl.querySelector('input[name="first_name"]') || modalEl.querySelector('input[name="author"]');
+        if (firstInput) setTimeout(() => firstInput.focus(), 80);
+      };
+
+      const closeModal = () => {
+        if (!modalEl) return;
+        modalEl.hidden = true;
+        document.body.style.overflow = '';
+        document.body.classList.remove('is-reviews-popover-open');
+      };
+
+      // Popover Management Helpers (Mobile Sheet & Desktop Dropdown)
+      const openPopover = (popover, toggleBtn, otherPopover, otherBtn) => {
+        if (!popover) return;
+        if (otherPopover) {
+          otherPopover.hidden = true;
+          if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+        }
+        popover.hidden = false;
+        if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+        if (popoverBackdrop) popoverBackdrop.hidden = false;
+        document.body.classList.add('is-reviews-popover-open');
+      };
+
+      const closeAllPopovers = () => {
+        if (refinePopover) refinePopover.hidden = true;
+        if (sortPopover) sortPopover.hidden = true;
+        if (refineToggleBtn) refineToggleBtn.setAttribute('aria-expanded', 'false');
+        if (sortToggleBtn) sortToggleBtn.setAttribute('aria-expanded', 'false');
+        if (popoverBackdrop) popoverBackdrop.hidden = true;
+        document.body.classList.remove('is-reviews-popover-open');
+      };
+
+      // Close popovers on click outside or on backdrop
+      document.addEventListener('click', (e) => {
+        const isBackdrop = popoverBackdrop && e.target === popoverBackdrop;
+        if (isBackdrop) {
+          closeAllPopovers();
+          return;
+        }
+
+        const insideRefine = refineWrap && refineWrap.contains(e.target);
+        const insideSort = sortWrap && sortWrap.contains(e.target);
+
+        if (!insideRefine && refinePopover && !refinePopover.hidden) {
+          refinePopover.hidden = true;
+          if (refineToggleBtn) refineToggleBtn.setAttribute('aria-expanded', 'false');
+        }
+        if (!insideSort && sortPopover && !sortPopover.hidden) {
+          sortPopover.hidden = true;
+          if (sortToggleBtn) sortToggleBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        if ((!refinePopover || refinePopover.hidden) && (!sortPopover || sortPopover.hidden)) {
+          if (popoverBackdrop) popoverBackdrop.hidden = true;
+          document.body.classList.remove('is-reviews-popover-open');
+        }
+      });
+
+      // Escape key handler for modal & popovers
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (modalEl && !modalEl.hidden) {
+            closeModal();
+          }
+          closeAllPopovers();
+        }
+      });
+
+      // Close buttons inside popovers
+      popoverCloseBtns.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closeAllPopovers();
+        });
+      });
+
+      // Refine Toggle Button Handler
+      if (refineToggleBtn && refinePopover) {
+        refineToggleBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (refinePopover.hidden) {
+            openPopover(refinePopover, refineToggleBtn, sortPopover, sortToggleBtn);
+          } else {
+            closeAllPopovers();
+          }
+        });
+      }
+
+      // Sort Toggle Button Handler
+      if (sortToggleBtn && sortPopover) {
+        sortToggleBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (sortPopover.hidden) {
+            openPopover(sortPopover, sortToggleBtn, refinePopover, refineToggleBtn);
+          } else {
+            closeAllPopovers();
+          }
+        });
+      }
+
+      // Refine Apply Button Handler (Screenshot 2)
+      if (refineApplyBtn) {
+        refineApplyBtn.addEventListener('click', () => {
+          const checkedValues = [];
+          refineCheckboxes.forEach((cb) => {
+            if (cb.checked) {
+              checkedValues.push(Number(cb.value));
+            }
+          });
+          selectedFilterStars = checkedValues;
+          closeAllPopovers();
+          visibleLimit = 5;
+          renderReviews();
+        });
+      }
+
+      // Sort Radio Options Handler
+      sortRadios.forEach((radio) => {
+        radio.addEventListener('change', () => {
+          currentSortOption = radio.value;
+          closeAllPopovers();
+          renderReviews();
+        });
+      });
+
+      // Clear filter button
+      if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+          selectedFilterStars = [];
+          refineCheckboxes.forEach((cb) => (cb.checked = false));
+          renderReviews();
+        });
+      }
+
+      // Main Render Function
+      const renderReviews = () => {
+        const allReviews = getAllReviews();
+        const totalCount = allReviews.length;
+
+        // 1. Calculate overall average rating and star counts
+        const starCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let totalRatingSum = 0;
+
+        allReviews.forEach((r) => {
+          const s = Math.min(5, Math.max(1, Number(r.rating) || 5));
+          starCounts[s] = (starCounts[s] || 0) + 1;
+          totalRatingSum += s;
+        });
+
+        // Round strictly to 0.5 increments: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5
+        const rawAvg = totalCount > 0 ? totalRatingSum / totalCount : 0;
+        const halfScore = Math.min(5, Math.max(0, Math.round(rawAvg * 2) / 2));
+        const formattedScore = totalCount > 0
+          ? (halfScore % 1 === 0 ? String(halfScore) : halfScore.toFixed(1))
+          : '0';
+
+        // 2. Update Header Count & Badges
+        const formattedTotal = totalCount.toLocaleString();
+        if (headingCountEl) headingCountEl.textContent = `(${formattedTotal})`;
+        if (tabBadgeEl) tabBadgeEl.textContent = `(${formattedTotal})`;
+        if (heroCountEl) heroCountEl.textContent = `(${formattedTotal} reviews)`;
+        if (heroScoreEl && totalCount > 0) heroScoreEl.textContent = formattedScore;
+
+        // 3. Update Big Score & Header Stars (Half-star support)
+        if (avgScoreEl) avgScoreEl.textContent = formattedScore;
+        if (starsWrapEl) {
+          const starSpans = starsWrapEl.querySelectorAll('.wm-reviews__star-symbol');
+          starSpans.forEach((span, idx) => {
+            span.classList.remove('is-filled', 'is-half', 'is-empty');
+            const starNum = idx + 1;
+            if (totalCount > 0 && halfScore >= starNum) {
+              span.classList.add('is-filled');
+            } else if (totalCount > 0 && halfScore >= starNum - 0.5) {
+              span.classList.add('is-half');
+            } else {
+              span.classList.add('is-empty');
+            }
+          });
+          starsWrapEl.setAttribute('aria-label', `${formattedScore} out of 5 stars`);
+        }
+
+        // 4. Update 5-to-1 Distribution Bars
+        for (let s = 1; s <= 5; s++) {
+          const count = starCounts[s] || 0;
+          const pct = totalCount > 0 ? Math.round((count / totalCount) * 100) : 0;
+          const fill = tabsSection.querySelector(`[data-star-bar-fill="${s}"]`);
+          const countBtn = tabsSection.querySelector(`[data-star-bar-count="${s}"]`);
+          const refineCount = tabsSection.querySelector(`[data-refine-star-count="${s}"]`);
+
+          if (fill) fill.style.width = `${pct}%`;
+          if (countBtn) countBtn.textContent = count > 999 ? (count / 1000).toFixed(1) + 'K' : String(count);
+          if (refineCount) refineCount.textContent = `(${count})`;
+        }
+
+        // 5. Filter reviews
+        let filtered = [...allReviews];
+        if (selectedFilterStars.length > 0) {
+          filtered = filtered.filter((r) => selectedFilterStars.includes(Number(r.rating) || 5));
+        }
+
+        // Update filter feedback banner
+        if (filterFeedbackEl && filterFeedbackText) {
+          if (selectedFilterStars.length > 0) {
+            const starText = selectedFilterStars.sort((a, b) => b - a).map((s) => `${s}★`).join(', ');
+            filterFeedbackText.textContent = `Filtered by ${starText} (${filtered.length} review${filtered.length === 1 ? '' : 's'})`;
+            filterFeedbackEl.hidden = false;
+          } else {
+            filterFeedbackEl.hidden = true;
+          }
+        }
+
+        // 6. Sort reviews
+        if (currentSortOption === 'highest') {
+          filtered.sort((a, b) => (Number(b.rating) || 5) - (Number(a.rating) || 5));
+        } else if (currentSortOption === 'lowest') {
+          filtered.sort((a, b) => (Number(a.rating) || 5) - (Number(b.rating) || 5));
+        } else if (currentSortOption === 'oldest') {
+          filtered.sort((a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0));
+        } else {
+          // 'recent' by default
+          filtered.sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0));
+        }
+
+        // 7. Render Empty State or List
+        if (filtered.length === 0) {
+          if (reviewsList) reviewsList.innerHTML = '';
+          if (emptyState) emptyState.hidden = false;
+          if (loadMoreWrap) loadMoreWrap.hidden = true;
+          return;
+        }
+
+        if (emptyState) emptyState.hidden = true;
+
+        // 8. Render Review Cards
+        const paged = filtered.slice(0, visibleLimit);
+        if (reviewsList) {
+          reviewsList.innerHTML = paged
+            .map((rev) => {
+              const isLong = (rev.body || '').length > 200;
+              const isExpanded = expandedReviewIds.has(String(rev.id));
+              const displayBody = isLong && !isExpanded
+                ? rev.body.slice(0, 200).trim() + ' ...'
+                : rev.body;
+
+              return `
+                <article class="wm-review-item" data-review-id="${escapeHTML(rev.id)}">
+                  <div class="wm-review-item__reviewer-col">
+                    <span class="wm-review-item__name">${escapeHTML(rev.author || 'Verified Customer')}</span>
+                    ${rev.pet ? `<span class="wm-review-item__meta">${escapeHTML(rev.pet)}</span>` : '<span class="wm-review-item__meta">Verified Buyer</span>'}
+                  </div>
+                  <div class="wm-review-item__content-col">
+                    <div class="wm-review-item__meta-row">
+                      <span class="wm-review-item__stars" aria-label="${escapeHTML(rev.rating)} out of 5 stars">
+                        ${renderStarsHTML(rev.rating)}
+                      </span>
+                      <span class="wm-review-item__date">${escapeHTML(rev.date || 'Recent')}</span>
+                    </div>
+                    ${rev.title ? `<h4 class="wm-review-item__headline">${escapeHTML(rev.title)}</h4>` : ''}
+                    <p class="wm-review-item__body">${escapeHTML(displayBody)}</p>
+                    ${
+                      isLong
+                        ? `<button type="button" class="wm-review-item__show-more" data-show-more-toggle="${escapeHTML(rev.id)}">
+                            ${isExpanded ? 'Show less' : 'Show more'}
+                          </button>`
+                        : ''
+                    }
+                  </div>
+                </article>
+              `;
+            })
+            .join('');
+        }
+
+        // 9. Load More Button visibility
+        if (loadMoreWrap) {
+          loadMoreWrap.hidden = filtered.length <= visibleLimit;
         }
       };
 
+      // Review List Event Delegation: Show more / Show less toggle
       if (reviewsList) {
         reviewsList.addEventListener('click', (e) => {
-          const actionBtn = e.target.closest('[data-review-action]');
-          if (!actionBtn) return;
-          const action = actionBtn.dataset.reviewAction;
-          const reviewId = actionBtn.dataset.reviewId;
-          if (!reviewId) return;
+          const showMoreBtn = e.target.closest('[data-show-more-toggle]');
+          if (!showMoreBtn) return;
+          const revId = showMoreBtn.dataset.showMoreToggle;
+          if (!revId) return;
 
-          const list = getLocalReviews();
-          const targetIndex = list.findIndex((r) => String(r.id) === String(reviewId));
-          if (targetIndex === -1) return;
-
-          if (action === 'delete') {
-            if (!window.confirm('Are you sure you want to delete this review?')) return;
-            list.splice(targetIndex, 1);
-            try {
-              localStorage.setItem(storageKey, JSON.stringify(list));
-            } catch (err) {}
-            renderReviews();
-            if (statusBannerEl) {
-              statusBannerEl.textContent = 'Your review has been deleted.';
-              statusBannerEl.hidden = false;
-            }
-          } else if (action === 'edit') {
-            const rev = list[targetIndex];
-            if (editingIdInput) editingIdInput.value = rev.id;
-
-            const authorInput = reviewForm ? reviewForm.querySelector('[name="author"]') : null;
-            const petInput = reviewForm ? reviewForm.querySelector('[name="pet"]') : null;
-            const titleInput = reviewForm ? reviewForm.querySelector('[name="title"]') : null;
-            const bodyInput = reviewForm ? reviewForm.querySelector('[name="body"]') : null;
-
-            if (authorInput) authorInput.value = rev.author || '';
-            if (petInput) petInput.value = rev.pet || '';
-            if (titleInput) titleInput.value = rev.title || '';
-            if (bodyInput) bodyInput.value = rev.body || '';
-            setStarValue(rev.rating || 5);
-
-            if (formTitleEl) formTitleEl.textContent = 'Edit Your Review';
-            if (submitTextEl) submitTextEl.textContent = 'Update Review';
-
-            if (statusBannerEl) statusBannerEl.hidden = true;
-            toggleForm(true);
-
-            if (titleInput) {
-              setTimeout(() => titleInput.focus(), 150);
-            }
-          }
-        });
-      }
-
-      if (formToggleBtn) {
-        formToggleBtn.addEventListener('click', () => {
-          if (statusBannerEl) statusBannerEl.hidden = true;
-          if (formContainer.hidden) {
-            resetFormToCreateMode();
-            toggleForm(true);
+          if (expandedReviewIds.has(revId)) {
+            expandedReviewIds.delete(revId);
           } else {
-            resetFormToCreateMode();
-            toggleForm(false);
+            expandedReviewIds.add(revId);
           }
+          renderReviews();
         });
       }
-      if (emptyTriggerBtn) {
-        emptyTriggerBtn.addEventListener('click', () => {
-          if (statusBannerEl) statusBannerEl.hidden = true;
-          resetFormToCreateMode();
-          toggleForm(true);
-        });
+
+      // Bar count click to filter by that star rating
+      for (let s = 1; s <= 5; s++) {
+        const countBtn = tabsSection.querySelector(`[data-star-bar-count="${s}"]`);
+        if (countBtn) {
+          countBtn.addEventListener('click', () => {
+            if (selectedFilterStars.includes(s) && selectedFilterStars.length === 1) {
+              selectedFilterStars = [];
+            } else {
+              selectedFilterStars = [s];
+            }
+            refineCheckboxes.forEach((cb) => {
+              cb.checked = selectedFilterStars.includes(Number(cb.value));
+            });
+            visibleLimit = 5;
+            renderReviews();
+          });
+        }
       }
-      if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-          resetFormToCreateMode();
-          toggleForm(false);
-        });
-      }
-      if (cancelSecondaryBtn) {
-        cancelSecondaryBtn.addEventListener('click', () => {
-          resetFormToCreateMode();
-          toggleForm(false);
-        });
-      }
+
+      // Load More Reviews Handler
       if (loadMoreBtn) {
         loadMoreBtn.addEventListener('click', () => {
           visibleLimit += 5;
@@ -1701,6 +1918,22 @@
         });
       }
 
+      // Modal Open Triggers
+      modalOpenBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (statusBannerEl) statusBannerEl.hidden = true;
+          openModal();
+        });
+      });
+
+      // Modal Close Triggers (backdrop, close X, cancel button)
+      modalCloseBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          closeModal();
+        });
+      });
+
+      // Star Picker Inside Modal
       if (starPicker && starInput) {
         const starBtns = Array.from(starPicker.querySelectorAll('[data-star-value]'));
         starBtns.forEach((btn, idx) => {
@@ -1721,91 +1954,121 @@
         });
       }
 
+      // Review Form Submission Handler & Real-Time Inline Validation (Reference Image 2)
       if (reviewForm) {
+        // Clear field validation error in real time as the user types
+        reviewForm.addEventListener('input', (e) => {
+          const target = e.target;
+          if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+            if (target.value.trim()) {
+              target.classList.remove('has-error');
+              target.removeAttribute('aria-invalid');
+              const name = target.getAttribute('name');
+              if (name) {
+                const err = reviewForm.querySelector(`[data-field-error="${name}"]`);
+                if (err) err.hidden = true;
+              }
+            }
+          }
+        });
+
         reviewForm.addEventListener('submit', (e) => {
           e.preventDefault();
           if (submitBtn && submitBtn.disabled) return;
 
           const fd = new FormData(reviewForm);
-          const author = String(fd.get('author') || '').trim();
-          const pet = String(fd.get('pet') || '').trim();
+          const firstName = String(fd.get('first_name') || '').trim();
+          const lastName = String(fd.get('last_name') || '').trim();
+          const author = [firstName, lastName].filter(Boolean).join(' ') || String(fd.get('author') || '').trim();
           const title = String(fd.get('title') || '').trim();
           const body = String(fd.get('body') || '').trim();
           const rating = Number(fd.get('rating')) || 5;
 
-          if (!author || !title || !body) {
-            if (formErrorEl) {
-              formErrorEl.textContent = 'Please complete all required fields (Your Name, Review Headline, and Your Review).';
-              formErrorEl.hidden = false;
+          const fieldsToValidate = [
+            { name: 'first_name', val: firstName, el: reviewForm.querySelector('[name="first_name"]') },
+            { name: 'last_name', val: lastName, el: reviewForm.querySelector('[name="last_name"]') },
+            { name: 'title', val: title, el: reviewForm.querySelector('[name="title"]') },
+            { name: 'body', val: body, el: reviewForm.querySelector('[name="body"]') }
+          ];
+
+          let hasError = false;
+          let firstInvalidEl = null;
+
+          fieldsToValidate.forEach((field) => {
+            const errSpan = reviewForm.querySelector(`[data-field-error="${field.name}"]`);
+            if (!field.val) {
+              hasError = true;
+              if (field.el) {
+                field.el.classList.add('has-error');
+                field.el.setAttribute('aria-invalid', 'true');
+                if (!firstInvalidEl) firstInvalidEl = field.el;
+              }
+              if (errSpan) errSpan.hidden = false;
+            } else {
+              if (field.el) {
+                field.el.classList.remove('has-error');
+                field.el.removeAttribute('aria-invalid');
+              }
+              if (errSpan) errSpan.hidden = true;
             }
-            const missingInput =
-              (!author && reviewForm.querySelector('[name="author"]')) ||
-              (!title && reviewForm.querySelector('[name="title"]')) ||
-              (!body && reviewForm.querySelector('[name="body"]'));
-            if (missingInput) missingInput.focus();
+          });
+
+          if (hasError) {
+            if (firstInvalidEl) firstInvalidEl.focus();
             return;
           }
 
           if (formErrorEl) formErrorEl.hidden = true;
           if (submitBtn) submitBtn.disabled = true;
+          if (submitTextEl) submitTextEl.textContent = 'Submitting...';
 
-          const editingId = editingIdInput ? editingIdInput.value.trim() : '';
-          if (submitTextEl) {
-            submitTextEl.textContent = editingId ? 'Updating...' : 'Submitting...';
-          }
+          const now = new Date();
+          const formattedDate = now.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          });
 
-          const list = getLocalReviews();
+          const newReview = {
+            id: 'rev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+            author,
+            pet: '',
+            title,
+            body,
+            rating,
+            date: formattedDate,
+            timestamp: Date.now()
+          };
 
-          if (editingId) {
-            const editIdx = list.findIndex((r) => String(r.id) === String(editingId));
-            if (editIdx > -1) {
-              list[editIdx].rating = rating;
-              list[editIdx].author = author;
-              list[editIdx].pet = pet;
-              list[editIdx].title = title;
-              list[editIdx].body = body;
-              list[editIdx].date = new Date().toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              });
-            }
-          } else {
-            const nextReview = {
-              id: 'rev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-              rating,
-              author,
-              pet,
-              title,
-              body,
-              date: new Date().toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              }),
-            };
-            list.unshift(nextReview);
-          }
-
-          try {
-            localStorage.setItem(storageKey, JSON.stringify(list));
-          } catch (err) {}
+          saveCustomerReview(newReview);
 
           setTimeout(() => {
             if (submitBtn) submitBtn.disabled = false;
-            resetFormToCreateMode();
-            toggleForm(false);
+            closeModal();
+            resetForm();
+            selectedFilterStars = [];
+            refineCheckboxes.forEach((cb) => (cb.checked = false));
             renderReviews();
+
             if (statusBannerEl) {
-              statusBannerEl.textContent = editingId
-                ? 'Your review has been updated successfully!'
-                : 'Thank you! Your review has been submitted.';
+              statusBannerEl.textContent = 'Thank you! Your review has been submitted successfully.';
               statusBannerEl.hidden = false;
+              statusBannerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
-          }, 220);
+          }, 240);
         });
       }
 
+      // Smooth link from hero rating anchor to Reviews tab
+      document.querySelectorAll('[data-review-anchor]').forEach((anchor) => {
+        anchor.addEventListener('click', (e) => {
+          e.preventDefault();
+          activateTab('reviews', true);
+          tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      // Initial Render
       renderReviews();
     });
   }

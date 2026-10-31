@@ -384,7 +384,9 @@
                         {%- endfor -%}
                       </span>
                       {%- if rating_count > 0 -%}
-                        <span class="wm-rating-link__score">{{ rating_val | round: 1 }}</span>
+                        {%- assign hero_half = rating_val | times: 2.0 | round | divided_by: 2.0 -%}
+                        {%- assign hero_mod = hero_half | modulo: 1 -%}
+                        <span class="wm-rating-link__score">{%- if hero_mod == 0 -%}{{ hero_half | round }}{%- else -%}{{ hero_half }}{%- endif -%}</span>
                         <span class="wm-rating-link__count" data-pdp-rating-count>
                           {{ 'products.product.reviews.count_label' | t: count: rating_count }}
                         </span>
