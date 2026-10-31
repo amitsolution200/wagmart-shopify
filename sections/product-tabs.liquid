@@ -597,61 +597,40 @@
                 </div>
               </div>
 
-              <!-- First Name & Last Name (Removed Pet Breed & Coat as instructed) -->
+              <!-- Full Name & Email Address Row -->
               <div class="wm-review-form__row">
                 <div class="wm-review-form__field">
-                  <label for="ModalFirstName-{{ section.id }}" class="wm-review-form__label">
-                    First Name <span class="wm-review-form__req" aria-hidden="true">*</span>
+                  <label for="ModalAuthor-{{ section.id }}" class="wm-review-form__label">
+                    Full Name <span class="wm-review-form__req" aria-hidden="true">*</span>
                   </label>
                   <input
                     type="text"
-                    id="ModalFirstName-{{ section.id }}"
-                    name="first_name"
+                    id="ModalAuthor-{{ section.id }}"
+                    name="author"
                     required
-                    autocomplete="given-name"
+                    autocomplete="name"
                     class="wm-review-form__input"
-                    placeholder="e.g. Rahul"
-                    value="{% if customer %}{{ customer.first_name | escape }}{% endif %}"
+                    placeholder="e.g. Rahul Sharma"
+                    value="{% if customer %}{{ customer.name | default: customer.first_name | escape }}{% endif %}"
                   >
-                  <span class="wm-review-form__field-error" data-field-error="first_name" hidden>First name is required</span>
+                  <span class="wm-review-form__field-error" data-field-error="author" hidden>Full name is required</span>
                 </div>
                 <div class="wm-review-form__field">
-                  <label for="ModalLastName-{{ section.id }}" class="wm-review-form__label">
-                    Last Name <span class="wm-review-form__req" aria-hidden="true">*</span>
+                  <label for="ModalEmail-{{ section.id }}" class="wm-review-form__label">
+                    Email Address <span class="wm-review-form__req" aria-hidden="true">*</span>
                   </label>
                   <input
-                    type="text"
-                    id="ModalLastName-{{ section.id }}"
-                    name="last_name"
+                    type="email"
+                    id="ModalEmail-{{ section.id }}"
+                    name="email"
                     required
-                    autocomplete="family-name"
+                    autocomplete="email"
                     class="wm-review-form__input"
-                    placeholder="e.g. Sharma"
-                    value="{% if customer %}{{ customer.last_name | escape }}{% endif %}"
+                    placeholder="you@example.com"
+                    value="{% if customer %}{{ customer.email | escape }}{% endif %}"
                   >
-                  <span class="wm-review-form__field-error" data-field-error="last_name" hidden>Last name is required</span>
+                  <span class="wm-review-form__field-error" data-field-error="email" hidden>Please enter a valid email address</span>
                 </div>
-              </div>
-
-              <!-- Email Field (Required by Judge.me) -->
-              <div class="wm-review-form__field">
-                <label for="ModalEmail-{{ section.id }}" class="wm-review-form__label">
-                  Email Address <span class="wm-review-form__req" aria-hidden="true">*</span>
-                </label>
-                <input
-                  type="email"
-                  id="ModalEmail-{{ section.id }}"
-                  name="email"
-                  required
-                  autocomplete="email"
-                  class="wm-review-form__input"
-                  placeholder="you@example.com"
-                  value="{% if customer %}{{ customer.email | escape }}{% endif %}"
-                >
-                <span class="wm-review-form__field-error" data-field-error="email" hidden>Please enter a valid email address</span>
-                <p class="wm-review-form__hint" style="font-size: 12px; color: #6b7280; margin-top: 4px; margin-bottom: 0;">
-                  Required by Judge.me to verify your review. We never spam.
-                </p>
               </div>
 
               <!-- Review Title -->

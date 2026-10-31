@@ -1594,7 +1594,7 @@
         modalEl.hidden = false;
         document.body.style.overflow = 'hidden';
         document.body.classList.add('is-reviews-popover-open');
-        const firstInput = modalEl.querySelector('input[name="first_name"]') || modalEl.querySelector('input[name="author"]');
+        const firstInput = modalEl.querySelector('input[name="author"]') || modalEl.querySelector('input[name="first_name"]');
         if (firstInput) setTimeout(() => firstInput.focus(), 80);
       };
 
@@ -1986,9 +1986,7 @@
           if (submitBtn && submitBtn.disabled) return;
 
           const fd = new FormData(reviewForm);
-          const firstName = String(fd.get('first_name') || '').trim();
-          const lastName = String(fd.get('last_name') || '').trim();
-          const author = [firstName, lastName].filter(Boolean).join(' ') || String(fd.get('author') || '').trim();
+          const author = String(fd.get('author') || [fd.get('first_name'), fd.get('last_name')].filter(Boolean).join(' ') || '').trim();
           const email = String(fd.get('email') || '').trim();
           const title = String(fd.get('title') || '').trim();
           const body = String(fd.get('body') || '').trim();
@@ -1997,8 +1995,7 @@
           const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
           const fieldsToValidate = [
-            { name: 'first_name', val: firstName, el: reviewForm.querySelector('[name="first_name"]') },
-            { name: 'last_name', val: lastName, el: reviewForm.querySelector('[name="last_name"]') },
+            { name: 'author', val: author, el: reviewForm.querySelector('[name="author"]') || reviewForm.querySelector('[name="first_name"]') },
             { name: 'email', val: isEmailValid, el: reviewForm.querySelector('[name="email"]') },
             { name: 'title', val: title, el: reviewForm.querySelector('[name="title"]') },
             { name: 'body', val: body, el: reviewForm.querySelector('[name="body"]') }
