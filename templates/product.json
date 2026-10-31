@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
@@ -69,15 +78,6 @@
             "payment_info": "Cash on Delivery (COD), UPI, Cards & NetBanking accepted",
             "return_policy": "Easy 30-day returns & hassle-free replacement guarantee"
           }
-        },
-        "pincode_checker": {
-          "type": "pincode_checker",
-          "disabled": true,
-          "settings": {
-            "api_endpoint": "",
-            "delivery_days": 3,
-            "enable_cod": true
-          }
         }
       },
       "block_order": [
@@ -94,6 +94,7 @@
       ],
       "settings": {
         "show_breadcrumb": true,
+        "show_sku": true,
         "filter_unrelated_media": false,
         "enable_video_looping": false,
         "pincode_api_endpoint": "",
@@ -103,7 +104,6 @@
     },
     "benefits": {
       "type": "product-benefits",
-      "disabled": true,
       "blocks": {
         "benefit_1": {
           "type": "benefit",
@@ -144,6 +144,7 @@
         "benefit_3",
         "benefit_4"
       ],
+      "disabled": true,
       "settings": {
         "heading": "Grooming that feels like a belly rub.",
         "subheading": "Most dogs and cats run from metal wire brushes. The Pet Grooming Glove turns daily deshedding into calm, five-finger physical contact."
@@ -151,7 +152,6 @@
     },
     "how_to_use": {
       "type": "product-how-to-use",
-      "disabled": true,
       "blocks": {
         "step_1": {
           "type": "step",
@@ -180,6 +180,7 @@
         "step_2",
         "step_3"
       ],
+      "disabled": true,
       "settings": {
         "heading": "Three minutes from loose shed to a clean coat.",
         "subheading": "Use on a dry coat in the living room or with shampoo during a warm bath."
@@ -187,7 +188,6 @@
     },
     "breed_guide": {
       "type": "product-breed-guide",
-      "disabled": true,
       "blocks": {
         "coat_1": {
           "type": "coat_row",
@@ -232,6 +232,7 @@
         "coat_3",
         "coat_4"
       ],
+      "disabled": true,
       "settings": {
         "heading": "Coat & breed guide",
         "subheading": "Tailored grooming frequency for common Indian dog and cat coats, from humid coastal summers to heavy seasonal shedding.",
@@ -243,8 +244,20 @@
     },
     "tabs": {
       "type": "product-tabs",
-      "blocks": {},
-      "block_order": [],
+      "blocks": {
+        "judge_me_reviews_review_widget_zJzXdW": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "sample_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_zJzXdW"
+      ],
       "settings": {
         "use_product_description": true,
         "desc_heading": "",
@@ -269,7 +282,6 @@
     },
     "faq": {
       "type": "product-faq",
-      "disabled": true,
       "blocks": {
         "faq_1": {
           "type": "faq_item",
@@ -314,6 +326,7 @@
         "faq_4",
         "faq_5"
       ],
+      "disabled": true,
       "settings": {
         "heading": "Frequently asked questions",
         "subheading": "Practical answers on sizing, coat compatibility, bath-time use, and Indian shipping.",
@@ -323,7 +336,9 @@
     "related-products": {
       "type": "related-products",
       "settings": {
-        "products_to_show": 5
+        "heading": "More featured products",
+        "products_to_show": 5,
+        "show_view_all": true
       }
     }
   },
