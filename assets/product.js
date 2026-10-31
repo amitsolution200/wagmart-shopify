@@ -1389,6 +1389,7 @@
       const formErrorEl = tabsSection.querySelector('[data-review-form-error]');
       const editingIdInput = reviewForm ? reviewForm.querySelector('[data-review-editing-id]') : null;
       const statusBannerEl = tabsSection.querySelector('[data-review-status-banner]');
+      let statusBannerTimeout = null;
       const submitBtn = tabsSection.querySelector('[data-review-submit-btn]');
       const submitTextEl = tabsSection.querySelector('[data-review-submit-text]');
       const starPicker = tabsSection.querySelector('[data-star-picker]');
@@ -1921,6 +1922,10 @@
       // Modal Open Triggers
       modalOpenBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
+          if (statusBannerTimeout) {
+            clearTimeout(statusBannerTimeout);
+            statusBannerTimeout = null;
+          }
           if (statusBannerEl) statusBannerEl.hidden = true;
           openModal();
         });
@@ -2088,9 +2093,20 @@
             renderReviews();
 
             if (statusBannerEl) {
-              statusBannerEl.textContent = 'Thank you! Your review has been submitted to Judge.me successfully.';
+              if (statusBannerTimeout) {
+                clearTimeout(statusBannerTimeout);
+                statusBannerTimeout = null;
+              }
+              statusBannerEl.textContent = 'Thank you! Your review has been submitted successfully.';
               statusBannerEl.hidden = false;
               statusBannerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+              statusBannerTimeout = setTimeout(() => {
+                if (statusBannerEl) {
+                  statusBannerEl.hidden = true;
+                }
+                statusBannerTimeout = null;
+              }, 2000);
             }
           }, 240);
         });
