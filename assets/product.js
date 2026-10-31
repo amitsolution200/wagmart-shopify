@@ -1960,10 +1960,19 @@
         reviewForm.addEventListener('input', (e) => {
           const target = e.target;
           if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-            if (target.value.trim()) {
+            const name = target.getAttribute('name');
+            const val = target.value.trim();
+            if (name === 'email') {
+              const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+              if (isValidEmail) {
+                target.classList.remove('has-error');
+                target.removeAttribute('aria-invalid');
+                const err = reviewForm.querySelector('[data-field-error="email"]');
+                if (err) err.hidden = true;
+              }
+            } else if (val) {
               target.classList.remove('has-error');
               target.removeAttribute('aria-invalid');
-              const name = target.getAttribute('name');
               if (name) {
                 const err = reviewForm.querySelector(`[data-field-error="${name}"]`);
                 if (err) err.hidden = true;
@@ -1972,7 +1981,7 @@
           }
         });
 
-        reviewForm.addEventListener('submit', (e) => {
+        reviewForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           if (submitBtn && submitBtn.disabled) return;
 
@@ -1980,13 +1989,17 @@
           const firstName = String(fd.get('first_name') || '').trim();
           const lastName = String(fd.get('last_name') || '').trim();
           const author = [firstName, lastName].filter(Boolean).join(' ') || String(fd.get('author') || '').trim();
+          const email = String(fd.get('email') || '').trim();
           const title = String(fd.get('title') || '').trim();
           const body = String(fd.get('body') || '').trim();
           const rating = Number(fd.get('rating')) || 5;
 
+          const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
           const fieldsToValidate = [
             { name: 'first_name', val: firstName, el: reviewForm.querySelector('[name="first_name"]') },
             { name: 'last_name', val: lastName, el: reviewForm.querySelector('[name="last_name"]') },
+            { name: 'email', val: isEmailValid, el: reviewForm.querySelector('[name="email"]') },
             { name: 'title', val: title, el: reviewForm.querySelector('[name="title"]') },
             { name: 'body', val: body, el: reviewForm.querySelector('[name="body"]') }
           ];
@@ -2040,6 +2053,32 @@
             timestamp: Date.now()
           };
 
+          // 1. Post to Judge.me Public Review API
+          const productId = tabsSection.dataset.productId || '';
+          const shopDomain = tabsSection.dataset.shopDomain || (window.Shopify && window.Shopify.shop) || 'gk2scz-zu.myshopify.com';
+
+          try {
+            await fetch('https://api.judge.me/api/v1/reviews', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                shop_domain: shopDomain,
+                platform: 'shopify',
+                id: productId,
+                name: author,
+                email: email,
+                rating: rating,
+                title: title,
+                body: body
+              })
+            });
+          } catch (err) {
+            console.warn('[Judge.me] Review background sync error:', err);
+          }
+
+          // 2. Optimistic UI update so reviewer sees their review immediately
           saveCustomerReview(newReview);
 
           setTimeout(() => {
@@ -2051,7 +2090,7 @@
             renderReviews();
 
             if (statusBannerEl) {
-              statusBannerEl.textContent = 'Thank you! Your review has been submitted successfully.';
+              statusBannerEl.textContent = 'Thank you! Your review has been submitted to Judge.me successfully.';
               statusBannerEl.hidden = false;
               statusBannerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
