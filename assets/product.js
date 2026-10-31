@@ -2050,26 +2050,27 @@
             timestamp: Date.now()
           };
 
-          // 1. Post to Judge.me Public Review API
+          // 1. Post to Judge.me Public Review API via urlencoded payload (bypasses CORS preflight)
           const productId = tabsSection.dataset.productId || '';
           const shopDomain = tabsSection.dataset.shopDomain || (window.Shopify && window.Shopify.shop) || 'gk2scz-zu.myshopify.com';
 
           try {
+            const jParams = new URLSearchParams();
+            jParams.append('shop_domain', shopDomain);
+            jParams.append('platform', 'shopify');
+            jParams.append('id', String(productId));
+            jParams.append('name', author);
+            jParams.append('email', email);
+            jParams.append('rating', String(rating));
+            jParams.append('title', title);
+            jParams.append('body', body);
+
             await fetch('https://api.judge.me/api/v1/reviews', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded'
               },
-              body: JSON.stringify({
-                shop_domain: shopDomain,
-                platform: 'shopify',
-                id: productId,
-                name: author,
-                email: email,
-                rating: rating,
-                title: title,
-                body: body
-              })
+              body: jParams.toString()
             });
           } catch (err) {
             console.warn('[Judge.me] Review background sync error:', err);
