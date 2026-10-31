@@ -285,7 +285,9 @@
                 "rating": {{ block.settings.rating | default: 5 }},
                 "date": {{ block.settings.date | strip | json }},
                 "title": {{ block.settings.title | strip | json }},
-                "body": {{ block.settings.body | strip | json }}
+                "body": {{ block.settings.body | strip | json }},
+                "reply_content": {{ block.settings.reply | strip | json }},
+                "shop_reply_name": {{ block.settings.reply_name | strip | default: shop.name | json }}
               }
             {%- endfor -%}
           ]
@@ -770,8 +772,7 @@
         {
           "type": "text",
           "id": "pet",
-          "label": "Pet details or buyer badge (optional)",
-          "default": "Verified Buyer"
+          "label": "Pet details (optional)"
         },
         {
           "type": "range",
@@ -796,6 +797,17 @@
           "type": "textarea",
           "id": "body",
           "label": "Review body"
+        },
+        {
+          "type": "textarea",
+          "id": "reply",
+          "label": "Store reply (optional)"
+        },
+        {
+          "type": "text",
+          "id": "reply_name",
+          "label": "Store reply author (optional)",
+          "default": "Wagmart"
         }
       ]
     }

@@ -2760,10 +2760,10 @@
 .wm-review-item__stars {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   color: #000000;
-  font-size: 14px;
-  letter-spacing: 1px;
+  font-size: 18px;
+  letter-spacing: 0.5px;
 }
 
 .wm-review-item__stars .is-empty {
@@ -2812,7 +2812,42 @@
 }
 
 .wm-review-item__stars .wm-reviews__star-symbol {
+  font-size: 18px;
+}
+
+/* Merchant Response / Store Reply */
+.wm-review-item__reply {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background-color: #F8FAFC;
+  border-left: 3px solid #7A46E5;
+  border-radius: 0 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wm-review-item__reply-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.wm-review-item__reply-icon {
+  width: 14px;
+  height: 14px;
+  color: #7A46E5;
+  flex-shrink: 0;
+}
+
+.wm-review-item__reply-text {
   font-size: 14px;
+  line-height: 1.55;
+  color: #4B5563;
+  margin: 0;
 }
 
 /* Load More Reviews Button */

@@ -1376,9 +1376,73 @@
 
       // Single-source-of-truth Reviews Controller (Exact Match to Shopify Reference Screenshots)
       const handle = tabsSection.dataset.productHandle || 'product';
+      const productId = tabsSection.dataset.productId || '';
+      const shopDomain = tabsSection.dataset.shopDomain || (window.Shopify && window.Shopify.shop) || 'gk2scz-zu.myshopify.com';
       const storageKey = `wagmart_verified_reviews_${handle}`;
       const serverCount = parseInt(tabsSection.dataset.serverCount || '0', 10) || 0;
       const serverRating = parseFloat(tabsSection.dataset.serverRating || '0') || 0;
+
+      // Real-time Judge.me Reviews Cache (includes live customer reviews & merchant replies)
+      let judgemeReviews = [];
+
+      const fetchJudgemeReviews = async () => {
+        if (!shopDomain || !productId) return;
+        try {
+          const url = `https://cdn.judge.me/reviews/reviews_for_widget?shop_domain=${encodeURIComponent(shopDomain)}&platform=shopify&product_id=${encodeURIComponent(productId)}&per_page=50`;
+          const res = await fetch(url);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data && Array.isArray(data.reviews)) {
+            judgemeReviews = data.reviews.map((r) => {
+              const cleanBody = (r.body_html || r.body || '')
+                .replace(/<[^>]+>/g, '')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&#039;/g, "'")
+                .trim();
+
+              const cleanReply = r.reply_content
+                ? String(r.reply_content)
+                    .replace(/<[^>]+>/g, '')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#039;/g, "'")
+                    .trim()
+                : null;
+
+              const rDate = r.created_at
+                ? new Date(r.created_at).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })
+                : 'Recent';
+
+              return {
+                id: String(r.uuid || r.id || (r.reviewer_name + '_' + r.title)),
+                author: r.reviewer_name || 'Customer',
+                pet: '',
+                rating: Number(r.rating) || 5,
+                title: r.title || '',
+                body: cleanBody,
+                date: rDate,
+                timestamp: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+                reply_content: cleanReply,
+                shop_reply_name: r.shop_reply_name || 'Wagmart',
+                source: 'judgeme'
+              };
+            });
+
+            renderReviews();
+          }
+        } catch (err) {
+          console.warn('[Judge.me] Error fetching reviews from widget API:', err);
+        }
+      };
 
       // DOM Elements
       const modalEl = tabsSection.querySelector('[data-review-modal]');
@@ -1506,26 +1570,50 @@
         } catch (e) {}
       };
 
-      // 4. Combined real reviews source: Customer Submissions + Shopify Admin Blocks + Metafields
+      // 4. Combined real reviews source: Judge.me Live Reviews (with merchant replies) + Customer Submissions + Shopify Admin Blocks + Metafields
       const getAllReviews = () => {
         const customerList = getCustomerReviews();
         const adminList = getAdminReviews();
         const metaList = getMetafieldReviews();
 
-        const seenIds = new Set();
+        const seenKeys = new Set();
         const merged = [];
 
-        [...customerList, ...adminList, ...metaList].forEach((rev) => {
+        // 1. Live Judge.me reviews (includes merchant replies & verified submissions)
+        judgemeReviews.forEach((rev) => {
           if (!rev || (!rev.author && !rev.title && !rev.body)) return;
-          // Ensure dummy reviews are never included
-          if (String(rev.id || '').startsWith('seed_rev_')) return;
+          const key = (String(rev.author || '').trim() + '|||' + String(rev.title || '').trim() + '|||' + String(rev.rating)).toLowerCase();
+          seenKeys.add(key);
+          seenKeys.add(String(rev.id));
+          merged.push(rev);
+        });
 
-          const uid = String(rev.id || (rev.author + '_' + rev.title + '_' + rev.rating));
-          if (!seenIds.has(uid)) {
-            seenIds.add(uid);
+        // 2. Customer submissions from this browser (instant optimistic updates)
+        customerList.forEach((rev) => {
+          if (!rev || (!rev.author && !rev.title && !rev.body)) return;
+          if (String(rev.id || '').startsWith('seed_rev_')) return;
+          const key = (String(rev.author || '').trim() + '|||' + String(rev.title || '').trim() + '|||' + String(rev.rating)).toLowerCase();
+          if (!seenKeys.has(key) && !seenKeys.has(String(rev.id))) {
+            seenKeys.add(key);
+            seenKeys.add(String(rev.id));
             merged.push({
               ...rev,
-              id: uid,
+              rating: Math.min(5, Math.max(1, Number(rev.rating) || 5)),
+              timestamp: Number(rev.timestamp) || (rev.date ? new Date(rev.date).getTime() : 0) || Date.now()
+            });
+          }
+        });
+
+        // 3. Shopify Admin Blocks & Metafields
+        [...adminList, ...metaList].forEach((rev) => {
+          if (!rev || (!rev.author && !rev.title && !rev.body)) return;
+          if (String(rev.id || '').startsWith('seed_rev_')) return;
+          const key = (String(rev.author || '').trim() + '|||' + String(rev.title || '').trim() + '|||' + String(rev.rating)).toLowerCase();
+          if (!seenKeys.has(key) && !seenKeys.has(String(rev.id))) {
+            seenKeys.add(key);
+            seenKeys.add(String(rev.id));
+            merged.push({
+              ...rev,
               rating: Math.min(5, Math.max(1, Number(rev.rating) || 5)),
               timestamp: Number(rev.timestamp) || (rev.date ? new Date(rev.date).getTime() : 0) || Date.now()
             });
@@ -1843,8 +1931,8 @@
               return `
                 <article class="wm-review-item" data-review-id="${escapeHTML(rev.id)}">
                   <div class="wm-review-item__reviewer-col">
-                    <span class="wm-review-item__name">${escapeHTML(rev.author || 'Verified Customer')}</span>
-                    ${rev.pet ? `<span class="wm-review-item__meta">${escapeHTML(rev.pet)}</span>` : '<span class="wm-review-item__meta">Verified Buyer</span>'}
+                    <span class="wm-review-item__name">${escapeHTML(rev.author || 'Customer')}</span>
+                    ${rev.pet ? `<span class="wm-review-item__meta">${escapeHTML(rev.pet)}</span>` : ''}
                   </div>
                   <div class="wm-review-item__content-col">
                     <div class="wm-review-item__meta-row">
@@ -1860,6 +1948,22 @@
                         ? `<button type="button" class="wm-review-item__show-more" data-show-more-toggle="${escapeHTML(rev.id)}">
                             ${isExpanded ? 'Show less' : 'Show more'}
                           </button>`
+                        : ''
+                    }
+                    ${
+                      rev.reply_content
+                        ? `
+                        <div class="wm-review-item__reply">
+                          <div class="wm-review-item__reply-header">
+                            <svg class="wm-review-item__reply-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <polyline points="9 10 4 15 9 20"></polyline>
+                              <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
+                            </svg>
+                            <span class="wm-review-item__reply-author">Reply from ${escapeHTML(rev.shop_reply_name || 'Wagmart')}</span>
+                          </div>
+                          <p class="wm-review-item__reply-text">${escapeHTML(rev.reply_content)}</p>
+                        </div>
+                        `
                         : ''
                     }
                   </div>
@@ -2091,6 +2195,9 @@
             selectedFilterStars = [];
             refineCheckboxes.forEach((cb) => (cb.checked = false));
             renderReviews();
+            setTimeout(() => {
+              fetchJudgemeReviews();
+            }, 1200);
 
             if (statusBannerEl) {
               if (statusBannerTimeout) {
@@ -2123,6 +2230,7 @@
 
       // Initial Render
       renderReviews();
+      fetchJudgemeReviews();
     });
   }
 
